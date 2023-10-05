@@ -44,6 +44,17 @@ const cncgrblhalpack = [
         path: "src/targets/CNC/grblHAL/translations/en.json",
     },
 ]
+const cncFluidNCpack = [
+    { id: "globals", path: "src/targets/translations/en.json" },
+    {
+        id: "CNC",
+        path: "src/targets/CNC/translations/en.json",
+    },
+    {
+        id: "FluidNC",
+        path: "src/targets/CNC/FluidNC/translations/en.json",
+    },
+]
 const printerpack = [
     { id: "globals", path: "src/targets/translations/en.json" },
 
@@ -83,6 +94,7 @@ const sandtablepack = [
 const processList = [
     { targetPath: "cncgrblpack", files: cncgrblpack },
     { targetPath: "cncgrblhalpack", files: cncgrblhalpack },
+    { targetPath: "cncFluidNCpack", files: cncFluidNCpack},
     { targetPath: "printerpack", files: printerpack },
     { targetPath: "sandtablepack", files: sandtablepack },
 ]
