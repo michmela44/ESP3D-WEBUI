@@ -16,7 +16,7 @@ a.active svg {
 }
 
 .panel .navbar {
-    background-color: #3b6793c2;
+    background-color: #005B96;
     border-bottom:.5px solid #8888;
 }
 
@@ -29,21 +29,7 @@ span.navbar-section{
     color:#f7f8f9!important;
 }
 
-.btn {
-    border: 0.05rem solid #fff8;
-    background: #8884;
-    color: #9aceff;
-}
 
-.btn.btn-link {
-    color: #368ad8;
-}
-
-.btn:focus, .btn:hover {
-    background: #f1f1fc;
-    border-color: #286baa;
-    text-decoration: none;
-}
 
 .form-checkbox input:checked+.form-icon, .form-radio input:checked+.form-icon, .form-switch input:checked+.form-icon {
     background: #1c4870;
@@ -51,7 +37,7 @@ span.navbar-section{
 }
 
 .files-list-footer {
-    color: #c7d8f3;
+    color: #6497B1;
 }
 
 .form-input[readonly] {
@@ -65,11 +51,11 @@ span.navbar-section{
 // }
 
 .text-primary {
-    color: #66a9e7!important;
+    color: #6497B1!important;
 }
 
 .label.label-primary {
-    background: #0d4183;
+    background: #6497B1;
     color: #fff;
     margin: 0.1rem;
 }
@@ -122,9 +108,7 @@ a.active label.hide-low {
     color: #c9e1ff;
 }
 
-button svg {
-    stroke:rgb(134, 183, 255)
-}
+
 
 .terminal .echo {
     color: #348dff;
@@ -143,12 +127,12 @@ button svg {
 }
 
 .file-line:hover {
-    color: #0055d7;
+    color: #005B96;
     background-color: #e8f0ff;
 }
 
 .menu .menu-item>.menu-entry:focus, .menu .menu-item>.menu-entry:hover {
-    color: #0055d7;
+    color: #005B96;
     background: #e8f0ff;
 }
 
@@ -156,8 +140,160 @@ button svg {
     color: #012a4c;
 }
 
+.comment {
+    background: #e8f3f9;
+    color: #005B96;
+    padding-left: 0.5rem;
+}
 
+.field-group {
+    color: #005B96;
+    font-size: 0.8rem;
+}
 
+/* Jog Controls*/
+
+.jog-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+  
+  .jog-positions-ctrls {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+  }
+  
+  .jog-position-ctrl {
+    min-width: 3rem;
+    border: 0.05rem solid #dadee4;
+    border-radius: 5px;
+  }
+  .jog-position-sub-header,
+  .jog-position-header {
+    border-bottom: 0.05rem solid #dadee4;
+    color: #6497B1;
+    background-color: #f1f1fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 70%;
+  }
+  
+  .jog-position-header {
+    border-radius: 5px 5px 0px 0px;
+  }
+  
+  .jog-position-value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #6497B1;
+    font-size: 80%;
+  }
+  
+  .jog-buttons-container-horizontal,
+  .jog-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    border: 0.05rem solid #dadee4;
+    border-radius: 5px;
+  }
+  
+  .jog-buttons-container {
+    flex-direction: column;
+  }
+  
+  .jog-buttons-main-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .jog-distance-selector-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .jog-distance-selector-header {
+    border: 0.05rem solid #6497B1 !important;
+    border-radius: 5px 5px 0px 0px;
+    color: #6497B1;
+    background-color: #f1f1fc;
+  }
+  
+/* Buttons */
+button svg {
+    stroke: #6497B1;
+}
+
+.btn {
+    border: 0.05rem solid #fff8;
+    background: #8884;
+    color: #6497B1;
+}
+
+.btn.btn-link {
+    color: #368ad8;
+}
+
+.btn:focus, .btn:hover {
+    background: #f1f1fc;
+    border-color: #286baa;
+    text-decoration: none;
+}
+
+.buttons-bar-label{
+    font-size: 0.8rem;
+    color: #6497b1;
+  }
+
+.flatbtn {
+    input[type='radio'] {
+        display: none;
+        &:not(:disabled) ~ label {
+            cursor: pointer;
+        }
+        &:disabled ~ label {
+            color: hsla(150, 5%, 75%, 1);
+            border-color: hsla(150, 5%, 75%, 1);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+    }
+    label {
+        font-size: 0.8rem;
+        height: 1.8rem;
+        line-height: 1.8rem;
+        display: block;
+        background: white;
+        border: 0.05rem solid #6497B1;
+        border-top: 0em;
+        text-align: center;
+        color: #6497B1;
+        position: relative;
+        min-width: 2rem;
+    }
+
+    input[type='radio']:active + label {
+        background: blue;
+        color: white;
+    }
+    input[type='radio']:checked + label {
+        background: #6497B1;
+        color: white;
+    }
+    .last-button {
+        border-radius: 0px 0px 5px 5px;
+    }
+}
+
+/* YAML Editor */
 .yaml-editor {
   outline: none;
   height: 400px;
