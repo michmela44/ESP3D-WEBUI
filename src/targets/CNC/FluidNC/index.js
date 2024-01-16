@@ -47,7 +47,7 @@ const fwUrl = [
     'https://github.com/bdring/FluidNC',
 ]
 
-const restartdelay = 30
+const restartdelay = 10
 const variablesList = {
     commands: [...realCommandsTable, ...variablesTable],
     addCommand: (variable) =>

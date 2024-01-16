@@ -25,6 +25,7 @@ import { gcode_parser_modes } from "./gcode_parser_modes"
  */
 let wpos = []
 let mpos = []
+let wcos = ["0", "0", "0"]
 
 ////////////////////////////////////////////////////////
 //
@@ -137,24 +138,31 @@ const getStatus = (str) => {
     if ((result = mpos_pattern.exec(str)) !== null) {
         try {
             const mpos_array = result.groups.mpos.split(",")
+            if ((result = WCO_pattern.exec(str)) !== null) {
+                try {
+                    wcos = result.groups.wco.split(",")
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+
+            
             const precision = mpos_array[0].split(".")[1].length
             mpos = mpos_array.map((e) =>
                 parseFloat(e).toFixed(precision).toString()
             )
 
-            //Work coordinates
-            if ((result = WCO_pattern.exec(str)) !== null) {
-                try {
-                    const wpos_array = result.groups.wco.split(",")
-                    wpos = wpos_array.map((e, index) =>
-                        (parseFloat(mpos[index]) - parseFloat(e))
-                            .toFixed(precision)
-                            .toString()
-                    )
-                } catch (e) {
-                    console.error(e)
-                }
+            //Update Work coordinates
+            try {
+                wpos = wcos.map((e, index) =>
+                    (parseFloat(mpos[index]) - parseFloat(e))
+                        .toFixed(precision)
+                        .toString()
+                )
+            } catch (e) {
+                console.error(e)
             }
+            
         } catch (e) {
             console.error(e)
         }

@@ -61,19 +61,19 @@ const commandsQuery = (req, res, SendWS) => {
         countStatus++
         if (countStatus == 1)
             SendWS(
-                "<Idle|WPos:0.000,0.000,0.000,1.000,1.000|FS:0,0|WCO:0.000,0.000,0.000,1.000,1.000>\n"
+                "<Idle|MPos:0.000,0.000,0.000,1.000,1.000|FS:0,0|WCO:0.000,0.000,0.000,1.000,1.000>\n"
             )
         if (countStatus == 2)
             SendWS(
-                "<Run|WPos:0.000,0.000,0.000,1.000,1.000|SD:0.1,pcb_zebra.gcode||FS:0,0|Ov:100,100,100|Pn:XYZV>\n"
+                "<Run|MPos:0.000,0.000,0.000,1.000,1.000|SD:0.1,pcb_zebra.gcode||FS:0,0|Ov:100,100,100|Pn:XYZV>\n"
             )
         if (countStatus > 2 && countStatus < 8)
             SendWS(
-                "<Run|WPos:0.000,0.000,0.000,1.000,1.000|SD:0.2,pcb_zebra.gcode|FS:0,0|A:S|Pn:P>\n"
+                "<Run|MPos:0.000,0.000,0.000,1.000,1.000|SD:0.2,pcb_zebra.gcode|FS:0,0|A:S|Pn:P>\n"
             )
         if (countStatus >= 8)
             SendWS(
-                "<Run|WPos:0.000,0.000,0.000,1.000,1.000|SD:100.0,pcb_zebra.gcode|FS:0,0|A:S|Pn:P>\n"
+                "<Run|MPos:0.000,0.000,0.000,1.000,1.000|SD:100.0,pcb_zebra.gcode|FS:0,0|A:S|Pn:P>\n"
             )
         if (countStatus == 10) countStatus = 0
 
@@ -105,7 +105,7 @@ const commandsQuery = (req, res, SendWS) => {
                 WebSocketPort: "81",
                 Hostname: "esp3d",
                 WiFiMode: "STA",
-                WebUpdate: "Enabled",
+                wled: "Enabled",
                 FlashFileSystem: "LittleFS",
                 HostPath: "/",
                 Time: "none",

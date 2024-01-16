@@ -1,7 +1,13 @@
 @import "../../style/index";
 
+// FluidNC Colors
+// Dark Blue: 
 
 
+$primary-color: #6497B1 !default;
+$primary-color-dark: darken($primary-color, 3%) !default;
+$primary-color-light: lighten($primary-color, 3%) !default;
+$secondary-color: lighten($primary-color, 37.5%) !default;
 a svg.esp3dlogo{
 color:#20262C!important;
 }
@@ -29,7 +35,14 @@ span.navbar-section{
     color:#f7f8f9!important;
 }
 
+.badge-container{
+    border-color: #6497B1;
+}
 
+
+.bg-primary{
+    border-color: #6497B1;
+}
 
 .form-checkbox input:checked+.form-icon, .form-radio input:checked+.form-icon, .form-switch input:checked+.form-icon {
     background: #1c4870;
@@ -105,10 +118,20 @@ a.active label.hide-low {
 }
 
 .extruder-ctrl-name, .temperature-ctrl-name, .jog-position-value, .extra-control-value, .status-control-value, .temperatures-value {
-    color: #c9e1ff;
+    color: #6497B1;
 }
 
-
+.status-control-header,
+.extra-control-header {
+    border-radius: 5px 5px 0px 0px;
+    border-bottom: 0.05rem solid #dadee4;
+    color: #ffffff;
+    background-color: #6497B1;
+    text-align: center;
+    font-weight: bold;
+    font-size: 70%;
+    width: 100%;
+}
 
 .terminal .echo {
     color: #348dff;
