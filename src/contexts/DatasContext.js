@@ -44,13 +44,13 @@ const DatasContextProvider = ({ children }) => {
     }
 
     const addTerminalContent = (element) => {
-        console.log(element)
-        console.log(
-            'isVerbose',
-            terminalBuffer.current.length,
-            'Quiet',
-            terminalBufferQuiet.current.length
-        )
+        //console.log(element)
+        //console.log(
+        //    'isVerbose',
+        //    terminalBuffer.current.length,
+        //    'Quiet',
+        //    terminalBufferQuiet.current.length
+        //)
         const newData = {}
         newData.verbose = limitArr(
             [...terminalBuffer.current, element],

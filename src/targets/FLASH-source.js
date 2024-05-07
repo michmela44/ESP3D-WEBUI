@@ -100,7 +100,7 @@ const commands = {
             (path == '/' ? '' : '/') +
             filename
         ).replaceAll('//', '/')
-        console.log('Upath:', upath)
+        //console.log('Upath:', upath)
         return {
             type: 'url',
             url: upath,

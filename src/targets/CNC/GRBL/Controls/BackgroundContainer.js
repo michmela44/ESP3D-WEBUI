@@ -27,7 +27,7 @@ const BackgroundContainer = () => {
     const { alarmCode, errorCode, status } = useTargetContext()
     const { toasts } = useUiContext()
     useEffect(() => {
-        console.log(status)
+        //console.log(status)
 
         if (alarmCode != 0 || errorCode != 0) {
             toasts.addToast({

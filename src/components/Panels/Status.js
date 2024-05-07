@@ -31,6 +31,7 @@ const TimeControl = ({ label, time }) => {
     time.hour = time.hour ? time.hour.toString() : '0'
     time.min = time.min ? time.min.toString() : '0'
     time.sec = time.sec ? time.sec.toString() : '0'
+    if (time.day == 'Infinity') return null
     return (
         <div class="extra-control-value flex-row-between">
             <div class="m-1">{T(label)}:</div>
@@ -70,6 +71,10 @@ const TimeControl = ({ label, time }) => {
 const StatusControls = () => {
     const { streamStatus, status } = useTargetContext()
     if (!useUiContextFn.getValue('showstatuspanel')) return null
+    console.log('streamStatus')
+    console.log(streamStatus)
+    console.log('status')
+    console.log(status)
     return (
         <Fragment>
             {streamStatus &&
@@ -135,33 +140,24 @@ const StatusControls = () => {
                                 {status.filename}
                             </div>
                         )}
-                        {status.printState.printing && (
-                            <Fragment>
-                                <div class="extra-control-value">
-                                    {status.printState.progress}%
-                                </div>
+                        {status.printState.printing &&
+                            status.printState.progress !=
+                                'NaN'(
+                                    <Fragment>
+                                        <div class="extra-control-value">
+                                            {status.printState.progress}%
+                                        </div>
 
-                                <TimeControl
-                                    label="P105"
-                                    time={status.printTime}
-                                />
-                                <TimeControl
-                                    label="P112"
-                                    time={status.printLeftTime}
-                                />
-                            </Fragment>
-                        )}
-                    </div>
-                </div>
-            )}
-            {status.state && status.state.length > 0 && (
-                <div class="status-ctrls">
-                    <div
-                        class="status-control mt-1 tooltip tooltip-bottom"
-                        data-tooltip={T('P67')}
-                    >
-                        <div class="status-control-header">{T('P67')}</div>
-                        <div class="status-control-value">{status.state}</div>
+                                        <TimeControl
+                                            label="P105"
+                                            time={status.printTime}
+                                        />
+                                        <TimeControl
+                                            label="P112"
+                                            time={status.printLeftTime}
+                                        />
+                                    </Fragment>
+                                )}
                     </div>
                 </div>
             )}
@@ -172,6 +168,7 @@ const StatusControls = () => {
 const StatusPanel = () => {
     const { toasts, panels } = useUiContext()
     const { status, streamStatus } = useTargetContext()
+    console.log(status, streamStatus);
     const { createNewRequest } = useHttpFn
     const id = 'statusPanel'
     const hidePanel = () => {
@@ -323,7 +320,7 @@ const StatusPanel = () => {
                 {((status.printState && status.printState.printing) ||
                     (streamStatus &&
                         streamStatus.status &&
-                        streamStatus.status != 'no stream')) &&
+                        streamStatus.status != 'no stream') && streamStatus.name !="") &&
                     deviceList.map((device) => {
                         if (
                             !device.depend.every((d) =>

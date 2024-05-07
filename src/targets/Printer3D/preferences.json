@@ -143,7 +143,7 @@
                 "value": true
             },
             {
-                "id": "showredondantctrls",
+                "id": "showredundantctrls",
                 "type": "boolean",
                 "label": "P86",
                 "value": true
@@ -175,7 +175,7 @@
                 "value": true
             },
             {
-                "id": "showredondantchart",
+                "id": "showredundantchart",
                 "type": "boolean",
                 "label": "P86",
                 "value": true
@@ -244,33 +244,270 @@
         ],
 
         "files": [
+
             {
                 "id": "filesfilter",
                 "type": "text",
                 "label": "S96",
                 "value": "g;G;gco;GCO;gcode;GCODE",
-                "help": "S97"
+                "help": "S97",
+                "depend":[{"id":"showfilespanel", "value":true}]
             },
             {
                 "id": "flashfs",
                 "type": "boolean",
                 "depend": [
-                    { "connection_id": "FlashFileSystem", "value": "!='none'" }
+                    { "connection_id": "FlashFileSystem", "value": "!='none'" },
+                    {"id":"showfilespanel", "value":true}
                 ],
                 "label": "S137",
                 "value": true
+            },
+           
+            {
+                "id": "tftfs",
+                "type": "select",
+                "label": "S219",
+                "value": "none",
+                "options": [
+                    { "value": "none", "label": "none" },
+                    { "value": "btt", "label": "S221" },
+                    { "value": "mks", "label": "S220" }
+                ],
+                "depend": [
+                    { "connection_id": "Screen", "value": "=='none'" },
+                    { "connection_id": "FWTargetID", "value": "!='30'" },
+                    { "id":"showfilespanel", "value":true}
+                ]
             },
             {
                 "id": "tftsd",
                 "type": "boolean",
                 "label": "S188",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "tftfs", "notvalue": "none"},  {
+                    "id": "showfilespanel",
+                    "value": true
+                }]
+            },
+            {
+                "id": "tftbttsdlistcmd",
+                "type": "text",
+                "label": "P117",
+                "value": "M21;M20 SD:#",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftsd",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "btt"
+                    }, {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftbttsdplaycmd",
+                "type": "text",
+                "label": "P120",
+                "value": "M21;M23 SD:#;M24",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftsd",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "btt"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftbttsddeletecmd",
+                "type": "text",
+                "label": "P123",
+                "value": "M21;M30 SD:#",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftsd",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "btt"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftmkssdlistcmd",
+                "type": "text",
+                "label": "P117",
+                "value": "M998 1;M20 1:#",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftsd",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "mks"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftmkssdplaycmd",
+                "type": "text",
+                "label": "P120",
+                "value": "M998 1;M23 1:#;M24",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftsd",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "mks"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
             },
             {
                 "id": "tftusb",
                 "type": "boolean",
                 "label": "S189",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "tftfs", "notvalue": "none"},  {
+                    "id": "showfilespanel",
+                    "value": true
+                }]
+            },
+            {
+                "id": "tftbttusblistcmd",
+                "type": "text",
+                "label": "P118",
+                "value": "M21;M20 U:#",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftusb",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "btt"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftmksusblistcmd",
+                "type": "text",
+                "label": "P117",
+                "value": "M998 0;M23 0:#;M24",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftusb",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "mks"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftbttusbplaycmd",
+                "type": "text",
+                "label": "P121",
+                "value": "M21;M23 U:#;M24",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftusb",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "btt"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftbttusbdeletecmd",
+                "type": "text",
+                "label": "P124",
+                "value": "M21;M30 U:#",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftusb",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "btt"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "id": "tftmskusbplaycmd",
+                "type": "text",
+                "label": "P121",
+                "value": "M998 0;M23 0:#;M24",
+                "help": "S97",
+                "depend": [
+                    {
+                        "id": "tftusb",
+                        "value": true
+                    },
+                    {
+                        "id": "tftfs",
+                        "value": "mks"
+                    },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
             }
         ],
         "jog": [

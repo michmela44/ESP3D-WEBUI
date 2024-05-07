@@ -100,7 +100,7 @@ const TargetContextProvider = ({ children }) => {
     //Cooler: [], //0->1 is only for laser so out of scope
     const [temperatures, setTemperatures] = useState({
         T: [], //0->8 T0->T8 Extruders
-        R: [], //0->1 R Redondant
+        R: [], //0->1 R Redundant
         B: [], //0->1 B Bed
         C: [], //0->1  Chamber
         P: [], //0->1 Probe
@@ -251,8 +251,9 @@ const TargetContextProvider = ({ children }) => {
         if (type === 'response') {
             //check if the response is a command answer
             if (data[0] === '{') {
+                console.log('response', data)
                 if (isStreamingStatus(data)) {
-                    setStatus({ printState: null })
+                    
                     const preStatus = getStreamingStatus(data)
                     const name = preStatus.name
                     const status = preStatus.status
@@ -293,6 +294,10 @@ const TargetContextProvider = ({ children }) => {
                         printLeftTime,
                     }
                     setStreamStatus(fullstatus)
+                    if (status!="no stream"){ 
+                        setStatus({ printState: null })
+                        
+                    }    
                 }
             }
         }
@@ -415,7 +420,7 @@ const TargetContextProvider = ({ children }) => {
         fanSpeed: {
             current: fanSpeed,
             set: (index, value) => {
-                console.log('set fan speed', index, '=', value)
+                //console.log('set fan speed', index, '=', value)
                 fansSpeed[index] = value
                 setFanSpeed(fanSpeed)
             },

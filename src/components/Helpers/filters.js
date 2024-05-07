@@ -22,13 +22,13 @@ import { compareStrings } from './strings'
 
 //sort files alphabeticaly then folders alphabeticaly
 const sortedFilesList = (filesList, alphabeticaly) => {
-    console.log('Sorting files list', alphabeticaly)
+    //console.log('Sorting files list', alphabeticaly)
     if (typeof filesList == 'undefined') return []
     if (typeof alphabeticaly == 'undefined') {
         alphabeticaly = true
     }
     if (alphabeticaly) {
-        console.log('Sorting alphabetically')
+        //console.log('Sorting alphabetically')
         filesList.sort(function (a, b) {
             return compareStrings(a.name, b.name)
         })

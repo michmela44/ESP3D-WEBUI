@@ -18,8 +18,23 @@
 */
 
 import { h } from "preact"
+import {
+    useUiContext,
+    useUiContextFn,
+    useSettingsContext,
+} from "../../contexts"
+import {
+    generateDependIds,
+    connectionDepend,
+    settingsDepend,
+} from "../Helpers"
 
-const FieldGroup = ({ className, children, label, id }) => {
+const FieldGroup = ({ className, children, label, id, depend }) => {
+    const { connectionSettings } = useSettingsContext()
+    const canshow = connectionDepend(depend, connectionSettings.current)
+    if (!canshow) {
+        return null
+    }
     return (
         <fieldset
             class={

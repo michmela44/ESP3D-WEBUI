@@ -119,23 +119,26 @@ const commands = {
         }
     },
     filterResult: (data, path) => {
-        console.log(data)
+        //console.log(data)
         const res = {}
         res.files = sortedFilesList(filterResultFiles(data.files, path), false)
         res.status = formatStatus(data.status)
         return res
     },
     play: (path, filename) => {
-        let cmdstr = 'M23 ' + path + (path == '/' ? '' : '/') + filename + '\nM24'
+        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
+        const cmd  = useUiContextFn.getValue('sdplaycmd').replace('#', spath)
         return {
             type: 'cmd',
-            cmd: cmdstr.replace("//", "/"),
+            cmd,
         }
     },
     delete: (path, filename) => {
+        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
+        const cmd =  useUiContextFn.getValue('sddeletecmd').replace("#",spath)
         return {
             type: 'cmd',
-            cmd: 'M30 ' + path + (path == '/' ? '' : '/') + filename,
+            cmd,
         }
     },
 }

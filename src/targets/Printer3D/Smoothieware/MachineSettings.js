@@ -83,7 +83,7 @@ const MachineSettings = () => {
             configSelected ? "configset" : "overrideset",
             entry
         )
-        console.log(cmd)
+        //console.log(cmd)
         createNewRequest(
             espHttpURL("command", { cmd }),
             { method: "GET", id: "saveMachineSetting" },
@@ -162,7 +162,7 @@ const MachineSettings = () => {
     }
 
     const saveSettings = () => {
-        console.log("Save settings")
+        //console.log("Save settings")
         machineSettings.totalToSave = 0
         machineSettings.toSave = []
         const settings = configSelected

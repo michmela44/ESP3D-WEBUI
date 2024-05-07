@@ -1,5 +1,5 @@
 /*
-EmergencyButton.js - ESP3D WebUI component file
+QuickStopButton.js - ESP3D WebUI component file
 
  Copyright (c) 2021 Luc LEBOSSE. All rights reserved.
 
@@ -25,7 +25,7 @@ import { T } from "../../../components/Translations"
 import { ButtonImg } from "../../../components/Controls"
 import { variablesList } from "../../../targets"
 
-const EmergencyButton = () => {
+const QuickStopButton = () => {
     const { toasts } = useUiContext()
 
     const { createNewRequest } = useHttpFn
@@ -52,10 +52,10 @@ const EmergencyButton = () => {
         <ButtonImg
             m1
             rtooltip
-            label={T("HP16")}
+            label={T("P15")}
             className="emergency-btn"
             icon={<AlertCircle />}
-            data-tooltip={T("HP16")}
+            data-tooltip={T("P15")}
             id="btnEStop"
             onclick={(e) => {
                 useUiContextFn.haptic()
@@ -63,10 +63,11 @@ const EmergencyButton = () => {
                 const cmds = useUiContextFn.getValue("emergencystop").split(";")
                 cmds.forEach((cmd) => {
                     SendCommand(cmd)
+                   // console.log(cmd)
                 })
             }}
         />
     )
 }
 
-export { EmergencyButton }
+export { QuickStopButton }
