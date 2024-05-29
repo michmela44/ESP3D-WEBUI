@@ -23,11 +23,7 @@ import {
     useUiContextFn,
     useSettingsContext,
 } from "../../contexts"
-import {
-    generateDependIds,
-    connectionDepend,
-    settingsDepend,
-} from "../Helpers"
+import { generateDependIds, connectionDepend, settingsDepend } from "../Helpers"
 
 const FieldGroup = ({ className, children, label, id, depend }) => {
     const { connectionSettings } = useSettingsContext()

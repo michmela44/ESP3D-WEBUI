@@ -63,8 +63,8 @@ const preheatList = (tool) => {
             tool == "T"
                 ? "extruderpreheat"
                 : tool == "B"
-                ? "bedpreheat"
-                : "chamberpreheat"
+                  ? "bedpreheat"
+                  : "chamberpreheat"
         )
         if (list)
             return list.split(";").map((item) => {
@@ -80,8 +80,8 @@ const heaterCommand = (tool, index, value) => {
             tool == "T"
                 ? "heatextruder"
                 : tool == "B"
-                ? "heatbed"
-                : "heatchamber"
+                  ? "heatbed"
+                  : "heatchamber"
         )
         if (cmd) return cmd.replace("#", index).replace("$", value)
     }

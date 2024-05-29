@@ -72,9 +72,7 @@
                 "type": "boolean",
                 "label": "S190",
                 "value": false,
-                "depend": [
-                    { "connection_id": "SDConnection", "value": "=='shared'" }
-                ]
+                "depend": [{ "connection_id": "SDConnection", "value": "=='shared'" }]
             },
             {
                 "id": "sdplaycmd",

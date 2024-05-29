@@ -45,7 +45,8 @@ const keyboardEventHandlerDown = (e) => {
     if (
         document.activeElement &&
         document.activeElement.tagName == "INPUT" &&
-        (document.activeElement.type == "text" || document.activeElement.type == "number")
+        (document.activeElement.type == "text" ||
+            document.activeElement.type == "number")
     ) {
         return
     }
@@ -183,7 +184,6 @@ const Dashboard = () => {
         }
     }
 
-    
     useEffect(() => {
         if (!intialisationDone) {
             console.log("Init")
@@ -194,8 +194,8 @@ const Dashboard = () => {
         } else {
             console.log("Init Done")
         }
-        }, [])
-   
+    }, [])
+
     useEffect(() => {
         if (shortcuts.enabled) {
             AddKeyboardListener()

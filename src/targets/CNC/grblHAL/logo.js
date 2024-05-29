@@ -18,17 +18,17 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h } from 'preact'
-import { useSettingsContext } from '../../../contexts/SettingsContext'
+import { h } from "preact"
+import { useSettingsContext } from "../../../contexts/SettingsContext"
 
 /*
  *ESP3D Logo
  * default height is 50px
  */
 const AppLogo = ({
-    height = '50px',
-    color = 'currentColor',
-    bgcolor = 'white',
+    height = "50px",
+    color = "currentColor",
+    bgcolor = "white",
 }) => {
     const { interfaceSettings } = useSettingsContext()
     if (
@@ -40,9 +40,9 @@ const AppLogo = ({
             <span
                 dangerouslySetInnerHTML={{
                     __html: interfaceSettings.custom.logo
-                        .replace('{height}', height)
-                        .replaceAll('{color}', color)
-                        .replaceAll('{bgcolor}', bgcolor),
+                        .replace("{height}", height)
+                        .replaceAll("{color}", color)
+                        .replaceAll("{bgcolor}", bgcolor),
                 }}
             ></span>
         )

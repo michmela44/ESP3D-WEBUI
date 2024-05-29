@@ -26,7 +26,7 @@ import {
     formatStatus,
     filterResultFiles,
 } from "../../../components/Helpers"
-import { useUiContextFn, useSettingsContextFn } from '../../../contexts'
+import { useUiContextFn, useSettingsContextFn } from "../../../contexts"
 
 //Extract information from string - specific to FW / source
 const formatFileSerialLine = (acc, line) => {
@@ -84,8 +84,14 @@ const capabilities = {
 const commands = {
     list: (path, filename) => {
         //console.log("path: ", path)
-        const spath = (path + (path == '/' ? '' : '/')).replaceAll('//', '/')
-        const cmd =   "echo BeginFiles;"+useUiContextFn.getValue('sdextlistcmd').replace("#",spath).replaceAll('//', '/')+";echo EndFiles"
+        const spath = (path + (path == "/" ? "" : "/")).replaceAll("//", "/")
+        const cmd =
+            "echo BeginFiles;" +
+            useUiContextFn
+                .getValue("sdextlistcmd")
+                .replace("#", spath)
+                .replaceAll("//", "/") +
+            ";echo EndFiles"
         return {
             type: "cmd",
             cmd,
@@ -108,8 +114,14 @@ const commands = {
         return res
     },
     play: (path, filename) => {
-        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-        const cmd =  useUiContextFn.getValue('sdextplaycmd').replace("#",spath).replaceAll('//', '/')
+        const spath = (path + (path == "/" ? "" : "/") + filename).replaceAll(
+            "//",
+            "/"
+        )
+        const cmd = useUiContextFn
+            .getValue("sdextplaycmd")
+            .replace("#", spath)
+            .replaceAll("//", "/")
         return {
             type: "cmd",
             cmd,

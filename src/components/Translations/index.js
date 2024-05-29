@@ -41,8 +41,8 @@ function T(id, base = false, ressourcelanguage = null) {
     let translatedText = base
         ? baseLangRessource[id]
         : ressourcelanguage
-        ? ressourcelanguage[id]
-        : currentLanguage[id]
+          ? ressourcelanguage[id]
+          : currentLanguage[id]
     if (!id || typeof id == "object" || !isNaN(id) || !isNaN(id.charAt(0)))
         return id
     if (typeof translatedText === "undefined") {

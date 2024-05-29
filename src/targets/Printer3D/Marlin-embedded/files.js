@@ -54,7 +54,7 @@ const supportedFileSystems = [
                 useSettingsContextFn.getValue("SDConnection") != "none"
             )
         },
-    }
+    },
 ]
 
 const capabilities = {

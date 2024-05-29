@@ -3,11 +3,10 @@
   "tabWidth": 4,
   "useTabs": false,
   "semi": false,
-  "singleQuote": true,
-  "jsxSingleQuote": false,
+  "singleQuote": false,
   "trailingComma": "es5",
   "bracketSpacing": true,
-  "jsxBracketSameLine": false,
+  "bracketSameLine": false,
   "arrowParens": "always",
   "requirePragma": false,
   "insertPragma": false,
@@ -19,10 +18,20 @@
         "parser": "babel"
       }
     },
-    {"files": "*.scss",
+    {"files": "*.css",
       "options": {
         "parser": "css"
       }
+    },
+    {"files": "*.scss",
+      "options": {
+        "parser": "scss"
+      }
+    },
+    {"files": "*.json",
+    "options": {
+      "printWidth": 120,
+    }
     }
   ]
 }

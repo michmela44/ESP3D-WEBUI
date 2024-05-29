@@ -113,10 +113,10 @@ const WsContextProvider = ({ children }) => {
                             type: eventLine[1].startsWith("Error")
                                 ? "error"
                                 : eventLine[1].startsWith("Success")
-                                ? "success"
-                                : eventLine[1].startsWith("Warning")
-                                ? "warning"
-                                : "notification",
+                                  ? "success"
+                                  : eventLine[1].startsWith("Warning")
+                                    ? "warning"
+                                    : "notification",
                         })
                         break
                     case "ERROR":

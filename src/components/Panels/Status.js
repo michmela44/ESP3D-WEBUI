@@ -16,47 +16,47 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h } from 'preact'
-import { T } from '../Translations'
-import { Layers, PlayCircle, PauseCircle, StopCircle } from 'preact-feather'
-import { useUiContext, useUiContextFn } from '../../contexts'
-import { useTargetContext } from '../../targets'
-import { ButtonImg } from '../Controls'
-import { useHttpFn } from '../../hooks'
-import { espHttpURL } from '../Helpers'
+import { Fragment, h } from "preact"
+import { T } from "../Translations"
+import { Layers, PlayCircle, PauseCircle, StopCircle } from "preact-feather"
+import { useUiContext, useUiContextFn } from "../../contexts"
+import { useTargetContext } from "../../targets"
+import { ButtonImg } from "../Controls"
+import { useHttpFn } from "../../hooks"
+import { espHttpURL } from "../Helpers"
 
 const TimeControl = ({ label, time }) => {
     if (!time) return null
-    time.day = time.day ? time.day.toString() : '0'
-    time.hour = time.hour ? time.hour.toString() : '0'
-    time.min = time.min ? time.min.toString() : '0'
-    time.sec = time.sec ? time.sec.toString() : '0'
-    if (time.day == 'Infinity') return null
+    time.day = time.day ? time.day.toString() : "0"
+    time.hour = time.hour ? time.hour.toString() : "0"
+    time.min = time.min ? time.min.toString() : "0"
+    time.sec = time.sec ? time.sec.toString() : "0"
+    if (time.day == "Infinity") return null
     return (
         <div class="extra-control-value flex-row-between">
             <div class="m-1">{T(label)}:</div>
-            {time.day != '0' && (
+            {time.day != "0" && (
                 <div class="m-1">
                     {time.day}
-                    {T('P108')}
+                    {T("P108")}
                 </div>
             )}
-            {(time.day != '0' || time.hour != '0') && (
+            {(time.day != "0" || time.hour != "0") && (
                 <div class="m-1">
                     {time.hour}
-                    {T('P109')}
+                    {T("P109")}
                 </div>
             )}
-            {(time.day != '0' || time.hour != '0' || time.min != '0') && (
+            {(time.day != "0" || time.hour != "0" || time.min != "0") && (
                 <div class="m-1">
                     {time.min}
-                    {T('P110')}
+                    {T("P110")}
                 </div>
             )}
             {time.sec && (
                 <div class="m-1">
                     {time.sec}
-                    {T('P111')}
+                    {T("P111")}
                 </div>
             )}
         </div>
@@ -70,20 +70,20 @@ const TimeControl = ({ label, time }) => {
 
 const StatusControls = () => {
     const { streamStatus, status } = useTargetContext()
-    if (!useUiContextFn.getValue('showstatuspanel')) return null
-    console.log('streamStatus')
+    if (!useUiContextFn.getValue("showstatuspanel")) return null
+    console.log("streamStatus")
     console.log(streamStatus)
-    console.log('status')
+    console.log("status")
     console.log(status)
     return (
         <Fragment>
             {streamStatus &&
                 streamStatus.status &&
-                streamStatus.status != 'no stream' && (
+                streamStatus.status != "no stream" && (
                     <div class="status-ctrls">
                         <div
                             class="extra-control mt-1 tooltip tooltip-bottom"
-                            data-tooltip={T('P97')}
+                            data-tooltip={T("P97")}
                         >
                             <div class="extra-control-header">
                                 {T(streamStatus.status)}
@@ -96,7 +96,7 @@ const StatusControls = () => {
                                 )}
                             {streamStatus &&
                                 streamStatus.status &&
-                                streamStatus.status != 'no stream' && (
+                                streamStatus.status != "no stream" && (
                                     <Fragment>
                                         <div class="extra-control-value">
                                             {streamStatus.progress}%
@@ -119,18 +119,18 @@ const StatusControls = () => {
                 <div class="status-ctrls">
                     <div
                         class="status-control mt-1 tooltip tooltip-bottom"
-                        data-tooltip={T('P67')}
+                        data-tooltip={T("P67")}
                     >
-                        <div class="status-control-header">{T('P67')}</div>
+                        <div class="status-control-header">{T("P67")}</div>
                         <div class="status-control-value">{status.state}</div>
                     </div>
                 </div>
             )}
-            {status.printState && status.printState.status != 'Unknown' && (
+            {status.printState && status.printState.status != "Unknown" && (
                 <div class="status-ctrls">
                     <div
                         class="extra-control mt-1 tooltip tooltip-bottom"
-                        data-tooltip={T('P97')}
+                        data-tooltip={T("P97")}
                     >
                         <div class="extra-control-header">
                             {status.printState.status}
@@ -142,7 +142,7 @@ const StatusControls = () => {
                         )}
                         {status.printState.printing &&
                             status.printState.progress !=
-                                'NaN'(
+                                "NaN"(
                                     <Fragment>
                                         <div class="extra-control-value">
                                             {status.printState.progress}%
@@ -168,117 +168,117 @@ const StatusControls = () => {
 const StatusPanel = () => {
     const { toasts, panels } = useUiContext()
     const { status, streamStatus } = useTargetContext()
-    console.log(status, streamStatus);
+    console.log(status, streamStatus)
     const { createNewRequest } = useHttpFn
-    const id = 'statusPanel'
+    const id = "statusPanel"
     const hidePanel = () => {
         useUiContextFn.haptic()
         panels.hide(id)
     }
     const deviceList = [
         {
-            name: 'S190',
-            depend: ['sd'],
+            name: "S190",
+            depend: ["sd"],
             buttons: [
                 {
                     cmd: () => {
                         if (status.printState && status.printState.printing) {
-                            return 'sdresumecmd'
+                            return "sdresumecmd"
                         }
-                        return '[ESP701]RESUME'
+                        return "[ESP701]RESUME"
                     },
-                    depend: { streamStatus: ['pause'], status: [] },
+                    depend: { streamStatus: ["pause"], status: [] },
                     icon: <PlayCircle />,
-                    desc: T('P99'),
+                    desc: T("P99"),
                 },
                 {
                     cmd: () => {
                         if (status.printState && status.printState.printing) {
-                            return 'sdpausecmd'
+                            return "sdpausecmd"
                         }
-                        return '[ESP701]PAUSE'
+                        return "[ESP701]PAUSE"
                     },
-                    depend: { streamStatus: ['processing'], status: [] },
+                    depend: { streamStatus: ["processing"], status: [] },
                     icon: <PauseCircle />,
-                    desc: T('P98'),
+                    desc: T("P98"),
                 },
                 {
                     cmd: () => {
                         if (status.printState && status.printState.printing) {
-                            return 'sdstopcmd'
+                            return "sdstopcmd"
                         }
-                        return '[ESP701]ABORT'
+                        return "[ESP701]ABORT"
                     },
                     icon: <StopCircle />,
-                    desc: T('P100'),
+                    desc: T("P100"),
                 },
             ],
         },
         {
-            name: 'S188',
-            depend: ['tftsd'],
+            name: "S188",
+            depend: ["tftsd"],
             buttons: [
                 {
                     cmd: () => {
-                        return 'tftsdresumecmd'
+                        return "tftsdresumecmd"
                     },
                     icon: <PlayCircle />,
-                    desc: T('P99'),
+                    desc: T("P99"),
                 },
                 {
                     cmd: () => {
-                        'tftsdpausecmd'
+                        "tftsdpausecmd"
                     },
                     icon: <PauseCircle />,
-                    desc: T('P98'),
+                    desc: T("P98"),
                 },
                 {
                     cmd: () => {
-                        'tftsdstopcmd'
+                        "tftsdstopcmd"
                     },
                     icon: <StopCircle />,
-                    desc: T('P100'),
+                    desc: T("P100"),
                 },
             ],
         },
         {
-            name: 'S189',
-            depend: ['tftusb'],
+            name: "S189",
+            depend: ["tftusb"],
             buttons: [
                 {
                     cmd: () => {
-                        'tftusbresumecmd'
+                        "tftusbresumecmd"
                     },
                     icon: <PlayCircle />,
-                    desc: T('P99'),
+                    desc: T("P99"),
                 },
                 {
                     cmd: () => {
-                        'tftusbpausecmd'
+                        "tftusbpausecmd"
                     },
                     icon: <PauseCircle />,
-                    desc: T('P98'),
+                    desc: T("P98"),
                 },
                 {
                     cmd: () => {
-                        'tftusbstopcmd'
+                        "tftusbstopcmd"
                     },
                     icon: <StopCircle />,
-                    desc: T('P100'),
+                    desc: T("P100"),
                 },
             ],
         },
     ]
 
-    console.log('Status panel')
+    console.log("Status panel")
     const sendCommand = (command) => {
         createNewRequest(
-            espHttpURL('command', { cmd: command }),
-            { method: 'GET', echo: command },
+            espHttpURL("command", { cmd: command }),
+            { method: "GET", echo: command },
             {
                 onSuccess: (result) => {},
                 onFail: (error) => {
-                    toasts.addToast({ content: error, type: 'error' })
+                    toasts.addToast({ content: error, type: "error" })
                     console.log(error)
                 },
             }
@@ -303,7 +303,7 @@ const StatusPanel = () => {
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Layers />
-                    <strong class="text-ellipsis">{T('P97')}</strong>
+                    <strong class="text-ellipsis">{T("P97")}</strong>
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
@@ -320,7 +320,8 @@ const StatusPanel = () => {
                 {((status.printState && status.printState.printing) ||
                     (streamStatus &&
                         streamStatus.status &&
-                        streamStatus.status != 'no stream') && streamStatus.name !="") &&
+                        streamStatus.status != "no stream" &&
+                        streamStatus.name != "")) &&
                     deviceList.map((device) => {
                         if (
                             !device.depend.every((d) =>
@@ -359,7 +360,7 @@ const StatusPanel = () => {
                                                                   )
                                                                 : button.cmd()
                                                         const cmds =
-                                                            cmd.split('\n')
+                                                            cmd.split("\n")
                                                         cmds.forEach((cmd) => {
                                                             sendCommand(cmd)
                                                         })
@@ -378,13 +379,13 @@ const StatusPanel = () => {
 }
 
 const StatusPanelElement = {
-    id: 'statusPanel',
+    id: "statusPanel",
     content: <StatusPanel />,
-    name: 'P97',
-    icon: 'Layers',
-    show: 'showstatuspanel',
-    onstart: 'openstatusonstart',
-    settingid: 'status',
+    name: "P97",
+    icon: "Layers",
+    show: "showstatuspanel",
+    onstart: "openstatusonstart",
+    settingid: "status",
 }
 
 export { StatusPanel, StatusPanelElement, StatusControls }

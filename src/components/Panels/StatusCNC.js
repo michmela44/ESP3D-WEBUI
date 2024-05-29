@@ -59,11 +59,11 @@ const StatusControls = () => {
                                 status.state == "Error"
                                     ? "text-light bg-error"
                                     : (status.state == "Door") |
-                                      (status.state == "Hold")
-                                    ? "text-light bg-warning"
-                                    : status.state == "Sleep"
-                                    ? "text-light bg-dark"
-                                    : ""
+                                        (status.state == "Hold")
+                                      ? "text-light bg-warning"
+                                      : status.state == "Sleep"
+                                        ? "text-light bg-dark"
+                                        : ""
                             }`}
                         >
                             {T(status.state)}

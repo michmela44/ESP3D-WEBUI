@@ -15,26 +15,26 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from 'preact'
+import { h } from "preact"
 
 function getBrowserTimeZone() {
     const d = new Date()
     const offset = d.getTimezoneOffset()
-    const sign = offset < 0 ? '+' : '-'
+    const sign = offset < 0 ? "+" : "-"
     const hours = Math.floor(Math.abs(offset) / 60)
     const minutes = Math.abs(offset) % 60
-    return `${sign}${hours.toString().padStart(2, '0')}:${minutes
+    return `${sign}${hours.toString().padStart(2, "0")}:${minutes
         .toString()
-        .padStart(2, '0')}`
+        .padStart(2, "0")}`
 }
 
 function getBrowserTime(time) {
     //ISO 8601 format string
     function padNumber(num, size) {
-        const s = num.toString().padStart(size, '0')
+        const s = num.toString().padStart(size, "0")
         return s
     }
-    const d = typeof time != 'undefined' ? new Date(time) : new Date()
+    const d = typeof time != "undefined" ? new Date(time) : new Date()
     return `${d.getFullYear()}-${padNumber(d.getMonth() + 1, 2)}-${padNumber(
         d.getDate(),
         2

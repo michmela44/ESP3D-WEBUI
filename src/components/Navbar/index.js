@@ -186,10 +186,10 @@ const Navbar = () => {
                                         href == "/about"
                                             ? "navbar-brand logo no-box "
                                             : connectionSettings.current
-                                                  .FWTarget == 0 &&
-                                              href == "/dashboard"
-                                            ? "d-none"
-                                            : "btn btn-link no-box feather-icon-container"
+                                                    .FWTarget == 0 &&
+                                                href == "/dashboard"
+                                              ? "d-none"
+                                              : "btn btn-link no-box feather-icon-container"
                                     }
                                     activeClassName="active"
                                     href={href}

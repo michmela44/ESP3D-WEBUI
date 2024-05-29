@@ -5,21 +5,21 @@
     display: flex;
 }
 
-input[type='range'] {
+input[type="range"] {
     pointer-events: none;
     cursor: pointer;
 }
-input[type='range']::-webkit-slider-thumb {
+input[type="range"]::-webkit-slider-thumb {
     /*Webkit Browsers like Chrome and Safari*/
     pointer-events: auto;
     cursor: pointer;
 }
-input[type='range']::-moz-range-thumb {
+input[type="range"]::-moz-range-thumb {
     /*Firefox*/
     pointer-events: auto;
     cursor: pointer;
 }
-input[type='range']::-ms-thumb {
+input[type="range"]::-ms-thumb {
     /*Internet Explorer*/
     pointer-events: auto;
     cursor: pointer;
@@ -129,7 +129,11 @@ input[type='range']::-ms-thumb {
         linear-gradient(0deg, blue 50%, transparent 50%),
         linear-gradient(0deg, blue 50%, transparent 50%);
     background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-    background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
+    background-size:
+        15px 4px,
+        15px 4px,
+        4px 15px,
+        4px 15px;
     animation: border-dance 4s infinite linear;
     overflow: hidden !important;
 }
@@ -229,10 +233,18 @@ span.input-group-addon {
 
 @keyframes border-dance {
     0% {
-        background-position: 0 0, 100% 100%, 0 100%, 100% 0;
+        background-position:
+            0 0,
+            100% 100%,
+            0 100%,
+            100% 0;
     }
     100% {
-        background-position: 100% 0, 0 100%, 0 0, 100% 100%;
+        background-position:
+            100% 0,
+            0 100%,
+            0 0,
+            100% 100%;
     }
 }
 
@@ -488,7 +500,7 @@ a label {
 }
 
 .flatbtn {
-    input[type='radio'] {
+    input[type="radio"] {
         display: none;
         &:not(:disabled) ~ label {
             cursor: pointer;
@@ -514,11 +526,11 @@ a label {
         min-width: 2rem;
     }
 
-    input[type='radio']:active + label {
+    input[type="radio"]:active + label {
         background: blue;
         color: white;
     }
-    input[type='radio']:checked + label {
+    input[type="radio"]:checked + label {
         background: #5755d9;
         color: white;
     }

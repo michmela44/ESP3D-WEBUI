@@ -189,8 +189,8 @@ const JogPanel = () => {
             axis.startsWith("X") || axis.startsWith("Y")
                 ? currentFeedRate["XY"]
                 : axis.startsWith("Z")
-                ? currentFeedRate["Z"]
-                : currentFeedRate[currentAxis]
+                  ? currentFeedRate["Z"]
+                  : currentFeedRate[currentAxis]
         if (axis.startsWith("Axis"))
             selected_axis = axis.replace("Axis", currentAxis)
         else selected_axis = axis

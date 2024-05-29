@@ -45,17 +45,17 @@ $link-color-light: lighten($link-color, 10%) !default;
 // Fonts
 // Credit: https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/
 $base-font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
-  Roboto !default;
+    Roboto !default;
 $mono-font-family: "SF Mono", "Segoe UI Mono", "Roboto Mono", Menlo, Courier,
-  monospace !default;
+    monospace !default;
 $fallback-font-family: "Helvetica Neue", sans-serif !default;
 $cjk-zh-hans-font-family: $base-font-family, "PingFang SC", "Hiragino Sans GB",
-  "Microsoft YaHei", $fallback-font-family !default;
+    "Microsoft YaHei", $fallback-font-family !default;
 $cjk-zh-hant-font-family: $base-font-family, "PingFang TC", "Hiragino Sans CNS",
-  "Microsoft JhengHei", $fallback-font-family !default;
+    "Microsoft JhengHei", $fallback-font-family !default;
 $cjk-jp-font-family: $base-font-family, "Hiragino Sans",
-  "Hiragino Kaku Gothic Pro", "Yu Gothic", YuGothic, Meiryo,
-  $fallback-font-family !default;
+    "Hiragino Kaku Gothic Pro", "Yu Gothic", YuGothic, Meiryo,
+    $fallback-font-family !default;
 $cjk-ko-font-family: $base-font-family, "Malgun Gothic", $fallback-font-family !default;
 $body-font-family: $base-font-family, $fallback-font-family !default;
 
@@ -98,9 +98,9 @@ $control-padding-x-sm: $unit-2 * 0.75 !default;
 $control-padding-x-lg: $unit-2 * 1.5 !default;
 $control-padding-y: math.div(($control-size - $line-height), 2) - $border-width !default;
 $control-padding-y-sm: math.div(($control-size-sm - $line-height), 2) -
-  $border-width !default;
+    $border-width !default;
 $control-padding-y-lg: math.div(($control-size-lg - $line-height), 2) -
-  $border-width !default;
+    $border-width !default;
 $control-icon-size: 0.8rem !default;
 
 $control-width-xs: 180px !default;

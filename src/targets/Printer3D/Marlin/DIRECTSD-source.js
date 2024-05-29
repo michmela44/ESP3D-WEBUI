@@ -17,17 +17,17 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from 'preact'
-import { canProcessFile } from '../../helpers'
-import { sortedFilesList, formatStatus } from '../../../components/Helpers'
-import { useUiContextFn, useSettingsContextFn } from '../../../contexts'
+import { h } from "preact"
+import { canProcessFile } from "../../helpers"
+import { sortedFilesList, formatStatus } from "../../../components/Helpers"
+import { useUiContextFn, useSettingsContextFn } from "../../../contexts"
 
 const capabilities = {
     Process: (path, filename) => {
         if (
-            (useSettingsContextFn.getValue('Streaming') == 'Enabled' &&
-                useSettingsContextFn.getValue('SDConnection') == 'direct') ||
-            useSettingsContextFn.getValue('SDConnection') == 'shared'
+            (useSettingsContextFn.getValue("Streaming") == "Enabled" &&
+                useSettingsContextFn.getValue("SDConnection") == "direct") ||
+            useSettingsContextFn.getValue("SDConnection") == "shared"
         )
             return canProcessFile(filename)
         return false
@@ -60,15 +60,15 @@ const capabilities = {
 const commands = {
     list: (path, filename) => {
         return {
-            type: 'url',
-            url: 'sdfiles',
-            args: { path, action: 'list' },
+            type: "url",
+            url: "sdfiles",
+            args: { path, action: "list" },
         }
     },
     upload: (path, filename) => {
         return {
-            type: 'url',
-            url: 'sdfiles',
+            type: "url",
+            url: "sdfiles",
             args: { path },
         }
     },
@@ -81,60 +81,72 @@ const commands = {
 
     deletedir: (path, filename) => {
         return {
-            type: 'url',
-            url: 'sdfiles',
-            args: { path, action: 'deletedir', filename },
+            type: "url",
+            url: "sdfiles",
+            args: { path, action: "deletedir", filename },
         }
     },
     delete: (path, filename) => {
         return {
-            type: 'url',
-            url: 'sdfiles',
-            args: { path, action: 'delete', filename },
+            type: "url",
+            url: "sdfiles",
+            args: { path, action: "delete", filename },
         }
     },
     needFormatFileName: (path, filename) => {
         return {
-            name: filename.replaceAll(' ', '_'),
+            name: filename.replaceAll(" ", "_"),
         }
     },
     createdir: (path, filename) => {
         return {
-            type: 'url',
-            url: 'sdfiles',
+            type: "url",
+            url: "sdfiles",
             args: {
                 path,
-                action: 'createdir',
-                filename: filename.replaceAll(' ', '_'),
+                action: "createdir",
+                filename: filename.replaceAll(" ", "_"),
             },
         }
     },
     download: (path, filename) => {
         return {
-            type: 'url',
-            url: ('/sd' + path + (path.endsWith('/') ? '' : '/') + filename).replaceAll('//', '/'),
+            type: "url",
+            url: (
+                "/sd" +
+                path +
+                (path.endsWith("/") ? "" : "/") +
+                filename
+            ).replaceAll("//", "/"),
             args: {},
         }
     },
     play: (path, filename) => {
         if (
-            useSettingsContextFn.getValue('Streaming') == 'Enabled' &&
-            useSettingsContextFn.getValue('SDConnection') == 'direct'
+            useSettingsContextFn.getValue("Streaming") == "Enabled" &&
+            useSettingsContextFn.getValue("SDConnection") == "direct"
         ) {
-            const fullpath =
-                ('/sd' + path + (path.endsWith('/') ? '' : '/') + filename).replaceAll('//', '/')
-            const cmd = '[ESP700]stream=' + fullpath
+            const fullpath = (
+                "/sd" +
+                path +
+                (path.endsWith("/") ? "" : "/") +
+                filename
+            ).replaceAll("//", "/")
+            const cmd = "[ESP700]stream=" + fullpath
             return {
-                type: 'cmd',
-                cmd ,
+                type: "cmd",
+                cmd,
             }
         } else {
-            const spath =
-                (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-            const cmd = useUiContextFn.getValue('sdplaycmd').replace("#", spath)
+            const spath = (
+                path +
+                (path == "/" ? "" : "/") +
+                filename
+            ).replaceAll("//", "/")
+            const cmd = useUiContextFn.getValue("sdplaycmd").replace("#", spath)
             return {
-                type: 'cmd',
-                cmd
+                type: "cmd",
+                cmd,
             }
         }
     },

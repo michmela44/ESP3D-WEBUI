@@ -45,10 +45,10 @@ const MacrosPanel = () => {
     const getSDSource = () => {
         for (const source of files.supported) {
             if (source.value == "SD" || source.value == "DIRECTSD") {
-                return (source.value)
+                return source.value
             }
         }
-        return ("NONE")
+        return "NONE"
     }
     const sendCommand = (command) => {
         createNewRequest(
@@ -90,7 +90,12 @@ const MacrosPanel = () => {
                 break
             case "SD":
                 //get command accoring target FW
-                const response = files.command(getSDSource(), "play", "", action)
+                const response = files.command(
+                    getSDSource(),
+                    "play",
+                    "",
+                    action
+                )
                 const cmds = response.cmd.split("\n")
                 cmds.forEach((cmd) => {
                     sendCommand(cmd)

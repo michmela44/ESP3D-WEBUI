@@ -16,9 +16,9 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h } from 'preact'
-import { useEffect, useRef, useState } from 'preact/hooks'
-import { T } from '../Translations'
+import { h } from "preact"
+import { useEffect, useRef, useState } from "preact/hooks"
+import { T } from "../Translations"
 import {
     Terminal,
     Send,
@@ -27,13 +27,13 @@ import {
     PauseCircle,
     ChevronLeft,
     ChevronRight,
-} from 'preact-feather'
-import { useUiContext, useDatasContext, useUiContextFn } from '../../contexts'
-import { useTargetContext, variablesList } from '../../targets'
-import { useHttpQueue } from '../../hooks'
-import { espHttpURL, replaceVariables } from '../Helpers'
-import { ButtonImg } from '../Controls'
-import { Menu as PanelMenu } from './'
+} from "preact-feather"
+import { useUiContext, useDatasContext, useUiContextFn } from "../../contexts"
+import { useTargetContext, variablesList } from "../../targets"
+import { useHttpQueue } from "../../hooks"
+import { espHttpURL, replaceVariables } from "../Helpers"
+import { ButtonImg } from "../Controls"
+import { Menu as PanelMenu } from "./"
 
 /*
  * Local const
@@ -45,9 +45,9 @@ const TerminalPanel = () => {
     const { processData } = useTargetContext()
     const { createNewRequest } = useHttpQueue()
     if (terminal.isVerbose.current == undefined)
-        terminal.isVerbose.current = uisettings.getValue('verbose')
+        terminal.isVerbose.current = uisettings.getValue("verbose")
     if (terminal.isAutoScroll.current == undefined)
-        terminal.isAutoScroll.current = uisettings.getValue('autoscroll')
+        terminal.isAutoScroll.current = uisettings.getValue("autoscroll")
     const [isVerbose, setIsVerbose] = useState(terminal.isVerbose.current)
     const [isAutoScroll, setIsAutoScroll] = useState(
         terminal.isAutoScroll.current
@@ -57,7 +57,7 @@ const TerminalPanel = () => {
     const inputRef = useRef()
     const messagesEndRef = useRef(null)
     const terminalOutput = useRef(null)
-    const id = 'terminalPanel'
+    const id = "terminalPanel"
     let inputHistoryIndex = terminal.inputHistory.length - 1
     const scrollToBottom = () => {
         if (
@@ -85,7 +85,7 @@ const TerminalPanel = () => {
             inputRef.current.value = terminal.inputHistory[inputHistoryIndex]
             terminal.input.current = inputRef.current.value
         } else {
-            inputRef.current.value = ''
+            inputRef.current.value = ""
             terminal.input.current = inputRef.current.value
         }
     }
@@ -108,7 +108,7 @@ const TerminalPanel = () => {
         useUiContextFn.haptic()
         inputRef.current.focus()
         if (!terminal.input.current && variablesList.allowEmptyLine)
-            terminal.input.current = ''
+            terminal.input.current = ""
         if (
             (terminal.input.current &&
                 terminal.input.current.trim().length > 0) ||
@@ -124,27 +124,27 @@ const TerminalPanel = () => {
 
             inputHistoryIndex = terminal.inputHistory.length - 1
             processData(
-                'echo',
+                "echo",
                 replaceVariables(variablesList.commands, cmd, true)
             )
             createNewRequest(
-                espHttpURL('command', {
+                espHttpURL("command", {
                     cmd: replaceVariables(variablesList.commands, cmd),
                 }),
-                { method: 'GET' },
+                { method: "GET" },
                 {
                     onSuccess: (result) => {
-                        processData('response', result)
+                        processData("response", result)
                     },
                     onFail: (error) => {
                         console.log(error)
-                        processData('error', error)
+                        processData("error", error)
                     },
                 }
             )
         }
-        terminal.input.current = ''
-        inputRef.current.value = ''
+        terminal.input.current = ""
+        inputRef.current.value = ""
     }
     const onInput = (e) => {
         terminal.input.current = e.target.value
@@ -152,7 +152,7 @@ const TerminalPanel = () => {
     useEffect(() => {
         scrollToBottom()
     }, [terminal.content])
-    console.log('Terminal panel')
+    console.log("Terminal panel")
 
     const toggleVerboseMode = () => {
         useUiContextFn.haptic()
@@ -173,7 +173,7 @@ const TerminalPanel = () => {
 
     const menu = [
         {
-            label: T('S76'),
+            label: T("S76"),
             displayToggle: () => (
                 <span class="feather-icon-container">
                     {isVerbose ? (
@@ -186,7 +186,7 @@ const TerminalPanel = () => {
             onClick: toggleVerboseMode,
         },
         {
-            label: T('S77'),
+            label: T("S77"),
             displayToggle: () => (
                 <span class="feather-icon-container">
                     {isAutoScroll ? (
@@ -204,7 +204,7 @@ const TerminalPanel = () => {
         },
         { divider: true },
         {
-            label: T('S79'),
+            label: T("S79"),
             onClick: (e) => {
                 useUiContextFn.haptic()
                 terminal.clear()
@@ -218,7 +218,7 @@ const TerminalPanel = () => {
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Terminal />
-                    <strong class="text-ellipsis">{T('Terminal')}</strong>
+                    <strong class="text-ellipsis">{T("Terminal")}</strong>
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
@@ -242,13 +242,13 @@ const TerminalPanel = () => {
                     onkeyup={onKeyUp}
                     ref={inputRef}
                     value={terminal.input.current}
-                    placeholder={T('S80')}
+                    placeholder={T("S80")}
                 />
                 <ButtonImg
                     group
                     ltooltip
-                    data-tooltip={T('S82')}
-                    label={T('S81')}
+                    data-tooltip={T("S82")}
+                    label={T("S81")}
                     icon={<Send />}
                     onClick={onSend}
                 />
@@ -292,13 +292,13 @@ const TerminalPanel = () => {
             >
                 {terminal.content &&
                     terminal.content.map((line) => {
-                        let className = ''
+                        let className = ""
                         switch (line.type) {
-                            case 'echo':
-                                className = 'echo'
+                            case "echo":
+                                className = "echo"
                                 break
-                            case 'error':
-                                className = 'error'
+                            case "error":
+                                className = "error"
                                 break
                             default:
                             //do nothing
@@ -323,13 +323,13 @@ const TerminalPanel = () => {
 }
 
 const TerminalPanelElement = {
-    id: 'terminalPanel',
+    id: "terminalPanel",
     content: <TerminalPanel />,
-    name: 'S75',
-    icon: 'Terminal',
-    show: 'showterminalpanel',
-    onstart: 'openterminalonstart',
-    settingid: 'terminal',
+    name: "S75",
+    icon: "Terminal",
+    show: "showterminalpanel",
+    onstart: "openterminalonstart",
+    settingid: "terminal",
 }
 
 export { TerminalPanel, TerminalPanelElement }

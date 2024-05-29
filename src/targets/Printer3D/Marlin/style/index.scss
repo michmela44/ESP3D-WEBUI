@@ -1,5 +1,5 @@
 @import "../../style/index";
-.mixed-extruders-container{
+.mixed-extruders-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -7,25 +7,25 @@
     width: 100%;
     height: 100%;
 }
-.mixed-extruder-control{
+.mixed-extruder-control {
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: center;
-    gap:10px;
+    gap: 10px;
 }
 
-.mixed-extruder-control-header{
-    border: 0.05rem solid #5755d9 ;
-    color:#5755d9;
-    border-radius: 1.1rem 1.1rem ;
+.mixed-extruder-control-header {
+    border: 0.05rem solid #5755d9;
+    color: #5755d9;
+    border-radius: 1.1rem 1.1rem;
     height: 1.8rem;
     line-height: 1.6rem;
     padding: 0rem 0rem;
     text-align: center;
     font-size: 0.8rem;
-    width:1.8rem;
-    height:1.8rem;
+    width: 1.8rem;
+    height: 1.8rem;
 }
 
 .mixed-extruder-control-header .label {
@@ -36,12 +36,12 @@
     padding: 0px 0px;
     background-color: white;
     font-weight: bold;
-    border-radius: 0.9rem 0.9rem ;
-    width:0.9rem;
-    height:0.9rem;
+    border-radius: 0.9rem 0.9rem;
+    width: 0.9rem;
+    height: 0.9rem;
 }
 
-.extruder-extrude-controls-container{
+.extruder-extrude-controls-container {
     display: flex;
     align-items: center;
     justify-content: center;

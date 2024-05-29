@@ -41,8 +41,8 @@ const PickUp = ({ label = "", id = "", inline, setValue, value, ...rest }) => {
             value == "default"
                 ? defaultDisplayValue
                 : id == "language"
-                ? getLanguageName(value)
-                : value.replace("theme-", "").replace(".gz", "")
+                  ? getLanguageName(value)
+                  : value.replace("theme-", "").replace(".gz", "")
         )
     }
 
@@ -57,8 +57,8 @@ const PickUp = ({ label = "", id = "", inline, setValue, value, ...rest }) => {
             value == "default"
                 ? defaultDisplayValue
                 : id == "language"
-                ? getLanguageName(value)
-                : value.replace("theme-", "").replace(".gz", "")
+                  ? getLanguageName(value)
+                  : value.replace("theme-", "").replace(".gz", "")
         )
     }, [value])
 

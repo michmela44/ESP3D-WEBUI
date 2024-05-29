@@ -320,7 +320,7 @@ const MixedExtrudersControl = ({ feedrate }) => {
                         useUiContextFn.haptic()
                         e.target.blur()
                         const cmdmx = mixSetCommand()
-                         const cmds = cmdmx.split("\n")
+                        const cmds = cmdmx.split("\n")
                         cmds.forEach((cmd) => {
                             sendCommand(cmd)
                         })

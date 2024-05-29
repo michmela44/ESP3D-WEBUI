@@ -40,7 +40,7 @@ import { importPreferences, formatPreferences } from "./importHelper"
 
 const isDependenciesMet = (depend) => {
     const { interfaceSettings } = useSettingsContext()
-    return  settingsDepend(depend, interfaceSettings.current.settings)
+    return settingsDepend(depend, interfaceSettings.current.settings)
 }
 
 const InterfaceTab = () => {
@@ -107,17 +107,20 @@ const InterfaceTab = () => {
                 })
             }
         } else {
-            if (typeof fieldData.step!=="undefined" ) {  
+            if (typeof fieldData.step !== "undefined") {
                 //hack to avoid float precision issue
-                const mult=(1/fieldData.step).toFixed(0)>0?(1/fieldData.step).toFixed(0):1
-                const valueMult = Math.round(fieldData.value * mult )
-                const stepMult = Math.round(fieldData.step* mult)
-                
-                if ((valueMult  % stepMult ) != 0) {
+                const mult =
+                    (1 / fieldData.step).toFixed(0) > 0
+                        ? (1 / fieldData.step).toFixed(0)
+                        : 1
+                const valueMult = Math.round(fieldData.value * mult)
+                const stepMult = Math.round(fieldData.step * mult)
+
+                if (valueMult % stepMult != 0) {
                     validation.message = <Flag size="1rem" color="red" />
                     validation.valid = false
                 }
-            } 
+            }
             if (fieldData.type == "list") {
                 const stringified = JSON.stringify(fieldData.value)
                 //check new item or modified item

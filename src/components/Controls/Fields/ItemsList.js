@@ -325,8 +325,8 @@ const ItemsList = ({
                 id == "macros"
                     ? defaultMacro
                     : id == "pollingcmds"
-                    ? defaultPolling
-                    : defaultPanel
+                      ? defaultPolling
+                      : defaultPanel
             )
         )
         newItem.id = generateUID()
@@ -370,16 +370,16 @@ const ItemsList = ({
                             id == "macros"
                                 ? T("S128")
                                 : id == "pollingcmds"
-                                ? T("S207")
-                                : T("S156")
+                                  ? T("S207")
+                                  : T("S156")
                         }
                         tooltip
                         data-tooltip={
                             id == "macros"
                                 ? T("S128")
                                 : id == "pollingcmds"
-                                ? T("S207")
-                                : T("S156")
+                                  ? T("S207")
+                                  : T("S156")
                         }
                         icon={<Plus />}
                         onClick={addItem}

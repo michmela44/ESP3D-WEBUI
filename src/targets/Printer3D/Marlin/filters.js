@@ -17,14 +17,14 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from 'preact'
-import { useSettingsContextFn } from '../../../contexts'
+import { h } from "preact"
+import { useSettingsContextFn } from "../../../contexts"
 
 ////////////////////////////////////////////////////////
 //
 // ok acknowledge
 const isOk = (str) => {
-    if (str.startsWith('ok') && !str.startsWith('ok T:')) {
+    if (str.startsWith("ok") && !str.startsWith("ok T:")) {
         return true
     }
     return false
@@ -47,7 +47,7 @@ const isTemperatures = (str) => {
 }
 
 const getTemperatures = (str) => {
-    const isMKS = useSettingsContextFn.getValue('SerialProtocol') == 'MKS'
+    const isMKS = useSettingsContextFn.getValue("SerialProtocol") == "MKS"
     let result = null
     const response = {
         T: [], //0->8 T0->T8 Extruders
@@ -69,7 +69,7 @@ const getTemperatures = (str) => {
     while ((result = regex_search.exec(str)) !== null) {
         //MKS always have T0,T1,B even no second extruder is present neither bed
         if (!(isMKS && parseFloat(result[3]) == 0))
-            response[result[1]][result[2] == '' ? 0 : result[2]] = {
+            response[result[1]][result[2] == "" ? 0 : result[2]] = {
                 value: result[3],
                 target: result[4],
             }
@@ -118,7 +118,7 @@ const isPrintStatus = (str) => {
     if ((result = reg_search3.exec(str)) !== null) {
         return true
     }
-    if (str.startsWith('echo:Print time:')) {
+    if (str.startsWith("echo:Print time:")) {
         return true
     }
     return false
@@ -134,12 +134,12 @@ const getPrintStatus = (str) => {
         return {
             status: result[1],
             printing: false,
-            progress: result[1].startsWith('Done') ? 100 : 0,
+            progress: result[1].startsWith("Done") ? 100 : 0,
         }
     }
     if ((result = reg_search2.exec(str)) !== null) {
         return {
-            status: 'Printing',
+            status: "Printing",
             printing: true,
             progress: (
                 (100 * parseFloat(result[1])) /
@@ -152,15 +152,15 @@ const getPrintStatus = (str) => {
         return {
             status:
                 progress === 100
-                    ? 'Done'
+                    ? "Done"
                     : progress === 0
-                    ? 'Not printing'
-                    : `Printing: ${result[2]}m remaining`,
+                      ? "Not printing"
+                      : `Printing: ${result[2]}m remaining`,
             printing: !(progress === 100 || progress === 0),
             progress: progress.toFixed(2),
         }
     }
-    if (str.startsWith('echo:Print time:')) {
+    if (str.startsWith("echo:Print time:")) {
         const regex_search =
             /echo:Print time:\s((?<year>[0-9]*)y\s)*((?<day>[0-9]*)d\s)*((?<hour>[0-9]*)h\s)*((?<min>[0-9]*)m\s)*((?<sec>[0-9]*)s)/
         result = regex_search.exec(str)
@@ -176,7 +176,7 @@ const getPrintStatus = (str) => {
         }, {})
         return { time: printTime, printing: isprinting }
     }
-    return { status: 'Unknown', printing: false, progress: 0 }
+    return { status: "Unknown", printing: false, progress: 0 }
 }
 
 ////////////////////////////////////////////////////////
@@ -198,7 +198,7 @@ const getPrintFileName = (str) => {
     if ((result = reg_search1.exec(str)) !== null) {
         return result[1]
     }
-    return 'Unknown'
+    return "Unknown"
 }
 
 ////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ const getStatus = (str) => {
     if ((result = reg_search2.exec(str)) !== null) {
         return result[1]
     }
-    return 'Unknown'
+    return "Unknown"
 }
 
 ////////////////////////////////////////////////////////
@@ -306,7 +306,7 @@ const getFeedRate = (str) => {
 //...
 const isPrinterCapability = (str) => {
     const reg_search1 = /^Cap:([^:]+):[0-1]$/
-    if (str.startsWith('FIRMWARE_NAME:') || reg_search1.test(str)) {
+    if (str.startsWith("FIRMWARE_NAME:") || reg_search1.test(str)) {
         return true
     }
     return false
@@ -318,7 +318,7 @@ const getPrinterCapability = (str) => {
     const reg_search1 = /^Cap:(?<item>[^:]+):(?<value>[0-1])$/
     const reg_search2 =
         /^FIRMWARE_NAME:(?<firmware_name>[^\(]+)\s\((?<firmware_date>[^\)]*)\)\sSOURCE_CODE_URL:(?<source_code_url>.+?(?=\sPROTOCOL_VERSION))\sPROTOCOL_VERSION:(?<protocol_version>.+?(?=\sMACHINE_TYPE))\sMACHINE_TYPE:(?<machine_type>.+?(?=\sEXTRUDER_COUNT))\sEXTRUDER_COUNT:(?<extruder_count>.+?(?=\sUUID))\sUUID:(?<uuid>.+)/
-    if (str.startsWith('FIRMWARE_NAME:')) {
+    if (str.startsWith("FIRMWARE_NAME:")) {
         if ((result = reg_search2.exec(str)) !== null) {
             Object.keys(result.groups).forEach((key) => {
                 res.push({
@@ -328,8 +328,8 @@ const getPrinterCapability = (str) => {
             })
         } else {
             res.push({
-                name: 'FIRMWARE_NAME',
-                value: str.split(':')[1].split(' '),
+                name: "FIRMWARE_NAME",
+                value: str.split(":")[1].split(" "),
             })
         }
     } else if ((result = reg_search1.exec(str)) !== null) {
@@ -342,12 +342,12 @@ const getPrinterCapability = (str) => {
 //
 //Sensor
 const isSensor = (str) => {
-    return str.startsWith('SENSOR:')
+    return str.startsWith("SENSOR:")
 }
 
 const getSensor = (str) => {
     const result = []
-    const data = ' ' + str.substring(7)
+    const data = " " + str.substring(7)
     let res = null
     const reg_search = /\s(?<value>[^\[]+)\[(?<unit>[^\]]+)\]/g
     while ((res = reg_search.exec(data))) {
@@ -363,14 +363,17 @@ const isStreamingStatus = (str) => {
     //console.log('isStreamingStatus', str)
     try {
         const res = JSON.parse(str)
-        if (res.cmd == '701' && typeof res.data != 'undefined') {
+        if (res.cmd == "701" && typeof res.data != "undefined") {
             return true
         } else {
-            console.log('isStreamingStatus is not streamining status', str)
+            console.log("isStreamingStatus is not streamining status", str)
             return false
         }
     } catch (e) {
-        console.log('isStreamingStatus is not streamining status because parsing error', e)
+        console.log(
+            "isStreamingStatus is not streamining status because parsing error",
+            e
+        )
         return false
     }
 }
