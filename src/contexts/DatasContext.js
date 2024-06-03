@@ -62,7 +62,7 @@ const DatasContextProvider = ({ children }) => {
         terminalBuffer.current = newData.verbose
         newData.quiet = terminalBufferQuiet.current
         if (!element.isverboseOnly) {
-            console.log("quiet command", element)
+            //console.log("quiet command", element)
             newData.quiet = limitArr(
                 [...terminalBufferQuiet.current, element],
                 isAutoScrollPaused.current

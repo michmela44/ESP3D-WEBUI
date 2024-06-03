@@ -71,10 +71,10 @@ const TimeControl = ({ label, time }) => {
 const StatusControls = () => {
     const { streamStatus, status } = useTargetContext()
     if (!useUiContextFn.getValue("showstatuspanel")) return null
-    console.log("streamStatus")
-    console.log(streamStatus)
-    console.log("status")
-    console.log(status)
+    //console.log("streamStatus")
+    //console.log(streamStatus)
+    //console.log("status")
+    //console.log(status)
     return (
         <Fragment>
             {streamStatus &&
@@ -168,7 +168,7 @@ const StatusControls = () => {
 const StatusPanel = () => {
     const { toasts, panels } = useUiContext()
     const { status, streamStatus } = useTargetContext()
-    console.log(status, streamStatus)
+    //console.log(status, streamStatus)
     const { createNewRequest } = useHttpFn
     const id = "statusPanel"
     const hidePanel = () => {
