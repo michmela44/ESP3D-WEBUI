@@ -17,9 +17,10 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, Fragment } from "preact"
+import { h, Fragment, render } from "preact"
 import { Menu } from "./menu"
-import { machineSettings} from "../targets"
+import { iconsFeather } from "../components/Images"
+import { machineSettings, iconsTarget } from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
@@ -62,10 +63,13 @@ const ViewContainer = () => {
 }
 
 const ContentContainer = () => {
+    let displayIcon = {}
     const { getConnectionSettings, getInterfaceSettings } = useSettings()
-    const { connectionSettings, interfaceSettings, featuresSettings } = useSettingsContext()
+    const { connectionSettings, interfaceSettings, featuresSettings } =
+        useSettingsContext()
     const { createNewRequest } = useHttpQueue()
     const { toasts, modals } = useUiContext()
+    const iconsList = { ...iconsTarget, ...iconsFeather }
 
     const processExtensionMessage = (eventMsg) => {
         if (eventMsg.data.type && eventMsg.data.target == "webui") {
@@ -375,6 +379,28 @@ const ContentContainer = () => {
                             eventMsg.data.id
                         )
                     }
+                    break
+                case "icon":
+                    console.log(eventMsg.data.id)
+                    const iconToSend = iconsFeather[eventMsg.data.id]
+                    //Temporary DOM
+                    const tempElement = document.createElement("div")
+                    //DO icon rendering
+                    render(iconToSend, tempElement)
+                    //Get the SVG string
+                    const iconSvgString = tempElement.firstChild.outerHTML
+                    //Delete the temporary DOM
+                    tempElement.remove()
+                    console.log(iconSvgString)
+                    
+                    dispatchToExtensions(
+                        "icon",
+                        {
+                            response: encodeURIComponent(iconSvgString),
+                            initiator: eventMsg.data,
+                        },
+                        eventMsg.data.id
+                    )
                     break
                 case "capabilities":
                     let response = {}

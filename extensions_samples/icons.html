@@ -1,0 +1,69 @@
+<script type="text/javascript">
+  //Set of Icons we want to import
+  const iconsToLoad = ["Activity", "Home", "Camera", "File"];
+  const loadedIcons = {};
+  let iconsLoaded = false;
+  
+  //Function that send messages to WebUI
+  function sendMessage(msg) {
+    window.parent.postMessage(msg, '*');
+  }
+  
+  //Function that process all message from WebUI
+  function processMessage(eventMsg) {
+    //Load icons only if not yet loaded to avoid noise coming from request from others extensions
+    if (!iconsLoaded) {
+      //We ensure this iis a message we want to handle
+      if (eventMsg.data.type && eventMsg.data.id ) {
+        //it is an icon and we need it
+        if (eventMsg.data.type === "icon" && iconsToLoad.includes(eventMsg.data.id)) {
+          const iconName = eventMsg.data.id;
+          //the icon string is encoded to avoid any issue with json so we need to decode it
+          const iconSvg = decodeURIComponent(eventMsg.data.content.response);
+          loadedIcons[iconName] = iconSvg;
+          console.log(`Icône ${iconName} loaded:`, iconSvg);
+          //check loading is finished
+          if (Object.keys(loadedIcons).length === iconsToLoad.length) {
+            console.log("All icons are loaded !");
+            //Now we can display interface with icons
+            useLoadedIcons();
+            iconsLoaded = true;
+          }
+        }
+      }
+    }
+  }
+  //Dispatch icons on some controls
+  function useLoadedIcons() {
+    const buttonContainer = document.getElementById("buttonContainer");
+    //Lets create buttons for the demo 
+    iconsToLoad.forEach(iconName => {
+      const button = document.createElement("button");
+      button.classList.add("btn", "m-1");
+      button.innerHTML = loadedIcons[iconName];
+      button.setAttribute("data-icon", iconName);
+      button.addEventListener("click", handleButtonClick);
+      buttonContainer.appendChild(button);
+    });
+  }
+  //Button handle generic 
+  function handleButtonClick(event) {
+    const clickedIcon = event.currentTarget.getAttribute("data-icon");
+    console.log(`Button clicked with icon : ${clickedIcon}`);
+  }
+   //Function to load all icons
+  function loadIcons() {
+    iconsToLoad.forEach(iconName => {
+      sendMessage({ type: 'icon', target: 'webui', id: iconName });
+    });
+  }
+  //Once page is loaded this function is executed
+  window.onload = (event) => {
+    window.addEventListener("message", processMessage, false);
+    loadIcons();
+  }
+</script>
+
+<div class="container">
+  <div id="buttonContainer"></div>
+</div>
