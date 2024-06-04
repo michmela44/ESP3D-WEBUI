@@ -19,7 +19,7 @@
 */
 import { h, Fragment } from "preact"
 import { Menu } from "./menu"
-import { Informations } from "./informations"
+import { machineSettings} from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
@@ -63,7 +63,7 @@ const ViewContainer = () => {
 
 const ContentContainer = () => {
     const { getConnectionSettings, getInterfaceSettings } = useSettings()
-    const { connectionSettings } = useSettingsContext()
+    const { connectionSettings, interfaceSettings, featuresSettings } = useSettingsContext()
     const { createNewRequest } = useHttpQueue()
     const { toasts, modals } = useUiContext()
 
@@ -377,12 +377,40 @@ const ContentContainer = () => {
                     }
                     break
                 case "capabilities":
+                    let response = {}
+                    switch (eventMsg.data.id) {
+                        case "connection":
+                            console.log(connectionSettings.current)
+                            response = JSON.parse(
+                                JSON.stringify(connectionSettings.current)
+                            )
+                            break
+                        case "settings":
+                            console.log(machineSettings)
+                            response = JSON.parse(
+                                JSON.stringify(machineSettings)
+                            )
+                            break
+                            break
+                        case "interface":
+                            console.log(interfaceSettings.current)
+                            response = JSON.parse(
+                                JSON.stringify(interfaceSettings.current)
+                            )
+                            break
+                        case "features":
+                            console.log(featuresSettings.current)
+                            response = JSON.parse(
+                                JSON.stringify(featuresSettings.current)
+                            )
+                            break
+                        default:
+                            response = {}
+                    }
                     dispatchToExtensions(
                         "capabilities",
                         {
-                            response: JSON.parse(
-                                JSON.stringify(connectionSettings.current)
-                            ),
+                            response: response,
                             initiator: eventMsg.data,
                         },
                         eventMsg.data.id

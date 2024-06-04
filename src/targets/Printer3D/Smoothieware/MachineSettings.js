@@ -606,4 +606,4 @@ const MachineSettings = () => {
     )
 }
 
-export { MachineSettings }
+export { MachineSettings, machineSettings }

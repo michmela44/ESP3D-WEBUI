@@ -43,10 +43,10 @@ import {
     showProgressModal,
 } from "../../../components/Modal"
 
-const machineSetting = {}
-machineSetting.cache = []
-machineSetting.toSave = []
-machineSetting.totalToSave = 0
+const machineSettings = {}
+machineSettings.cache = []
+machineSettings.toSave = []
+machineSettings.totalToSave = 0
 
 const MachineSettings = () => {
     const [isLoading, setIsLoading] = useState(false)
@@ -122,12 +122,12 @@ const MachineSettings = () => {
     }
 
     const processSaving = () => {
-        if (machineSetting.toSave.length > 0) {
-            const index = machineSetting.toSave.pop()
+        if (machineSettings.toSave.length > 0) {
+            const index = machineSettings.toSave.pop()
             saveEntry(
-                machineSetting.cache[index],
-                machineSetting.totalToSave - machineSetting.toSave.length - 1,
-                machineSetting.totalToSave
+                machineSettings.cache[index],
+                machineSettings.totalToSave - machineSettings.toSave.length - 1,
+                machineSettings.totalToSave
             )
         } else {
             endProgression()
@@ -135,13 +135,13 @@ const MachineSettings = () => {
     }
 
     const saveSettings = () => {
-        machineSetting.totalToSave = 0
-        machineSetting.toSave = []
-        machineSetting.cache.map((entry, index) => {
+        machineSettings.totalToSave = 0
+        machineSettings.toSave = []
+        machineSettings.cache.map((entry, index) => {
             if (entry.type != "comment") {
                 if (entry.initial.trim() != entry.value.trim()) {
-                    machineSetting.totalToSave++
-                    machineSetting.toSave.push(index)
+                    machineSettings.totalToSave++
+                    machineSettings.toSave.push(index)
                 }
             }
         })
@@ -153,7 +153,7 @@ const MachineSettings = () => {
             content: (
                 <Progress
                     progressBar={progressBar}
-                    max={machineSetting.totalToSave}
+                    max={machineSettings.totalToSave}
                 />
             ),
         })
@@ -161,7 +161,7 @@ const MachineSettings = () => {
     }
 
     function checkSaveStatus() {
-        let stringified = JSON.stringify(machineSetting.cache)
+        let stringified = JSON.stringify(machineSettings.cache)
         let hasmodified =
             stringified.indexOf('"hasmodified":true') == -1 ? false : true
         let haserrors =
@@ -185,7 +185,7 @@ const MachineSettings = () => {
                     type: "error",
                 })
             } else if (feedback.command == "eeprom") {
-                machineSetting.cache = CMD.command(
+                machineSettings.cache = CMD.command(
                     "formatEeprom",
                     feedback.content
                 )
@@ -201,7 +201,7 @@ const MachineSettings = () => {
             type: "error",
         })
         processor.stopCatchResponse()
-        machineSetting.cache = []
+        machineSettings.cache = []
         setIsLoading(false)
     }
 
@@ -262,7 +262,7 @@ const MachineSettings = () => {
         return validation
     }
     useEffect(() => {
-        if (uisettings.getValue("autoload") && machineSetting.cache == "") {
+        if (uisettings.getValue("autoload") && machineSettings.cache == "") {
             setIsLoading(true)
             //do not call onRefresh directly as  WebSocket may still be connecting or just connected
             // and we may have a race issue, the command go but does not have answer catched
@@ -294,10 +294,10 @@ const MachineSettings = () => {
                 )}
                 {!isLoading && (
                     <center class="m-2">
-                        {machineSetting.cache.length > 0 && (
+                        {machineSettings.cache.length > 0 && (
                             <div>
                                 <CenterLeft bordered>
-                                    {machineSetting.cache.map((element) => {
+                                    {machineSettings.cache.map((element) => {
                                         if (element.type == "comment")
                                             return (
                                                 <div class="comment m-1  ">
@@ -367,4 +367,4 @@ const MachineSettings = () => {
     )
 }
 
-export { MachineSettings }
+export { MachineSettings, machineSettings}

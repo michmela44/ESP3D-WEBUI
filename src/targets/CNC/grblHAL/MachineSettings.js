@@ -39,12 +39,12 @@ import {
 import { RefreshCcw, XCircle, Send, Flag } from "preact-feather"
 import { CMD } from "./CMD-source"
 
-const machineSetting = {}
-machineSetting.cache = []
+const machineSettings = {}
+machineSettings.cache = []
 
 const MachineSettings = () => {
     const [isLoading, setIsLoading] = useState(false)
-    const [settings, setSettings] = useState(machineSetting.cache)
+    const [settings, setSettings] = useState(machineSettings.cache)
     const [collected, setCollected] = useState("0 B")
     const { createNewRequest, abortRequest } = useHttpFn
     const { modals, toasts, uisettings } = useUiContext()
@@ -83,7 +83,7 @@ const MachineSettings = () => {
                     type: "error",
                 })
             } else if (feedback.command == "eeprom") {
-                machineSetting.cache = CMD.command(
+                machineSettings.cache = CMD.command(
                     "formatEeprom",
                     feedback.content
                 )
@@ -99,7 +99,7 @@ const MachineSettings = () => {
             type: "error",
         })
         processor.stopCatchResponse()
-        machineSetting.cache = []
+        machineSettings.cache = []
         setIsLoading(false)
     }
 
@@ -158,7 +158,7 @@ const MachineSettings = () => {
         return validation
     }
     useEffect(() => {
-        if (uisettings.getValue("autoload") && machineSetting.cache == "") {
+        if (uisettings.getValue("autoload") && machineSettings.cache == "") {
             setIsLoading(true)
             //do not call onRefresh directly as  WebSocket may still be connecting or just connected
             // and we may have a race issue, the command go but does not have answer catched
@@ -189,10 +189,10 @@ const MachineSettings = () => {
                 )}
                 {!isLoading && (
                     <center class="m-2">
-                        {machineSetting.cache.length > 0 && (
+                        {machineSettings.cache.length > 0 && (
                             <div>
                                 <CenterLeft bordered>
-                                    {machineSetting.cache.map((element) => {
+                                    {machineSettings.cache.map((element) => {
                                         if (element.type == "comment")
                                             return (
                                                 <div class="comment m-1  ">
@@ -261,4 +261,4 @@ const MachineSettings = () => {
     )
 }
 
-export { MachineSettings }
+export { MachineSettings, machineSettings }

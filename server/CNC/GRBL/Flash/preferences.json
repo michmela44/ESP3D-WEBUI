@@ -222,11 +222,30 @@
   "opennotificationsonstart": false,
   "notifautoscroll": true,
   "showmacrospanel": true,
-  "openmacrosonstart": false,
+  "openmacrosonstart": true,
   "macros": [],
-  "showextracontents": false,
-  "openextrapanelsonstart": false,
-  "extracontents": [],
+  "showextracontents": true,
+  "openextrapanelsonstart": true,
+  "extracontents": [
+   {
+    "id": "xjxkqpm5o",
+    "name": "Panel xjxkqpm5o",
+    "icon": "Meh",
+    "target": "panel",
+    "source": "capabilities.html",
+    "type": "extension",
+    "refreshtime": "0"
+   },
+   {
+    "id": "ooyeeka4e",
+    "name": "Kiri",
+    "icon": "Box",
+    "target": "page",
+    "source": "https://grid.space/kiri/",
+    "type": "content",
+    "refreshtime": "0"
+   }
+  ],
   "showstatuspanel": true,
   "openstatusonstart": true,
   "showprobepanel": true,

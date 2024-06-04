@@ -455,10 +455,18 @@ There is no answer for this message, so `id` is not necessary
 ---
 ### Send capabilities request
 
-Example: `{type:'capabilities', target:'webui', id:'transpanel'}`   
+This allow to collect all capabilities for specific topic:
+if id is `connection` you will get the json of [ESP800] response jsonified
+if id is `features` you will get the [ESP400] response jsonified
+if id is `interface` you will get the preferences.json jsonified
+if id is `settings` you will get specific settings from target fw
+
+Be noted this API only collect existing data, so for `features`,`interface`	and `settings` you may get empty response if corresponding query has not be done.
+
+Example: `{type:'capabilities', target:'webui', id:'connection'}`   
 **type** is `capabilities` (mandatory)  
 **target** is `webui` (mandatory)  
-**id** is `infopanel` (optional)  
+**id** is `connection` (mandatory)  
 
 * Answer format: check the `eventMsg.data`   
 
@@ -466,18 +474,41 @@ Example: `{type:'capabilities', target:'webui', id:'transpanel'}`
     {
         "type": "capabilities",
         "content": {
-            "response": "Your session will end soon, do you want to stay connected ?",
+            "response": "{
+				"FWVersion": "3.0.0.a111",
+				"FWTarget": "marlin",
+				"FWTargetID": "40",
+				"Setup": "Enabled",
+				"Screen": "HMI V3",
+				"Streaming": "Enabled",
+				"SDConnection": "direct",
+				"SerialProtocol": "Raw",
+				"Authentication": "Disabled",
+				"WebCommunication": "Asynchronous",
+				"WebSocketIP": "localhost",
+				"WebSocketPort": "81",
+				"Hostname": "esp3d",
+				"WiFiMode": "STA",
+				"WebUpdate": "Enabled",
+				"FlashFileSystem": "LittleFS",
+				"HostPath": "/",
+				"Time": "none",
+				"HostTarget": "files",
+				"HostUploadPath": "/",
+				"HostDownloadPath": "/",
+				"wsID": "0"
+			}",
             "initiator": {
                             "type":"capabilities", 
                             "target":"webui", 
-                            "id":"infopanel"
+                            "id":"connection"
                         }
         },
-        "id": "infopanel"
+        "id": "connection"
     }  
     ```
     **type** is `capabilities`   
-    **id** is the id set in command message to help to screen    
+    **id** is the id of requested capability  
     **content** has the response it self **response**, in our case a JSON and also the  **initiator** is the initial command for reference   
 
 ---

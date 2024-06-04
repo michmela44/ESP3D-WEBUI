@@ -20,5 +20,7 @@
 import { h } from "preact"
 
 const MachineSettings = () => {}
+const machineSettings = {}
+machineSettings.cache=[]
 
-export { MachineSettings }
+export { MachineSettings, machineSettings }

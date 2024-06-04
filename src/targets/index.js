@@ -20,6 +20,7 @@
 import { h } from "preact"
 import {
     MachineSettings,
+    machineSettings,
     defaultPanelsList,
     Target,
     files,
@@ -39,6 +40,7 @@ import {
     WebUILogo,
     QuickButtonsBar,
     BackgroundContainer,
+    
 } from "SubTargetDir"
 
 import defaultPreferencesSubTarget from "SubTargetDir/preferences.json"
@@ -59,6 +61,7 @@ const webUiUrl = "https://github.com/luc-github/ESP3D-WEBUI/tree/3.0"
 
 export {
     MachineSettings,
+    machineSettings,
     Target,
     defaultPreferences,
     files,
