@@ -392,7 +392,7 @@ const ContentContainer = () => {
                     //Delete the temporary DOM
                     tempElement.remove()
                     console.log(iconSvgString)
-                    
+
                     dispatchToExtensions(
                         "icon",
                         {

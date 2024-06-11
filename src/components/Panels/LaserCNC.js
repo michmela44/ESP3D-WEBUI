@@ -17,16 +17,12 @@ LaserCNC.js - ESP3D WebUI component file
 */
 
 import { Fragment, h } from "preact"
-import { useState } from "preact/hooks"
+import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Loader, Sun, Power } from "preact-feather"
-import {
-    useUiContext,
-    useUiContextFn,
-    useSettingsContext,
-} from "../../contexts"
+import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
-import { ButtonImg, Field } from "../Controls"
+import { ButtonImg, Field, FullScreenButton, CloseButton } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables, settingsDepend } from "../Helpers"
 
@@ -86,10 +82,7 @@ const LaserPanel = () => {
     const { states } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const id = "laserPanel"
-    const hidePanel = () => {
-        useUiContextFn.haptic()
-        panels.hide(id)
-    }
+    const panelRef = useRef(null)
 
     console.log("Laser panel")
     if (typeof laserPercentage.current === "undefined") {
@@ -250,7 +243,7 @@ const LaserPanel = () => {
         },
     ]
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Loader />
@@ -258,10 +251,14 @@ const LaserPanel = () => {
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={hidePanel}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

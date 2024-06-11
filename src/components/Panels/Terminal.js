@@ -32,7 +32,7 @@ import { useUiContext, useDatasContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { useHttpQueue } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
-import { ButtonImg } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton } from "../Controls"
 import { Menu as PanelMenu } from "./"
 
 /*
@@ -54,6 +54,7 @@ const TerminalPanel = () => {
     )
     const [isAutoScrollPaused, setIsAutoScrollPaused] = useState(false)
     let lastPos = 0
+    const panelRef = useRef(null)
     const inputRef = useRef()
     const messagesEndRef = useRef(null)
     const terminalOutput = useRef(null)
@@ -214,7 +215,7 @@ const TerminalPanel = () => {
     ]
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Terminal />
@@ -223,13 +224,14 @@ const TerminalPanel = () => {
                 <span class="navbar-section">
                     <span style="height: 100%;">
                         <PanelMenu items={menu} />
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

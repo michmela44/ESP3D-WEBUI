@@ -19,8 +19,9 @@ Macros.js - ESP3D WebUI component file
 import { h } from "preact"
 import { T } from "../Translations"
 import { Cast } from "preact-feather"
+import { useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
-import { ButtonImg } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import { iconsFeather } from "../Images"
@@ -41,6 +42,7 @@ const MacrosPanel = () => {
     const { createNewRequest } = useHttpFn
     const iconsList = { ...iconsTarget, ...iconsFeather }
     const id = "macrosPanel"
+    const panelRef = useRef(null)
     console.log(id)
     const getSDSource = () => {
         for (const source of files.supported) {
@@ -144,7 +146,7 @@ const MacrosPanel = () => {
     }
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Cast />
@@ -152,13 +154,11 @@ const MacrosPanel = () => {
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
-                        <button
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton panelRef={panelRef} />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

@@ -16,11 +16,11 @@ charts.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h } from "preact"
+import { h } from "preact"
 import { T } from "../Translations"
-import { useUiContext, useUiContextFn } from "../../contexts"
-import { useState, useRef, useEffect } from "preact/hooks"
-import { ButtonImg, Loading } from "../Controls"
+import { useUiContextFn } from "../../contexts"
+import { useRef, useEffect } from "preact/hooks"
+import { FullScreenButton, CloseButton } from "../Controls"
 import { Image } from "preact-feather"
 import { useTargetContext } from "../../targets"
 import { SmoothieChart, TimeSeries } from "smoothie"
@@ -349,9 +349,9 @@ const Legendes = ({ index, temperatures, temperaturesList }) => {
 }
 
 const ChartsPanel = () => {
-    const { panels } = useUiContext()
     const { temperatures, temperaturesList, sensor, sensorList } =
         useTargetContext()
+    const panelRef = useRef(null)
     charts[0].ref = useRef(null)
     charts[1].ref = useRef(null)
     charts[1].ref = useRef(null)
@@ -395,7 +395,7 @@ const ChartsPanel = () => {
         updateCharts(2, sensor)
     }, [sensor])
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Image />
@@ -404,13 +404,14 @@ const ChartsPanel = () => {
                 <span class="navbar-section">
                     <span class="H-100">
                         <PanelMenu items={menu} />
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

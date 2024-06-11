@@ -19,8 +19,14 @@ Temperatures.js - ESP3D WebUI component file
 import { Fragment, h } from "preact"
 import { T } from "../Translations"
 import { useUiContext, useUiContextFn } from "../../contexts"
-import { useState } from "preact/hooks"
-import { ButtonImg, Loading, Field } from "../Controls"
+import { useState, useRef } from "preact/hooks"
+import {
+    ButtonImg,
+    Loading,
+    Field,
+    FullScreenButton,
+    CloseButton,
+} from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL } from "../Helpers"
 import { Thermometer, Power, Send } from "preact-feather"
@@ -265,7 +271,7 @@ const TemperatureInputControl = ({ tool, index, size }) => {
 }
 
 const TemperaturesPanel = () => {
-    const { panels } = useUiContext()
+    const panelRef = useRef(null)
     const { temperatures } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const sendCommand = (command) => {
@@ -291,7 +297,7 @@ const TemperaturesPanel = () => {
         if (temperatures[tool].length != 0) hasTemp = true
     })
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Thermometer />
@@ -299,13 +305,14 @@ const TemperaturesPanel = () => {
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
-                        <button
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

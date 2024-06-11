@@ -40,7 +40,6 @@ import {
     WebUILogo,
     QuickButtonsBar,
     BackgroundContainer,
-    
 } from "SubTargetDir"
 
 import defaultPreferencesSubTarget from "SubTargetDir/preferences.json"

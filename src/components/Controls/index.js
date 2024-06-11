@@ -29,13 +29,17 @@ import Toast from "./Toast"
 import Progress from "./Progress"
 import CenterLeft from "./CenterLeft"
 import FieldGroup from "./FieldGroup"
+import FullScreenButton from "./FullScreenButton"
+import CloseButton from "./CloseButton"
 
 export {
     Button,
     ButtonImg,
     CenterLeft,
+    CloseButton,
     Field,
     FieldGroup,
+    FullScreenButton,
     Loading,
     Modal,
     Progress,

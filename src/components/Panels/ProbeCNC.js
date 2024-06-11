@@ -17,16 +17,16 @@ ProbeCNC.js - ESP3D WebUI component file
 */
 
 import { Fragment, h } from "preact"
-import { useState } from "preact/hooks"
+import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
-import { Underline, PlayCircle, PauseCircle, StopCircle } from "preact-feather"
+import { Underline } from "preact-feather"
 import {
     useUiContext,
     useUiContextFn,
     useSettingsContext,
 } from "../../contexts"
-import { useTargetContext, variablesList, eventsList } from "../../targets"
-import { ButtonImg, Field } from "../Controls"
+import { useTargetContext, variablesList } from "../../targets"
+import { ButtonImg, Field, FullScreenButton, CloseButton } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables, settingsDepend } from "../Helpers"
 
@@ -83,15 +83,12 @@ const ProbeControls = () => {
 }
 
 const ProbePanel = () => {
-    const { toasts, panels } = useUiContext()
+    const { toasts } = useUiContext()
     const { interfaceSettings } = useSettingsContext()
     //const { status } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const id = "ProbePanel"
-    const hidePanel = () => {
-        useUiContextFn.haptic()
-        panels.hide(id)
-    }
+    const panelRef = useRef(null)
 
     console.log("Probe panel")
     if (typeof maxprobe.current === "undefined") {
@@ -378,7 +375,7 @@ const ProbePanel = () => {
     ]
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Underline />
@@ -386,10 +383,14 @@ const ProbePanel = () => {
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={hidePanel}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

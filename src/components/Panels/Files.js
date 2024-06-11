@@ -21,7 +21,14 @@ import { useEffect, useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, getBrowserTime } from "../Helpers"
-import { Loading, ButtonImg, CenterLeft, Progress } from "../Controls"
+import {
+    Loading,
+    ButtonImg,
+    CenterLeft,
+    Progress,
+    FullScreenButton,
+    CloseButton,
+} from "../Controls"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { showModal, showConfirmationModal, showProgressModal } from "../Modal"
 import {
@@ -622,9 +629,11 @@ const FilesPanel = () => {
         setMenu(newMenu())
     }, [fileSystem])
 
+    const panelRef = useRef(null)
+
     console.log(id)
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <input
                 type="file"
                 ref={fileref}
@@ -642,13 +651,14 @@ const FilesPanel = () => {
                         {fileSystem != "" && !isLoading && (
                             <PanelMenu items={menu} />
                         )}
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

@@ -23,7 +23,7 @@ import { espHttpURL } from "../Helpers"
 import { useUiContextFn } from "../../contexts"
 import { useHttpFn } from "../../hooks"
 import { Play, Pause, Aperture, RefreshCcw } from "preact-feather"
-import { ButtonImg } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton } from "../Controls"
 import { T } from "../Translations"
 import { iconsFeather } from "../Images"
 import { iconsTarget } from "../../targets"
@@ -42,10 +42,10 @@ const ExtraContent = ({
     icon,
 }) => {
     const { createNewRequest } = useHttpFn
-    const panels = useUiContextFn.panels
     const [refreshPaused, setRefreshPaused] = useState(refreshPausedList[id])
     const element = useRef(null)
     const imageCache = useRef(null)
+    const panelRef = useRef(null)
     const pageSource = type == "camera" ? "/snap" : source
     const iconsList = { ...iconsTarget, ...iconsFeather }
     const loadContent = (init = false) => {
@@ -156,20 +156,18 @@ const ExtraContent = ({
     }
     const ControlButtons = () => {
         return (
-            <Fragment>
+            <div class="m-2 image-button-bar">
                 {parseInt(refreshtime) == 0 && target == "page" && (
-                    <div class="m-2 image-button-bar">
-                        <ButtonImg
-                            m1
-                            icon={<RefreshCcw size="0.8rem" />}
-                            onclick={() => {
-                                loadContent()
-                            }}
-                        />
-                    </div>
+                    <ButtonImg
+                        m1
+                        icon={<RefreshCcw size="0.8rem" />}
+                        onclick={() => {
+                            loadContent()
+                        }}
+                    />
                 )}
                 {parseInt(refreshtime) > 0 && type != "extension" && (
-                    <div class="m-2 image-button-bar">
+                    <Fragment>
                         <ButtonImg
                             m1
                             tooltip
@@ -226,9 +224,19 @@ const ExtraContent = ({
                                 }}
                             />
                         )}
-                    </div>
+                    </Fragment>
                 )}
-            </Fragment>
+                {target == "page" && (
+                    <Fragment>
+                        <span class="m-1" />
+                        <FullScreenButton
+                            panelRef={element}
+                            hideOnFullScreen={true}
+                            asButton={true}
+                        />
+                    </Fragment>
+                )}
+            </div>
         )
     }
 
@@ -299,7 +307,7 @@ const ExtraContent = ({
     if (target == "panel") {
         const displayIcon = iconsList[icon] ? iconsList[icon] : ""
         return (
-            <div class="panel panel-dashboard">
+            <div class="panel panel-dashboard" ref={panelRef}>
                 <div class="navbar">
                     <span class="navbar-section  feather-icon-container">
                         {displayIcon}
@@ -321,12 +329,15 @@ const ExtraContent = ({
                             />
                         )}
                         <span style="height: 100%;">
-                            <button
-                                class="btn btn-clear btn-close m-1"
-                                aria-label="Close"
-                                onclick={(e) => {
-                                    useUiContextFn.haptic()
-                                    panels.hide(id)
+                            <FullScreenButton
+                                panelRef={panelRef}
+                                hideOnFullScreen={true}
+                            />
+                            <CloseButton
+                                panelRef={panelRef}
+                                panelId={id}
+                                hideOnFullScreen={true}
+                                callbackfn={() => {
                                     clearInterval(timerIDs[id])
                                 }}
                             />

@@ -538,3 +538,23 @@ a label {
         border-radius: 0px 0px 5px 5px;
     }
 }
+
+.btn.btn-screen {
+    background: transparent;
+    border: 0;
+    color: currentColor;
+    height: 1rem;
+    line-height: 0.8rem;
+    margin-left: 0.2rem;
+    margin-right: -2px;
+    opacity: 1;
+    padding: 0.1rem;
+    text-decoration: none;
+    width: 1rem;
+}
+
+.btn.btn-screen:hover {
+    background: blue;
+    color: #fff;
+    border: 0;
+}

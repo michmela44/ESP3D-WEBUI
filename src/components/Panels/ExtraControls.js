@@ -17,12 +17,18 @@
 */
 
 import { h } from "preact"
-import { useState } from "preact/hooks"
+import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Sliders, Send } from "preact-feather"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
-import { ButtonImg, Loading, Field } from "../Controls"
+import {
+    ButtonImg,
+    Loading,
+    Field,
+    FullScreenButton,
+    CloseButton,
+} from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL } from "../Helpers"
 
@@ -286,13 +292,9 @@ const ExtraInputControl = ({ element, index, size, pos }) => {
 }
 
 const ExtraControlsPanel = () => {
-    const { panels, uisettings } = useUiContext()
     const { temperatures, fanSpeed, flowRate, feedRate } = useTargetContext()
     const id = "extraControlsPanel"
-    const hidePanel = () => {
-        useUiContextFn.haptic()
-        panels.hide(id)
-    }
+    const panelRef = useRef(null)
     const inputList = [
         { name: "P91", list: fanSpeed },
         { name: "P92", list: flowRate },
@@ -302,7 +304,7 @@ const ExtraControlsPanel = () => {
     console.log("Extra Controls panel")
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Sliders />
@@ -310,10 +312,14 @@ const ExtraControlsPanel = () => {
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={hidePanel}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

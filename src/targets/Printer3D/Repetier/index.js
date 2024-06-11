@@ -22,7 +22,7 @@ import { iconsTarget } from "./icons"
 import { files } from "./files"
 import { processor } from "./processor"
 import { defaultPanelsList } from "./panels"
-import { MachineSettings, machineSettings} from "./MachineSettings"
+import { MachineSettings, machineSettings } from "./MachineSettings"
 import {
     InformationsControls,
     QuickButtonsBar,

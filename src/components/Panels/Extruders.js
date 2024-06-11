@@ -18,9 +18,15 @@ Extruders.js - ESP3D WebUI component file
 
 import { Fragment, h } from "preact"
 import { T } from "../Translations"
-import { useState } from "preact/hooks"
+import { useState, useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
-import { ButtonImg, Loading, Field } from "../Controls"
+import {
+    ButtonImg,
+    Loading,
+    Field,
+    FullScreenButton,
+    CloseButton,
+} from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL } from "../Helpers"
 import {
@@ -174,7 +180,7 @@ const ExtruderInputControl = ({ index, size, hasdivider }) => {
  *
  */
 const ExtrudersPanel = () => {
-    const { panels, modals } = useUiContext()
+    const { modals } = useUiContext()
     const { temperatures } = useTargetContext()
     if (extruderFeedRate.value == 0) {
         extruderFeedRate.value = useUiContextFn.getValue("efeedrate")
@@ -234,9 +240,9 @@ const ExtrudersPanel = () => {
         },
     ]
     console.log(id)
-
+    const panelRef = useRef(null)
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     {iconsTarget["Extruder"]}
@@ -245,13 +251,14 @@ const ExtrudersPanel = () => {
                 <span class="navbar-section">
                     <span class="H-100">
                         <PanelMenu items={menu} />
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

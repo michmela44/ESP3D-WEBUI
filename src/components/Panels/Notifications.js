@@ -27,6 +27,7 @@ import {
     PauseCircle,
     Eye,
 } from "preact-feather"
+import { FullScreenButton, CloseButton } from "../Controls"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { Menu as PanelMenu } from "./"
 
@@ -35,7 +36,7 @@ import { Menu as PanelMenu } from "./"
  *
  */
 const NotificationsPanel = () => {
-    const { panels, uisettings, notifications } = useUiContext()
+    const { uisettings, notifications } = useUiContext()
     if (notifications.isAutoScroll.current == undefined)
         notifications.isAutoScroll.current =
             uisettings.getValue("notifautoscroll")
@@ -47,6 +48,7 @@ const NotificationsPanel = () => {
     const messagesEndRef = useRef(null)
     const notificationsOutput = useRef(null)
     const id = "notificationsPanel"
+    const panelRef = useRef(null)
 
     const scrollToBottom = () => {
         if (
@@ -58,10 +60,6 @@ const NotificationsPanel = () => {
         }
     }
 
-    const hidePanel = () => {
-        useUiContextFn.haptic()
-        panels.hide(id)
-    }
     const clearNotificationList = () => {
         useUiContextFn.haptic()
         notifications.clear()
@@ -110,7 +108,7 @@ const NotificationsPanel = () => {
     console.log("Notifications panel")
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <MessageSquare />
@@ -119,10 +117,14 @@ const NotificationsPanel = () => {
                 <span class="navbar-section">
                     <span style="height: 100%;">
                         <PanelMenu items={menu} />
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={hidePanel}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

@@ -17,7 +17,7 @@ SpindleCNC.js - ESP3D WebUI component file
 */
 
 import { Fragment, h } from "preact"
-import { useState } from "preact/hooks"
+import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Target, Zap, Wind, CloudDrizzle } from "preact-feather"
 import {
@@ -26,7 +26,7 @@ import {
     useSettingsContext,
 } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
-import { ButtonImg, Field } from "../Controls"
+import { ButtonImg, Field, FullScreenButton, CloseButton } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables, settingsDepend } from "../Helpers"
 
@@ -102,15 +102,12 @@ const SpindleControls = () => {
 }
 
 const SpindlePanel = () => {
-    const { toasts, panels } = useUiContext()
+    const { toasts } = useUiContext()
     const { interfaceSettings } = useSettingsContext()
     const { status, states } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const id = "SpindlePanel"
-    const hidePanel = () => {
-        useUiContextFn.haptic()
-        panels.hide(id)
-    }
+    const panelRef = useRef(null)
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
     }
@@ -251,7 +248,7 @@ const SpindlePanel = () => {
     }
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" ref={panelRef}>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Target />
@@ -259,10 +256,14 @@ const SpindlePanel = () => {
                 </span>
                 <span class="navbar-section">
                     <span style="height: 100%;">
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={hidePanel}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

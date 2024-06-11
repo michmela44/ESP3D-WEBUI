@@ -21,6 +21,6 @@ import { h } from "preact"
 
 const MachineSettings = () => {}
 const machineSettings = {}
-machineSettings.cache=[]
+machineSettings.cache = []
 
 export { MachineSettings, machineSettings }
