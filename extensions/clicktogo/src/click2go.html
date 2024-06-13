@@ -1,0 +1,291 @@
+<script type="text/javascript">
+    let min_x_machine = -10.0000;
+    let min_y_machine =-10.0000;
+    let max_x_machine = 100.0000;
+    let max_y_machine = 100.0000;
+    const margin = 40; // Définir la taille de la marge
+    let xPos = 0;
+    let yPos = 0;
+    let lastXValid = margin;
+    let lastYValid = margin;
+    let inZone = false;
+
+
+    function initExtension() {
+        // Appeler la fonction pour mettre à jour la taille du canvas au chargement initial
+        updateCanvasSize();
+
+        // Ajouter un écouteur d'événement pour le redimensionnement de la fenêtre
+        window.addEventListener('resize', updateCanvasSize);
+
+        // Ajouter un écouteur d'événement pour le mouvement de la souris sur le canvas
+        const canvas = document.getElementById('machine-canvas');
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('click', handleClick);
+    }
+
+    function updateCanvasSize() {
+        // Récupérer les dimensions du conteneur du canvas
+        const container = document.getElementById('machine-container');
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+
+        let canvasSize;
+
+        if (containerWidth < containerHeight) {
+            canvasSize = containerWidth;
+        } else {
+            canvasSize = containerHeight;
+        }
+
+        // Mettre à jour les dimensions du canvas
+        const canvas = document.getElementById('machine-canvas');
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+
+        // Redessiner le contenu du canvas
+        drawCanvas();
+    }
+
+    function drawAxes() {
+        const canvas = document.getElementById('machine-canvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWidth = canvas.width - margin * 2;
+        const canvasHeight = canvas.height - margin * 2;
+
+        ctx.font = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step');
+        ctx.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step-color');
+        // Dessiner l'axe X
+        ctx.beginPath();
+        ctx.moveTo(margin, canvas.height - margin);
+        ctx.lineTo(canvas.width - margin, canvas.height - margin);
+        ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
+        ctx.stroke();
+
+        // Dessiner l'axe Y
+        ctx.beginPath();
+        ctx.moveTo(margin, margin);
+        ctx.lineTo(margin, canvas.height - margin);
+        ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
+        ctx.stroke();
+
+        // Dessiner les échelles sur l'axe X
+        const numXDivisions = 10;
+        const xDivisionWidth = canvasWidth / numXDivisions;
+        for (let i = 0; i <= numXDivisions; i++) {
+            const x = margin + i * xDivisionWidth;
+            ctx.beginPath();
+            ctx.moveTo(x, canvas.height - margin - 5);
+            ctx.lineTo(x, canvas.height - margin + 5);
+            ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
+            ctx.stroke();
+
+            const xValue = min_x_machine + (i * (max_x_machine - min_x_machine) / numXDivisions);
+            ctx.fillText(xValue.toFixed(2), x, canvas.height - margin + 20);
+        }
+
+        // Dessiner les échelles sur l'axe Y
+        const numYDivisions = 10;
+        const yDivisionHeight = canvasHeight / numYDivisions;
+        for (let i = 0; i <= numYDivisions; i++) {
+            const y = canvas.height - margin - i * yDivisionHeight;
+            ctx.beginPath();
+            ctx.moveTo(margin - 5, y);
+            ctx.lineTo(margin + 5, y);
+            ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
+            ctx.stroke();
+
+            const yValue = min_y_machine + (i * (max_y_machine - min_y_machine) / numYDivisions);
+            ctx.fillText(yValue.toFixed(2), margin - 40, y);
+        }
+
+        ctx.beginPath();
+        ctx.font = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font');
+        ctx.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-color');
+        ctx.fillText('X', canvas.width - margin + 10, canvas.height - margin + 5);
+        ctx.fillText('Y', margin - 5, margin - 10);
+        ctx.stroke();
+    }
+
+    function drawCanvas() {
+        const canvas = document.getElementById('machine-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Effacer le contenu précédent du canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Remplir la zone en gris clair avec une marge uniforme
+        ctx.fillStyle = ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--background-color');
+        ctx.fillRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+        drawAxes()
+    }
+
+    function drawCrosshair(xadj, yadj) {
+        const canvas = document.getElementById('machine-canvas');
+        const ctx = canvas.getContext('2d');
+        let x = xadj;
+        let y = yadj;
+
+        const isOutsideZone = xadj < margin || xadj > canvas.width - margin || yadj < margin || yadj > canvas.height - margin;
+
+        if (isOutsideZone) {
+            canvas.style.cursor = 'default';
+            if (inZone) {
+                if (xadj < margin) {
+                    lastXValid = margin;
+                } else if (xadj > canvas.width - margin) {
+                    lastXValid = canvas.width - margin;
+                }
+
+                if (yadj < margin) {
+                    lastYValid = margin;
+                } else if (yadj > canvas.height - margin) {
+                    lastYValid = canvas.height - margin;
+                }
+
+                inZone = false;
+            }
+
+            x = lastXValid;
+            y = lastYValid;
+        } else {
+            inZone = true;
+            canvas.style.cursor = 'none';
+            if (x < margin) {
+                x = margin;
+            } else if (x > canvas.width - margin) {
+                x = canvas.width - margin;
+            }
+
+            if (y < margin) {
+                y = margin;
+            } else if (y > canvas.height - margin) {
+                y = canvas.height - margin;
+            }
+
+            lastXValid = x;
+            lastYValid = y;
+        }
+        xPos = x;
+        yPos = y;
+
+        ctx.beginPath();
+        ctx.moveTo(x, margin);
+        ctx.lineTo(x, canvas.height - margin);
+        ctx.moveTo(margin, y);
+        ctx.lineTo(canvas.width - margin, y);
+        ctx.strokeStyle = ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--cursor-color');
+        ctx.stroke();
+    }
+
+    function convertToVirtualCoordinates(x, y) {
+    const canvas = document.getElementById('machine-canvas');
+    const canvasWidth = canvas.width - margin * 2;
+    const canvasHeight = canvas.height - margin * 2;
+
+    const virtualX = ((x - margin) / canvasWidth) * (max_x_machine - min_x_machine) + min_x_machine;
+    const virtualY = ((canvasHeight - (y - margin)) / canvasHeight) * (max_y_machine - min_y_machine) + min_y_machine;
+
+    return { x: virtualX, y: virtualY };
+}
+
+
+    function handleMouseMove(event) {
+        const canvas = document.getElementById('machine-canvas');
+        const rect = canvas.getBoundingClientRect();
+
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const x = (event.offsetX || event.clientX - rect.left) * scaleX;
+        const y = (event.offsetY || event.clientY - rect.top) * scaleY;
+
+        const adjustedX = Math.max(0, Math.min(x, canvas.width));
+        const adjustedY = Math.max(0, Math.min(y, canvas.height));
+
+        drawCanvas();
+        drawCrosshair(adjustedX, adjustedY);
+    }
+
+    function handleClick(event) {
+
+        if (inZone) {
+            const virtualCoords = convertToVirtualCoordinates(xPos, yPos);
+            console.log(`Coordonnées du clic : (${xPos}, ${yPos}`);
+            console.log(`Coordonnées virtuelles : (${virtualCoords.x}, ${virtualCoords.y})`);
+        }
+    }
+
+
+
+    // Handle messages received from WebUI
+    function processMessage(eventMsg) {
+        if (eventMsg.data.type) {
+            const line = eventMsg.data.content;
+            if (eventMsg.data.type == "cmd") {
+                if (line.status == "success") {
+                    // TBD
+                }
+                if (line.status == "error") {
+                    // TBD
+                    console.log("Error");
+                }
+            }
+        }
+    }
+
+    // Send Command to Web UI
+    function sendCommand(cmd) {
+        const msg = { type: "cmd", target: "webui", id: "terminal", content: cmd };
+        window.parent.postMessage(msg, '*');
+    }
+
+    // Onload add listener to collect messages from WebUI and init extension
+    window.onload = (event) => {
+        // Add listener
+        window.addEventListener("message", processMessage, false);
+        // Add init function
+        initExtension();
+    };
+</script>
+
+<style>
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #machine-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding: 20;
+        box-sizing: border-box;
+    }
+
+    #machine-canvas {
+        max-width: 100%;
+        max-height: 100%;
+        border: 1px solid black;
+        padding: 0 0 0 0;
+        --axis-label-font-step: 9px Arial, sans-serif;
+        --axis-label-font-step-color: black;
+        --axis-label-font: 16px Arial, sans-serif;
+        --axis-label-font-color: black;
+        --axis-color: blue;
+        --background-color: lightgray;
+        --cursor-color: red;
+    }
+</style>
+
+<div id="machine-container">
+    <canvas id="machine-canvas"></canvas>
+</div>
