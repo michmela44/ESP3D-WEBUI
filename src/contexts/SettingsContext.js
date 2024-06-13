@@ -34,6 +34,7 @@ const SettingsContextProvider = ({ children }) => {
     const interfaceValues = useRef({})
     const connectionValues = useRef({})
     const featuresValues = useRef({})
+    const extensionsValues = useRef({})
     const pollingInterval = useRef([])
     useSettingsContextFn.getValue = (val) => connectionValues.current[val]
 
@@ -71,6 +72,7 @@ const SettingsContextProvider = ({ children }) => {
         interfaceSettings: interfaceValues,
         connectionSettings: connectionValues,
         featuresSettings: featuresValues,
+        extensionsSettings: extensionsValues,
         activity: { startPolling, stopPolling },
     }
 

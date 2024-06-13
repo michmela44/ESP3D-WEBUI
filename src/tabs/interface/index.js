@@ -47,7 +47,7 @@ const InterfaceTab = () => {
     const { toasts, modals, connection } = useUiContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { getInterfaceSettings } = useSettings()
-    const { interfaceSettings, connectionSettings } = useSettingsContext()
+    const { interfaceSettings, connectionSettings,extensionsSettings  } = useSettingsContext()
     const [isLoading, setIsLoading] = useState(false)
     const [showSave, setShowSave] = useState(true)
     const inputFile = useRef(null)
@@ -304,8 +304,10 @@ const InterfaceTab = () => {
     }
 
     const SaveSettings = () => {
+        const settings_to_save = exportPreferences(interfaceSettings.current, false)
+        settings_to_save.extensions=extensionsSettings.current.extensions
         const preferencestosave = JSON.stringify(
-            exportPreferences(interfaceSettings.current, false),
+            settings_to_save,
             null,
             " "
         )

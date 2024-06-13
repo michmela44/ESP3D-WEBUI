@@ -57,7 +57,7 @@ const useSettings = () => {
     const { createNewRequest } = useHttpQueue()
     const { toasts, modals, connection, uisettings } = useUiContext()
     const { processData } = useTargetContextFn
-    const { interfaceSettings, connectionSettings, activity } =
+    const { interfaceSettings, connectionSettings, extensionsSettings, activity } =
         useSettingsContext()
     const { defaultRoute, setActiveRoute } = useRouterContext()
     const sendCommand = (cmd, id) => {
@@ -379,6 +379,7 @@ const useSettings = () => {
             {
                 onSuccess: (result) => {
                     const jsonResult = JSON.parse(result)
+                    extensionsSettings.current =JSON.parse(JSON.stringify(jsonResult))
                     const [preferences, haserrors] = importPreferences(
                         defaultPreferences,
                         jsonResult

@@ -1,0 +1,45 @@
+<script type="text/javascript">
+  function sendMessage(msg) {
+    window.parent.postMessage(msg, '*');
+  }
+
+  function onclickBtn() {
+    const contentTxt = "{'" + document.getElementById('value_name').value + "':'" + document.getElementById('value_data').value + "'}"
+    sendMessage({ type: 'extensionsData', target: 'webui', id: document.getElementById('extension_name').value, content: contentTxt });
+  }
+
+  function processMessage(eventMsg) {
+    if (eventMsg.data.type) {
+
+      if (eventMsg.data.type == "extensionsData") {
+        const line = eventMsg.data.content
+        const resultPanel = document.getElementById("output");
+        let res = JSON.stringify(line.response, " ", "\n")
+        while (res.includes("\n\n")) {
+          res = res.replace("\n\n", "\n");
+        }
+        resultPanel.innerHTML = res;
+
+      }
+    }
+  }
+
+  window.onload = (event) => {
+    window.addEventListener("message", processMessage, false);
+  }
+
+</script>
+
+<div class="container">
+  <div class="form-group">
+    <label class="form-label" for="extension_name">Extension Name:</label><input class="form-input" id="extension_name"
+      type="text" value="myextension">
+    <label class="form-label" for="value_name">Value Name:</label><input class="form-input" id="value_name" type="text"
+      value="xmax">
+    <label class="form-label" for="value_data">Value:</label><input class="form-input" id="value_data" type="text"
+      value="100">
+    <button class="btn m-1" onclick="onclickBtn();">Save</button>
+  </div>
+  <div id="output"></div>
+
+</div>

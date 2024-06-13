@@ -24,7 +24,10 @@ import { machineSettings, iconsTarget } from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
-import { useSettingsContext } from "../contexts/SettingsContext"
+import {
+    useSettingsContext,
+    useSettingsContextFn,
+} from "../contexts/SettingsContext"
 import { useSettings, useHttpQueue } from "../hooks"
 import { useEffect } from "preact/hooks"
 import { showLogin, showKeepConnected, showModal } from "../components/Modal"
@@ -65,8 +68,12 @@ const ViewContainer = () => {
 const ContentContainer = () => {
     let displayIcon = {}
     const { getConnectionSettings, getInterfaceSettings } = useSettings()
-    const { connectionSettings, interfaceSettings, featuresSettings } =
-        useSettingsContext()
+    const {
+        connectionSettings,
+        interfaceSettings,
+        featuresSettings,
+        extensionsSettings,
+    } = useSettingsContext()
     const { createNewRequest } = useHttpQueue()
     const { toasts, modals } = useUiContext()
     const iconsList = { ...iconsTarget, ...iconsFeather }
@@ -381,7 +388,6 @@ const ContentContainer = () => {
                     }
                     break
                 case "icon":
-                    console.log(eventMsg.data.id)
                     const iconToSend = iconsFeather[eventMsg.data.id]
                     //Temporary DOM
                     const tempElement = document.createElement("div")
@@ -391,7 +397,6 @@ const ContentContainer = () => {
                     const iconSvgString = tempElement.firstChild.outerHTML
                     //Delete the temporary DOM
                     tempElement.remove()
-                    console.log(iconSvgString)
 
                     dispatchToExtensions(
                         "icon",
@@ -402,33 +407,126 @@ const ContentContainer = () => {
                         eventMsg.data.id
                     )
                     break
+                case "extensionsData":
+                    //Get extension name
+                    const section = eventMsg.data.id
+                    //Get extensions settings
+                    const data = eventMsg.data.content
+                    //Some sanity check
+                    if (!extensionsSettings.current.extensions) {
+                        extensionsSettings.current.extensions = {}
+                    }
+                    if (!extensionsSettings.current.extensions[section]) {
+                        extensionsSettings.current.extensions[section] = {}
+                    }
+                    //Update the settings
+                    //Note: it will overwrite the whole section
+                    extensionsSettings.current.extensions[section] = data
+                    //now stringify and save
+                    const preferencestosave = JSON.stringify(
+                        extensionsSettings.current,
+                        null,
+                        " "
+                    )
+                    //Create a blob
+                    const blob = new Blob([preferencestosave], {
+                        type: "application/json",
+                    })
+                    //Create a file
+                    const preferencesFileName =
+                        useSettingsContextFn.getValue("HostUploadPath") +
+                        "preferences.json"
+                    const formDataExtensions = new FormData()
+                    const file_to_save = new File([blob], preferencesFileName)
+                    formDataExtensions.append(
+                        "path",
+                        useSettingsContextFn.getValue("HostUploadPath")
+                    )
+                    formDataExtensions.append("creatPath", "true")
+                    formDataExtensions.append(
+                        preferencesFileName + "S",
+                        preferencestosave.length
+                    )
+                    formDataExtensions.append(
+                        "myfiles",
+                        file_to_save,
+                        preferencesFileName
+                    )
+                    //Send the file
+                    createNewRequest(
+                        espHttpURL(useSettingsContextFn.getValue("HostTarget")),
+                        {
+                            method: "POST",
+                            id: "preferences",
+                            body: formDataExtensions,
+                        },
+                        {
+                            onSuccess: (result) => {
+                                toasts.addToast({
+                                    content: T("S62"),
+                                    type: "success",
+                                })
+                                dispatchToExtensions(
+                                    "extensionsData",
+                                    {
+                                        response: { status: "success" },
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                            },
+                            onFail: (error) => {
+                                toasts.addToast({
+                                    content: T("S44"),
+                                    type: "Error",
+                                })
+                                dispatchToExtensions(
+                                    "extensionsData",
+                                    {
+                                        response: { status: "error" },
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                            },
+                        }
+                    )
+
+                    break
                 case "capabilities":
                     let response = {}
                     switch (eventMsg.data.id) {
                         case "connection":
-                            console.log(connectionSettings.current)
                             response = JSON.parse(
                                 JSON.stringify(connectionSettings.current)
                             )
                             break
                         case "settings":
-                            console.log(machineSettings)
                             response = JSON.parse(
                                 JSON.stringify(machineSettings)
                             )
                             break
                             break
                         case "interface":
-                            console.log(interfaceSettings.current)
                             response = JSON.parse(
                                 JSON.stringify(interfaceSettings.current)
                             )
                             break
                         case "features":
-                            console.log(featuresSettings.current)
                             response = JSON.parse(
                                 JSON.stringify(featuresSettings.current)
                             )
+                            break
+                        case "extensions":
+                            if (extensionsSettings.current.extensions) {
+                                response = JSON.parse(
+                                    JSON.stringify(
+                                        extensionsSettings.current.extensions
+                                    )
+                                )
+                            } else {
+                                response = "{}"
+                            }
                             break
                         default:
                             response = {}
