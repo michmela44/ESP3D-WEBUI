@@ -319,6 +319,34 @@ const ContentContainer = () => {
                             )
                         }, 500)
                     }
+                    console.log()
+                    if (content.style == "input"){
+                        inputData = content.value
+                    }
+                    const modalContent={}
+                    console.log(content)
+                    if (content.style == "fields"){
+                        console.log("fields")
+                        inputData = content.fields
+                        modalContent.content=content.fields.map((field) => {
+                            console.log(field)
+                            return (
+                                <div class="form-group">
+                                    <label class="form-label"> {T(field.label)}</label>
+                                    <input
+                                        class="form-input"
+                                        onInput={(e) => {
+                                            field.value = e.target.value.trim()
+                                        }}
+                                        value={field.value}
+                                    />
+                                </div>
+                            )
+                        }
+                        )
+                    } else {
+                        modalContent.content = T(content.text)
+                    } 
 
                     showModal({
                         modals,
@@ -344,13 +372,14 @@ const ContentContainer = () => {
                         id: content.id,
                         content: (
                             <Fragment>
-                                <div>{T(content.text)}</div>
+                                <div>{modalContent.content}</div>
                                 {content.style == "input" && (
                                     <input
                                         class="form-input"
                                         onInput={(e) => {
                                             inputData = e.target.value.trim()
                                         }}
+                                        value={content.value}
                                     />
                                 )}
                             </Fragment>
