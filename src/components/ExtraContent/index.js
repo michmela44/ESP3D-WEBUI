@@ -23,7 +23,7 @@ import { espHttpURL } from "../Helpers"
 import { useUiContextFn } from "../../contexts"
 import { useHttpFn } from "../../hooks"
 import { Play, Pause, Aperture, RefreshCcw } from "preact-feather"
-import { ButtonImg, FullScreenButton, CloseButton } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { T } from "../Translations"
 import { iconsFeather } from "../Images"
 import { iconsTarget } from "../../targets"
@@ -43,13 +43,25 @@ const ExtraContent = ({
 }) => {
     const { createNewRequest } = useHttpFn
     const [refreshPaused, setRefreshPaused] = useState(refreshPausedList[id])
+    const [isFullScreen, setIsFullScreen] = useState(false)
     const element = useRef(null)
     const imageCache = useRef(null)
     const panelRef = useRef(null)
     const pageSource = type == "camera" ? "/snap" : source
     const iconsList = { ...iconsTarget, ...iconsFeather }
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+          setIsFullScreen(document.fullscreenElement !== null);
+        };
+      
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+      
+        return () => {
+          document.removeEventListener('fullscreenchange', handleFullScreenChange);
+        };
+      }, []);
     const loadContent = (init = false) => {
-        if (!init && refreshPausedList[id]) {
+        if (!init && refreshPausedList[id] ) {
             return
         }
         if (pageSource.startsWith("http")) {
@@ -306,8 +318,10 @@ const ExtraContent = ({
         )
     if (target == "panel") {
         const displayIcon = iconsList[icon] ? iconsList[icon] : ""
+        //console.log("Panel :", id, "Ref :", panelRef.current)
         return (
-            <div class="panel panel-dashboard" ref={panelRef}>
+            <div class="panel panel-dashboard" id={id} ref={panelRef}>
+             <ContainerHelper id={id} /> 
                 <div class="navbar">
                     <span class="navbar-section  feather-icon-container">
                         {displayIcon}

@@ -37,6 +37,7 @@ import {
 import { Plus, Minus, Edit3 } from "preact-feather"
 import { Menu as PanelMenu } from "./"
 import { showModal } from "../Modal"
+import { ContainerHelper } from "../Controls"
 
 const extrudeDistance = []
 const extruderFeedRate = { value: 0 }
@@ -242,7 +243,8 @@ const ExtrudersPanel = () => {
     console.log(id)
     const panelRef = useRef(null)
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     {iconsTarget["Extruder"]}

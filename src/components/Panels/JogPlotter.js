@@ -29,7 +29,7 @@ import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { T } from "../Translations"
-import { Button, ButtonImg, FullScreenButton, CloseButton } from "../Controls"
+import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext, variablesList } from "../../targets"
@@ -353,7 +353,8 @@ const JogPanel = () => {
         currentSteps = useUiContextFn.getValue("steps")
     }, [])
     return (
-        <div id={id} class="panel panel-dashboard" ref={panelRef}>
+        <div id={id} class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Move />

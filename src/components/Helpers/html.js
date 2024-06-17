@@ -26,4 +26,32 @@ const dispatchToExtensions = (type, data, id) => {
     })
 }
 
-export { dispatchToExtensions }
+
+const getFullscreenElement = () => {
+    return (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+    )
+}
+
+const isFullscreenSupported = () => {
+    return (
+        document.fullscreenEnabled ||
+        document.webkitFullscreenEnabled ||
+        document.mozFullScreenEnabled ||
+        document.msFullscreenEnabled
+    )
+}
+
+const isFullscreenActive = () => {
+    return (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+    )
+}
+
+export { dispatchToExtensions, getFullscreenElement, isFullscreenSupported, isFullscreenActive}

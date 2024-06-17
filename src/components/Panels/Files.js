@@ -28,6 +28,7 @@ import {
     Progress,
     FullScreenButton,
     CloseButton,
+    ContainerHelper,
 } from "../Controls"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { showModal, showConfirmationModal, showProgressModal } from "../Modal"
@@ -633,13 +634,14 @@ const FilesPanel = () => {
 
     console.log(id)
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
             <input
                 type="file"
                 ref={fileref}
                 class="d-none"
                 onChange={filesSelected}
             />
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section  feather-icon-container">
                     <HardDrive />

@@ -31,6 +31,7 @@ import {
 } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL } from "../Helpers"
+import { ContainerHelper } from "../Controls"
 
 /*
  * Local const
@@ -304,7 +305,8 @@ const ExtraControlsPanel = () => {
     console.log("Extra Controls panel")
 
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Sliders />

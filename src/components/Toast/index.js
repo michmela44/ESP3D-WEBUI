@@ -17,7 +17,7 @@
 */
 import { h } from "preact"
 import { useEffect } from "preact/hooks"
-import { useUiContext } from "../../contexts"
+import { useUiContext,useUiContextFn } from "../../contexts"
 import { Toast as SpectreToast } from "../Controls"
 import { T } from "../Translations"
 

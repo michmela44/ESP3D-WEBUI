@@ -21,7 +21,7 @@ import { T } from "../Translations"
 import { useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
-import { ButtonImg, Button, FullScreenButton, CloseButton } from "../Controls"
+import { ButtonImg, Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import {
@@ -231,7 +231,8 @@ const StatusPanel = () => {
     }
 
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Layers />

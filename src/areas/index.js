@@ -24,20 +24,25 @@ import { machineSettings, iconsTarget } from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
+import { generateValidationGlobal as generateValidation } from "../tabs/interface"
 import {
     useSettingsContext,
     useSettingsContextFn,
 } from "../contexts/SettingsContext"
 import { useSettings, useHttpQueue } from "../hooks"
 import { useEffect } from "preact/hooks"
+import { Field } from "../components/Controls"
 import { showLogin, showKeepConnected, showModal } from "../components/Modal"
 import { espHttpURL, dispatchToExtensions } from "../components/Helpers"
 import { T, baseLangRessource } from "../components/Translations"
 import { HelpCircle, Layout } from "preact-feather"
+
 /*
  * Local const
  *
  */
+
+
 
 const ViewContainer = () => {
     const { connection, dialogs } = useUiContext()
@@ -291,15 +296,41 @@ const ContentContainer = () => {
                     })
                     break
                 case "modal":
-                    let inputData = ""
+                    let inputData = null
+                    const validationBtn = {}
                     const content = eventMsg.data.content
+                    const hasError = () => {
+                        if (content.style == "fields") {
+                            const stmp = JSON.stringify(content.fields)
+                            if (
+                                stmp.includes('haserror":true') ||
+                                stmp.includes("haserror':true")
+                            ) {
+                                return true
+                            }
+                        }
+                        return false
+                    }
                     const cb1 = () => {
+                        if (
+                            (content.style == "fields" || content.style == "input") &&
+                            content.validation == "bt1"
+                        ) {
+                            if (hasError()) {
+                                return
+                            }
+                            modals.removeModal(modals.getModalIndex(content.id))
+                        }
+
                         setTimeout(() => {
                             dispatchToExtensions(
                                 "modal",
                                 {
                                     response: content.response1,
-                                    inputData: inputData,
+                                    inputData:
+                                        content.validation == "bt1"
+                                            ? inputData
+                                            : "",
                                     initiator: eventMsg.data,
                                 },
                                 eventMsg.data.id
@@ -307,46 +338,134 @@ const ContentContainer = () => {
                         }, 500)
                     }
                     const cb2 = () => {
+                        if (
+                            (content.style == "fields" || content.style == "input") &&
+                            content.validation == "bt2"
+                        ) {
+                            if (hasError()) {
+                                return
+                            }
+                            modals.removeModal(modals.getModalIndex(content.id))
+                        }
+
                         setTimeout(() => {
                             dispatchToExtensions(
                                 "modal",
                                 {
                                     response: content.response2,
-                                    inputData: inputData,
+                                    inputData:
+                                        content.validation == "bt2"
+                                            ? inputData
+                                            : "",
                                     initiator: eventMsg.data,
                                 },
                                 eventMsg.data.id
                             )
                         }, 500)
                     }
-                    console.log()
-                    if (content.style == "input"){
+                    if (content.style == "fields") {
+                        if (content.validation == "bt1") {
+                            validationBtn.id = content.bt1Id
+                                ? content.bt1Id
+                                : "bt1"
+                        }
+                        if (content.validation == "bt2") {
+                            validationBtn.id = content.bt2Id
+                                ? content.bt2Id
+                                : "bt2"
+                        }
+                    }
+                    if (content.style == "input") {
                         inputData = content.value
                     }
-                    const modalContent={}
-                    console.log(content)
-                    if (content.style == "fields"){
-                        console.log("fields")
+                    const modalContent = {}
+                    if (content.style == "fields") {
                         inputData = content.fields
-                        modalContent.content=content.fields.map((field) => {
-                            console.log(field)
-                            return (
-                                <div class="form-group">
-                                    <label class="form-label"> {T(field.label)}</label>
-                                    <input
-                                        class="form-input"
-                                        onInput={(e) => {
-                                            field.value = e.target.value.trim()
-                                        }}
-                                        value={field.value}
-                                    />
-                                </div>
-                            )
+                        //This function is a replacement of the hook feature which is not available in this context
+                        const checkValidation = (fieldData) => {
+                            const id_group = "group-" + fieldData.id
+                            if (typeof fieldData.initial == "undefined") {
+                                fieldData.initial = fieldData.value
+                            }
+                            const validation = generateValidation(fieldData)
+                            const element = document.getElementById(id_group)
+                            const divToRemove =
+                                element.getElementsByClassName(
+                                    "form-input-hint"
+                                )
+                            if (divToRemove.length > 0) {
+                                element.removeChild(divToRemove[0])
+                            }
+                            if (validation.modified && validation.valid) {
+                                element.classList.add("has-modification")
+                                const newDiv = document.createElement("div")
+                                render(validation.message, newDiv)
+                                newDiv.appendChild = validation.message
+                                newDiv.classList.add(
+                                    "form-input-hint",
+                                    "text-center"
+                                )
+                                element.appendChild(newDiv)
+                            } else {
+                                document
+                                    .getElementById(id_group)
+                                    .classList.remove("has-modification")
+                            }
+                            if (!validation.valid) {
+                                document
+                                    .getElementById(id_group)
+                                    .classList.add("has-error")
+                                const newDiv = document.createElement("div")
+                                newDiv.innerHTML = T(validation.message)
+                                newDiv.classList.add(
+                                    "form-input-hint",
+                                    "text-center"
+                                )
+
+                                element.appendChild(newDiv)
+                            } else {
+                                document
+                                    .getElementById(id_group)
+                                    .classList.remove("has-error")
+                            }
+
+                            if (document.getElementById(validationBtn.id)) {
+                                if (hasError()) {
+                                    document.getElementById(
+                                        validationBtn.id
+                                    ).style.visibility = "hidden"
+                                } else {
+                                    document.getElementById(
+                                        validationBtn.id
+                                    ).style.visibility = "visible"
+                                }
+                            }
                         }
-                        )
+                        const renderFields = () => {
+                            return content.fields.map((field) => {
+                                const { label, initial, type, ...rest } = field
+                                //const [validation, setvalidation] = useState()
+                                return (
+                                    <Field
+                                        label={T(field.label)}
+                                        value={field.value}
+                                        type={field.type}
+                                        setValue={(val, update = false) => {
+                                            if (!update) {
+                                                field.value = val
+                                            }
+                                            checkValidation(field)
+                                        }}
+                                        {...rest}
+                                    />
+                                )
+                            })
+                        }
+
+                        modalContent.content = renderFields()
                     } else {
                         modalContent.content = T(content.text)
-                    } 
+                    }
 
                     showModal({
                         modals,
@@ -355,12 +474,22 @@ const ContentContainer = () => {
                             ? {
                                   cb: cb2,
                                   text: T(content.bt2Txt),
+                                  id: "bt2",
+                                  noclose:
+                                      content.validation == "bt2"
+                                          ? true
+                                          : false,
                               }
                             : null,
                         button1: content.bt1Txt
                             ? {
                                   cb: cb1,
                                   text: T(content.bt1Txt),
+                                  id: "bt1",
+                                  noclose:
+                                      content.validation == "bt1"
+                                          ? true
+                                          : false,
                               }
                             : null,
                         icon:

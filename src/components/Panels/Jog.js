@@ -22,7 +22,7 @@ import { useHttpFn } from "../../hooks"
 import { espHttpURL } from "../Helpers"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { T } from "../Translations"
-import { Button, ButtonImg, FullScreenButton, CloseButton } from "../Controls"
+import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
@@ -357,7 +357,8 @@ const JogPanel = () => {
     label_v_axis_top = V_axis_top_dir + V_axis
 
     return (
-        <div id={id} class="panel panel-dashboard" ref={panelRef}>
+        <div id={id} class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Move />

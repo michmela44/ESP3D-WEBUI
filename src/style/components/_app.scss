@@ -54,6 +54,9 @@ body {
         margin: 0.2rem 0;
     }
 }
+:fullscreen .toasts-container{
+    top: 1.2rem;
+}
 
 .footer-container {
     height: 3rem;
@@ -98,3 +101,9 @@ body {
     -ms-flex-direction: column;
     flex-direction: column;
 }
+
+.modal-overlay {
+   opacity: 0.70;
+}
+
+

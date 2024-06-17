@@ -21,7 +21,7 @@ import { T } from "../Translations"
 import { Cast } from "preact-feather"
 import { useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
-import { ButtonImg, FullScreenButton, CloseButton } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import { iconsFeather } from "../Images"
@@ -146,7 +146,8 @@ const MacrosPanel = () => {
     }
 
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Cast />

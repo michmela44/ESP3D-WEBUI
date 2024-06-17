@@ -297,7 +297,8 @@ const TemperaturesPanel = () => {
         if (temperatures[tool].length != 0) hasTemp = true
     })
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Thermometer />

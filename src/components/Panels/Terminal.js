@@ -32,7 +32,7 @@ import { useUiContext, useDatasContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { useHttpQueue } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
-import { ButtonImg, FullScreenButton, CloseButton } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { Menu as PanelMenu } from "./"
 
 /*
@@ -215,7 +215,8 @@ const TerminalPanel = () => {
     ]
 
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id}/>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Terminal />

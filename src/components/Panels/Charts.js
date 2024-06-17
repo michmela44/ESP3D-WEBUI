@@ -20,7 +20,7 @@ import { h } from "preact"
 import { T } from "../Translations"
 import { useUiContextFn } from "../../contexts"
 import { useRef, useEffect } from "preact/hooks"
-import { FullScreenButton, CloseButton } from "../Controls"
+import { FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { Image } from "preact-feather"
 import { useTargetContext } from "../../targets"
 import { SmoothieChart, TimeSeries } from "smoothie"
@@ -395,7 +395,8 @@ const ChartsPanel = () => {
         updateCharts(2, sensor)
     }, [sensor])
     return (
-        <div class="panel panel-dashboard" ref={panelRef}>
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+         <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Image />

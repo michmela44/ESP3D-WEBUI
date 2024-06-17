@@ -18,7 +18,7 @@
 import { h } from "preact"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { Modal as SpectreModal } from "../Controls"
-import { disableUI } from "../Helpers"
+import { disableUI, getFullscreenElement } from "../Helpers"
 import { showConfirmationModal } from "./confirmModal"
 import { showKeepConnected } from "./keepConnectedModal"
 import { showLogin } from "./logginModal"
@@ -29,68 +29,88 @@ import { showModal } from "./genericModal"
  * Local const
  *
  */
-const Modal = () => {
-    const { modals } = useUiContext()
-    if (modals.modalList && modals.modalList.length > 0) {
-        disableUI(true)
-    }
 
-    return (
+const ModalContainer = ({ id }) => {
+    const { modals } = useUiContext()
+    if (
         modals.modalList &&
         modals.modalList.length > 0 &&
-        modals.modalList.map((modal, index) => {
-            const modalSize = modal.size || "sm"
-            return (
-                <SpectreModal
-                    class={`active`}
-                    id={"modal-" + modal.id}
-                    style="z-index:20000"
-                    key={index}
-                >
-                    <SpectreModal.Overlay
-                        aria-label="Close"
-                        onClick={() => {
-                            useUiContextFn.haptic()
-                            if (modal.overlay) modals.removeModal(index)
-                        }}
-                    />
-                    <SpectreModal.Container>
-                        <SpectreModal.Header>
-                            <button
-                                className={
-                                    modal.hideclose
-                                        ? "d-none"
-                                        : "btn btn-clear float-right btn-close"
-                                }
+        id === "top_modals_container"
+    ) {
+        const fullScreenElement = getFullscreenElement()
+        disableUI(
+            true,
+            fullScreenElement ? "modal_" + fullScreenElement.id : null
+        )
+    }
+    return (
+        <div class="modals-container" id={id} style="z-index:20000;">
+            {modals.modalList &&
+                modals.modalList.length > 0 &&
+                modals.modalList.map((modal, index) => {
+                    const modalSize = modal.size || "sm"
+                    const divRef = document.fullscreenElement
+                    console.log("Active modal", divRef)
+                    if (
+                        divRef &&
+                        (id === "top_modals_container" ||
+                            "modal_" + divRef.id != id)
+                    ) {
+                        return null
+                    }
+                    return (
+                        <SpectreModal
+                            class={`active`}
+                            id={"modal-" + modal.id}
+                            style="z-index:999999"
+                            key={index}
+                            tabIndex="-1"
+                        >
+                            <SpectreModal.Overlay
                                 aria-label="Close"
                                 onClick={() => {
                                     useUiContextFn.haptic()
-                                    modals.removeModal(index)
+                                    if (modal.overlay) modals.removeModal(index)
                                 }}
                             />
-                            <div className="modal-title h5">
-                                {modal.title && modal.title}
-                            </div>
-                        </SpectreModal.Header>
-                        <SpectreModal.Body>
-                            <div className="content">
-                                {modal.content && modal.content}
-                            </div>
-                        </SpectreModal.Body>
-                        {modal.footer && (
-                            <SpectreModal.Footer>
-                                {modal.footer}
-                            </SpectreModal.Footer>
-                        )}
-                    </SpectreModal.Container>
-                </SpectreModal>
-            )
-        })
+                            <SpectreModal.Container>
+                                <SpectreModal.Header>
+                                    <button
+                                        className={
+                                            modal.hideclose
+                                                ? "d-none"
+                                                : "btn btn-clear float-right btn-close"
+                                        }
+                                        aria-label="Close"
+                                        onClick={() => {
+                                            useUiContextFn.haptic()
+                                            modals.removeModal(index)
+                                        }}
+                                    />
+                                    <div className="modal-title h5">
+                                        {modal.title && modal.title}
+                                    </div>
+                                </SpectreModal.Header>
+                                <SpectreModal.Body>
+                                    <div className="content">
+                                        {modal.content && modal.content}
+                                    </div>
+                                </SpectreModal.Body>
+                                {modal.footer && (
+                                    <SpectreModal.Footer>
+                                        {modal.footer}
+                                    </SpectreModal.Footer>
+                                )}
+                            </SpectreModal.Container>
+                        </SpectreModal>
+                    )
+                })}
+        </div>
     )
 }
 
 export {
-    Modal,
+    ModalContainer,
     showConfirmationModal,
     showKeepConnected,
     showLogin,

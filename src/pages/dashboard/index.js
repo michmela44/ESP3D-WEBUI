@@ -269,7 +269,7 @@ const Dashboard = () => {
                 }, {})
 
                 if (item.target == "panel") {
-                    acc.push(ExtraPanelElement(item, "EXTRAPANEL-" + curr.id))
+                    acc.push(ExtraPanelElement(item, "EXTRAPANEL_" + curr.id))
                 }
                 return acc
             }, [])

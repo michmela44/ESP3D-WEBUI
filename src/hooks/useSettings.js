@@ -379,12 +379,16 @@ const useSettings = () => {
             {
                 onSuccess: (result) => {
                     const jsonResult = JSON.parse(result)
+                    console.log("preferences.json")
+                    console.log(jsonResult)
                     extensionsSettings.current =JSON.parse(JSON.stringify(jsonResult))
                     const [preferences, haserrors] = importPreferences(
                         defaultPreferences,
                         jsonResult
                     )
+                    console.log("Format preferences.settings")
                     formatPreferences(preferences.settings)
+                    console.log(preferences.settings)
                     uisettings.set(
                         JSON.parse(JSON.stringify(preferences.settings))
                     )
@@ -401,6 +405,8 @@ const useSettings = () => {
                         console.log("error")
                     }
                     interfaceSettings.current = preferences
+                    console.log("interfaceSettings.current")
+                    console.log(interfaceSettings.current)
 
                     //Mobile view
                     if (uisettings.getValue("mobileview", preferences.settings))
