@@ -19,6 +19,14 @@ importHelper.js - ESP3D WebUI helper file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/**
+ * Formats an item data object.
+ *
+ * @param {Object} itemData - The item data object to format.
+ * @param {number} [index=-1] - The index of the item.
+ * @param {string} [origineId="extrapanels"] - The origin ID of the item.
+ * @returns {Object} The formatted item object.
+ */
 function formatItem(itemData, index = -1, origineId = "extrapanels") {
     const itemFormated = {}
     itemFormated.id = itemData.id
@@ -158,6 +166,13 @@ function formatItem(itemData, index = -1, origineId = "extrapanels") {
     return itemFormated
 }
 
+/**
+ * Formats the items list.
+ *
+ * @param {Array} itemsList - The list of items to be formatted.
+ * @param {string} origineId - The origin ID.
+ * @returns {Array} - The formatted items list.
+ */
 function formatItemsList(itemsList, origineId) {
     const formatedItems = []
     itemsList.forEach((element, index) => {
@@ -166,86 +181,76 @@ function formatItemsList(itemsList, origineId) {
     return formatedItems
 }
 
-function formatPreferences(settings) {
-    for (let key in settings) {
-        if (Array.isArray(settings[key])) {
-            for (let index = 0; index < settings[key].length; index++) {
-                if (settings[key][index].type == "group") {
-                    settings[key][index].value.forEach((element, index) => {
+
+/**
+ * Formats the preferences section to add inital value when missing
+ *
+ * @param {Object} section - The preferences section to format.
+ * @returns {Object} - The formatted settings.
+ */
+function formatPreferences(section) {
+    for (let key in section) {
+        if (Array.isArray(section[key])) {
+            for (let index = 0; index < section[key].length; index++) {
+                if (section[key][index].type == "group") {
+                    section[key][index].value.forEach((element, index) => {
                         element.initial = element.value
                     })
-                } else if (settings[key][index].type == "list") {
-                    settings[key][index].nb = settings[key][index].value.length
-                    settings[key][index].value = formatItemsList(
-                        [...settings[key][index].value],
-                        settings[key][index].id
+                } else if (section[key][index].type == "list") {
+                    section[key][index].nb = section[key][index].value.length
+                    section[key][index].value = formatItemsList(
+                        [...section[key][index].value],
+                        section[key][index].id
                     )
-                } else settings[key][index].initial = settings[key][index].value
+                } else section[key][index].initial = section[key][index].value
             }
         }
     }
-    return settings
+    return section
 }
 
-function importPreferences(currentPreferencesData, importedPreferences) {
-    let haserrors = false
-    const currentPreferences = JSON.parse(
-        JSON.stringify(currentPreferencesData)
-    )
+/**
+ * Imports preferences into the current preferences data.
+ * @param {Object} currentPreferencesData - The current preferences data section.
+ * @param {Object} importedPreferences - The preferences to be imported section.
+ * @returns {Array} An array containing a copy of preferences data section with imported data and a flag indicating if there were any errors during the import.
+ */
+function importPreferencesSection(currentPreferencesData, importedPreferences) {
+    console.log("importPreferencesSection:", currentPreferencesData, importedPreferences);
+    let hasErrors = false;
+    const currentPreferences = JSON.parse(JSON.stringify(currentPreferencesData));
+  
     function updateElement(id, value) {
-        for (let key in currentPreferences.settings) {
-            if (Array.isArray(currentPreferences.settings[key])) {
-                for (
-                    let index = 0;
-                    index < currentPreferences.settings[key].length;
-                    index++
-                ) {
-                    if (currentPreferences.settings[key][index].id == id) {
-                        currentPreferences.settings[key][index].value = value
-                        return true
-                    }
-                    if (
-                        Array.isArray(
-                            currentPreferences.settings[key][index].value
-                        )
-                    ) {
-                        for (
-                            let subindex = 0;
-                            subindex <
-                            currentPreferences.settings[key][index].value
-                                .length;
-                            subindex++
-                        ) {
-                            if (
-                                currentPreferences.settings[key][index].value[
-                                    subindex
-                                ].id == id
-                            ) {
-                                currentPreferences.settings[key][index].value[
-                                    subindex
-                                ].value = value
-                                return true
-                            }
-                        }
-                    }
-                }
+      function traverse(obj) {
+        for (let key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            if (obj[key] && typeof obj[key] === 'object') {
+              if (obj[key].id === id) {
+                obj[key].value = value;
+                return true;
+              }
+              if (traverse(obj[key])) {
+                return true;
+              }
             }
+          }
         }
-        return false
+        return false;
+      }
+  
+      return traverse(currentPreferences);
     }
-    if (importedPreferences.custom) {
-        currentPreferences.custom = importedPreferences.custom
-    }
-    if (importedPreferences.settings) {
-        for (let key in importedPreferences.settings) {
-            if (!updateElement(key, importedPreferences.settings[key])) {
-                haserrors = true
-                console.log("Error with ", key)
-            }
+  
+    if (importedPreferences) {
+      for (let key in importedPreferences) {
+        if (!updateElement(key, importedPreferences[key])) {
+          hasErrors = true;
+          console.log("Error with ", key);
         }
+      }
     }
-    //console.log(currentPreferences.settings.extrapanels);
-    return [currentPreferences, haserrors]
-}
+  
+    return [currentPreferences, hasErrors];
+  }
 
-export { importPreferences, formatPreferences, formatItem }
+export { importPreferencesSection, formatPreferences, formatItem }

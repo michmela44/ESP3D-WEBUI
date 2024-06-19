@@ -1,31 +1,24 @@
 <script type="text/javascript">
-  //Set of Icons we want to import
   const iconsToLoad = ["Activity", "Home", "Camera", "File"];
   const loadedIcons = {};
   let iconsLoaded = false;
-  
-  //Function that send messages to WebUI
+
   function sendMessage(msg) {
     window.parent.postMessage(msg, '*');
   }
-  
-  //Function that process all message from WebUI
+
   function processMessage(eventMsg) {
-    //Load icons only if not yet loaded to avoid noise coming from request from others extensions
+	  console.log(eventMsg.data)
     if (!iconsLoaded) {
-      //We ensure this iis a message we want to handle
-      if (eventMsg.data.type && eventMsg.data.id ) {
-        //it is an icon and we need it
-        if (eventMsg.data.type === "icon" && iconsToLoad.includes(eventMsg.data.id)) {
+      if (eventMsg.data.type && eventMsg.data.id && iconsToLoad.includes(eventMsg.data.id)) {
+        if (eventMsg.data.type === "icon") {
           const iconName = eventMsg.data.id;
-          //the icon string is encoded to avoid any issue with json so we need to decode it
-          const iconSvg = decodeURIComponent(eventMsg.data.content.response);
+          const iconSvg = eventMsg.data.content.response;
           loadedIcons[iconName] = iconSvg;
-          console.log(`Icône ${iconName} loaded:`, iconSvg);
-          //check loading is finished
+          console.log(`Icône ${iconName} chargée:`, iconSvg);
+
           if (Object.keys(loadedIcons).length === iconsToLoad.length) {
-            console.log("All icons are loaded !");
-            //Now we can display interface with icons
+            console.log("Toutes les icônes sont chargées !");
             useLoadedIcons();
             iconsLoaded = true;
           }
@@ -33,10 +26,10 @@
       }
     }
   }
-  //Dispatch icons on some controls
+
   function useLoadedIcons() {
     const buttonContainer = document.getElementById("buttonContainer");
-    //Lets create buttons for the demo 
+
     iconsToLoad.forEach(iconName => {
       const button = document.createElement("button");
       button.classList.add("btn", "m-1");
@@ -46,18 +39,19 @@
       buttonContainer.appendChild(button);
     });
   }
-  //Button handle generic 
+
   function handleButtonClick(event) {
     const clickedIcon = event.currentTarget.getAttribute("data-icon");
-    console.log(`Button clicked with icon : ${clickedIcon}`);
+    console.log(`Bouton cliqué avec l'icône : ${clickedIcon}`);
+    // Ajoutez ici le code pour gérer les actions spécifiques à chaque bouton
   }
-   //Function to load all icons
+
   function loadIcons() {
     iconsToLoad.forEach(iconName => {
       sendMessage({ type: 'icon', target: 'webui', id: iconName });
     });
   }
-  //Once page is loaded this function is executed
+
   window.onload = (event) => {
     window.addEventListener("message", processMessage, false);
     loadIcons();

@@ -3,43 +3,47 @@
     window.parent.postMessage(msg, '*');
   }
 
-  function onclickBtn() {
-    const contentTxt = "{'" + document.getElementById('value_name').value + "':'" + document.getElementById('value_data').value + "'}"
-    sendMessage({ type: 'extensionsData', target: 'webui', id: document.getElementById('extension_name').value, content: contentTxt });
+  function saveSettings() {
+    const extensionName = document.getElementById('extension_name').value;
+    const xmax = document.getElementById('xmax').value;
+    const xmin = document.getElementById('xmin').value;
+
+    const settings = {
+      xmax: xmax,
+      xmin: xmin
+    };
+
+    const contentTxt = JSON.stringify(settings);
+    sendMessage({ type: 'extensionsData', target: 'webui', id: extensionName, content: contentTxt });
   }
 
   function processMessage(eventMsg) {
-    if (eventMsg.data.type) {
-
-      if (eventMsg.data.type == "extensionsData") {
-        const line = eventMsg.data.content
-        const resultPanel = document.getElementById("output");
-        let res = JSON.stringify(line.response, " ", "\n")
-        while (res.includes("\n\n")) {
-          res = res.replace("\n\n", "\n");
-        }
-        resultPanel.innerHTML = res;
-
-      }
+    if (eventMsg.data.type === "extensionsData") {
+      const response = eventMsg.data.content.response;
+      const resultPanel = document.getElementById("output");
+      const formattedResponse = JSON.stringify(response, null, 2);
+      resultPanel.textContent = formattedResponse;
     }
   }
 
   window.onload = (event) => {
     window.addEventListener("message", processMessage, false);
-  }
-
+  };
 </script>
 
 <div class="container">
   <div class="form-group">
-    <label class="form-label" for="extension_name">Extension Name:</label><input class="form-input" id="extension_name"
-      type="text" value="myextension">
-    <label class="form-label" for="value_name">Value Name:</label><input class="form-input" id="value_name" type="text"
-      value="xmax">
-    <label class="form-label" for="value_data">Value:</label><input class="form-input" id="value_data" type="text"
-      value="100">
-    <button class="btn m-1" onclick="onclickBtn();">Save</button>
+    <label class="form-label" for="extension_name">Extension Name:</label>
+    <input class="form-input" id="extension_name" type="text" value="myextension">
+    
+    <label class="form-label" for="xmax">xmax:</label>
+    <input class="form-input" id="xmax" type="text" value="100">
+    
+    <label class="form-label" for="xmin">xmin:</label>
+    <input class="form-input" id="xmin" type="text" value="0">
+    
+    <button class="btn m-1" onclick="saveSettings()">Save Settings</button>
   </div>
-  <div id="output"></div>
-
+  
+  <pre id="output"></pre>
 </div>

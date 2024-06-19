@@ -32,7 +32,7 @@ import {
 } from "./Fields"
 
 const Field = (props) => {
-    const { type, id } = props
+    const { type, id, help } = props
     switch (type) {
         case "mask":
         case "xmask":

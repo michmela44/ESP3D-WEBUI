@@ -35,22 +35,30 @@ import {
 import { T } from "../../components/Translations"
 import { RefreshCcw, Save, ExternalLink, Flag, Download } from "preact-feather"
 import { Field, FieldGroup } from "../../components/Controls"
-import { exportPreferences } from "./exportHelper"
-import { importPreferences, formatPreferences } from "./importHelper"
+import { exportPreferences, exportPreferencesSection } from "./exportHelper"
+import { importPreferencesSection, formatPreferences } from "./importHelper"
 
 const isDependenciesMet = (depend) => {
     const { interfaceSettings } = useSettingsContext()
     return settingsDepend(depend, interfaceSettings.current.settings)
 }
 
-const generateValidationGlobal = (fieldData, isFlashFS, isSDFS) => {
+const generateValidationGlobal = (
+    fieldData,
+    isFlashFS,
+    isSDFS,
+    interfaceSettings,
+    connectionSettings,
+    setShowSave,
+    checkSaveStatus
+) => {
     const validation = {
         message: <Flag size="1rem" />,
         valid: true,
         modified: true,
     }
 
-    if (fieldData.shortkey) {
+    if (fieldData.shortkey && interfaceSettings) {
         if (fieldData.value.length > 0) {
             if (fieldData.value.endsWith("+")) {
                 validation.message = T("S214")
@@ -125,7 +133,7 @@ const generateValidationGlobal = (fieldData, isFlashFS, isSDFS) => {
         }
         if (fieldData.type == "text") {
             if (fieldData.regexpattern) {
-                const regex = new RegExp(fieldData.regexpattern);
+                const regex = new RegExp(fieldData.regexpattern)
                 if (!regex.test(fieldData.value)) {
                     validation.valid = false
                 }
@@ -172,19 +180,26 @@ const generateValidationGlobal = (fieldData, isFlashFS, isSDFS) => {
                 (element) => element.value == fieldData.value
             )
             if (opt && opt.depend) {
-                const canshow = connectionDepend(
-                    opt.depend,
-                    connectionSettings.current
-                )
-                const canshow2 = settingsDepend(
-                    opt.depend,
-                    interfaceSettings.current.settings
-                )
-                if (!canshow || !canshow2) {
-                    validation.valid = false
+                if (connectionSettings) {
+                    const canshow = connectionDepend(
+                        opt.depend,
+                        connectionSettings.current
+                    )
+                    if (!canshow) {
+                        validation.valid = false
+                    }
+                }
+                if (interfaceSettings) {
+                    const canshow2 = settingsDepend(
+                        opt.depend,
+                        interfaceSettings.current.settings
+                    )
+                    if (!canshow2) {
+                        validation.valid = false
+                    }
                 }
             }
-            if (fieldData.name == "type" && fieldData.value == "camera") {
+            if (fieldData.name == "type" && fieldData.value == "camera" && interfaceSettings) {
                 //Update camera source automaticaly
                 //Note: is there a less complexe way to do ?
                 const sourceId = fieldData.id.split("-")[0]
@@ -236,7 +251,10 @@ const generateValidationGlobal = (fieldData, isFlashFS, isSDFS) => {
         }
         if (fieldData.newItem) fieldData.hasmodified = true
     }
-    if ((typeof isFlashFS != "undefined" || typeof isSDFS != "undefined") && typeof setShowSave!= "undefined") {
+    if (
+        (typeof isFlashFS != "undefined" || typeof isSDFS != "undefined") &&
+        typeof setShowSave != "undefined" && typeof checkSaveStatus != "undefined"
+    ) {
         if (isFlashFS || isSDFS) {
             setShowSave(checkSaveStatus())
         } else {
@@ -251,13 +269,11 @@ const generateValidationGlobal = (fieldData, isFlashFS, isSDFS) => {
     return validation
 }
 
-
 const InterfaceTab = () => {
     const { toasts, modals, connection } = useUiContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { getInterfaceSettings } = useSettings()
-    const { interfaceSettings, connectionSettings, extensionsSettings } =
-        useSettingsContext()
+    const { interfaceSettings, connectionSettings } = useSettingsContext()
     const [isLoading, setIsLoading] = useState(false)
     const [showSave, setShowSave] = useState(true)
     const inputFile = useRef(null)
@@ -268,11 +284,19 @@ const InterfaceTab = () => {
             : true
     const isSDFS =
         useSettingsContextFn.getValue("SDConnection") == "none" ? false : true
-    
-const generateValidation = (fieldData) => {
-    return generateValidationGlobal(fieldData, isFlashFS, isSDFS)
-     }
-    
+
+    const generateValidation = (fieldData) => {
+        return generateValidationGlobal(
+            fieldData,
+            isFlashFS,
+            isSDFS,
+            connectionSettings,
+            interfaceSettings,
+            setShowSave,
+            checkSaveStatus
+        )
+    }
+
     function checkSaveStatus() {
         let stringified = JSON.stringify(interfaceSettings.current.settings)
         let hasmodified = stringified.includes('"hasmodified":true')
@@ -288,7 +312,6 @@ const generateValidation = (fieldData) => {
     }
 
     const fileSelected = () => {
-        let haserrors = false
         if (inputFile.current.files.length > 0) {
             setIsLoading(true)
             const reader = new FileReader()
@@ -296,11 +319,23 @@ const generateValidation = (fieldData) => {
                 const importFile = e.target.result
                 try {
                     const importData = JSON.parse(importFile)
-                    ;[interfaceSettings.current, haserrors] = importPreferences(
-                        interfaceSettings.current,
-                        importData
-                    )
+
+                    const [preferences_settings, haserrors] =
+                        importPreferencesSection(
+                            interfaceSettings.current.settings,
+                            importData.settings
+                        )
+                    interfaceSettings.current.settings = preferences_settings
+                    if (importData.custom) {
+                        interfaceSettings.current.custom = importData.custom
+                    }
+                    if (importData.extensions) {
+                        interfaceSettings.current.extensions =
+                            importData.extensions
+                    }
                     formatPreferences(interfaceSettings.current.settings)
+                    console.log("Imported")
+                    console.log(interfaceSettings.current)
                     if (haserrors) {
                         toasts.addToast({ content: "S56", type: "error" })
                         console.log("Error")
@@ -322,7 +357,6 @@ const generateValidation = (fieldData) => {
             interfaceSettings.current,
             false
         )
-        settings_to_save.extensions = extensionsSettings.current.extensions
         const preferencestosave = JSON.stringify(settings_to_save, null, " ")
         const blob = new Blob([preferencestosave], {
             type: "application/json",
@@ -352,7 +386,6 @@ const generateValidation = (fieldData) => {
             }
         )
     }
-
     return (
         <div id="interface">
             <input
@@ -588,6 +621,7 @@ const generateValidation = (fieldData) => {
                             onClick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
+                                console.log(interfaceSettings.current)
                                 exportPreferences(interfaceSettings.current)
                             }}
                         />
@@ -612,4 +646,11 @@ const generateValidation = (fieldData) => {
     )
 }
 
-export { InterfaceTab , generateValidationGlobal}
+export {
+    InterfaceTab,
+    generateValidationGlobal,
+    exportPreferences,
+    exportPreferencesSection,
+    importPreferencesSection,
+    formatPreferences,
+}

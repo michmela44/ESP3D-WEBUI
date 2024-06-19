@@ -19,28 +19,24 @@ exportHelper.js - ESP3D WebUI helper file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-function exportPreferences(preferencesSettings, asFile = true) {
-    const preferences = {}
-    const filename = "preferences.json"
-    preferences.settings = {}
-    if (preferencesSettings.custom)
-        preferences.custom = preferencesSettings.custom
-    for (let key in preferencesSettings.settings) {
-        for (let subkey in preferencesSettings.settings[key]) {
-            if (preferencesSettings.settings[key][subkey].id) {
-                if (preferencesSettings.settings[key][subkey].type == "group") {
-                    preferencesSettings.settings[key][subkey].value.forEach(
+function exportPreferencesSection(interfaceSettingsDataSection, asFile = true, initial_value = false){
+    const section = {}
+    for (let key in interfaceSettingsDataSection) {
+        for (let subkey in interfaceSettingsDataSection[key]) {
+            if (interfaceSettingsDataSection[key][subkey].id) {
+                if (interfaceSettingsDataSection[key][subkey].type == "group") {
+                    interfaceSettingsDataSection[key][subkey].value.forEach(
                         (element) => {
-                            preferences.settings[element.id] = asFile
+                            section[element.id] = asFile
                                 ? element.initial
                                 : element.value
                         }
                     )
                 } else if (
-                    preferencesSettings.settings[key][subkey].type == "list"
+                    interfaceSettingsDataSection[key][subkey].type == "list"
                 ) {
                     const itemsList = []
-                    preferencesSettings.settings[key][subkey].value.forEach(
+                    interfaceSettingsDataSection[key][subkey].value.forEach(
                         (element) => {
                             const item = {}
                             item.id = element.id
@@ -52,19 +48,33 @@ function exportPreferences(preferencesSettings, asFile = true) {
                             itemsList.push(item)
                         }
                     )
-                    preferences.settings[
-                        preferencesSettings.settings[key][subkey].id
+                    section[
+                        interfaceSettingsDataSection[key][subkey].id
                     ] = itemsList
                 } else {
-                    preferences.settings[
-                        preferencesSettings.settings[key][subkey].id
-                    ] = asFile
-                        ? preferencesSettings.settings[key][subkey].initial
-                        : preferencesSettings.settings[key][subkey].value
+                    section[
+                        interfaceSettingsDataSection[key][subkey].id
+                    ] = asFile || initial_value
+                        ? interfaceSettingsDataSection[key][subkey].initial
+                        : interfaceSettingsDataSection[key][subkey].value
                 }
             }
         }
     }
+    return section
+}
+
+function exportPreferences(interfaceSettingsData, asFile = true) {
+    console.log("exportPreferences for")
+    console.log(JSON.parse(JSON.stringify(interfaceSettingsData)))
+    const preferences = {}
+    const filename = "preferences.json"
+    preferences.settings = {}
+    if (interfaceSettingsData.custom)
+        preferences.custom = interfaceSettingsData.custom
+    if (interfaceSettingsData.extensions)
+        preferences.extensions = interfaceSettingsData.extensions
+    preferences.settings = exportPreferencesSection(interfaceSettingsData.settings, asFile)
     if (asFile) {
         const file = new Blob([JSON.stringify(preferences, null, " ")], {
             type: "application/json",
@@ -86,7 +96,9 @@ function exportPreferences(preferencesSettings, asFile = true) {
             }, 0)
         }
     }
+    console.log("exportPreferences done")
+    console.log(preferences)
     return preferences
 }
 
-export { exportPreferences }
+export { exportPreferences, exportPreferencesSection }

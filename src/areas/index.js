@@ -24,14 +24,18 @@ import { machineSettings, iconsTarget } from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
-import { generateValidationGlobal as generateValidation } from "../tabs/interface"
+import {
+    generateValidationGlobal as generateValidation,
+    exportPreferencesSection,
+    importPreferencesSection,
+} from "../tabs/interface"
 import {
     useSettingsContext,
     useSettingsContextFn,
 } from "../contexts/SettingsContext"
 import { useSettings, useHttpQueue } from "../hooks"
 import { useEffect } from "preact/hooks"
-import { Field } from "../components/Controls"
+import { Field, FieldGroup } from "../components/Controls"
 import { showLogin, showKeepConnected, showModal } from "../components/Modal"
 import { espHttpURL, dispatchToExtensions } from "../components/Helpers"
 import { T, baseLangRessource } from "../components/Translations"
@@ -41,8 +45,6 @@ import { HelpCircle, Layout } from "preact-feather"
  * Local const
  *
  */
-
-
 
 const ViewContainer = () => {
     const { connection, dialogs } = useUiContext()
@@ -73,12 +75,8 @@ const ViewContainer = () => {
 const ContentContainer = () => {
     let displayIcon = {}
     const { getConnectionSettings, getInterfaceSettings } = useSettings()
-    const {
-        connectionSettings,
-        interfaceSettings,
-        featuresSettings,
-        extensionsSettings,
-    } = useSettingsContext()
+    const { connectionSettings, interfaceSettings, featuresSettings } =
+        useSettingsContext()
     const { createNewRequest } = useHttpQueue()
     const { toasts, modals } = useUiContext()
     const iconsList = { ...iconsTarget, ...iconsFeather }
@@ -311,9 +309,26 @@ const ContentContainer = () => {
                         }
                         return false
                     }
+
+                    const exportResult = () => {
+                        const settingsValues = {}
+                        if (content.style == "fields") {
+                            settingsValues.values = inputData
+                            settingsValues.export = exportPreferencesSection(
+                                settingsValues,
+                                false
+                            )
+                        } else {
+                            settingsValues.export = inputData
+                        }
+
+                        console.log("export", settingsValues.export)
+                        return settingsValues.export
+                    }
                     const cb1 = () => {
                         if (
-                            (content.style == "fields" || content.style == "input") &&
+                            (content.style == "fields" ||
+                                content.style == "input") &&
                             content.validation == "bt1"
                         ) {
                             if (hasError()) {
@@ -329,7 +344,7 @@ const ContentContainer = () => {
                                     response: content.response1,
                                     inputData:
                                         content.validation == "bt1"
-                                            ? inputData
+                                            ? exportResult()
                                             : "",
                                     initiator: eventMsg.data,
                                 },
@@ -339,7 +354,8 @@ const ContentContainer = () => {
                     }
                     const cb2 = () => {
                         if (
-                            (content.style == "fields" || content.style == "input") &&
+                            (content.style == "fields" ||
+                                content.style == "input") &&
                             content.validation == "bt2"
                         ) {
                             if (hasError()) {
@@ -355,7 +371,10 @@ const ContentContainer = () => {
                                     response: content.response2,
                                     inputData:
                                         content.validation == "bt2"
-                                            ? inputData
+                                            ? exportPreferences(
+                                                  exportResult(),
+                                                  false
+                                              )
                                             : "",
                                     initiator: eventMsg.data,
                                 },
@@ -380,7 +399,15 @@ const ContentContainer = () => {
                     }
                     const modalContent = {}
                     if (content.style == "fields") {
-                        inputData = content.fields
+                        //merge format and fields
+
+                        const [newFields, hasErrors] = importPreferencesSection(
+                            content.fields,
+                            content.values
+                        )
+                        console.log("newFields", newFields, content.fields)
+                        inputData = newFields
+
                         //This function is a replacement of the hook feature which is not available in this context
                         const checkValidation = (fieldData) => {
                             const id_group = "group-" + fieldData.id
@@ -442,23 +469,80 @@ const ContentContainer = () => {
                             }
                         }
                         const renderFields = () => {
-                            return content.fields.map((field) => {
-                                const { label, initial, type, ...rest } = field
-                                //const [validation, setvalidation] = useState()
-                                return (
-                                    <Field
-                                        label={T(field.label)}
-                                        value={field.value}
-                                        type={field.type}
-                                        setValue={(val, update = false) => {
-                                            if (!update) {
-                                                field.value = val
+                            const section = inputData
+                            return Object.keys(section).map((subsectionId) => {
+                                const fieldData = section[subsectionId]
+                                //console.log(fieldData)
+                                if (fieldData.type == "group") {
+                                    return (
+                                        <FieldGroup
+                                            id={fieldData.id}
+                                            label={T(fieldData.label)}
+                                        >
+                                            {Object.keys(fieldData.value).map(
+                                                (subData) => {
+                                                    const subFieldData =
+                                                        fieldData.value[subData]
+                                                    console.log(subFieldData)
+                                                    const {
+                                                        label,
+                                                        initial,
+                                                        type,
+                                                        ...rest
+                                                    } = subFieldData
+                                                    return (
+                                                        <Field
+                                                            label={T(
+                                                                subFieldData.label
+                                                            )}
+                                                            value={
+                                                                subFieldData.value
+                                                            }
+                                                            type={
+                                                                subFieldData.type
+                                                            }
+                                                            setValue={(
+                                                                val,
+                                                                update = false
+                                                            ) => {
+                                                                if (!update) {
+                                                                    subFieldData.value =
+                                                                        val
+                                                                }
+                                                                checkValidation(
+                                                                    subFieldData
+                                                                )
+                                                            }}
+                                                            {...rest}
+                                                        />
+                                                    )
+                                                }
+                                            )}
+                                        </FieldGroup>
+                                    )
+                                } else {
+                                    const { label, initial, type, ...rest } =
+                                        fieldData
+                                    return (
+                                        <Field
+                                            label={T(label)}
+                                            type={type}
+                                            inline={
+                                                type == "boolean" ||
+                                                type == "icon"
+                                                    ? true
+                                                    : false
                                             }
-                                            checkValidation(field)
-                                        }}
-                                        {...rest}
-                                    />
-                                )
+                                            {...rest}
+                                            setValue={(val, update = false) => {
+                                                if (!update) {
+                                                    fieldData.value = val
+                                                }
+                                                checkValidation(fieldData)
+                                            }}
+                                        />
+                                    )
+                                }
                             })
                         }
 
@@ -559,7 +643,7 @@ const ContentContainer = () => {
                     dispatchToExtensions(
                         "icon",
                         {
-                            response: encodeURIComponent(iconSvgString),
+                            response: iconSvgString.replaceAll("\"", "'"),
                             initiator: eventMsg.data,
                         },
                         eventMsg.data.id
@@ -571,18 +655,30 @@ const ContentContainer = () => {
                     //Get extensions settings
                     const data = eventMsg.data.content
                     //Some sanity check
-                    if (!extensionsSettings.current.extensions) {
-                        extensionsSettings.current.extensions = {}
+                    if (!interfaceSettings.current.extensions) {
+                        interfaceSettings.current.extensions = {}
                     }
-                    if (!extensionsSettings.current.extensions[section]) {
-                        extensionsSettings.current.extensions[section] = {}
+                    if (!interfaceSettings.current.extensions[section]) {
+                        interfaceSettings.current.extensions[section] = {}
                     }
                     //Update the settings
                     //Note: it will overwrite the whole section
-                    extensionsSettings.current.extensions[section] = data
+                    interfaceSettings.current.extensions[section] = data
+
+                    //now do a copy of interfaceSettings
+                    const interfaceSettingsData = JSON.parse(
+                        JSON.stringify(interfaceSettings.current)
+                    )
+
+                    //now update the settings section with export version
+
+                    interfaceSettingsData.settings = exportPreferencesSection(interfaceSettingsData.settings, false, true)
+
+                    console.log("interfaceSettingsData", interfaceSettingsData)
+
                     //now stringify and save
                     const preferencestosave = JSON.stringify(
-                        extensionsSettings.current,
+                        interfaceSettingsData,
                         null,
                         " "
                     )
@@ -676,12 +772,21 @@ const ContentContainer = () => {
                             )
                             break
                         case "extensions":
-                            if (extensionsSettings.current.extensions) {
-                                response = JSON.parse(
-                                    JSON.stringify(
-                                        extensionsSettings.current.extensions
+                            if (interfaceSettings.current.extensions) {
+                                if (
+                                    interfaceSettings.current.extensions[
+                                        eventMsg.data.name
+                                    ]
+                                ) {
+                                    response = JSON.parse(
+                                        JSON.stringify(
+                                            interfaceSettings.current
+                                                .extensions[eventMsg.data.name]
+                                        )
                                     )
-                                )
+                                } else {
+                                    response = "{}"
+                                }
                             } else {
                                 response = "{}"
                             }

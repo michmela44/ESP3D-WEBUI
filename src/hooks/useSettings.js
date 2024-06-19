@@ -43,7 +43,7 @@ import {
     variablesList,
 } from "../targets"
 import {
-    importPreferences,
+    importPreferencesSection,
     formatPreferences,
 } from "../tabs/interface/importHelper"
 import { Frown, Info } from "preact-feather"
@@ -57,7 +57,7 @@ const useSettings = () => {
     const { createNewRequest } = useHttpQueue()
     const { toasts, modals, connection, uisettings } = useUiContext()
     const { processData } = useTargetContextFn
-    const { interfaceSettings, connectionSettings, extensionsSettings, activity } =
+    const { interfaceSettings, connectionSettings, activity } =
         useSettingsContext()
     const { defaultRoute, setActiveRoute } = useRouterContext()
     const sendCommand = (cmd, id) => {
@@ -379,18 +379,18 @@ const useSettings = () => {
             {
                 onSuccess: (result) => {
                     const jsonResult = JSON.parse(result)
+                   
                     console.log("preferences.json")
                     console.log(jsonResult)
-                    extensionsSettings.current =JSON.parse(JSON.stringify(jsonResult))
-                    const [preferences, haserrors] = importPreferences(
-                        defaultPreferences,
-                        jsonResult
+                    const [preferences_settings, haserrors] = importPreferencesSection(
+                        defaultPreferences.settings,
+                        jsonResult.settings
                     )
                     console.log("Format preferences.settings")
-                    formatPreferences(preferences.settings)
-                    console.log(preferences.settings)
+                    formatPreferences(preferences_settings)
+                    console.log(preferences_settings)
                     uisettings.set(
-                        JSON.parse(JSON.stringify(preferences.settings))
+                        JSON.parse(JSON.stringify(preferences_settings))
                     )
                     if (haserrors) {
                         toasts.addToast({
@@ -404,12 +404,18 @@ const useSettings = () => {
                         })
                         console.log("error")
                     }
-                    interfaceSettings.current = preferences
+                    interfaceSettings.current.settings = preferences_settings
+                    if (jsonResult.custom) {
+                        interfaceSettings.current.custom = jsonResult.custom
+                    }
+                    if (jsonResult.extensions) {
+                        interfaceSettings.current.extensions = jsonResult.extensions
+                    }
                     console.log("interfaceSettings.current")
                     console.log(interfaceSettings.current)
 
                     //Mobile view
-                    if (uisettings.getValue("mobileview", preferences.settings))
+                    if (uisettings.getValue("mobileview", preferences_settings))
                         document
                             .getElementById("app")
                             .classList.add("mobile-view")
@@ -420,11 +426,11 @@ const useSettings = () => {
                     //language
                     const languagepack = uisettings.getValue(
                         "language",
-                        preferences.settings
+                        preferences_settings
                     )
                     const themepack = uisettings.getValue(
                         "theme",
-                        preferences.settings
+                        preferences_settings
                     )
                     //set default first
                     setCurrentLanguage(baseLangRessource)
