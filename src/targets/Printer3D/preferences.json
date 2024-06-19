@@ -296,7 +296,7 @@
                 "id": "tftbttsdlistcmd",
                 "type": "text",
                 "label": "P117",
-                "value": "M21;M20 SD:#",
+                "value": "M20 SD:#",
                 "help": "S97",
                 "depend": [
                     {
@@ -317,7 +317,7 @@
                 "id": "tftbttsdplaycmd",
                 "type": "text",
                 "label": "P120",
-                "value": "M21;M23 SD:#;M24",
+                "value": "M23 SD:#;M24",
                 "help": "S97",
                 "depend": [
                     {
@@ -338,7 +338,7 @@
                 "id": "tftbttsddeletecmd",
                 "type": "text",
                 "label": "P123",
-                "value": "M21;M30 SD:#",
+                "value": "M30 SD:#",
                 "help": "S97",
                 "depend": [
                     {
@@ -414,7 +414,7 @@
                 "id": "tftbttusblistcmd",
                 "type": "text",
                 "label": "P118",
-                "value": "M21;M20 U:#",
+                "value": "M20 U:#",
                 "help": "S97",
                 "depend": [
                     {
