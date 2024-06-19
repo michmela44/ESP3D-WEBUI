@@ -27,7 +27,7 @@ const SERIAL_PROTOCOL = "RAW"
 let lastconnection = Date.now()
 let logindone = false
 const sessiontTime = 60000
-const isTFT = true
+const isTFT = false
 const roomTemperature = 20
 const temperatures = {
     T: [
