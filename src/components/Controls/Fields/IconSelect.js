@@ -98,12 +98,11 @@ const IconSelect = ({
         if (setValue) setValue(null, true)
     }, [value])
     return (
-        <div class={`input-group ${inline ? "column" : ""} `}>
+        <div class={`input-group  `}>
             <ButtonImg
                 m1
                 icon={controlIcon}
                 onClick={showList}
-                style="max-width:2rem;"
             />
         </div>
     )
