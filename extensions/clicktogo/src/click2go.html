@@ -1,14 +1,21 @@
 <script type="text/javascript">
-    let min_x_machine = -10.0000;
-    let min_y_machine =-10.0000;
+    let min_x_machine = 0.0000;
+    let min_y_machine = 0.0000;
     let max_x_machine = 100.0000;
     let max_y_machine = 100.0000;
-    const margin = 40; // Définir la taille de la marge
+    let precision = 2; 
+    let steps_X = 5;
+    let steps_Y = 10;
+    let margin = 40; // Définir la taille de la marge
     let xPos = 0;
     let yPos = 0;
     let lastXValid = margin;
     let lastYValid = margin;
     let inZone = false;
+    let lastClickPosition = null;
+    const margin_pad_left= 10;
+    const margin_pad_top = 20;
+   
 
 
     function initExtension() {
@@ -17,12 +24,19 @@
 
         // Ajouter un écouteur d'événement pour le redimensionnement de la fenêtre
         window.addEventListener('resize', updateCanvasSize);
-
         // Ajouter un écouteur d'événement pour le mouvement de la souris sur le canvas
         const canvas = document.getElementById('machine-canvas');
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('click', handleClick);
-    }
+        const ctx = canvas.getContext('2d');
+        ctx.font = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step');
+        const textMetrics = ctx.measureText(max_x_machine.toFixed(precision).toString());
+        const textWidth = textMetrics.width;
+
+        margin = Math.ceil(textWidth) + margin_pad_left*2; // Ajouter une marge supplémentaire de 10 pixels
+        lastXValid = margin;
+        lastYValid = margin;
+}
 
     function updateCanvasSize() {
         // Récupérer les dimensions du conteneur du canvas
@@ -70,7 +84,7 @@
         ctx.stroke();
 
         // Dessiner les échelles sur l'axe X
-        const numXDivisions = 10;
+        const numXDivisions = steps_X;
         const xDivisionWidth = canvasWidth / numXDivisions;
         for (let i = 0; i <= numXDivisions; i++) {
             const x = margin + i * xDivisionWidth;
@@ -81,11 +95,11 @@
             ctx.stroke();
 
             const xValue = min_x_machine + (i * (max_x_machine - min_x_machine) / numXDivisions);
-            ctx.fillText(xValue.toFixed(2), x, canvas.height - margin + 20);
+            ctx.fillText(xValue.toFixed(precision), x, canvas.height - margin + margin_pad_top);
         }
 
         // Dessiner les échelles sur l'axe Y
-        const numYDivisions = 10;
+        const numYDivisions = steps_Y;
         const yDivisionHeight = canvasHeight / numYDivisions;
         for (let i = 0; i <= numYDivisions; i++) {
             const y = canvas.height - margin - i * yDivisionHeight;
@@ -96,7 +110,7 @@
             ctx.stroke();
 
             const yValue = min_y_machine + (i * (max_y_machine - min_y_machine) / numYDivisions);
-            ctx.fillText(yValue.toFixed(2), margin - 40, y);
+            ctx.fillText(yValue.toFixed(precision), margin_pad_left, y);
         }
 
         ctx.beginPath();
@@ -118,6 +132,7 @@
         ctx.fillStyle = ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--background-color');
         ctx.fillRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
         drawAxes()
+        drawPositionInfo(); // Appeler la fonction pour dessiner les informations de position
     }
 
     function drawCrosshair(xadj, yadj) {
@@ -189,7 +204,26 @@
     return { x: virtualX, y: virtualY };
 }
 
+function drawPositionInfo() {
+    const canvas = document.getElementById('machine-canvas');
+    const ctx = canvas.getContext('2d');
 
+    // Dessiner la position actuelle du curseur
+    const cursorPosition = convertToVirtualCoordinates(xPos, yPos);
+    
+    ctx.font = window.getComputedStyle(canvas).getPropertyValue('--positions-font');
+    ctx.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--positions-font-color');
+    ctx.fillText(`X: ${cursorPosition.x.toFixed(precision)}, Y: ${cursorPosition.y.toFixed(precision)}`, margin*2, 20);
+
+    // Dessiner les coordonnées du dernier clic
+    if (lastClickPosition) {
+        const ctx2 = canvas.getContext('2d');
+        ctx2.font = window.getComputedStyle(canvas).getPropertyValue('--last-click-font');
+        ctx2.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--last-click-font-color');
+        ctx2.fillText(`Xc: ${lastClickPosition.x.toFixed(precision)}, Yc: ${lastClickPosition.y.toFixed(precision)}`, margin*2, 35);
+
+    }
+}
     function handleMouseMove(event) {
         const canvas = document.getElementById('machine-canvas');
         const rect = canvas.getBoundingClientRect();
@@ -211,8 +245,9 @@
 
         if (inZone) {
             const virtualCoords = convertToVirtualCoordinates(xPos, yPos);
-            console.log(`Coordonnées du clic : (${xPos}, ${yPos}`);
-            console.log(`Coordonnées virtuelles : (${virtualCoords.x}, ${virtualCoords.y})`);
+            lastClickPosition = virtualCoords; // Stocker les coordonnées du dernier clic
+            drawCanvas(); // Redessiner le canvas pour effacer le curseur
+            drawCrosshair(xPos, yPos);
         }
     }
 
@@ -283,6 +318,10 @@
         --axis-color: blue;
         --background-color: lightgray;
         --cursor-color: red;
+        --positions-font: 12px Arial;
+        --positions-font-color: red;
+        --last-click-font: 12px Arial;
+        --last-click-font-color: blue;
     }
 </style>
 
