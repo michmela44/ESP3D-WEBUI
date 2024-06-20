@@ -456,7 +456,7 @@
                 "id": "tftbttusbplaycmd",
                 "type": "text",
                 "label": "P121",
-                "value": "M21;M23 U:#;M24",
+                "value": "M23 U:#;M24",
                 "help": "S97",
                 "depend": [
                     {
@@ -477,7 +477,7 @@
                 "id": "tftbttusbdeletecmd",
                 "type": "text",
                 "label": "P124",
-                "value": "M21;M30 U:#",
+                "value": "M30 U:#",
                 "help": "S97",
                 "depend": [
                     {
