@@ -15,16 +15,102 @@
     let lastClickPosition = null;
     const margin_pad_left= 10;
     const margin_pad_top = 20;
+
+    const iconsToLoad = ["Crosshair", "Settings"];
+    const loadedIcons = {};
+    let iconsLoaded = false;
+
+    const buttons = [
+    {
+        icon: "Crosshair",
+        text: "Go",
+        onClick: "fn1"
+    },
+    {
+        icon: "Settings",
+        text: "Settings",
+        onClick: "fn2"
+    }
+];
+
+function fn1() {
+    console.log("Fonction 1 appelée");
+}
+
+function fn2() {
+    console.log("Fonction 2 appelée");
+}
+
    
+    function sendMessage(msg) {
+        window.parent.postMessage(msg, '*');
+    }
+
+    function processMessage(eventMsg) {
+    console.log("Message reçu:", eventMsg.data); // Ajout d'un console.log
+    if (!iconsLoaded) {
+        if (eventMsg.data.type && eventMsg.data.id && iconsToLoad.includes(eventMsg.data.id)) {
+            if (eventMsg.data.type === "icon") {
+                const iconName = eventMsg.data.id;
+                const iconSvg = eventMsg.data.content.response;
+                loadedIcons[iconName] = iconSvg;
+                console.log(`Icône ${iconName} chargée:`, iconSvg);
+
+                console.log("Nombre d'icônes chargées:", Object.keys(loadedIcons).length); // Ajout d'un console.log
+                console.log("Nombre d'icônes à charger:", iconsToLoad.length); // Ajout d'un console.log
+                if (Object.keys(loadedIcons).length === iconsToLoad.length) {
+                    console.log("Toutes les icônes sont chargées !");
+                    useLoadedIcons();
+                    iconsLoaded = true;
+                }
+            }
+        }
+    }
+}
+
+function loadIcons() {
+    console.log("Chargement des icônes..."); // Ajout d'un console.log
+    iconsToLoad.forEach(iconName => {
+        sendMessage({ type: 'icon', target: 'webui', id: iconName });
+    });
+}
+
+function useLoadedIcons() {
+    const buttonContainer = document.querySelector(".button-container");
+
+    buttons.forEach(button => {
+        const btn = document.createElement("button");
+        btn.classList.add("btn", "m-1");
+        const span = document.createElement("span");
+        span.classList.add("feather-icon-container");
+        span.innerHTML = loadedIcons[button.icon];
+        btn.appendChild(span);
+        const label = document.createElement("label");
+        label.innerHTML = `${button.text}`;
+        btn.appendChild(label);
+        btn.setAttribute("data-icon", button.icon);
+        btn.addEventListener("click", () => {
+            window[button.onClick]();
+        });
+        buttonContainer.appendChild(btn);
+    });
+}
+
+function handleButtonClick(event) {
+    const clickedIcon = event.currentTarget.getAttribute("data-icon");
+    console.log(`Bouton cliqué avec l'icône : ${clickedIcon}`);
+    
+    const button = buttons.find(btn => btn.icon === clickedIcon);
+    if (button && typeof window[button.onClick] === "function") {
+        window[button.onClick]();
+    }
+}
+
 
 
     function initExtension() {
-        // Appeler la fonction pour mettre à jour la taille du canvas au chargement initial
         updateCanvasSize();
-
-        // Ajouter un écouteur d'événement pour le redimensionnement de la fenêtre
         window.addEventListener('resize', updateCanvasSize);
-        // Ajouter un écouteur d'événement pour le mouvement de la souris sur le canvas
         const canvas = document.getElementById('machine-canvas');
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('click', handleClick);
@@ -32,11 +118,10 @@
         ctx.font = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step');
         const textMetrics = ctx.measureText(max_x_machine.toFixed(precision).toString());
         const textWidth = textMetrics.width;
-
-        margin = Math.ceil(textWidth) + margin_pad_left*2; // Ajouter une marge supplémentaire de 10 pixels
+        margin = Math.ceil(textWidth) + margin_pad_left*2;
         lastXValid = margin;
         lastYValid = margin;
-}
+    }
 
     function updateCanvasSize() {
         // Récupérer les dimensions du conteneur du canvas
@@ -253,37 +338,15 @@ function drawPositionInfo() {
 
 
 
-    // Handle messages received from WebUI
-    function processMessage(eventMsg) {
-        if (eventMsg.data.type) {
-            const line = eventMsg.data.content;
-            if (eventMsg.data.type == "cmd") {
-                if (line.status == "success") {
-                    // TBD
-                }
-                if (line.status == "error") {
-                    // TBD
-                    console.log("Error");
-                }
-            }
-        }
-    }
-
-    // Send Command to Web UI
-    function sendCommand(cmd) {
-        const msg = { type: "cmd", target: "webui", id: "terminal", content: cmd };
-        window.parent.postMessage(msg, '*');
-    }
-
     // Onload add listener to collect messages from WebUI and init extension
-    window.onload = (event) => {
-        // Add listener
-        window.addEventListener("message", processMessage, false);
-        // Add init function
-        initExtension();
-    };
+// Onload add listener to collect messages from WebUI and init extension
+window.onload = (event) => {
+    console.log("Extension chargée"); // Ajout d'un console.log
+    window.addEventListener("message", processMessage, false);
+    initExtension();
+    loadIcons();
+};
 </script>
-
 <style>
     body,
     html {
@@ -298,19 +361,20 @@ function drawPositionInfo() {
 
     #machine-container {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         width: 100%;
         height: 100%;
-        padding: 20;
+        padding: 20px;
         box-sizing: border-box;
     }
 
     #machine-canvas {
         max-width: 100%;
-        max-height: 100%;
+        max-height: calc(100% - 50px);
         border: 1px solid black;
-        padding: 0 0 0 0;
+        margin-bottom: 20px;
         --axis-label-font-step: 9px Arial, sans-serif;
         --axis-label-font-step-color: black;
         --axis-label-font: 16px Arial, sans-serif;
@@ -323,8 +387,18 @@ function drawPositionInfo() {
         --last-click-font: 12px Arial;
         --last-click-font-color: blue;
     }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 400px;
+        margin-top: 10px;
+    }
+
 </style>
 
 <div id="machine-container">
     <canvas id="machine-canvas"></canvas>
+    <div class="button-container"></div>
 </div>
