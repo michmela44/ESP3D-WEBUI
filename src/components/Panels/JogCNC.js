@@ -632,7 +632,6 @@ const JogPanel = () => {
                             <select
                                 id="selectAxisList"
                                 class="form-select"
-                                style="border-color: #5755d9!important"
                                 onchange={(e) => {
                                     onChangeAxis(e)
                                 }}
@@ -755,7 +754,7 @@ const JogPanel = () => {
                                 sendZeroCommand("")
                             }}
                         >
-                            <label style="font-size:150%; vertical-align: top;">
+                            <label class="text-like-icon">
                                 &Oslash;
                             </label>
                             <MoreHorizontal />

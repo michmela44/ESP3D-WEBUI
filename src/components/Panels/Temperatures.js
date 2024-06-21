@@ -306,7 +306,7 @@ const TemperaturesPanel = () => {
                     <strong class="text-ellipsis">{T("P29")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         <FullScreenButton
                             panelRef={panelRef}
                             hideOnFullScreen={true}

@@ -428,11 +428,11 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <Button
+                                        class="button-minimal"
                                         lg
                                         m2
                                         tooltip
                                         nomin
-                                        style="min-width:2.5rem"
                                         data-tooltip={T(buttonsInfos.T.tooltip)}
                                         id="btnjogup"
                                         onclick={(e) => {
@@ -453,11 +453,11 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <ButtonImg
+                                        class="button-minimal"
                                         m2
                                         lg
                                         tooltip
                                         nomin
-                                        style="min-width:2.5rem"
                                         data-tooltip={T(buttonsInfos.L.tooltip)}
                                         id="btnjogleft"
                                         label={buttonsInfos.L.label}
@@ -489,10 +489,10 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <ButtonImg
+                                        class="button-minimal"
                                         lg
                                         m2
                                         nomin
-                                        style="min-width:2.5rem"
                                         label={buttonsInfos.R.label}
                                         tooltip
                                         data-tooltip={T(buttonsInfos.R.tooltip)}
@@ -513,10 +513,10 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <ButtonImg
+                                        class="button-minimal"
                                         lg
                                         m2
                                         nomin
-                                        style="min-width:2.5rem"
                                         tooltip
                                         data-tooltip={T(buttonsInfos.B.tooltip)}
                                         id="btnjogdown"

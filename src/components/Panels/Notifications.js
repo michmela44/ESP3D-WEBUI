@@ -116,7 +116,7 @@ const NotificationsPanel = () => {
                     <strong class="text-ellipsis">{T("notification")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         <PanelMenu items={menu} />
                         <FullScreenButton
                             panelRef={panelRef}

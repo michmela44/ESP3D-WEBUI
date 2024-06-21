@@ -22,7 +22,13 @@ import { useHttpFn } from "../../hooks"
 import { espHttpURL } from "../Helpers"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { T } from "../Translations"
-import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import {
+    Button,
+    ButtonImg,
+    FullScreenButton,
+    CloseButton,
+    ContainerHelper,
+} from "../Controls"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
@@ -358,7 +364,7 @@ const JogPanel = () => {
 
     return (
         <div id={id} class="panel panel-dashboard" id={id} ref={panelRef}>
-            <ContainerHelper id={id} /> 
+            <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Move />
@@ -1766,10 +1772,7 @@ const JogPanel = () => {
                         </Button>
                     </div>
                 </div>
-                <div
-                    class="jog-extra-buttons-container"
-                    style="margin-right:8px"
-                >
+                <div class="jog-extra-buttons-container">
                     <ButtonImg
                         m1
                         tooltip

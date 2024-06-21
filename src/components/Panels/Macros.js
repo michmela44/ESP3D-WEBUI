@@ -154,7 +154,7 @@ const MacrosPanel = () => {
                     <strong class="text-ellipsis">{T("macros")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         <FullScreenButton panelRef={panelRef} />
                         <CloseButton
                             panelRef={panelRef}

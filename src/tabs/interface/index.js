@@ -47,8 +47,8 @@ const generateValidationGlobal = (
     fieldData,
     isFlashFS,
     isSDFS,
-    interfaceSettings,
     connectionSettings,
+    interfaceSettings,
     setShowSave,
     checkSaveStatus
 ) => {
@@ -59,6 +59,11 @@ const generateValidationGlobal = (
     }
 
     if (fieldData.shortkey && interfaceSettings) {
+        console.log(
+            "shortkeys",
+            interfaceSettings.current,
+            connectionSettings.current
+        )
         if (fieldData.value.length > 0) {
             if (fieldData.value.endsWith("+")) {
                 validation.message = T("S214")
@@ -199,7 +204,11 @@ const generateValidationGlobal = (
                     }
                 }
             }
-            if (fieldData.name == "type" && fieldData.value == "camera" && interfaceSettings) {
+            if (
+                fieldData.name == "type" &&
+                fieldData.value == "camera" &&
+                interfaceSettings
+            ) {
                 //Update camera source automaticaly
                 //Note: is there a less complexe way to do ?
                 const sourceId = fieldData.id.split("-")[0]
@@ -253,7 +262,8 @@ const generateValidationGlobal = (
     }
     if (
         (typeof isFlashFS != "undefined" || typeof isSDFS != "undefined") &&
-        typeof setShowSave != "undefined" && typeof checkSaveStatus != "undefined"
+        typeof setShowSave != "undefined" &&
+        typeof checkSaveStatus != "undefined"
     ) {
         if (isFlashFS || isSDFS) {
             setShowSave(checkSaveStatus())

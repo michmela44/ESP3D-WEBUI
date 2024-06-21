@@ -649,7 +649,7 @@ const FilesPanel = () => {
                 </span>
 
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         {fileSystem != "" && !isLoading && (
                             <PanelMenu items={menu} />
                         )}
@@ -781,11 +781,10 @@ const FilesPanel = () => {
                                 }}
                             >
                                 <div
-                                    class="form-control  file-line-name file-line-action"
-                                    style="height:2rem!important"
+                                    class="form-control go-previous file-line-name file-line-action"
                                 >
                                     <CornerRightUp />
-                                    <label class="p-2">...</label>
+                                    <label class="go-previous-text">...</label>
                                 </div>
                             </div>
                         )}
@@ -917,7 +916,7 @@ const FilesPanel = () => {
             </div>
             <div class="files-list-footer">
                 {!isLoading && filesList && filesList.occupation && (
-                    <div style=" display: flex; align-items:center; flex-wrap: wrap; justify-content: space-between;">
+                    <div class="filelist-occupation">
                         <div class="flex-pack">
                             {T("S98")}:{filesList.total}
                         </div>

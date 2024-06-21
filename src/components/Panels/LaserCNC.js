@@ -251,7 +251,7 @@ const LaserPanel = () => {
                     <strong class="text-ellipsis">{T("CN35")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         <FullScreenButton
                             panelRef={panelRef}
                             hideOnFullScreen={true}

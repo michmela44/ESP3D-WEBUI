@@ -171,7 +171,7 @@ const ConnectionContainer = () => {
                     ")"
                 contentTitle = T("S35") //"restarting";
                 contentIcon = (
-                    <div class="d-inline-block" style="padding:0 20px">
+                    <div class="d-inline-block content-icon">
                         <Loading large />
                     </div>
                 )
@@ -205,7 +205,7 @@ const ConnectionContainer = () => {
                     contentTitle = T("S2") //"Connecting";
                 }
                 contentIcon = (
-                    <div class="d-inline-block" style="padding:0 20px">
+                    <div class="d-inline-block content-icon">
                         <Loading large />
                     </div>
                 )
@@ -216,10 +216,7 @@ const ConnectionContainer = () => {
             <div class="empty fullscreen">
                 <div class="centered text-primary">
                     <div class="empty-icon">
-                        <div
-                            class="d-flex p-centered"
-                            style="flex-wrap:nowrap!important"
-                        >
+                        <div class="d-flex p-centered empty-content">
                             <AppLogo />
                             <Minus size="50px" class="hide-low" />
                             {contentIcon}

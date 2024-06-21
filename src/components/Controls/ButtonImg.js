@@ -38,19 +38,12 @@ const ButtonImg = ({
     if (!icon) showlow = true
     return (
         <Button
-            class={` ${icon ? "feather-icon-container" : ""} ${
-                className ? className : ""
-            }`}
+            class={` ${icon ? "feather-icon-container" : ""}  ${nomin ? "" : "icon-button"} text-straight ${className ? className : ""} ${disabled ? "insensitive" : ""}`}
             {...rest}
             disabled={disabled}
-            style={
-                `${
-                    (nomin ? style : "min-width:2rem;" + style) +
-                    ";display:inline-block;white-space: nowrap;"
-                }` + `${disabled ? "pointer;pointer-events: none;" : ""}`
-            }
+            style={style}
         >
-            <div style="overflow:hidden!important;white-space: nowrap;text-overflow:ellipsis!important;cursor: pointer;pointer-events: none;">
+            <div class="insensitive text-straight">
                 {iconRight ? "" : icon}
                 {label && (
                     <label

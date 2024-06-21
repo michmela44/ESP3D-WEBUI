@@ -383,7 +383,7 @@ const ProbePanel = () => {
                     <strong class="text-ellipsis">{T("CN37")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         <FullScreenButton
                             panelRef={panelRef}
                             hideOnFullScreen={true}

@@ -560,6 +560,86 @@ a label {
 }
 
 .nested-button {
-   color:blue!important;
-   background-color: #f1f1fc;
+    color: blue !important;
+    background-color: #f1f1fc;
+}
+
+.insensitive {
+    pointer-events: none;
+}
+.text-straigth {
+    overflow: hidden !important;
+    white-space: nowrap;
+    text-overflow: ellipsis !important;
+}
+
+.icon-btn {
+    min-width: 2rem;
+}
+
+.filelist-occupation {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.text-like-icon {
+    font-size: 1.4rem;
+    vertical-align: top;
+}
+
+.button-mininal {
+    min-width: 2.5rem;
+}
+
+.icon-clear,
+.icon-reveal {
+    margin-top: 0.15rem;
+}
+
+.iframe-container {
+    z-index: 0 !important;
+}
+
+.go-previous {
+    height: 2rem !important;
+}
+
+.go-previous-text {
+    font-size: 1.4rem;
+}
+
+.progress-value-label {
+    margin-left: 15px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.content-icon {
+    padding: 0 20px;
+}
+
+.empty-content {
+    flex-wrap: nowrap !important;
+}
+
+.no-margin-no-padding {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.modal_title {
+    line-height: 24px !important;
+}
+
+
+.modals-container {
+    z-index:20000;
 }

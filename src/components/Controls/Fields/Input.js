@@ -59,11 +59,10 @@ const Reveal = ({ applyTo }) => {
             {reveal ? (
                 <EyeOff
                     size="1rem"
-                    class="has-error"
-                    style="margin-top:0.15rem"
+                    class="has-error icon-reveal"
                 />
             ) : (
-                <Eye size="1rem" class="has-error" style="margin-top:0.15rem" />
+                <Eye size="1rem" class="has-error icon-reveal" />
             )}
         </div>
     )
@@ -77,7 +76,7 @@ const ClearText = ({ setValue }) => {
     useEffect(() => {}, [])
     return (
         <div class="form-icon clearShortkey" onCLick={clickClear}>
-            <XCircle size="1rem" style="margin-top:0.15rem" />
+            <XCircle size="1rem" class="icon-clear" />
         </div>
     )
 }

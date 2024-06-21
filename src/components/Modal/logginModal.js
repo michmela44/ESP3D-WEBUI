@@ -85,10 +85,7 @@ const showLogin = () => {
         modals.addModal({
             id: id,
             title: (
-                <div
-                    class="text-primary feather-icon-container"
-                    style="line-height:24px!important"
-                >
+                <div class="text-primary feather-icon-container modal_title">
                     <Lock />
                     <label>{T("S145")}</label>
                 </div>

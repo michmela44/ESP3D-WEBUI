@@ -44,7 +44,7 @@ const ModalContainer = ({ id }) => {
         )
     }
     return (
-        <div class="modals-container" id={id} style="z-index:20000;">
+        <div class="modals-container" id={id}>
             {modals.modalList &&
                 modals.modalList.length > 0 &&
                 modals.modalList.map((modal, index) => {
@@ -62,7 +62,6 @@ const ModalContainer = ({ id }) => {
                         <SpectreModal
                             class={`active`}
                             id={"modal-" + modal.id}
-                            style="z-index:999999"
                             key={index}
                             tabIndex="-1"
                         >

@@ -239,7 +239,7 @@ const StatusPanel = () => {
                     <strong class="text-ellipsis">{T("CN34")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         <FullScreenButton
                             panelRef={panelRef}
                             hideOnFullScreen={true}

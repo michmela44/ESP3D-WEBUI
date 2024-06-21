@@ -189,7 +189,7 @@ const OverridesPanel = () => {
                     <strong class="text-ellipsis">{T("CN65")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
+                    <span class="full-height">
                         <FullScreenButton
                             panelRef={panelRef}
                             hideOnFullScreen={true}
