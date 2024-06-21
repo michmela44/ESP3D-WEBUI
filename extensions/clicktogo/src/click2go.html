@@ -1,11 +1,4 @@
 <script type="text/javascript">
-    let min_x_machine = 0.0000;
-    let min_y_machine = 0.0000;
-    let max_x_machine = 100.0000;
-    let max_y_machine = 100.0000;
-    let precision = 2; 
-    let steps_X = 5;
-    let steps_Y = 10;
     let margin = 40; // Définir la taille de la marge
     let xPos = 0;
     let yPos = 0;
@@ -13,118 +6,350 @@
     let lastYValid = margin;
     let inZone = false;
     let lastClickPosition = null;
-    const margin_pad_left= 10;
+    const margin_pad_left = 10;
     const margin_pad_top = 20;
 
-    const iconsToLoad = ["Crosshair", "Settings"];
+    const iconsToLoad = ["Settings", "Info"];
     const loadedIcons = {};
     let iconsLoaded = false;
 
     const buttons = [
-    {
-        icon: "Crosshair",
-        text: "Go",
-        onClick: "fn1"
-    },
-    {
-        icon: "Settings",
-        text: "Settings",
-        onClick: "fn2"
+
+        {
+            icon: "Settings",
+            text: "Settings",
+            onClick: "settingsFn"
+        },
+        {
+            icon: "Info",
+            text: "About",
+            onClick: "aboutFn"
+        }
+    ];
+
+    const about_text = `<div class='modal-content'>
+<h2>Machine Canvas Extension</h2>
+<p>This extension allows you to visualize and interact with a canvas representing a virtual machine. It offers the following features:</p>
+<ul>
+<li>Display of a canvas with X and Y axes, along with customizable graduations.</li>
+<li>Support for mouse and touch interactions, providing intuitive control.</li>
+<li>Real-time display of the virtual coordinates of the cursor or touch point.</li>
+<li>Validation of the last click or touch coordinates when performed within the valid zone of the canvas.</li>
+<li>Customizable canvas styles using CSS variables.</li>
+</ul>
+<p>Developed by <a href='https://github.com/luc-github/esp3d-webui' target='_blank'>Luc Lebosse</a>.</p>
+</div>`;
+
+    const about_modal = {
+        type: "modal",
+        target: "webui",
+        id: "click2go_about",
+        content: {
+            title: "About click2go",
+            id: "simple_modal",
+            icon: "Info",
+            style: "default",
+            bt1Txt: "S24",
+            response1: "ok",
+            text: about_text,
+            overlay: true,
+        },
     }
-];
 
-function fn1() {
-    console.log("Fonction 1 appelée");
-}
 
-function fn2() {
-    console.log("Fonction 2 appelée");
-}
+    const currentSettings = {
+        gotoxmin: 0.0,
+        gotoxmax: 100.0,
+        gotoymin: 0.0,
+        gotoymax: 100.0,
+        gotoxsteps: 5,
+        gotoysteps: 10,
+        gotoprecision: 4,
+        gotofeedrate: "500",
+        gotocommand: "G1 X{X} Y{Y} F{F}"
+    };
 
-   
+    //Settings format
+    const settingsFormat = [
+        {
+            id: "area",
+            label: "Area",
+            type: "group",
+            value: [
+                {
+                    id: "gotoxmin",
+                    type: "number",
+                    label: "Xmin",
+                    append: "mm",
+                    help: "Minimum value of X",
+                    value: 0,
+                    placeholder: "Enter a number"
+                },
+                {
+                    id: "gotoxmax",
+                    type: "number",
+                    label: "Xmax",
+                    append: "mm",
+                    help: "Maximum value of X",
+                    value: 0
+                },
+                {
+                    id: "gotoymin",
+                    type: "number",
+                    label: "Ymin",
+                    append: "mm",
+                    help: "Minimum value of Y",
+                    value: 0,
+                    placeholder: "Enter a number"
+                },
+                {
+                    id: "gotoymax",
+                    type: "number",
+                    label: "Ymax",
+                    append: "mm",
+                    help: "Maximum value of X",
+                    value: 0
+                }
+            ]
+        },
+        {
+            id: "display",
+            label: "Display",
+            type: "group",
+            value: [
+                {
+                    id: "gotoprecision",
+                    type: "number",
+                    label: "Precision",
+                    value: 0,
+                    min: "0",
+                    max: "5"
+                },
+                {
+                    id: "gotoxsteps",
+                    type: "number",
+                    label: "X steps",
+                    value: 0,
+                    min: "0",
+                },
+                {
+                    id: "gotoysteps",
+                    type: "number",
+                    label: "Y steps",
+                    value: 0,
+                    min: "0",
+                    step: "1"
+                }
+            ]
+        },
+        {
+            id: "gotofeedrate",
+            type: "number",
+            label: "Feedrate",
+            value: 0,
+            min: "1",
+        },
+        {
+            id: "gotocommand",
+            type: "text",
+            label: "Command",
+            value: "G1 X{X} Y{Y} F{F}",
+            help: "Command to send to the machine. Use {X}, {Y} and {F} as placeholders for the coordinates and feedrate."
+        }
+    ];
+
+    const settings_msg = {
+        type: "modal",
+        target: "webui",
+        id: "click2go_settings",
+        content: {
+            title: "S14",
+            id: "fields_modal",
+            icon: "Settings",
+            style: "fields",
+            validation: "bt1",
+            bt1Txt: "S61",
+            response1: "update",
+            bt2Txt: "S28",
+            response2: "cancel",
+            fields: settingsFormat,
+            values: currentSettings,
+            hideclose: true,
+        },
+    }
+
+    function onSave(settings) {
+        console.log("Settings saved:", settings);
+        currentSettings.gotoxmin = parseFloat(settings.gotoxmin);
+        currentSettings.gotoxmax = parseFloat(settings.gotoxmax);
+        currentSettings.gotoymin = parseFloat(settings.gotoymin);
+        currentSettings.gotoymax = parseFloat(settings.gotoymax);
+        currentSettings.gotoxsteps = parseInt(settings.gotoxsteps);
+        currentSettings.gotoysteps = parseInt(settings.gotoysteps);
+        currentSettings.gotoprecision = parseInt(settings.gotoprecision);
+        currentSettings.gotofeedrate = parseInt(settings.gotofeedrate);
+        currentSettings.gotocommand = settings.gotocommand;
+        updateSettings();
+        drawCanvas();
+    }
+
+    function settingsFn() {
+        sendMessage(settings_msg);
+    }
+
+    function aboutFn() {
+        sendMessage(about_modal);
+    }
+
+    function commandFn() {
+        console.log("Last click position:", lastClickPosition);
+        const command = currentSettings.command
+            .replace("{X}", lastClickPosition.x.toFixed(currentSettings.gotoprecision))
+            .replace("{Y}", lastClickPosition.y.toFixed(currentSettings.gotoprecision))
+            .replace("{F}", currentSettings.gotofeedrate);
+        console.log("Commande à envoyer:", command);
+    }
+
+
+
+
     function sendMessage(msg) {
         window.parent.postMessage(msg, '*');
     }
 
     function processMessage(eventMsg) {
-    console.log("Message reçu:", eventMsg.data); // Ajout d'un console.log
-    if (!iconsLoaded) {
-        if (eventMsg.data.type && eventMsg.data.id && iconsToLoad.includes(eventMsg.data.id)) {
-            if (eventMsg.data.type === "icon") {
-                const iconName = eventMsg.data.id;
-                const iconSvg = eventMsg.data.content.response;
-                loadedIcons[iconName] = iconSvg;
-                console.log(`Icône ${iconName} chargée:`, iconSvg);
-
-                console.log("Nombre d'icônes chargées:", Object.keys(loadedIcons).length); // Ajout d'un console.log
-                console.log("Nombre d'icônes à charger:", iconsToLoad.length); // Ajout d'un console.log
-                if (Object.keys(loadedIcons).length === iconsToLoad.length) {
-                    console.log("Toutes les icônes sont chargées !");
-                    useLoadedIcons();
-                    iconsLoaded = true;
+        console.log("Message reçu:", eventMsg.data);
+        if (!iconsLoaded) {
+            if (eventMsg.data.type && eventMsg.data.id && iconsToLoad.includes(eventMsg.data.id)) {
+                if (eventMsg.data.type === "icon") {
+                    const iconName = eventMsg.data.id;
+                    const iconSvg = eventMsg.data.content.response;
+                    loadedIcons[iconName] = iconSvg;
+                    if (Object.keys(loadedIcons).length === iconsToLoad.length) {
+                        useLoadedIcons();
+                        iconsLoaded = true;
+                    }
                 }
             }
+        } else {
+            if (
+                eventMsg.data.type &&
+                (!eventMsg.data.id || eventMsg.data.id === "click2go_settings")
+            ) {
+                if (eventMsg.data.type === "modal" && eventMsg.data.id === "click2go_settings") {
+                    console.log("Message modal reçu:", eventMsg.data);
+                    if (eventMsg.data.content.response === "update") {
+                        onSave(eventMsg.data.content.inputData)
+                    }
+                } else
+                    if (eventMsg.data.type === "modal" && eventMsg.data.id === "click2go_save") {
+                        console.log("Message modal reçu:", eventMsg.data);
+                    } else
+                        if (eventMsg.data.type === "modal" && eventMsg.data.id === "click2go_restore") {
+                            console.log("Message modal reçu:", eventMsg.data);
+                        }
+
+            }
+
         }
     }
-}
 
-function loadIcons() {
-    console.log("Chargement des icônes..."); // Ajout d'un console.log
-    iconsToLoad.forEach(iconName => {
-        sendMessage({ type: 'icon', target: 'webui', id: iconName });
-    });
-}
 
-function useLoadedIcons() {
-    const buttonContainer = document.querySelector(".button-container");
-
-    buttons.forEach(button => {
-        const btn = document.createElement("button");
-        btn.classList.add("btn", "m-1");
-        const span = document.createElement("span");
-        span.classList.add("feather-icon-container");
-        span.innerHTML = loadedIcons[button.icon];
-        btn.appendChild(span);
-        const label = document.createElement("label");
-        label.innerHTML = `${button.text}`;
-        btn.appendChild(label);
-        btn.setAttribute("data-icon", button.icon);
-        btn.addEventListener("click", () => {
-            window[button.onClick]();
+    function loadIcons() {
+        iconsToLoad.forEach(iconName => {
+            sendMessage({ type: 'icon', target: 'webui', id: iconName });
         });
-        buttonContainer.appendChild(btn);
-    });
-}
-
-function handleButtonClick(event) {
-    const clickedIcon = event.currentTarget.getAttribute("data-icon");
-    console.log(`Bouton cliqué avec l'icône : ${clickedIcon}`);
-    
-    const button = buttons.find(btn => btn.icon === clickedIcon);
-    if (button && typeof window[button.onClick] === "function") {
-        window[button.onClick]();
     }
-}
 
+    function useLoadedIcons() {
+        const buttonContainer = document.querySelector(".button-container");
+
+        buttons.forEach(button => {
+            const btn = document.createElement("button");
+            btn.classList.add("btn", "m-1", "feather-icon-container");
+            const span = document.createElement("span");
+            span.classList.add("feather-icon-container");
+            span.innerHTML = loadedIcons[button.icon];
+            btn.appendChild(span);
+            const label = document.createElement("label");
+            label.classList.add("insensitive", "text-straigth")
+            label.innerHTML = `${button.text}`;
+            btn.appendChild(label);
+            btn.setAttribute("data-icon", button.icon);
+            btn.addEventListener("click", () => {
+                window[button.onClick]();
+            });
+            buttonContainer.appendChild(btn);
+        });
+    }
+
+    function handleButtonClick(event) {
+        const clickedIcon = event.currentTarget.getAttribute("data-icon");
+        const button = buttons.find(btn => btn.icon === clickedIcon);
+        if (button && typeof window[button.onClick] === "function") {
+            window[button.onClick]();
+        }
+    }
+
+
+    function handleTouchMove(event) {
+        event.preventDefault();
+        const canvas = document.getElementById('machine-canvas');
+        const rect = canvas.getBoundingClientRect();
+
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const touch = event.touches[0];
+        const x = (touch.clientX - rect.left) * scaleX;
+        const y = (touch.clientY - rect.top) * scaleY;
+
+        const adjustedX = Math.max(0, Math.min(x, canvas.width));
+        const adjustedY = Math.max(0, Math.min(y, canvas.height));
+
+        drawCanvas();
+        drawCrosshair(adjustedX, adjustedY);
+    }
+
+    function handleTouchEnd(event) {
+        if (inZone) {
+            const virtualCoords = convertToVirtualCoordinates(xPos, yPos);
+            lastClickPosition = virtualCoords; //Store the coordinates of the last click
+            drawCanvas(); // Redraw the canvas to clear the cursor
+            drawCrosshair(xPos, yPos); // Redraw the crosshair at the last valid position
+            commandFn(); // Call the command function
+        }
+    }
 
 
     function initExtension() {
-        updateCanvasSize();
-        window.addEventListener('resize', updateCanvasSize);
         const canvas = document.getElementById('machine-canvas');
+        window.addEventListener('resize', updateCanvasSize);
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('click', handleClick);
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd);
         const ctx = canvas.getContext('2d');
         ctx.font = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step');
-        const textMetrics = ctx.measureText(max_x_machine.toFixed(precision).toString());
+        const textMetrics = ctx.measureText(currentSettings.gotoxmax.toFixed(currentSettings.gotoprecision).toString());
         const textWidth = textMetrics.width;
-        margin = Math.ceil(textWidth) + margin_pad_left*2;
+        margin = Math.ceil(textWidth) + margin_pad_left * 2;
+        lastXValid = margin;
+        lastYValid = margin;
+    }
+
+    function updateSettings() {
+        const canvas = document.getElementById('machine-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.font = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step');
+        const textMetrics = ctx.measureText(currentSettings.gotoxmax.toFixed(currentSettings.gotoprecision).toString());
+        const textWidth = textMetrics.width;
+        margin = Math.ceil(textWidth) + margin_pad_left * 2;
         lastXValid = margin;
         lastYValid = margin;
     }
 
     function updateCanvasSize() {
-        // Récupérer les dimensions du conteneur du canvas
         const container = document.getElementById('machine-container');
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
@@ -137,12 +362,13 @@ function handleButtonClick(event) {
             canvasSize = containerHeight;
         }
 
-        // Mettre à jour les dimensions du canvas
+        // Update the canvas size
         const canvas = document.getElementById('machine-canvas');
         canvas.width = canvasSize;
         canvas.height = canvasSize;
 
-        // Redessiner le contenu du canvas
+        updateSettings()
+        // Redraw the canvas
         drawCanvas();
     }
 
@@ -154,22 +380,22 @@ function handleButtonClick(event) {
 
         ctx.font = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step');
         ctx.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-label-font-step-color');
-        // Dessiner l'axe X
+        // Draw the X axis
         ctx.beginPath();
         ctx.moveTo(margin, canvas.height - margin);
         ctx.lineTo(canvas.width - margin, canvas.height - margin);
         ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
         ctx.stroke();
 
-        // Dessiner l'axe Y
+        // Draw the Y axis
         ctx.beginPath();
         ctx.moveTo(margin, margin);
         ctx.lineTo(margin, canvas.height - margin);
         ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
         ctx.stroke();
 
-        // Dessiner les échelles sur l'axe X
-        const numXDivisions = steps_X;
+        // Draw the X axis graduations
+        const numXDivisions = currentSettings.gotoxsteps;
         const xDivisionWidth = canvasWidth / numXDivisions;
         for (let i = 0; i <= numXDivisions; i++) {
             const x = margin + i * xDivisionWidth;
@@ -179,12 +405,12 @@ function handleButtonClick(event) {
             ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
             ctx.stroke();
 
-            const xValue = min_x_machine + (i * (max_x_machine - min_x_machine) / numXDivisions);
-            ctx.fillText(xValue.toFixed(precision), x, canvas.height - margin + margin_pad_top);
+            const xValue = currentSettings.gotoxmin + (i * (currentSettings.gotoxmax - currentSettings.gotoxmin) / numXDivisions);
+            ctx.fillText(xValue.toFixed(currentSettings.gotoprecision), x, canvas.height - margin + margin_pad_top);
         }
 
-        // Dessiner les échelles sur l'axe Y
-        const numYDivisions = steps_Y;
+        // Draw the Y axis graduations
+        const numYDivisions = currentSettings.gotoysteps;
         const yDivisionHeight = canvasHeight / numYDivisions;
         for (let i = 0; i <= numYDivisions; i++) {
             const y = canvas.height - margin - i * yDivisionHeight;
@@ -194,8 +420,8 @@ function handleButtonClick(event) {
             ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--axis-color');
             ctx.stroke();
 
-            const yValue = min_y_machine + (i * (max_y_machine - min_y_machine) / numYDivisions);
-            ctx.fillText(yValue.toFixed(precision), margin_pad_left, y);
+            const yValue = currentSettings.gotoymin + (i * (currentSettings.gotoymax - currentSettings.gotoymin) / numYDivisions);
+            ctx.fillText(yValue.toFixed(currentSettings.gotoprecision), margin_pad_left, y);
         }
 
         ctx.beginPath();
@@ -210,14 +436,14 @@ function handleButtonClick(event) {
         const canvas = document.getElementById('machine-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Effacer le contenu précédent du canvas
+        // CLean the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Remplir la zone en gris clair avec une marge uniforme
+        // Draw the background
         ctx.fillStyle = ctx.strokeStyle = window.getComputedStyle(canvas).getPropertyValue('--background-color');
         ctx.fillRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
         drawAxes()
-        drawPositionInfo(); // Appeler la fonction pour dessiner les informations de position
+        drawPositionInfo(); // Draw the position info
     }
 
     function drawCrosshair(xadj, yadj) {
@@ -242,7 +468,6 @@ function handleButtonClick(event) {
                 } else if (yadj > canvas.height - margin) {
                     lastYValid = canvas.height - margin;
                 }
-
                 inZone = false;
             }
 
@@ -279,36 +504,36 @@ function handleButtonClick(event) {
     }
 
     function convertToVirtualCoordinates(x, y) {
-    const canvas = document.getElementById('machine-canvas');
-    const canvasWidth = canvas.width - margin * 2;
-    const canvasHeight = canvas.height - margin * 2;
+        const canvas = document.getElementById('machine-canvas');
+        const canvasWidth = canvas.width - margin * 2;
+        const canvasHeight = canvas.height - margin * 2;
 
-    const virtualX = ((x - margin) / canvasWidth) * (max_x_machine - min_x_machine) + min_x_machine;
-    const virtualY = ((canvasHeight - (y - margin)) / canvasHeight) * (max_y_machine - min_y_machine) + min_y_machine;
+        const virtualX = ((x - margin) / canvasWidth) * (currentSettings.gotoxmax - currentSettings.gotoxmin) + currentSettings.gotoxmin;
+        const virtualY = ((canvasHeight - (y - margin)) / canvasHeight) * (currentSettings.gotoymax - currentSettings.gotoymin) + currentSettings.gotoymin;
 
-    return { x: virtualX, y: virtualY };
-}
-
-function drawPositionInfo() {
-    const canvas = document.getElementById('machine-canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Dessiner la position actuelle du curseur
-    const cursorPosition = convertToVirtualCoordinates(xPos, yPos);
-    
-    ctx.font = window.getComputedStyle(canvas).getPropertyValue('--positions-font');
-    ctx.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--positions-font-color');
-    ctx.fillText(`X: ${cursorPosition.x.toFixed(precision)}, Y: ${cursorPosition.y.toFixed(precision)}`, margin*2, 20);
-
-    // Dessiner les coordonnées du dernier clic
-    if (lastClickPosition) {
-        const ctx2 = canvas.getContext('2d');
-        ctx2.font = window.getComputedStyle(canvas).getPropertyValue('--last-click-font');
-        ctx2.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--last-click-font-color');
-        ctx2.fillText(`Xc: ${lastClickPosition.x.toFixed(precision)}, Yc: ${lastClickPosition.y.toFixed(precision)}`, margin*2, 35);
-
+        return { x: virtualX, y: virtualY };
     }
-}
+
+    function drawPositionInfo() {
+        const canvas = document.getElementById('machine-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Draw the cursor position
+        const cursorPosition = convertToVirtualCoordinates(xPos, yPos);
+
+        ctx.font = window.getComputedStyle(canvas).getPropertyValue('--positions-font');
+        ctx.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--positions-font-color');
+        ctx.fillText(`X: ${cursorPosition.x.toFixed(currentSettings.gotoprecision)}, Y: ${cursorPosition.y.toFixed(currentSettings.gotoprecision)}`, margin * 2, 20);
+
+        //Draw the last click position
+        if (lastClickPosition) {
+            const ctx2 = canvas.getContext('2d');
+            ctx2.font = window.getComputedStyle(canvas).getPropertyValue('--last-click-font');
+            ctx2.fillStyle = window.getComputedStyle(canvas).getPropertyValue('--last-click-font-color');
+            ctx2.fillText(`Xc: ${lastClickPosition.x.toFixed(currentSettings.gotoprecision)}, Yc: ${lastClickPosition.y.toFixed(currentSettings.gotoprecision)}`, margin * 2, 35);
+
+        }
+    }
     function handleMouseMove(event) {
         const canvas = document.getElementById('machine-canvas');
         const rect = canvas.getBoundingClientRect();
@@ -330,22 +555,21 @@ function drawPositionInfo() {
 
         if (inZone) {
             const virtualCoords = convertToVirtualCoordinates(xPos, yPos);
-            lastClickPosition = virtualCoords; // Stocker les coordonnées du dernier clic
-            drawCanvas(); // Redessiner le canvas pour effacer le curseur
-            drawCrosshair(xPos, yPos);
+            lastClickPosition = virtualCoords; // Store the coordinates of the last click
+            drawCanvas(); // Redraw the canvas to clear the cursor
+            drawCrosshair(xPos, yPos); // Redraw the crosshair at the last valid position
+            commandFn(); // Call the command function
         }
     }
 
-
-
     // Onload add listener to collect messages from WebUI and init extension
-// Onload add listener to collect messages from WebUI and init extension
-window.onload = (event) => {
-    console.log("Extension chargée"); // Ajout d'un console.log
-    window.addEventListener("message", processMessage, false);
-    initExtension();
-    loadIcons();
-};
+    window.onload = (event) => {
+        console.log("Extension chargée");
+        window.addEventListener("message", processMessage, false);
+        loadIcons();
+        initExtension();
+        updateCanvasSize();
+    };
 </script>
 <style>
     body,
@@ -377,8 +601,8 @@ window.onload = (event) => {
         margin-bottom: 20px;
         --axis-label-font-step: 9px Arial, sans-serif;
         --axis-label-font-step-color: black;
-        --axis-label-font: 16px Arial, sans-serif;
-        --axis-label-font-color: black;
+        --axis-label-font: bold 16px Arial, sans-serif;
+        --axis-label-font-color: blue;
         --axis-color: blue;
         --background-color: lightgray;
         --cursor-color: red;
@@ -395,7 +619,6 @@ window.onload = (event) => {
         max-width: 400px;
         margin-top: 10px;
     }
-
 </style>
 
 <div id="machine-container">

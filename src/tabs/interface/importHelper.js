@@ -216,7 +216,6 @@ function formatPreferences(section) {
  * @returns {Array} An array containing a copy of preferences data section with imported data and a flag indicating if there were any errors during the import.
  */
 function importPreferencesSection(currentPreferencesData, importedPreferences) {
-    console.log("importPreferencesSection:", currentPreferencesData, importedPreferences);
     let hasErrors = false;
     const currentPreferences = JSON.parse(JSON.stringify(currentPreferencesData));
   

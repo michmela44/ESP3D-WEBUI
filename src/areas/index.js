@@ -322,7 +322,6 @@ const ContentContainer = () => {
                             settingsValues.export = inputData
                         }
 
-                        console.log("export", settingsValues.export)
                         return settingsValues.export
                     }
                     const cb1 = () => {
@@ -405,7 +404,6 @@ const ContentContainer = () => {
                             content.fields,
                             content.values
                         )
-                        console.log("newFields", newFields, content.fields)
                         inputData = newFields
 
                         //This function is a replacement of the hook feature which is not available in this context
@@ -483,7 +481,6 @@ const ContentContainer = () => {
                                                 (subData) => {
                                                     const subFieldData =
                                                         fieldData.value[subData]
-                                                    console.log(subFieldData)
                                                     const {
                                                         label,
                                                         initial,
@@ -550,7 +547,10 @@ const ContentContainer = () => {
                     } else {
                         modalContent.content = T(content.text)
                     }
-
+                    let modal_content = modalContent.content
+                    if (content.style != "fields") {
+                        modal_content = (<div dangerouslySetInnerHTML={{ __html: modalContent.content }}></div>)
+                    }
                     showModal({
                         modals,
                         title: T(content.title),
@@ -577,7 +577,7 @@ const ContentContainer = () => {
                               }
                             : null,
                         icon:
-                            content.style == "question" ? (
+                        content.icon? iconsFeather[content.icon] :content.style == "question" ? (
                                 <HelpCircle />
                             ) : (
                                 <Layout />
@@ -585,7 +585,7 @@ const ContentContainer = () => {
                         id: content.id,
                         content: (
                             <Fragment>
-                                <div>{modalContent.content}</div>
+                                {modal_content}
                                 {content.style == "input" && (
                                     <input
                                         class="form-input"
@@ -673,8 +673,6 @@ const ContentContainer = () => {
                     //now update the settings section with export version
 
                     interfaceSettingsData.settings = exportPreferencesSection(interfaceSettingsData.settings, false, true)
-
-                    console.log("interfaceSettingsData", interfaceSettingsData)
 
                     //now stringify and save
                     const preferencestosave = JSON.stringify(
