@@ -128,9 +128,15 @@ const ContentContainer = () => {
                     )
                     break
                 case "query":
+                    let cmd=null
+                    if (eventMsg.data.url=="command") {
+                        console.log("Command")
+                        console.log(eventMsg.data)
+                        cmd=eventMsg.data.args.cmd
+                    }
                     createNewRequest(
                         espHttpURL(eventMsg.data.url, eventMsg.data.args),
-                        { method: "GET" },
+                        { method: "GET", echo:cmd },
                         {
                             onSuccess: (result) => {
                                 if (!eventMsg.data.noDispatch)

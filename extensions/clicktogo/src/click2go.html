@@ -1,4 +1,5 @@
 <script type="text/javascript">
+    const click2go_version = "1.0.0";
     let margin = 40; // Définir la taille de la marge
     let xPos = 0;
     let yPos = 0;
@@ -12,6 +13,7 @@
     const iconsToLoad = ["Settings", "Info"];
     const loadedIcons = {};
     let iconsLoaded = false;
+    let settingsLoaded = false;
 
     const buttons = [
 
@@ -28,18 +30,23 @@
     ];
 
     const about_text = `<div class='modal-content'>
-<h2>Machine Canvas Extension</h2>
-<p>This extension allows you to visualize and interact with a canvas representing a virtual machine. It offers the following features:</p>
+<h2>Click2go Extension v${click2go_version}</h2>
+<p>This ESP3D-WebUI extension allows you to visualize and interact with a represention of the workspace of your machine. It offers the following features:</p>
 <ul>
-<li>Display of a canvas with X and Y axes, along with customizable graduations.</li>
+<li>Display the workspace with X and Y axes, along with customizable graduations.</li>
 <li>Support for mouse and touch interactions, providing intuitive control.</li>
-<li>Real-time display of the virtual coordinates of the cursor or touch point.</li>
-<li>Validation of the last click or touch coordinates when performed within the valid zone of the canvas.</li>
-<li>Customizable canvas styles using CSS variables.</li>
+<li>Real-time display of the machine coordinates of the cursor or touch point.</li>
+<li>Customizable UI styles using CSS variables.</li>
+<li>Customisable travel command to send to the machine.</li>
+<li>Customizable precision of the coordinates.</li> 
 </ul>
-<p>Developed by <a href='https://github.com/luc-github/esp3d-webui' target='_blank'>Luc Lebosse</a>.</p>
+<p>
+  Developed by <a href='https://github.com/luc-github/esp3d-webui' target='_blank'>Luc Lebosse</a>. 
+  Licensed under <a href='https://www.gnu.org/licenses/lgpl-3.0.en.html' target='_blank'>LGPL</a>. 
+  Copyright © 2024.
+</p>
 </div>`;
-
+    //About modal msg
     const about_modal = {
         type: "modal",
         target: "webui",
@@ -57,6 +64,18 @@
     }
 
 
+    //Command message format
+    const command_msg = {
+        type: "query",
+        target: "webui",
+        id: "click2go_command",
+        url: 'command',
+        args: { cmd: "" }
+    }
+
+
+
+    //Settings storage
     const currentSettings = {
         gotoxmin: 0.0,
         gotoxmax: 100.0,
@@ -158,7 +177,8 @@
         }
     ];
 
-    const settings_msg = {
+    //Settings modal msg
+    const settings_modal = {
         type: "modal",
         target: "webui",
         id: "click2go_settings",
@@ -177,7 +197,24 @@
             hideclose: true,
         },
     }
+    //Request settings
+    const settings_request_msg = {
+        type: 'capabilities', target: 'webui', id: "extensions", name: "click2go"
+    }
 
+    //Save data to settings message
+    const save_settings_msg = {
+        type: 'extensionsData', target: 'webui', id: "click2go", content: ""
+    }
+
+    //Toast message
+    const toast_msg = {
+        type: 'toast', target: 'webui', content: { text: '', type: 'default' }
+    }
+
+
+
+    //Save settings
     function onSave(settings) {
         console.log("Settings saved:", settings);
         currentSettings.gotoxmin = parseFloat(settings.gotoxmin);
@@ -191,34 +228,44 @@
         currentSettings.gotocommand = settings.gotocommand;
         updateSettings();
         drawCanvas();
+        //Todo: Save settings to preferences.json
+        save_settings_msg.content = currentSettings;
+        console.log("Save settings:", save_settings_msg);
+        sendMessage(save_settings_msg);
     }
 
+    //Settings modal
     function settingsFn() {
-        sendMessage(settings_msg);
+        sendMessage(settings_modal);
     }
 
+    //About modal
     function aboutFn() {
         sendMessage(about_modal);
     }
 
+    //Command function
     function commandFn() {
         console.log("Last click position:", lastClickPosition);
-        const command = currentSettings.command
+        let command = currentSettings.gotocommand
             .replace("{X}", lastClickPosition.x.toFixed(currentSettings.gotoprecision))
             .replace("{Y}", lastClickPosition.y.toFixed(currentSettings.gotoprecision))
             .replace("{F}", currentSettings.gotofeedrate);
-        console.log("Commande à envoyer:", command);
+        console.log("Command:", command);
+        command_msg.args.cmd = command;
+
+        sendMessage(command_msg);
     }
 
-
-
-
+    //Send message to WebUI
     function sendMessage(msg) {
         window.parent.postMessage(msg, '*');
     }
 
+    //Process message from WebUI
     function processMessage(eventMsg) {
-        console.log("Message reçu:", eventMsg.data);
+        console.log("Got:", eventMsg.data);
+        //Check if icons are loaded
         if (!iconsLoaded) {
             if (eventMsg.data.type && eventMsg.data.id && iconsToLoad.includes(eventMsg.data.id)) {
                 if (eventMsg.data.type === "icon") {
@@ -231,39 +278,80 @@
                     }
                 }
             }
-        } else {
-            if (
-                eventMsg.data.type &&
-                (!eventMsg.data.id || eventMsg.data.id === "click2go_settings")
-            ) {
-                if (eventMsg.data.type === "modal" && eventMsg.data.id === "click2go_settings") {
-                    console.log("Message modal reçu:", eventMsg.data);
-                    if (eventMsg.data.content.response === "update") {
-                        onSave(eventMsg.data.content.inputData)
-                    }
-                } else
-                    if (eventMsg.data.type === "modal" && eventMsg.data.id === "click2go_save") {
-                        console.log("Message modal reçu:", eventMsg.data);
-                    } else
-                        if (eventMsg.data.type === "modal" && eventMsg.data.id === "click2go_restore") {
-                            console.log("Message modal reçu:", eventMsg.data);
-                        }
+        } else { //Icons are loaded lets process other messages
+            //Check if message is a response to a modal for settings
+            if (eventMsg.data.type === "capabilities" && eventMsg.data.id === "extensions") {
+                if (eventMsg.data.content.initiator.name === "click2go") {
+                    console.log("Got:", eventMsg.data);
+                    applySettings(eventMsg.data.content.response)
+                }
 
-            }
+            } else
+                if (
+                    eventMsg.data.type &&
+                    (!eventMsg.data.id || eventMsg.data.id.startsWith("click2go"))) {
+                    if (eventMsg.data.type === "modal" && eventMsg.data.id === "click2go_settings") {
+                        console.log("Got:", eventMsg.data);
+                        if (eventMsg.data.content.response === "update") {
+                            onSave(eventMsg.data.content.inputData)
+                        }
+                    } else // Check if message is a response to a extensionsData for saving settings
+                        if (eventMsg.data.type === "extensionsData" && eventMsg.data.id === "click2go") {
+                            console.log("Got:", eventMsg.data);
+                            processSavingSettings(eventMsg.data.content.response)
+                        }
+                }
 
         }
     }
 
+    function processSavingSettings(response) {
+        if (response === "success") {
+            toast_msg.content.text = "Settings saved successfully";
+            toast_msg.content.type = "success";
+            sendMessage(toast_msg);
+        } else if (response === "error") {
+            toast_msg.content.text = "Error saving settings";
+            toast_msg.content.type = "error";
+            sendMessage(toast_msg);
+        }
+    }
 
+    //Load icons from WebUI
     function loadIcons() {
         iconsToLoad.forEach(iconName => {
             sendMessage({ type: 'icon', target: 'webui', id: iconName });
         });
     }
 
+    function loadSettings() {
+        sendMessage(settings_request_msg);
+    }
+
+    function applySettings(settings) {
+        console.log("Settings loaded:", settings);
+        settingsLoaded = true;
+        if (settings != null && (Object.keys(settings).length > 2)){
+        console.log("Apply Settings:", settings, Object.keys(settings).length);
+        if (!isNaN(parseFloat(settings.gotoxmin)))currentSettings.gotoxmin = parseFloat(settings.gotoxmin);
+        if (!isNaN(parseFloat(settings.gotoxmax)))currentSettings.gotoxmax = parseFloat(settings.gotoxmax);
+        if (!isNaN(parseFloat(settings.gotoymin)))currentSettings.gotoymin = parseFloat(settings.gotoymin);
+        if (!isNaN(parseFloat(settings.gotoymax)))currentSettings.gotoymax = parseFloat(settings.gotoymax);
+        if (!isNaN(parseInt(settings.gotoxsteps)))currentSettings.gotoxsteps = parseInt(settings.gotoxsteps);
+        if (!isNaN(parseInt(settings.gotoysteps)))currentSettings.gotoysteps = parseInt(settings.gotoysteps);
+        if (!isNaN(parseInt(settings.gotoprecision)))currentSettings.gotoprecision = parseInt(settings.gotoprecision);
+        if (!isNaN(parseInt(settings.gotoxfeedrate)))currentSettings.gotofeedrate = parseInt(settings.gotofeedrate);
+        if (typeof settings.gotocommand  !="undefined")currentSettings.gotocommand = settings.gotocommand;
+        } else {
+            console.log("No Settings");
+        }
+        initExtension();
+        updateCanvasSize();
+    }
+    //Use loaded icons
     function useLoadedIcons() {
         const buttonContainer = document.querySelector(".button-container");
-
+        // Create a button for each button definition
         buttons.forEach(button => {
             const btn = document.createElement("button");
             btn.classList.add("btn", "m-1", "feather-icon-container");
@@ -283,6 +371,7 @@
         });
     }
 
+    //Handle button click
     function handleButtonClick(event) {
         const clickedIcon = event.currentTarget.getAttribute("data-icon");
         const button = buttons.find(btn => btn.icon === clickedIcon);
@@ -291,7 +380,7 @@
         }
     }
 
-
+    //Handle touch move   
     function handleTouchMove(event) {
         event.preventDefault();
         const canvas = document.getElementById('machine-canvas');
@@ -311,6 +400,7 @@
         drawCrosshair(adjustedX, adjustedY);
     }
 
+    //Handle touch end which is a click if in the zone
     function handleTouchEnd(event) {
         if (inZone) {
             const virtualCoords = convertToVirtualCoordinates(xPos, yPos);
@@ -321,7 +411,8 @@
         }
     }
 
-
+    //Initialize the extension and add event listeners
+    //Should be called on load and only once
     function initExtension() {
         const canvas = document.getElementById('machine-canvas');
         window.addEventListener('resize', updateCanvasSize);
@@ -338,6 +429,7 @@
         lastYValid = margin;
     }
 
+    //Update settings
     function updateSettings() {
         const canvas = document.getElementById('machine-canvas');
         const ctx = canvas.getContext('2d');
@@ -349,6 +441,7 @@
         lastYValid = margin;
     }
 
+    //Update the canvas size to fit the container
     function updateCanvasSize() {
         const container = document.getElementById('machine-container');
         const containerWidth = container.clientWidth;
@@ -372,6 +465,7 @@
         drawCanvas();
     }
 
+    //Draw the axes
     function drawAxes() {
         const canvas = document.getElementById('machine-canvas');
         const ctx = canvas.getContext('2d');
@@ -432,6 +526,7 @@
         ctx.stroke();
     }
 
+    //Draw the canvas
     function drawCanvas() {
         const canvas = document.getElementById('machine-canvas');
         const ctx = canvas.getContext('2d');
@@ -445,7 +540,7 @@
         drawAxes()
         drawPositionInfo(); // Draw the position info
     }
-
+    //Draw the crosshair
     function drawCrosshair(xadj, yadj) {
         const canvas = document.getElementById('machine-canvas');
         const ctx = canvas.getContext('2d');
@@ -503,6 +598,7 @@
         ctx.stroke();
     }
 
+    //Convert the cursor position to target system coordinates
     function convertToVirtualCoordinates(x, y) {
         const canvas = document.getElementById('machine-canvas');
         const canvasWidth = canvas.width - margin * 2;
@@ -514,6 +610,7 @@
         return { x: virtualX, y: virtualY };
     }
 
+    //Draw the position info on top of the canvas
     function drawPositionInfo() {
         const canvas = document.getElementById('machine-canvas');
         const ctx = canvas.getContext('2d');
@@ -534,6 +631,8 @@
 
         }
     }
+
+    //Handle mouse move
     function handleMouseMove(event) {
         const canvas = document.getElementById('machine-canvas');
         const rect = canvas.getBoundingClientRect();
@@ -551,6 +650,7 @@
         drawCrosshair(adjustedX, adjustedY);
     }
 
+    //Handle mouse click
     function handleClick(event) {
 
         if (inZone) {
@@ -567,8 +667,7 @@
         console.log("Extension chargée");
         window.addEventListener("message", processMessage, false);
         loadIcons();
-        initExtension();
-        updateCanvasSize();
+        loadSettings();
     };
 </script>
 <style>
