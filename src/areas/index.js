@@ -108,10 +108,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 console.log(error)
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
@@ -151,10 +147,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 console.log(error)
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
@@ -215,10 +207,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
                                         "upload",
@@ -263,10 +251,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
                                         "download",
@@ -720,10 +704,6 @@ const ContentContainer = () => {
                         },
                         {
                             onSuccess: (result) => {
-                                toasts.addToast({
-                                    content: T("S62"),
-                                    type: "success",
-                                })
                                 dispatchToExtensions(
                                     "extensionsData",
                                     {
@@ -734,10 +714,6 @@ const ContentContainer = () => {
                                 )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: T("S44"),
-                                    type: "Error",
-                                })
                                 dispatchToExtensions(
                                     "extensionsData",
                                     {
