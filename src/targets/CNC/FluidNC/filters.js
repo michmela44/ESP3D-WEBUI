@@ -31,7 +31,7 @@ let wcos = ["0", "0", "0"]
 //
 // ok acknowledge
 const isOk = (str) => {
-    if (str=="ok") {
+    if (str == "ok") {
         return true
     }
     return false
@@ -231,8 +231,8 @@ const getStates = (str) => {
                     cur[0] == "F"
                         ? "feed_rate"
                         : cur[0] == "T"
-                        ? "active_tool"
-                        : "spindle_speed"
+                          ? "active_tool"
+                          : "spindle_speed"
                 ] = { value: parseFloat(cur.substring(1)) }
             } else {
                 gcode_parser_modes.forEach((mode) => {

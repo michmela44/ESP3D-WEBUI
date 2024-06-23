@@ -17,28 +17,28 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from 'preact'
-import { iconsTarget } from './icons'
-import { files } from './files'
-import { processor } from './processor'
-import { gcode_parser_modes } from './gcode_parser_modes'
-import { defaultPanelsList } from './panels'
-import { MachineSettings } from './MachineSettings'
+import { h } from "preact"
+import { iconsTarget } from "./icons"
+import { files } from "./files"
+import { processor } from "./processor"
+import { gcode_parser_modes } from "./gcode_parser_modes"
+import { defaultPanelsList } from "./panels"
+import { MachineSettings, machineSettings } from "./MachineSettings"
 import {
     InformationsControls,
     QuickButtonsBar,
     BackgroundContainer,
-} from './Controls'
+} from "./Controls"
 import {
     TargetContextProvider,
     useTargetContext,
     useTargetContextFn,
-} from './TargetContext'
-import realCommandsTable from './realCommandsTable'
-import variablesTable from './variablesTable'
-import { AppLogo as WebUILogo } from '../../../components/Images/logo'
-import { AppLogo } from './logo'
-import { addObjectItem, removeObjectItem } from '../../../components/Helpers'
+} from "./TargetContext"
+import realCommandsTable from "./realCommandsTable"
+import variablesTable from "./variablesTable"
+import { AppLogo as WebUILogo } from "../../../components/Images/logo"
+import { AppLogo } from "./logo"
+import { addObjectItem, removeObjectItem } from "../../../components/Helpers"
 
 const Target = 'FluidNC'
 const webUIbuild = 'F2'
@@ -51,9 +51,9 @@ const restartdelay = 10
 const variablesList = {
     commands: [...realCommandsTable, ...variablesTable],
     addCommand: (variable) =>
-        addObjectItem(variablesList.commands, 'name', variable),
+        addObjectItem(variablesList.commands, "name", variable),
     removeCommand: (name) =>
-        removeObjectItem(variablesList.commands, 'name', name),
+        removeObjectItem(variablesList.commands, "name", name),
     modes: [...gcode_parser_modes],
     hideFeatures: false,
     allowEmptyLine: true,
@@ -61,24 +61,25 @@ const variablesList = {
 const eventsList = {
     evts: [],
     on: (event, fn) => {
-        if (typeof eventsList.evts[event] === 'undefined') {
+        if (typeof eventsList.evts[event] === "undefined") {
             eventsList.evts[event] = []
         }
-        addObjectItem(eventsList.evts[event], 'fn', { fn: fn })
+        addObjectItem(eventsList.evts[event], "fn", { fn: fn })
     },
     off: (event, fn) => {
-        removeObjectItem(variablesList.evts[event], 'fn', fn)
+        removeObjectItem(variablesList.evts[event], "fn", fn)
     },
     emit: (event, data) => {
         if (eventsList.evts[event])
             eventsList.evts[event].forEach((element) => {
-                if (typeof element.fn === 'function') element.fn(data)
+                if (typeof element.fn === "function") element.fn(data)
             })
     },
 }
 
 export {
     MachineSettings,
+    machineSettings,
     Target,
     fwUrl,
     Name,
