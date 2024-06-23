@@ -185,8 +185,8 @@ const About = () => {
             interfaceSettings.current.custom.fwurl
                 ? interfaceSettings.current.custom.fwurl
                 : i
-                ? fwUrl[1]
-                : fwUrl[0]
+                  ? fwUrl[1]
+                  : fwUrl[0]
 
         window.open(url, "_blank")
         e.target.blur()

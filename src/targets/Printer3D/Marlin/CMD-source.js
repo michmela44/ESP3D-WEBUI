@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from 'preact'
+import { h } from "preact"
 
 const formatCapabilityLine = (acc, line) => {
     //TODO:
@@ -31,27 +31,27 @@ const formatCapabilityLine = (acc, line) => {
 const formatEepromLine = (acc, line) => {
     //format G20 / G21
     //it is comment
-    if (line.startsWith('echo:')) {
+    if (line.startsWith("echo:")) {
         //it is setting
         let data = line
             .substring(
                 5,
-                line.indexOf(';') != -1 ? line.indexOf(';') : line.length
+                line.indexOf(";") != -1 ? line.indexOf(";") : line.length
             )
             .trim()
         let extra =
-            line.indexOf(';') != -1
-                ? line.substring(line.indexOf(';') + 1).trim()
-                : ''
+            line.indexOf(";") != -1
+                ? line.substring(line.indexOf(";") + 1).trim()
+                : ""
         const reg_test = /^[A-Z][0-9]/
         if (data.length > 0 && !reg_test.test(data)) {
             extra = data
-            data = ''
+            data = ""
         }
 
-        if (extra.length > 0) acc.push({ type: 'comment', value: extra })
+        if (extra.length > 0) acc.push({ type: "comment", value: extra })
         if (data.length > 0)
-            acc.push({ type: 'text', value: data, initial: data })
+            acc.push({ type: "text", value: data, initial: data })
     }
 
     return acc
@@ -63,7 +63,7 @@ const capabilities = {
 
 const commands = {
     capabilities: () => {
-        return { type: 'cmd', cmd: 'M115' }
+        return { type: "cmd", cmd: "M115" }
     },
     formatCapabilities: (result) => {
         if (!result || result.length == 0) return []
@@ -73,7 +73,7 @@ const commands = {
         return capabilityList
     },
     eeprom: () => {
-        return { type: 'cmd', cmd: 'M503' }
+        return { type: "cmd", cmd: "M503" }
     },
     formatEeprom: (result) => {
         if (!result || result.length == 0) return []
@@ -86,20 +86,20 @@ const commands = {
 
 const responseSteps = {
     capabilities: {
-        start: (data) => data.startsWith('FIRMWARE_NAME:'),
+        start: (data) => data.startsWith("FIRMWARE_NAME:"),
         end: (data) =>
-            !(data.startsWith('Cap:') || data.startsWith('FIRMWARE_NAME:')),
+            !(data.startsWith("Cap:") || data.startsWith("FIRMWARE_NAME:")),
         error: (data) => {
-            return data.indexOf('error') != -1
+            return data.indexOf("error") != -1
         },
     },
     eeprom: {
-        start: (data) => data.startsWith('echo:;') || data.startsWith('echo: '),
-        end: (data) => data.startsWith('ok') && !data.startsWith('ok T:'),
+        start: (data) => data.startsWith("echo:;") || data.startsWith("echo: "),
+        end: (data) => data.startsWith("ok") && !data.startsWith("ok T:"),
         error: (data) => {
             return (
-                data.indexOf('Unknown command') != -1 ||
-                data.indexOf('error') != -1
+                data.indexOf("Unknown command") != -1 ||
+                data.indexOf("error") != -1
             )
         },
     },
@@ -116,7 +116,7 @@ function command() {
     const [cmd, ...rest] = arguments
     if (commands[cmd]) return commands[cmd](...rest)
     //console.log("Unknow command ", cmd)
-    return { type: 'error' }
+    return { type: "error" }
 }
 
 const CMD = { capability, command, responseSteps }

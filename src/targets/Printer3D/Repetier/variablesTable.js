@@ -17,8 +17,6 @@
 */
 import { h } from "preact"
 
-const variablesTable = [
-    
-]
+const variablesTable = []
 
 export default variablesTable

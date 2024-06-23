@@ -30,6 +30,8 @@ import {
     settingsDepend,
 } from "../../Helpers"
 
+import { T } from "./../../Translations"
+
 /*
  * Local const
  *
@@ -40,6 +42,7 @@ const Boolean = ({
     validation,
     value = false,
     type,
+    help,
     depend,
     setValue,
     inline,
@@ -83,7 +86,10 @@ const Boolean = ({
         if (setValue) setValue(null, true)
     }, [value])
     return (
-        <label class="form-switch">
+        <label 
+        class={`form-switch ${help ? "tooltip tooltip-right" : ""}`}
+        data-tooltip={T(help)}
+        >
             <input
                 type="checkbox"
                 {...inputCheckboxProps}
@@ -91,6 +97,7 @@ const Boolean = ({
             />
             <i class="form-icon" />
             <span class={inline ? "text-dark" : "d-none"}>{label}</span>
+            
         </label>
     )
 }

@@ -16,17 +16,23 @@ Jog.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h } from 'preact'
-import { Move, Crosshair, Home, ZapOff, Edit3 } from 'preact-feather'
-import { useHttpFn } from '../../hooks'
-import { espHttpURL } from '../Helpers'
-import { useUiContext, useUiContextFn } from '../../contexts'
-import { T } from '../Translations'
-import { Button, ButtonImg, CenterLeft } from '../Controls'
-import { useEffect, useState } from 'preact/hooks'
-import { showModal } from '../Modal'
-import { useTargetContext } from '../../targets'
-import { Menu as PanelMenu } from './'
+import { Fragment, h } from "preact"
+import { Move, Crosshair, Home, ZapOff, Edit3 } from "preact-feather"
+import { useHttpFn } from "../../hooks"
+import { espHttpURL } from "../Helpers"
+import { useUiContext, useUiContextFn } from "../../contexts"
+import { T } from "../Translations"
+import {
+    Button,
+    ButtonImg,
+    FullScreenButton,
+    CloseButton,
+    ContainerHelper,
+} from "../Controls"
+import { useEffect, useState, useRef } from "preact/hooks"
+import { showModal } from "../Modal"
+import { useTargetContext } from "../../targets"
+import { Menu as PanelMenu } from "./"
 
 let currentFeedRate = []
 let jogDistance = 100
@@ -69,21 +75,22 @@ const JogPanel = () => {
     )
 
     const [moveToTitleXY, setMoveToTitleXY] = useState(
-        T('P20') + movetoX + ',' + movetoY
+        T("P20") + movetoX + "," + movetoY
     )
-    const [moveToTitleZ, setMoveToTitleZ] = useState(T('P75') + movetoZ)
-    const id = 'jogPanel'
+    const [moveToTitleZ, setMoveToTitleZ] = useState(T("P75") + movetoZ)
+    const id = "jogPanel"
+    const panelRef = useRef(null)
     console.log(id)
 
     //Send a request to the ESP
     const SendCommand = (command) => {
         createNewRequest(
-            espHttpURL('command', { cmd: command }),
-            { method: 'GET', echo: command },
+            espHttpURL("command", { cmd: command }),
+            { method: "GET", echo: command },
             {
                 onSuccess: (result) => {},
                 onFail: (error) => {
-                    toasts.addToast({ content: error, type: 'error' })
+                    toasts.addToast({ content: error, type: "error" })
                     console.log(error)
                 },
             }
@@ -92,7 +99,7 @@ const JogPanel = () => {
 
     //Send Home command
     const sendHomeCommand = (axis, id) => {
-        const cmd = useUiContextFn.getValue('homecmd').replace('$', axis)
+        const cmd = useUiContextFn.getValue("homecmd").replace("$", axis)
         onOut(id)
         if (id && currentButtonPressed != id) return
         SendCommand(cmd)
@@ -104,10 +111,10 @@ const JogPanel = () => {
         if (document.getElementById(id)) {
             const list_item = document
                 .getElementById(id)
-                .querySelector(id == 'posz' ? '.movez' : '.std')
+                .querySelector(id == "posz" ? ".movez" : ".std")
             if (list_item) {
-                list_item.classList.add('pressedbutton')
-                list_item.classList.remove(id == 'posz' ? 'movez' : 'std')
+                list_item.classList.add("pressedbutton")
+                list_item.classList.remove(id == "posz" ? "movez" : "std")
             }
         }
     }
@@ -116,14 +123,14 @@ const JogPanel = () => {
     const sendJogCommand = (axis, id, distance) => {
         let movement
         onOut(id)
-        let feedrate = axis.startsWith('Z')
-            ? currentFeedRate['zfeedrate']
-            : currentFeedRate['xyfeedrate']
+        let feedrate = axis.startsWith("Z")
+            ? currentFeedRate["zfeedrate"]
+            : currentFeedRate["xyfeedrate"]
         if (distance) movement = axis + distance
         else movement = axis + jogDistance
-        let cmd = 'G91\nG1 ' + movement + ' F' + feedrate + '\nG90'
+        let cmd = "G91\nG1 " + movement + " F" + feedrate + "\nG90"
         if (id && currentButtonPressed != id) {
-            console.log(id, ' is different than ', currentButtonPressed)
+            console.log(id, " is different than ", currentButtonPressed)
             return
         }
         SendCommand(cmd)
@@ -138,7 +145,7 @@ const JogPanel = () => {
     //mouse hover jog button
     const onHoverJog = (id) => {
         if (document.getElementById(id))
-            document.getElementById(id).style.opacity = '1'
+            document.getElementById(id).style.opacity = "1"
     }
 
     //mouse out of button
@@ -146,10 +153,10 @@ const JogPanel = () => {
         if (document.getElementById(id)) {
             const list_item = document
                 .getElementById(id)
-                .querySelector('.pressedbutton')
+                .querySelector(".pressedbutton")
             if (list_item) {
-                list_item.classList.add(id == 'posz' ? 'movez' : 'std')
-                list_item.classList.remove('pressedbutton')
+                list_item.classList.add(id == "posz" ? "movez" : "std")
+                list_item.classList.remove("pressedbutton")
             }
         }
     }
@@ -157,7 +164,7 @@ const JogPanel = () => {
     //mouse out of the jog button
     const onOutJog = (id, buttonId) => {
         if (document.getElementById(id))
-            document.getElementById(id).style.opacity = '0.2'
+            document.getElementById(id).style.opacity = "0.2"
         onOut(buttonId)
     }
 
@@ -166,40 +173,40 @@ const JogPanel = () => {
         onOut(buttonId)
         if (id && currentButtonPressed != id) return
         let cmd
-        if (buttonId == 'posxy')
+        if (buttonId == "posxy")
             cmd =
-                'G1 X' +
+                "G1 X" +
                 movetoX +
-                ' Y' +
+                " Y" +
                 movetoY +
-                ' F' +
-                currentFeedRate['xyfeedrate']
-        else cmd = 'G1 Z' + movetoZ + ' F' + currentFeedRate['zfeedrate']
+                " F" +
+                currentFeedRate["xyfeedrate"]
+        else cmd = "G1 Z" + movetoZ + " F" + currentFeedRate["zfeedrate"]
         SendCommand(cmd)
     }
 
     //Set the current feedrate for axis
     const setFeedrate = (axis) => {
-        let value = currentFeedRate[axis == 'XY' ? 'xyfeedrate' : 'zfeedrate']
+        let value = currentFeedRate[axis == "XY" ? "xyfeedrate" : "zfeedrate"]
         showModal({
             modals,
-            title: axis == 'XY' ? T('P10') : T('P11'),
-            button2: { text: T('S28') },
+            title: axis == "XY" ? T("P10") : T("P11"),
+            button2: { text: T("S28") },
             button1: {
                 cb: () => {
                     if (value.length > 0.1)
                         currentFeedRate[
-                            axis == 'XY' ? 'xyfeedrate' : 'zfeedrate'
+                            axis == "XY" ? "xyfeedrate" : "zfeedrate"
                         ] = value
                 },
-                text: T('S43'),
-                id: 'applyFrBtn',
+                text: T("S43"),
+                id: "applyFrBtn",
             },
             icon: <Edit3 />,
-            id: 'inputFeedrate',
+            id: "inputFeedrate",
             content: (
                 <Fragment>
-                    <div>{axis == 'XY' ? T('P10') : T('P11')}</div>
+                    <div>{axis == "XY" ? T("P10") : T("P11")}</div>
                     <input
                         class="form-input"
                         type="number"
@@ -208,15 +215,15 @@ const JogPanel = () => {
                         onInput={(e) => {
                             value = e.target.value.trim()
                             if (value < 0.1) {
-                                if (document.getElementById('applyFrBtn')) {
+                                if (document.getElementById("applyFrBtn")) {
                                     document.getElementById(
-                                        'applyFrBtn'
+                                        "applyFrBtn"
                                     ).disabled = true
                                 }
                             } else {
-                                if (document.getElementById('applyFrBtn')) {
+                                if (document.getElementById("applyFrBtn")) {
                                     document.getElementById(
-                                        'applyFrBtn'
+                                        "applyFrBtn"
                                     ).disabled = false
                                 }
                             }
@@ -230,121 +237,121 @@ const JogPanel = () => {
     //Set the current feedrate for XY axis
     const setFeedrateXY = (e) => {
         useUiContextFn.haptic()
-        setFeedrate('XY')
+        setFeedrate("XY")
     }
 
     //Set the current feedrate for Z axis
     const setFeedrateZ = (e) => {
         useUiContextFn.haptic()
-        setFeedrate('Z')
+        setFeedrate("Z")
     }
 
     useEffect(() => {
-        if (!currentFeedRate['xyfeedrate'])
-            currentFeedRate['xyfeedrate'] =
-                useUiContextFn.getValue('xyfeedrate')
-        if (!currentFeedRate['zfeedrate'])
-            currentFeedRate['zfeedrate'] = useUiContextFn.getValue('zfeedrate')
-        if (typeof movetoX == 'undefined')
-            movetoX = useUiContextFn.getValue('xpos')
-        if (typeof movetoY == 'undefined')
-            movetoY = useUiContextFn.getValue('ypos')
-        setMoveToTitleXY(T('P20') + movetoX + ',' + movetoY)
-        if (typeof movetoZ == 'undefined')
-            movetoZ = useUiContextFn.getValue('zpos')
-        setMoveToTitleZ(T('P75') + movetoZ)
+        if (!currentFeedRate["xyfeedrate"])
+            currentFeedRate["xyfeedrate"] =
+                useUiContextFn.getValue("xyfeedrate")
+        if (!currentFeedRate["zfeedrate"])
+            currentFeedRate["zfeedrate"] = useUiContextFn.getValue("zfeedrate")
+        if (typeof movetoX == "undefined")
+            movetoX = useUiContextFn.getValue("xpos")
+        if (typeof movetoY == "undefined")
+            movetoY = useUiContextFn.getValue("ypos")
+        setMoveToTitleXY(T("P20") + movetoX + "," + movetoY)
+        if (typeof movetoZ == "undefined")
+            movetoZ = useUiContextFn.getValue("zpos")
+        setMoveToTitleZ(T("P75") + movetoZ)
     }, [])
 
     const menu = [
         {
-            label: T('P10'),
+            label: T("P10"),
             onClick: setFeedrateXY,
         },
         {
-            label: T('P11'),
+            label: T("P11"),
             onClick: setFeedrateZ,
         },
     ]
-    let label_h_axis_left = ''
-    let label_h_axis_right = ''
-    let label_v_axis_bottom = ''
-    let label_v_axis_top = ''
+    let label_h_axis_left = ""
+    let label_h_axis_right = ""
+    let label_v_axis_bottom = ""
+    let label_v_axis_top = ""
 
-    let H_axis = 'X'
+    let H_axis = "X"
     let H_axis_left_dir
     let H_axis_right_dir
-    let V_axis = 'Y'
+    let V_axis = "Y"
     let V_axis_top_dir
     let V_axis_bottom_dir
     let pos_x_v_axis_label_top
     let pos_x_v_axis_label_bottom
-    let Z_axis = 'Z'
-    let label_z_axis_bottom = ''
-    let label_z_axis_top = ''
+    let Z_axis = "Z"
+    let label_z_axis_bottom = ""
+    let label_z_axis_top = ""
     let pos_x_z_axis_label_top
     let pos_x_z_axis_label_bottom
-    let Z_axis_bottom_dir = ''
-    let Z_axis_top_dir = ''
-    if (useUiContextFn.getValue('swap_x_y')) {
-        H_axis = 'Y'
-        V_axis = 'X'
+    let Z_axis_bottom_dir = ""
+    let Z_axis_top_dir = ""
+    if (useUiContextFn.getValue("swap_x_y")) {
+        H_axis = "Y"
+        V_axis = "X"
     } else {
-        H_axis = 'X'
-        V_axis = 'Y'
+        H_axis = "X"
+        V_axis = "Y"
     }
 
-    if (useUiContextFn.getValue('invert_y')) {
-        if (useUiContextFn.getValue('swap_x_y')) {
-            H_axis_left_dir = '+'
-            H_axis_right_dir = '-'
+    if (useUiContextFn.getValue("invert_y")) {
+        if (useUiContextFn.getValue("swap_x_y")) {
+            H_axis_left_dir = "+"
+            H_axis_right_dir = "-"
         } else {
-            V_axis_top_dir = '-'
-            V_axis_bottom_dir = '+'
-            pos_x_v_axis_label_top = '113'
-            pos_x_v_axis_label_bottom = '110'
+            V_axis_top_dir = "-"
+            V_axis_bottom_dir = "+"
+            pos_x_v_axis_label_top = "113"
+            pos_x_v_axis_label_bottom = "110"
         }
     } else {
-        if (useUiContextFn.getValue('swap_x_y')) {
-            H_axis_left_dir = '-'
-            H_axis_right_dir = '+'
+        if (useUiContextFn.getValue("swap_x_y")) {
+            H_axis_left_dir = "-"
+            H_axis_right_dir = "+"
         } else {
-            V_axis_top_dir = '+'
-            V_axis_bottom_dir = '-'
-            pos_x_v_axis_label_top = '110'
-            pos_x_v_axis_label_bottom = '113'
-        }
-    }
-
-    if (useUiContextFn.getValue('invert_x')) {
-        if (useUiContextFn.getValue('swap_x_y')) {
-            V_axis_top_dir = '-'
-            V_axis_bottom_dir = '+'
-            pos_x_v_axis_label_top = '113'
-            pos_x_v_axis_label_bottom = '110'
-        } else {
-            H_axis_left_dir = '+'
-            H_axis_right_dir = '-'
-        }
-    } else {
-        if (useUiContextFn.getValue('swap_x_y')) {
-            V_axis_top_dir = '+'
-            V_axis_bottom_dir = '-'
-            pos_x_v_axis_label_top = '110'
-            pos_x_v_axis_label_bottom = '113'
-        } else {
-            H_axis_left_dir = '-'
-            H_axis_right_dir = '+'
+            V_axis_top_dir = "+"
+            V_axis_bottom_dir = "-"
+            pos_x_v_axis_label_top = "110"
+            pos_x_v_axis_label_bottom = "113"
         }
     }
 
-    if (useUiContextFn.getValue('invert_z')) {
-        Z_axis_top_dir = '+'
-        Z_axis_bottom_dir = '-'
+    if (useUiContextFn.getValue("invert_x")) {
+        if (useUiContextFn.getValue("swap_x_y")) {
+            V_axis_top_dir = "-"
+            V_axis_bottom_dir = "+"
+            pos_x_v_axis_label_top = "113"
+            pos_x_v_axis_label_bottom = "110"
+        } else {
+            H_axis_left_dir = "+"
+            H_axis_right_dir = "-"
+        }
+    } else {
+        if (useUiContextFn.getValue("swap_x_y")) {
+            V_axis_top_dir = "+"
+            V_axis_bottom_dir = "-"
+            pos_x_v_axis_label_top = "110"
+            pos_x_v_axis_label_bottom = "113"
+        } else {
+            H_axis_left_dir = "-"
+            H_axis_right_dir = "+"
+        }
+    }
+
+    if (useUiContextFn.getValue("invert_z")) {
+        Z_axis_top_dir = "+"
+        Z_axis_bottom_dir = "-"
         pos_x_z_axis_label_top = 41
         pos_x_z_axis_label_bottom = 43
     } else {
-        Z_axis_top_dir = '-'
-        Z_axis_bottom_dir = '+'
+        Z_axis_top_dir = "-"
+        Z_axis_bottom_dir = "+"
         pos_x_z_axis_label_top = 43
         pos_x_z_axis_label_bottom = 41
     }
@@ -356,22 +363,24 @@ const JogPanel = () => {
     label_v_axis_top = V_axis_top_dir + V_axis
 
     return (
-        <div id={id} class="panel panel-dashboard">
+        <div id={id} class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Move />
-                    <strong class="text-ellipsis">{T('S66')}</strong>
+                    <strong class="text-ellipsis">{T("S66")}</strong>
                 </span>
                 <span class="navbar-section">
                     <span class="H-100">
                         <PanelMenu items={menu} />
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>
@@ -379,18 +388,18 @@ const JogPanel = () => {
             <div class="m-1 jog-container">
                 <PositionsControls />
                 <div class="m-1" />
-                <div class={shortcuts.enabled ? 'm-1' : 'show-low m-1'}>
+                <div class={shortcuts.enabled ? "m-1" : "show-low m-1"}>
                     <div class="jog-buttons-main-container">
                         <div class="m-1 jog-buttons-container">
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P76')}
+                                data-tooltip={T("P76")}
                                 id="btn+X"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendJogCommand('X+')
+                                    sendJogCommand("X+")
                                 }}
                             >
                                 +X
@@ -398,12 +407,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P7')}
+                                data-tooltip={T("P7")}
                                 id="btnHX"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendHomeCommand('X')
+                                    sendHomeCommand("X")
                                 }}
                             >
                                 <Home size="1rem" />
@@ -412,12 +421,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P77')}
+                                data-tooltip={T("P77")}
                                 id="btn-X"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendJogCommand('X-')
+                                    sendJogCommand("X-")
                                 }}
                             >
                                 -X
@@ -427,12 +436,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P76')}
+                                data-tooltip={T("P76")}
                                 id="btn+Y"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendJogCommand('Y+')
+                                    sendJogCommand("Y+")
                                 }}
                             >
                                 +Y
@@ -440,12 +449,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P8')}
+                                data-tooltip={T("P8")}
                                 id="btnHY"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendHomeCommand('Y')
+                                    sendHomeCommand("Y")
                                 }}
                             >
                                 <Home size="1rem" />
@@ -454,12 +463,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P77')}
+                                data-tooltip={T("P77")}
                                 id="btn-Y"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendJogCommand('Y-')
+                                    sendJogCommand("Y-")
                                 }}
                             >
                                 -Y
@@ -470,12 +479,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P76')}
+                                data-tooltip={T("P76")}
                                 id="btn+Z"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendJogCommand('Z+')
+                                    sendJogCommand("Z+")
                                 }}
                             >
                                 +Z
@@ -483,12 +492,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P9')}
+                                data-tooltip={T("P9")}
                                 id="btnHZ"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendHomeCommand('Z')
+                                    sendHomeCommand("Z")
                                 }}
                             >
                                 <Home size="1rem" />
@@ -497,12 +506,12 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T('P77')}
+                                data-tooltip={T("P77")}
                                 id="btn-Z"
                                 onclick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    sendJogCommand('Z-')
+                                    sendJogCommand("Z-")
                                 }}
                             >
                                 -Z
@@ -516,7 +525,7 @@ const JogPanel = () => {
 
                                 <div
                                     class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T('P78')}
+                                    data-tooltip={T("P78")}
                                 >
                                     <input
                                         type="radio"
@@ -533,7 +542,7 @@ const JogPanel = () => {
                                 </div>
                                 <div
                                     class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T('P78')}
+                                    data-tooltip={T("P78")}
                                 >
                                     <input
                                         type="radio"
@@ -550,7 +559,7 @@ const JogPanel = () => {
                                 </div>
                                 <div
                                     class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T('P78')}
+                                    data-tooltip={T("P78")}
                                 >
                                     <input
                                         type="radio"
@@ -567,7 +576,7 @@ const JogPanel = () => {
                                 </div>
                                 <div
                                     class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T('P78')}
+                                    data-tooltip={T("P78")}
                                 >
                                     <input
                                         type="radio"
@@ -647,12 +656,12 @@ const JogPanel = () => {
                             <g
                                 id="HomeAll"
                                 onmouseup={(e) =>
-                                    sendHomeCommand('', 'HomeAll')
+                                    sendHomeCommand("", "HomeAll")
                                 }
-                                onmousedown={(e) => onMouseDown('HomeAll')}
-                                onmouseout={(e) => onOut('HomeAll')}
+                                onmousedown={(e) => onMouseDown("HomeAll")}
+                                onmouseout={(e) => onOut("HomeAll")}
                             >
-                                <title>{T('P6')}</title>
+                                <title>{T("P6")}</title>
                                 <path
                                     class="std"
                                     d="M10 182.5 h-10 v57.5 h57.5 v-10 a 125,125 0 0,1 -47.5 -47.5 Z"
@@ -668,11 +677,11 @@ const JogPanel = () => {
                             </g>
                             <g
                                 id="HomeX"
-                                onmouseup={(e) => sendHomeCommand('X', 'HomeX')}
-                                onmousedown={(e) => onMouseDown('HomeX')}
-                                onmouseout={(e) => onOut('HomeX')}
+                                onmouseup={(e) => sendHomeCommand("X", "HomeX")}
+                                onmousedown={(e) => onMouseDown("HomeX")}
+                                onmouseout={(e) => onOut("HomeX")}
                             >
-                                <title>{T('P7')}</title>
+                                <title>{T("P7")}</title>
                                 <path
                                     class="std"
                                     d="M10 57.50 h-10 v-57.5 h57.5 v10 a 125,125 0 0,0 -47.5 47.5 Z"
@@ -691,11 +700,11 @@ const JogPanel = () => {
                             </g>
                             <g
                                 id="HomeY"
-                                onmouseup={(e) => sendHomeCommand('Y', 'HomeY')}
-                                onmousedown={(e) => onMouseDown('HomeY')}
-                                onmouseout={(e) => onOut('HomeY')}
+                                onmouseup={(e) => sendHomeCommand("Y", "HomeY")}
+                                onmousedown={(e) => onMouseDown("HomeY")}
+                                onmouseout={(e) => onOut("HomeY")}
                             >
-                                <title>{T('P8')}</title>
+                                <title>{T("P8")}</title>
                                 <path
                                     class="std"
                                     d="M230 57.50 h10 v-57.5 h-57.5 v10 a 125,125 0 0,1 47.5 47.5 z"
@@ -714,11 +723,11 @@ const JogPanel = () => {
                             </g>
                             <g
                                 id="HomeZ"
-                                onmouseup={(e) => sendHomeCommand('Z', 'HomeZ')}
-                                onmousedown={(e) => onMouseDown('HomeZ')}
-                                onmouseout={(e) => onOut('HomeZ')}
+                                onmouseup={(e) => sendHomeCommand("Z", "HomeZ")}
+                                onmousedown={(e) => onMouseDown("HomeZ")}
+                                onmouseout={(e) => onOut("HomeZ")}
                             >
-                                <title>{T('P9')}</title>
+                                <title>{T("P9")}</title>
                                 <path
                                     class="std"
                                     d="M230 182.5 h10 v57.5 h-57.5 v-10 a 125,125 0 0,0 47.5 -47.5 z"
@@ -746,20 +755,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_top_100',
-                                            V_axis_top_dir + '100'
+                                            "V_top_100",
+                                            V_axis_top_dir + "100"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_100')
+                                        onHoverJog("label_circle_100")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('V_top_100')
+                                        onMouseDown("V_top_100")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_100',
-                                            'V_top_100'
+                                            "label_circle_100",
+                                            "V_top_100"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -774,20 +783,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_right_100',
-                                            H_axis_right_dir + '100'
+                                            "H_right_100",
+                                            H_axis_right_dir + "100"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_100')
+                                        onHoverJog("label_circle_100")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('H_right_100')
+                                        onMouseDown("H_right_100")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_100',
-                                            'H_right_100'
+                                            "label_circle_100",
+                                            "H_right_100"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -802,20 +811,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_bottom_100',
-                                            V_axis_bottom_dir + '100'
+                                            "V_bottom_100",
+                                            V_axis_bottom_dir + "100"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_100')
+                                        onHoverJog("label_circle_100")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('V_bottom_100')
+                                        onMouseDown("V_bottom_100")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_100',
-                                            'V_bottom_100'
+                                            "label_circle_100",
+                                            "V_bottom_100"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -830,20 +839,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_left_100',
-                                            H_axis_left_dir + '100'
+                                            "H_left_100",
+                                            H_axis_left_dir + "100"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_100')
+                                        onHoverJog("label_circle_100")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('H_left_100')
+                                        onMouseDown("H_left_100")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_100',
-                                            'H_left_100'
+                                            "label_circle_100",
+                                            "H_left_100"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -860,16 +869,16 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_top_10',
-                                            V_axis_top_dir + '10'
+                                            "V_top_10",
+                                            V_axis_top_dir + "10"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_10')
+                                        onHoverJog("label_circle_10")
                                     }}
-                                    onmousedown={(e) => onMouseDown('V_top_10')}
+                                    onmousedown={(e) => onMouseDown("V_top_10")}
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_10', 'V_top_10')
+                                        onOutJog("label_circle_10", "V_top_10")
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -883,20 +892,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_right_10',
-                                            H_axis_right_dir + '10'
+                                            "H_right_10",
+                                            H_axis_right_dir + "10"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_10')
+                                        onHoverJog("label_circle_10")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('H_right_10')
+                                        onMouseDown("H_right_10")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_10',
-                                            'H_right_10'
+                                            "label_circle_10",
+                                            "H_right_10"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -911,20 +920,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_bottom_10',
-                                            V_axis_bottom_dir + '10'
+                                            "V_bottom_10",
+                                            V_axis_bottom_dir + "10"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_10')
+                                        onHoverJog("label_circle_10")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('V_bottom_10')
+                                        onMouseDown("V_bottom_10")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_10',
-                                            'V_bottom_10'
+                                            "label_circle_10",
+                                            "V_bottom_10"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -939,18 +948,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_left_10',
-                                            H_axis_left_dir + '10'
+                                            "H_left_10",
+                                            H_axis_left_dir + "10"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_10')
+                                        onHoverJog("label_circle_10")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('H_left_10')
+                                        onMouseDown("H_left_10")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_10', 'H_left_10')
+                                        onOutJog("label_circle_10", "H_left_10")
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -966,16 +975,16 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_top_1',
-                                            V_axis_top_dir + '1'
+                                            "V_top_1",
+                                            V_axis_top_dir + "1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_1')
+                                        onHoverJog("label_circle_1")
                                     }}
-                                    onmousedown={(e) => onMouseDown('V_top_1')}
+                                    onmousedown={(e) => onMouseDown("V_top_1")}
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_1', 'V_top_1')
+                                        onOutJog("label_circle_1", "V_top_1")
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -989,18 +998,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_right_1',
-                                            H_axis_right_dir + '1'
+                                            "H_right_1",
+                                            H_axis_right_dir + "1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_1')
+                                        onHoverJog("label_circle_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('H_right_1')
+                                        onMouseDown("H_right_1")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_1', 'H_right_1')
+                                        onOutJog("label_circle_1", "H_right_1")
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -1014,18 +1023,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_bottom_1',
-                                            V_axis_bottom_dir + '1'
+                                            "V_bottom_1",
+                                            V_axis_bottom_dir + "1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_1')
+                                        onHoverJog("label_circle_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('V_bottom_1')
+                                        onMouseDown("V_bottom_1")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_1')
+                                        onOutJog("label_circle_1")
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -1039,16 +1048,16 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_left_1',
-                                            H_axis_left_dir + '1'
+                                            "H_left_1",
+                                            H_axis_left_dir + "1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_1')
+                                        onHoverJog("label_circle_1")
                                     }}
-                                    onmousedown={(e) => onMouseDown('H_left_1')}
+                                    onmousedown={(e) => onMouseDown("H_left_1")}
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_1', 'H_left_1')
+                                        onOutJog("label_circle_1", "H_left_1")
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -1064,19 +1073,19 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_top_0_1',
-                                            V_axis_top_dir + '0.1'
+                                            "V_top_0_1",
+                                            V_axis_top_dir + "0.1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_0_1')
+                                        onHoverJog("label_circle_0_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('V_top_0_1')
+                                        onMouseDown("V_top_0_1")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_0_1'),
-                                            'V_top_0_1'
+                                        onOutJog("label_circle_0_1"),
+                                            "V_top_0_1"
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -1090,20 +1099,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_right_0_1',
-                                            H_axis_right_dir + '0.1'
+                                            "H_right_0_1",
+                                            H_axis_right_dir + "0.1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_0_1')
+                                        onHoverJog("label_circle_0_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('H_right_0_1')
+                                        onMouseDown("H_right_0_1")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_0_1',
-                                            'H_right_0_1'
+                                            "label_circle_0_1",
+                                            "H_right_0_1"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -1118,20 +1127,20 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             V_axis,
-                                            'V_bottom_0_1',
-                                            V_axis_bottom_dir + '0.1'
+                                            "V_bottom_0_1",
+                                            V_axis_bottom_dir + "0.1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_0_1')
+                                        onHoverJog("label_circle_0_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('V_bottom_0_1')
+                                        onMouseDown("V_bottom_0_1")
                                     }
                                     onmouseout={(e) => {
                                         onOutJog(
-                                            'label_circle_0_1',
-                                            'V_bottom_0_1'
+                                            "label_circle_0_1",
+                                            "V_bottom_0_1"
                                         )
                                     }}
                                     transform="translate(120 120)"
@@ -1146,18 +1155,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             H_axis,
-                                            'H_left_0_1',
-                                            H_axis_left_dir + '0.1'
+                                            "H_left_0_1",
+                                            H_axis_left_dir + "0.1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('label_circle_0_1')
+                                        onHoverJog("label_circle_0_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('H_left_0_1')
+                                        onMouseDown("H_left_0_1")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('label_circle_0_1')
+                                        onOutJog("label_circle_0_1")
                                     }}
                                     transform="translate(120 120)"
                                 >
@@ -1260,14 +1269,14 @@ const JogPanel = () => {
                             <g
                                 id="posxy"
                                 onmouseup={(e) => {
-                                    sendMoveCommand('posxy', 'posxy')
+                                    sendMoveCommand("posxy", "posxy")
                                 }}
                                 onmouseover={(e) => {
-                                    onHoverJog('posxy')
+                                    onHoverJog("posxy")
                                 }}
-                                onmousedown={(e) => onMouseDown('posxy')}
+                                onmousedown={(e) => onMouseDown("posxy")}
                                 onmouseout={(e) => {
-                                    onOut('posxy')
+                                    onOut("posxy")
                                 }}
                             >
                                 <title>{moveToTitleXY}</title>
@@ -1325,18 +1334,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_top_100',
-                                            Z_axis_top_dir + '100'
+                                            "Z_top_100",
+                                            Z_axis_top_dir + "100"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z100')
+                                        onHoverJog("z100")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('Z_top_100')
+                                        onMouseDown("Z_top_100")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('z100', 'Z_top_100')
+                                        onOutJog("z100", "Z_top_100")
                                     }}
                                 >
                                     <path
@@ -1366,16 +1375,16 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_top_10',
-                                            Z_axis_top_dir + '10'
+                                            "Z_top_10",
+                                            Z_axis_top_dir + "10"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z10')
+                                        onHoverJog("z10")
                                     }}
-                                    onmousedown={(e) => onMouseDown('Z_top_10')}
+                                    onmousedown={(e) => onMouseDown("Z_top_10")}
                                     onmouseout={(e) => {
-                                        onOutJog('z10', 'Z_top_10')
+                                        onOutJog("z10", "Z_top_10")
                                     }}
                                 >
                                     <rect
@@ -1408,16 +1417,16 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_top_1',
-                                            Z_axis_top_dir + '1'
+                                            "Z_top_1",
+                                            Z_axis_top_dir + "1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z1')
+                                        onHoverJog("z1")
                                     }}
-                                    onmousedown={(e) => onMouseDown('Z_top_1')}
+                                    onmousedown={(e) => onMouseDown("Z_top_1")}
                                     onmouseout={(e) => {
-                                        onOutJog('z1', 'Z_top_1')
+                                        onOutJog("z1", "Z_top_1")
                                     }}
                                 >
                                     <rect
@@ -1463,18 +1472,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_top_0_1',
-                                            Z_axis_top_dir + '0.1'
+                                            "Z_top_0_1",
+                                            Z_axis_top_dir + "0.1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z0_1')
+                                        onHoverJog("z0_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('Z_top_0_1')
+                                        onMouseDown("Z_top_0_1")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('z0_1', 'Z_top_0_1')
+                                        onOutJog("z0_1", "Z_top_0_1")
                                     }}
                                 >
                                     <rect
@@ -1507,18 +1516,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_bottom_0_1',
-                                            Z_axis_bottom_dir + '0.1'
+                                            "Z_bottom_0_1",
+                                            Z_axis_bottom_dir + "0.1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z0_1')
+                                        onHoverJog("z0_1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('Z_bottom_0_1')
+                                        onMouseDown("Z_bottom_0_1")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('z0_1', 'Z_bottom_0_1')
+                                        onOutJog("z0_1", "Z_bottom_0_1")
                                     }}
                                 >
                                     <rect
@@ -1535,18 +1544,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_bottom_1',
-                                            Z_axis_bottom_dir + '1'
+                                            "Z_bottom_1",
+                                            Z_axis_bottom_dir + "1"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z1')
+                                        onHoverJog("z1")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('Z_bottom_1')
+                                        onMouseDown("Z_bottom_1")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('z1', 'Z_bottom_1')
+                                        onOutJog("z1", "Z_bottom_1")
                                     }}
                                 >
                                     <rect
@@ -1563,18 +1572,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_bottom_10',
-                                            Z_axis_bottom_dir + '10'
+                                            "Z_bottom_10",
+                                            Z_axis_bottom_dir + "10"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z10')
+                                        onHoverJog("z10")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('Z_bottom_10')
+                                        onMouseDown("Z_bottom_10")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('z10', 'Z_bottom_10')
+                                        onOutJog("z10", "Z_bottom_10")
                                     }}
                                 >
                                     <rect
@@ -1592,18 +1601,18 @@ const JogPanel = () => {
                                     onmouseup={(e) =>
                                         sendJogCommand(
                                             Z_axis,
-                                            'Z_bottom_100',
-                                            Z_axis_bottom_dir + '100'
+                                            "Z_bottom_100",
+                                            Z_axis_bottom_dir + "100"
                                         )
                                     }
                                     onmouseover={(e) => {
-                                        onHoverJog('z100')
+                                        onHoverJog("z100")
                                     }}
                                     onmousedown={(e) =>
-                                        onMouseDown('Z_bottom_100')
+                                        onMouseDown("Z_bottom_100")
                                     }
                                     onmouseout={(e) => {
-                                        onOutJog('z100', 'Z_bottom_100')
+                                        onOutJog("z100", "Z_bottom_100")
                                     }}
                                 >
                                     <path
@@ -1652,14 +1661,14 @@ const JogPanel = () => {
                                 <g
                                     id="posz"
                                     onmouseup={(e) => {
-                                        sendMoveCommand('posz', 'posz')
+                                        sendMoveCommand("posz", "posz")
                                     }}
                                     onmouseover={(e) => {
-                                        onHoverJog('posz')
+                                        onHoverJog("posz")
                                     }}
-                                    onmousedown={(e) => onMouseDown('posz')}
+                                    onmousedown={(e) => onMouseDown("posz")}
                                     onmouseout={(e) => {
-                                        onOut('posz')
+                                        onOut("posz")
                                     }}
                                 >
                                     <title>{moveToTitleZ}</title>
@@ -1715,19 +1724,19 @@ const JogPanel = () => {
                 )}
                 <div
                     class={
-                        shortcuts.enabled ? 'm-1 W-100' : 'm-1 show-low W-100'
+                        shortcuts.enabled ? "m-1 W-100" : "m-1 show-low W-100"
                     }
                 >
                     <div class="jog-extra-buttons-container">
                         <Button
                             m1
                             tooltip
-                            data-tooltip={T('P6')}
+                            data-tooltip={T("P6")}
                             id="btnHXYZ"
                             onclick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
-                                sendHomeCommand('')
+                                sendHomeCommand("")
                             }}
                         >
                             <Home />
@@ -1741,7 +1750,7 @@ const JogPanel = () => {
                             onclick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
-                                sendMoveCommand('posxy')
+                                sendMoveCommand("posxy")
                             }}
                         >
                             <Crosshair />
@@ -1755,7 +1764,7 @@ const JogPanel = () => {
                             onclick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
-                                sendMoveCommand('posz')
+                                sendMoveCommand("posz")
                             }}
                         >
                             <Crosshair />
@@ -1763,22 +1772,19 @@ const JogPanel = () => {
                         </Button>
                     </div>
                 </div>
-                <div
-                    class="jog-extra-buttons-container"
-                    style="margin-right:8px"
-                >
+                <div class="jog-extra-buttons-container">
                     <ButtonImg
                         m1
                         tooltip
-                        label={T('P13')}
-                        data-tooltip={T('P13')}
+                        label={T("P13")}
+                        data-tooltip={T("P13")}
                         icon={<ZapOff />}
                         id="btnMotorOff"
                         onclick={(e) => {
                             useUiContextFn.haptic()
                             const cmds = useUiContextFn
-                                .getValue('motoroff')
-                                .split(';')
+                                .getValue("motoroff")
+                                .split(";")
                             e.target.blur()
                             cmds.forEach((cmd) => {
                                 SendCommand(cmd)
@@ -1792,13 +1798,13 @@ const JogPanel = () => {
 }
 
 const JogPanelElement = {
-    id: 'jogPanel',
+    id: "jogPanel",
     content: <JogPanel />,
-    name: 'S66',
-    icon: 'Move',
-    show: 'showjogpanel',
-    onstart: 'openjogonstart',
-    settingid: 'jog',
+    name: "S66",
+    icon: "Move",
+    show: "showjogpanel",
+    onstart: "openjogonstart",
+    settingid: "jog",
 }
 
 export { JogPanel, JogPanelElement, PositionsControls }

@@ -16,15 +16,15 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, createContext } from 'preact'
-import { useRef, useContext, useState } from 'preact/hooks'
-import { limitArr, useStoredState } from '../components/Helpers'
+import { h, createContext } from "preact"
+import { useRef, useContext, useState } from "preact/hooks"
+import { limitArr, useStoredState } from "../components/Helpers"
 
 /*
  * Local const
  *
  */
-const DatasContext = createContext('DatasContext')
+const DatasContext = createContext("DatasContext")
 const useDatasContext = () => useContext(DatasContext)
 
 const DatasContextProvider = ({ children }) => {
@@ -34,7 +34,10 @@ const DatasContextProvider = ({ children }) => {
     const terminalBuffer = useRef([])
     const terminalBufferQuiet = useRef([])
     const [terminalContent, setTerminalContent] = useState([])
-    const [terminalInputHistory, setTerminalInputHistory] = useStoredState("terminalInputHistory", [])
+    const [terminalInputHistory, setTerminalInputHistory] = useStoredState(
+        "terminalInputHistory",
+        []
+    )
     const terminalInput = useRef()
 
     const clearTerminal = () => {
@@ -59,14 +62,14 @@ const DatasContextProvider = ({ children }) => {
         terminalBuffer.current = newData.verbose
         newData.quiet = terminalBufferQuiet.current
         if (!element.isverboseOnly) {
-            console.log('quiet command', element)
+            //console.log("quiet command", element)
             newData.quiet = limitArr(
                 [...terminalBufferQuiet.current, element],
                 isAutoScrollPaused.current
                     ? 600
                     : isAutoScroll.current
-                    ? 300
-                    : 400
+                      ? 300
+                      : 400
             )
             terminalBufferQuiet.current = newData.quiet
         }

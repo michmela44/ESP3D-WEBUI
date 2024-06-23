@@ -71,7 +71,7 @@
                 "type": "boolean",
                 "label": "S190",
                 "value": false,
-                "depend":[{"id":"showfilespanel", "value":true}]
+                "depend": [{ "id": "showfilespanel", "value": true }]
             },
             {
                 "id": "sdlistcmd",
@@ -208,7 +208,8 @@
                     {
                         "connection_id": "SDConnection",
                         "value": "!='none'"
-                    }, {
+                    },
+                    {
                         "id": "showfilespanel",
                         "value": true
                     }
@@ -337,7 +338,10 @@
                 "id": "tftusbcommands",
                 "type": "group",
                 "label": "P103",
-                "depend": [{ "id": "tftfs", "notvalue": "none"},{ "id": "tftusb", "value": true }],
+                "depend": [
+                    { "id": "tftfs", "notvalue": "none" },
+                    { "id": "tftusb", "value": true }
+                ],
                 "value": [
                     {
                         "id": "tftusbpausecmd",

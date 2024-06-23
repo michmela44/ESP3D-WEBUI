@@ -44,10 +44,7 @@ const showModal = ({
         modals.addModal({
             id,
             title: (
-                <div
-                    class="text-primary feather-icon-container"
-                    style="line-height:24px!important"
-                >
+                <div class="text-primary feather-icon-container modal_title">
                     {icon}
                     <label>{title}</label>
                 </div>

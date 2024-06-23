@@ -5,21 +5,21 @@
     display: flex;
 }
 
-input[type='range'] {
+input[type="range"] {
     pointer-events: none;
     cursor: pointer;
 }
-input[type='range']::-webkit-slider-thumb {
+input[type="range"]::-webkit-slider-thumb {
     /*Webkit Browsers like Chrome and Safari*/
     pointer-events: auto;
     cursor: pointer;
 }
-input[type='range']::-moz-range-thumb {
+input[type="range"]::-moz-range-thumb {
     /*Firefox*/
     pointer-events: auto;
     cursor: pointer;
 }
-input[type='range']::-ms-thumb {
+input[type="range"]::-ms-thumb {
     /*Internet Explorer*/
     pointer-events: auto;
     cursor: pointer;
@@ -129,7 +129,11 @@ input[type='range']::-ms-thumb {
         linear-gradient(0deg, blue 50%, transparent 50%),
         linear-gradient(0deg, blue 50%, transparent 50%);
     background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-    background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
+    background-size:
+        15px 4px,
+        15px 4px,
+        4px 15px,
+        4px 15px;
     animation: border-dance 4s infinite linear;
     overflow: hidden !important;
 }
@@ -229,10 +233,18 @@ span.input-group-addon {
 
 @keyframes border-dance {
     0% {
-        background-position: 0 0, 100% 100%, 0 100%, 100% 0;
+        background-position:
+            0 0,
+            100% 100%,
+            0 100%,
+            100% 0;
     }
     100% {
-        background-position: 100% 0, 0 100%, 0 0, 100% 100%;
+        background-position:
+            100% 0,
+            0 100%,
+            0 0,
+            100% 100%;
     }
 }
 
@@ -488,7 +500,7 @@ a label {
 }
 
 .flatbtn {
-    input[type='radio'] {
+    input[type="radio"] {
         display: none;
         &:not(:disabled) ~ label {
             cursor: pointer;
@@ -514,15 +526,120 @@ a label {
         min-width: 2rem;
     }
 
-    input[type='radio']:active + label {
+    input[type="radio"]:active + label {
         background: blue;
         color: white;
     }
-    input[type='radio']:checked + label {
+    input[type="radio"]:checked + label {
         background: #5755d9;
         color: white;
     }
     .last-button {
         border-radius: 0px 0px 5px 5px;
     }
+}
+
+.btn.btn-screen {
+    background: transparent;
+    border: 0;
+    color: currentColor;
+    height: 1rem;
+    line-height: 0.8rem;
+    margin-left: 0.2rem;
+    margin-right: -2px;
+    opacity: 1;
+    padding: 0.1rem;
+    text-decoration: none;
+    width: 1rem;
+}
+
+.btn.btn-screen:hover {
+    background: blue;
+    color: #fff;
+    border: 0;
+}
+
+.nested-button {
+    color: blue !important;
+    background-color: #f1f1fc;
+}
+
+.insensitive {
+    pointer-events: none;
+}
+.text-straigth {
+    overflow: hidden !important;
+    white-space: nowrap;
+    text-overflow: ellipsis !important;
+}
+
+.icon-btn {
+    min-width: 2rem;
+}
+
+.filelist-occupation {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.text-like-icon {
+    font-size: 1.4rem;
+    vertical-align: top;
+}
+
+.button-mininal {
+    min-width: 2.5rem;
+}
+
+.icon-clear,
+.icon-reveal {
+    margin-top: 0.15rem;
+}
+
+.iframe-container {
+    z-index: 0 !important;
+}
+
+.go-previous {
+    height: 2rem !important;
+}
+
+.go-previous-text {
+    font-size: 1.4rem;
+}
+
+.progress-value-label {
+    margin-left: 15px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.content-icon {
+    padding: 0 20px;
+}
+
+.empty-content {
+    flex-wrap: nowrap !important;
+}
+
+.no-margin-no-padding {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.modal_title {
+    line-height: 24px !important;
+}
+
+
+.modals-container {
+    z-index:20000;
 }

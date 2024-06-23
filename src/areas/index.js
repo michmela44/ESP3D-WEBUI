@@ -17,19 +17,30 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, Fragment } from "preact"
+import { h, Fragment, render } from "preact"
 import { Menu } from "./menu"
-import { Informations } from "./informations"
+import { iconsFeather } from "../components/Images"
+import { machineSettings, iconsTarget } from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
-import { useSettingsContext } from "../contexts/SettingsContext"
+import {
+    generateValidationGlobal as generateValidation,
+    exportPreferencesSection,
+    importPreferencesSection,
+} from "../tabs/interface"
+import {
+    useSettingsContext,
+    useSettingsContextFn,
+} from "../contexts/SettingsContext"
 import { useSettings, useHttpQueue } from "../hooks"
 import { useEffect } from "preact/hooks"
+import { Field, FieldGroup } from "../components/Controls"
 import { showLogin, showKeepConnected, showModal } from "../components/Modal"
 import { espHttpURL, dispatchToExtensions } from "../components/Helpers"
 import { T, baseLangRessource } from "../components/Translations"
 import { HelpCircle, Layout } from "preact-feather"
+
 /*
  * Local const
  *
@@ -62,10 +73,13 @@ const ViewContainer = () => {
 }
 
 const ContentContainer = () => {
+    let displayIcon = {}
     const { getConnectionSettings, getInterfaceSettings } = useSettings()
-    const { connectionSettings } = useSettingsContext()
+    const { connectionSettings, interfaceSettings, featuresSettings } =
+        useSettingsContext()
     const { createNewRequest } = useHttpQueue()
     const { toasts, modals } = useUiContext()
+    const iconsList = { ...iconsTarget, ...iconsFeather }
 
     const processExtensionMessage = (eventMsg) => {
         if (eventMsg.data.type && eventMsg.data.target == "webui") {
@@ -94,10 +108,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 console.log(error)
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
@@ -114,9 +124,15 @@ const ContentContainer = () => {
                     )
                     break
                 case "query":
+                    let cmd=null
+                    if (eventMsg.data.url=="command") {
+                        console.log("Command")
+                        console.log(eventMsg.data)
+                        cmd=eventMsg.data.args.cmd
+                    }
                     createNewRequest(
                         espHttpURL(eventMsg.data.url, eventMsg.data.args),
-                        { method: "GET" },
+                        { method: "GET", echo:cmd },
                         {
                             onSuccess: (result) => {
                                 if (!eventMsg.data.noDispatch)
@@ -131,10 +147,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 console.log(error)
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
@@ -195,10 +207,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
                                         "upload",
@@ -243,10 +251,6 @@ const ContentContainer = () => {
                                     )
                             },
                             onFail: (error) => {
-                                toasts.addToast({
-                                    content: error,
-                                    type: "error",
-                                })
                                 if (!eventMsg.data.noDispatch)
                                     dispatchToExtensions(
                                         "download",
@@ -280,15 +284,57 @@ const ContentContainer = () => {
                     })
                     break
                 case "modal":
-                    let inputData = ""
+                    let inputData = null
+                    const validationBtn = {}
                     const content = eventMsg.data.content
+                    const hasError = () => {
+                        if (content.style == "fields") {
+                            const stmp = JSON.stringify(content.fields)
+                            if (
+                                stmp.includes('haserror":true') ||
+                                stmp.includes("haserror':true")
+                            ) {
+                                return true
+                            }
+                        }
+                        return false
+                    }
+
+                    const exportResult = () => {
+                        const settingsValues = {}
+                        if (content.style == "fields") {
+                            settingsValues.values = inputData
+                            settingsValues.export = exportPreferencesSection(
+                                settingsValues,
+                                false
+                            )
+                        } else {
+                            settingsValues.export = inputData
+                        }
+
+                        return settingsValues.export
+                    }
                     const cb1 = () => {
+                        if (
+                            (content.style == "fields" ||
+                                content.style == "input") &&
+                            content.validation == "bt1"
+                        ) {
+                            if (hasError()) {
+                                return
+                            }
+                            modals.removeModal(modals.getModalIndex(content.id))
+                        }
+
                         setTimeout(() => {
                             dispatchToExtensions(
                                 "modal",
                                 {
                                     response: content.response1,
-                                    inputData: inputData,
+                                    inputData:
+                                        content.validation == "bt1"
+                                            ? exportResult()
+                                            : "",
                                     initiator: eventMsg.data,
                                 },
                                 eventMsg.data.id
@@ -296,19 +342,205 @@ const ContentContainer = () => {
                         }, 500)
                     }
                     const cb2 = () => {
+                        if (
+                            (content.style == "fields" ||
+                                content.style == "input") &&
+                            content.validation == "bt2"
+                        ) {
+                            if (hasError()) {
+                                return
+                            }
+                            modals.removeModal(modals.getModalIndex(content.id))
+                        }
+
                         setTimeout(() => {
                             dispatchToExtensions(
                                 "modal",
                                 {
                                     response: content.response2,
-                                    inputData: inputData,
+                                    inputData:
+                                        content.validation == "bt2"
+                                            ? exportPreferences(
+                                                  exportResult(),
+                                                  false
+                                              )
+                                            : "",
                                     initiator: eventMsg.data,
                                 },
                                 eventMsg.data.id
                             )
                         }, 500)
                     }
+                    if (content.style == "fields") {
+                        if (content.validation == "bt1") {
+                            validationBtn.id = content.bt1Id
+                                ? content.bt1Id
+                                : "bt1"
+                        }
+                        if (content.validation == "bt2") {
+                            validationBtn.id = content.bt2Id
+                                ? content.bt2Id
+                                : "bt2"
+                        }
+                    }
+                    if (content.style == "input") {
+                        inputData = content.value
+                    }
+                    const modalContent = {}
+                    if (content.style == "fields") {
+                        //merge format and fields
 
+                        const [newFields, hasErrors] = importPreferencesSection(
+                            content.fields,
+                            content.values
+                        )
+                        inputData = newFields
+
+                        //This function is a replacement of the hook feature which is not available in this context
+                        const checkValidation = (fieldData) => {
+                            const id_group = "group-" + fieldData.id
+                            if (typeof fieldData.initial == "undefined") {
+                                fieldData.initial = fieldData.value
+                            }
+                            const validation = generateValidation(fieldData)
+                            const element = document.getElementById(id_group)
+                            const divToRemove =
+                                element.getElementsByClassName(
+                                    "form-input-hint"
+                                )
+                            if (divToRemove.length > 0) {
+                                element.removeChild(divToRemove[0])
+                            }
+                            if (validation.modified && validation.valid) {
+                                element.classList.add("has-modification")
+                                const newDiv = document.createElement("div")
+                                render(validation.message, newDiv)
+                                newDiv.appendChild = validation.message
+                                newDiv.classList.add(
+                                    "form-input-hint",
+                                    "text-center"
+                                )
+                                element.appendChild(newDiv)
+                            } else {
+                                document
+                                    .getElementById(id_group)
+                                    .classList.remove("has-modification")
+                            }
+                            if (!validation.valid) {
+                                document
+                                    .getElementById(id_group)
+                                    .classList.add("has-error")
+                                const newDiv = document.createElement("div")
+                                newDiv.innerHTML = T(validation.message)
+                                newDiv.classList.add(
+                                    "form-input-hint",
+                                    "text-center"
+                                )
+
+                                element.appendChild(newDiv)
+                            } else {
+                                document
+                                    .getElementById(id_group)
+                                    .classList.remove("has-error")
+                            }
+
+                            if (document.getElementById(validationBtn.id)) {
+                                if (hasError()) {
+                                    document.getElementById(
+                                        validationBtn.id
+                                    ).style.visibility = "hidden"
+                                } else {
+                                    document.getElementById(
+                                        validationBtn.id
+                                    ).style.visibility = "visible"
+                                }
+                            }
+                        }
+                        const renderFields = () => {
+                            const section = inputData
+                            return Object.keys(section).map((subsectionId) => {
+                                const fieldData = section[subsectionId]
+                                //console.log(fieldData)
+                                if (fieldData.type == "group") {
+                                    return (
+                                        <FieldGroup
+                                            id={fieldData.id}
+                                            label={T(fieldData.label)}
+                                        >
+                                            {Object.keys(fieldData.value).map(
+                                                (subData) => {
+                                                    const subFieldData =
+                                                        fieldData.value[subData]
+                                                    const {
+                                                        label,
+                                                        initial,
+                                                        type,
+                                                        ...rest
+                                                    } = subFieldData
+                                                    return (
+                                                        <Field
+                                                            label={T(
+                                                                subFieldData.label
+                                                            )}
+                                                            value={
+                                                                subFieldData.value
+                                                            }
+                                                            type={
+                                                                subFieldData.type
+                                                            }
+                                                            setValue={(
+                                                                val,
+                                                                update = false
+                                                            ) => {
+                                                                if (!update) {
+                                                                    subFieldData.value =
+                                                                        val
+                                                                }
+                                                                checkValidation(
+                                                                    subFieldData
+                                                                )
+                                                            }}
+                                                            {...rest}
+                                                        />
+                                                    )
+                                                }
+                                            )}
+                                        </FieldGroup>
+                                    )
+                                } else {
+                                    const { label, initial, type, ...rest } =
+                                        fieldData
+                                    return (
+                                        <Field
+                                            label={T(label)}
+                                            type={type}
+                                            inline={
+                                                type == "boolean" ||
+                                                type == "icon"
+                                                    ? true
+                                                    : false
+                                            }
+                                            {...rest}
+                                            setValue={(val, update = false) => {
+                                                if (!update) {
+                                                    fieldData.value = val
+                                                }
+                                                checkValidation(fieldData)
+                                            }}
+                                        />
+                                    )
+                                }
+                            })
+                        }
+
+                        modalContent.content = renderFields()
+                    } else {
+                        modalContent.content = T(content.text)
+                    }
+                    let modal_content = modalContent.content
+                    if (content.style != "fields") {
+                        modal_content = (<div dangerouslySetInnerHTML={{ __html: modalContent.content }}></div>)
+                    }
                     showModal({
                         modals,
                         title: T(content.title),
@@ -316,16 +548,26 @@ const ContentContainer = () => {
                             ? {
                                   cb: cb2,
                                   text: T(content.bt2Txt),
+                                  id: "bt2",
+                                  noclose:
+                                      content.validation == "bt2"
+                                          ? true
+                                          : false,
                               }
                             : null,
                         button1: content.bt1Txt
                             ? {
                                   cb: cb1,
                                   text: T(content.bt1Txt),
+                                  id: "bt1",
+                                  noclose:
+                                      content.validation == "bt1"
+                                          ? true
+                                          : false,
                               }
                             : null,
                         icon:
-                            content.style == "question" ? (
+                        content.icon? iconsFeather[content.icon] :content.style == "question" ? (
                                 <HelpCircle />
                             ) : (
                                 <Layout />
@@ -333,13 +575,14 @@ const ContentContainer = () => {
                         id: content.id,
                         content: (
                             <Fragment>
-                                <div>{T(content.text)}</div>
+                                {modal_content}
                                 {content.style == "input" && (
                                     <input
                                         class="form-input"
                                         onInput={(e) => {
                                             inputData = e.target.value.trim()
                                         }}
+                                        value={content.value}
                                     />
                                 )}
                             </Fragment>
@@ -376,13 +619,165 @@ const ContentContainer = () => {
                         )
                     }
                     break
+                case "icon":
+                    const iconToSend = iconsFeather[eventMsg.data.id]
+                    //Temporary DOM
+                    const tempElement = document.createElement("div")
+                    //DO icon rendering
+                    render(iconToSend, tempElement)
+                    //Get the SVG string
+                    const iconSvgString = tempElement.firstChild.outerHTML
+                    //Delete the temporary DOM
+                    tempElement.remove()
+
+                    dispatchToExtensions(
+                        "icon",
+                        {
+                            response: iconSvgString.replaceAll("\"", "'"),
+                            initiator: eventMsg.data,
+                        },
+                        eventMsg.data.id
+                    )
+                    break
+                case "extensionsData":
+                    //Get extension name
+                    const section = eventMsg.data.id
+                    //Get extensions settings
+                    const data = eventMsg.data.content
+                    //Some sanity check
+                    if (!interfaceSettings.current.extensions) {
+                        interfaceSettings.current.extensions = {}
+                    }
+                    if (!interfaceSettings.current.extensions[section]) {
+                        interfaceSettings.current.extensions[section] = {}
+                    }
+                    //Update the settings
+                    //Note: it will overwrite the whole section
+                    interfaceSettings.current.extensions[section] = data
+
+                    //now do a copy of interfaceSettings
+                    const interfaceSettingsData = JSON.parse(
+                        JSON.stringify(interfaceSettings.current)
+                    )
+
+                    //now update the settings section with export version
+
+                    interfaceSettingsData.settings = exportPreferencesSection(interfaceSettingsData.settings, false, true)
+
+                    //now stringify and save
+                    const preferencestosave = JSON.stringify(
+                        interfaceSettingsData,
+                        null,
+                        " "
+                    )
+                    //Create a blob
+                    const blob = new Blob([preferencestosave], {
+                        type: "application/json",
+                    })
+                    //Create a file
+                    const preferencesFileName =
+                        useSettingsContextFn.getValue("HostUploadPath") +
+                        "preferences.json"
+                    const formDataExtensions = new FormData()
+                    const file_to_save = new File([blob], preferencesFileName)
+                    formDataExtensions.append(
+                        "path",
+                        useSettingsContextFn.getValue("HostUploadPath")
+                    )
+                    formDataExtensions.append("creatPath", "true")
+                    formDataExtensions.append(
+                        preferencesFileName + "S",
+                        preferencestosave.length
+                    )
+                    formDataExtensions.append(
+                        "myfiles",
+                        file_to_save,
+                        preferencesFileName
+                    )
+                    //Send the file
+                    createNewRequest(
+                        espHttpURL(useSettingsContextFn.getValue("HostTarget")),
+                        {
+                            method: "POST",
+                            id: "preferences",
+                            body: formDataExtensions,
+                        },
+                        {
+                            onSuccess: (result) => {
+                                dispatchToExtensions(
+                                    "extensionsData",
+                                    {
+                                        response: { status: "success" },
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                            },
+                            onFail: (error) => {
+                                dispatchToExtensions(
+                                    "extensionsData",
+                                    {
+                                        response: { status: "error" },
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                            },
+                        }
+                    )
+
+                    break
                 case "capabilities":
+                    let response = {}
+                    switch (eventMsg.data.id) {
+                        case "connection":
+                            response = JSON.parse(
+                                JSON.stringify(connectionSettings.current)
+                            )
+                            break
+                        case "settings":
+                            response = JSON.parse(
+                                JSON.stringify(machineSettings)
+                            )
+                            break
+                            break
+                        case "interface":
+                            response = JSON.parse(
+                                JSON.stringify(interfaceSettings.current)
+                            )
+                            break
+                        case "features":
+                            response = JSON.parse(
+                                JSON.stringify(featuresSettings.current)
+                            )
+                            break
+                        case "extensions":
+                            if (interfaceSettings.current.extensions) {
+                                if (
+                                    interfaceSettings.current.extensions[
+                                        eventMsg.data.name
+                                    ]
+                                ) {
+                                    response = JSON.parse(
+                                        JSON.stringify(
+                                            interfaceSettings.current
+                                                .extensions[eventMsg.data.name]
+                                        )
+                                    )
+                                } else {
+                                    response = "{}"
+                                }
+                            } else {
+                                response = "{}"
+                            }
+                            break
+                        default:
+                            response = {}
+                    }
                     dispatchToExtensions(
                         "capabilities",
                         {
-                            response: JSON.parse(
-                                JSON.stringify(connectionSettings.current)
-                            ),
+                            response: response,
                             initiator: eventMsg.data,
                         },
                         eventMsg.data.id

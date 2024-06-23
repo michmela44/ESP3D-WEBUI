@@ -20,7 +20,7 @@
 import { h } from "preact"
 import { sortedFilesList, formatStatus } from "../../../components/Helpers"
 import { canProcessFile } from "../../helpers"
-import { useUiContextFn, useSettingsContextFn } from '../../../contexts'
+import { useUiContextFn, useSettingsContextFn } from "../../../contexts"
 
 const capabilities = {
     Process: (path, filename) => {
@@ -105,19 +105,26 @@ const commands = {
     },
     download: (path, filename) => {
         return {
-            type: 'url',
-            url: ('/sd' + path + (path.endsWith('/') ? '' : '/') + filename).replaceAll('//', '/'),
+            type: "url",
+            url: (
+                "/sd" +
+                path +
+                (path.endsWith("/") ? "" : "/") +
+                filename
+            ).replaceAll("//", "/"),
             args: {},
         }
     },
     play: (path, filename) => {
-        const spath =
-                (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-            const cmd = useUiContextFn.getValue('sdplaycmd').replace("#", spath)
-            return {
-                type: 'cmd',
-                cmd
-            }
+        const spath = (path + (path == "/" ? "" : "/") + filename).replaceAll(
+            "//",
+            "/"
+        )
+        const cmd = useUiContextFn.getValue("sdplaycmd").replace("#", spath)
+        return {
+            type: "cmd",
+            cmd,
+        }
     },
 }
 

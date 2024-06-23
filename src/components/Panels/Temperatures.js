@@ -19,12 +19,19 @@ Temperatures.js - ESP3D WebUI component file
 import { Fragment, h } from "preact"
 import { T } from "../Translations"
 import { useUiContext, useUiContextFn } from "../../contexts"
-import { useState } from "preact/hooks"
-import { ButtonImg, Loading, Field } from "../Controls"
+import { useState, useRef } from "preact/hooks"
+import {
+    ButtonImg,
+    Loading,
+    Field,
+    FullScreenButton,
+    CloseButton,
+} from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL } from "../Helpers"
 import { Thermometer, Power, Send } from "preact-feather"
 import { useTargetContext } from "../../targets"
+import { ContainerHelper } from "../Controls"
 
 /*
  * Local const
@@ -63,8 +70,8 @@ const preheatList = (tool) => {
             tool == "T"
                 ? "extruderpreheat"
                 : tool == "B"
-                ? "bedpreheat"
-                : "chamberpreheat"
+                  ? "bedpreheat"
+                  : "chamberpreheat"
         )
         if (list)
             return list.split(";").map((item) => {
@@ -80,8 +87,8 @@ const heaterCommand = (tool, index, value) => {
             tool == "T"
                 ? "heatextruder"
                 : tool == "B"
-                ? "heatbed"
-                : "heatchamber"
+                  ? "heatbed"
+                  : "heatchamber"
         )
         if (cmd) return cmd.replace("#", index).replace("$", value)
     }
@@ -265,7 +272,7 @@ const TemperatureInputControl = ({ tool, index, size }) => {
 }
 
 const TemperaturesPanel = () => {
-    const { panels } = useUiContext()
+    const panelRef = useRef(null)
     const { temperatures } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const sendCommand = (command) => {
@@ -291,21 +298,23 @@ const TemperaturesPanel = () => {
         if (temperatures[tool].length != 0) hasTemp = true
     })
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Thermometer />
                     <strong class="text-ellipsis">{T("P29")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
-                        <button
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                    <span class="full-height">
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

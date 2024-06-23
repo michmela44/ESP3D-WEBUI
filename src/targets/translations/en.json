@@ -226,6 +226,7 @@
     "S219": "TFT",
     "S220": "Makerbase",
     "S221": "Bigtreetech",
+    "S222": "Error loading file:",
     "btn+X": "X+",
     "btn-X": "X-",
     "btnHX": "Home X",
@@ -384,5 +385,10 @@
     "usb-serial baud": "USB serial Baud rate",
     "output": "Output connection",
     "Total psram mem": "PSRAM Size",
+    "gcodehost": "Gcode Streaming",
+    "pause_script": "Pause script",
+    "resume_script": "Resume script",
+    "stop_script": "Stop script",
+    "polling_on": "Polling enabled",
     "language": "Language"
 }

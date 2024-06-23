@@ -23,7 +23,12 @@ import { espHttpURL } from "../Helpers"
 import { useUiContextFn } from "../../contexts"
 import { useHttpFn } from "../../hooks"
 import { Play, Pause, Aperture, RefreshCcw } from "preact-feather"
-import { ButtonImg } from "../Controls"
+import {
+    ButtonImg,
+    FullScreenButton,
+    CloseButton,
+    ContainerHelper,
+} from "../Controls"
 import { T } from "../Translations"
 import { iconsFeather } from "../Images"
 import { iconsTarget } from "../../targets"
@@ -42,12 +47,27 @@ const ExtraContent = ({
     icon,
 }) => {
     const { createNewRequest } = useHttpFn
-    const panels = useUiContextFn.panels
     const [refreshPaused, setRefreshPaused] = useState(refreshPausedList[id])
+    const [isFullScreen, setIsFullScreen] = useState(false)
     const element = useRef(null)
     const imageCache = useRef(null)
+    const panelRef = useRef(null)
     const pageSource = type == "camera" ? "/snap" : source
     const iconsList = { ...iconsTarget, ...iconsFeather }
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+            setIsFullScreen(document.fullscreenElement !== null)
+        }
+
+        document.addEventListener("fullscreenchange", handleFullScreenChange)
+
+        return () => {
+            document.removeEventListener(
+                "fullscreenchange",
+                handleFullScreenChange
+            )
+        }
+    }, [])
     const loadContent = (init = false) => {
         if (!init && refreshPausedList[id]) {
             return
@@ -146,8 +166,13 @@ const ExtraContent = ({
                             }
                         },
                         onFail: (error) => {
-                            //TODO:Need to do something ? TBD
-                            console.log("Error", error)
+                            const errorContent =
+                                "<div style='display: flex; justify-content: center; align-items: center; height: 100%; font-family: Arial, sans-serif;'><p>" +
+                                T("S222") +
+                                pageSource +
+                                "</p></div>"
+                            element.current.contentWindow.document.body.innerHTML =
+                                errorContent
                         },
                     }
                 )
@@ -156,20 +181,18 @@ const ExtraContent = ({
     }
     const ControlButtons = () => {
         return (
-            <Fragment>
+            <div class="m-2 image-button-bar">
                 {parseInt(refreshtime) == 0 && target == "page" && (
-                    <div class="m-2 image-button-bar">
-                        <ButtonImg
-                            m1
-                            icon={<RefreshCcw size="0.8rem" />}
-                            onclick={() => {
-                                loadContent()
-                            }}
-                        />
-                    </div>
+                    <ButtonImg
+                        m1
+                        icon={<RefreshCcw size="0.8rem" />}
+                        onclick={() => {
+                            loadContent()
+                        }}
+                    />
                 )}
                 {parseInt(refreshtime) > 0 && type != "extension" && (
-                    <div class="m-2 image-button-bar">
+                    <Fragment>
                         <ButtonImg
                             m1
                             tooltip
@@ -226,9 +249,19 @@ const ExtraContent = ({
                                 }}
                             />
                         )}
-                    </div>
+                    </Fragment>
                 )}
-            </Fragment>
+                {target == "page" && (
+                    <Fragment>
+                        <span class="m-1" />
+                        <FullScreenButton
+                            panelRef={element}
+                            hideOnFullScreen={true}
+                            asButton={true}
+                        />
+                    </Fragment>
+                )}
+            </div>
         )
     }
 
@@ -255,13 +288,15 @@ const ExtraContent = ({
                     />
                 )
             default:
+                const handleIframeError = () => {
+                    console.log("Error loading iframe")
+                }
                 return (
                     <iframe
-                        style="z-index:0!important"
                         class={
                             type == "extension"
-                                ? "extensionContainer d-none"
-                                : "content-container d-block"
+                                ? "extensionContainer d-block iframe-container"
+                                : "content-container d-block iframe-container"
                         }
                         ref={element}
                         id={"page_content_" + id}
@@ -298,8 +333,10 @@ const ExtraContent = ({
         )
     if (target == "panel") {
         const displayIcon = iconsList[icon] ? iconsList[icon] : ""
+        //console.log("Panel :", id, "Ref :", panelRef.current)
         return (
-            <div class="panel panel-dashboard">
+            <div class="panel panel-dashboard" id={id} ref={panelRef}>
+                <ContainerHelper id={id} />
                 <div class="navbar">
                     <span class="navbar-section  feather-icon-container">
                         {displayIcon}
@@ -320,23 +357,23 @@ const ExtraContent = ({
                                 }}
                             />
                         )}
-                        <span style="height: 100%;">
-                            <button
-                                class="btn btn-clear btn-close m-1"
-                                aria-label="Close"
-                                onclick={(e) => {
-                                    useUiContextFn.haptic()
-                                    panels.hide(id)
+                        <span class="full-height">
+                            <FullScreenButton
+                                panelRef={panelRef}
+                                hideOnFullScreen={true}
+                            />
+                            <CloseButton
+                                panelRef={panelRef}
+                                panelId={id}
+                                hideOnFullScreen={true}
+                                callbackfn={() => {
                                     clearInterval(timerIDs[id])
                                 }}
                             />
                         </span>
                     </span>
                 </div>
-                <div
-                    class="panel-body panel-body-dashboard"
-                    style="margin:0px 0px; padding: 0px 0px"
-                >
+                <div class="panel-body panel-body-dashboard no-margin-no-padding">
                     <MainContent />
                 </div>
                 {parseInt(refreshtime) > 0 && type != "extension" && (

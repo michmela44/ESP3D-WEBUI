@@ -23,7 +23,7 @@ import { files } from "./files"
 import { processor } from "./processor"
 import { gcode_parser_modes } from "./gcode_parser_modes"
 import { defaultPanelsList } from "./panels"
-import { MachineSettings } from "./MachineSettings"
+import { MachineSettings, machineSettings } from "./MachineSettings"
 import {
     InformationsControls,
     QuickButtonsBar,
@@ -78,6 +78,7 @@ const eventsList = {
 
 export {
     MachineSettings,
+    machineSettings,
     Target,
     fwUrl,
     Name,

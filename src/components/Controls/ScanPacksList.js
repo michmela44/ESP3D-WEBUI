@@ -141,7 +141,7 @@ const ScanPacksList = ({ id, setValue, refreshfn }) => {
                                             <ButtonImg
                                                 m2
                                                 ltooltip
-                                                data-tooltip={T("S179")}
+                                                data-tooltip={id == "languagePickup"?T("S179"):T("S180")}
                                                 icon={<CheckCircle />}
                                                 onClick={() => {
                                                     useUiContextFn.haptic()

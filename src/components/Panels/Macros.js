@@ -19,8 +19,9 @@ Macros.js - ESP3D WebUI component file
 import { h } from "preact"
 import { T } from "../Translations"
 import { Cast } from "preact-feather"
+import { useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
-import { ButtonImg } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import { iconsFeather } from "../Images"
@@ -41,14 +42,15 @@ const MacrosPanel = () => {
     const { createNewRequest } = useHttpFn
     const iconsList = { ...iconsTarget, ...iconsFeather }
     const id = "macrosPanel"
+    const panelRef = useRef(null)
     console.log(id)
     const getSDSource = () => {
         for (const source of files.supported) {
             if (source.value == "SD" || source.value == "DIRECTSD") {
-                return (source.value)
+                return source.value
             }
         }
-        return ("NONE")
+        return "NONE"
     }
     const sendCommand = (command) => {
         createNewRequest(
@@ -90,7 +92,12 @@ const MacrosPanel = () => {
                 break
             case "SD":
                 //get command accoring target FW
-                const response = files.command(getSDSource(), "play", "", action)
+                const response = files.command(
+                    getSDSource(),
+                    "play",
+                    "",
+                    action
+                )
                 const cmds = response.cmd.split("\n")
                 cmds.forEach((cmd) => {
                     sendCommand(cmd)
@@ -139,21 +146,20 @@ const MacrosPanel = () => {
     }
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Cast />
                     <strong class="text-ellipsis">{T("macros")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
-                        <button
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                    <span class="full-height">
+                        <FullScreenButton panelRef={panelRef} />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

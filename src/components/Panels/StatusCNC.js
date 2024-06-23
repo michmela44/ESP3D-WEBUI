@@ -18,9 +18,10 @@
 
 import { Fragment, h } from "preact"
 import { T } from "../Translations"
+import { useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
-import { ButtonImg, Button } from "../Controls"
+import { ButtonImg, Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import {
@@ -59,11 +60,11 @@ const StatusControls = () => {
                                 status.state == "Error"
                                     ? "text-light bg-error"
                                     : (status.state == "Door") |
-                                      (status.state == "Hold")
-                                    ? "text-light bg-warning"
-                                    : status.state == "Sleep"
-                                    ? "text-light bg-dark"
-                                    : ""
+                                        (status.state == "Hold")
+                                      ? "text-light bg-warning"
+                                      : status.state == "Sleep"
+                                        ? "text-light bg-dark"
+                                        : ""
                             }`}
                         >
                             {T(status.state)}
@@ -117,14 +118,11 @@ const StatusControls = () => {
 }
 
 const StatusPanel = () => {
-    const { toasts, panels } = useUiContext()
+    const { toasts } = useUiContext()
     const { status, states, pinsStates, streamStatus } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const id = "statusPanel"
-    const hidePanel = () => {
-        useUiContextFn.haptic()
-        panels.hide(id)
-    }
+    const panelRef = useRef(null)
     const buttonsList = [
         {
             name: "CN40",
@@ -233,18 +231,23 @@ const StatusPanel = () => {
     }
 
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Layers />
                     <strong class="text-ellipsis">{T("CN34")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={hidePanel}
+                    <span class="full-height">
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

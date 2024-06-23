@@ -57,23 +57,35 @@ const createComponent =
  * Ugly hack to avoid unwished tab stop to reach button not supposed to be accessed
  *
  */
-function disableNode(node, state) {
+function disableNode(node, state, ignore) {
     if (!node) return
+    if (node.id == ignore) return
     let nodeList = node.children
     if (nodeList) {
         for (var i = 0; i < nodeList.length; i++) {
             if (!nodeList[i].classList.contains("do-not-disable"))
-                disableNode(nodeList[i], state)
+                disableNode(nodeList[i], state, ignore)
         }
     }
-    if (state) node.setAttribute("disabled", "true")
-    else node.removeAttribute("disabled")
+    if (state) {
+        node.setAttribute("disabled", "true")
+        //this is a hack to avoid tab stop on dropdown-toggle when disabled
+        if (node.classList.contains("dropdown-toggle")) {
+            node.tabIndex = "-1"
+        }
+    } else {
+        node.removeAttribute("disabled")
+        //remove the hack to avoid tab stop on dropdown-toggle when disabled
+        if (node.classList.contains("dropdown-toggle")) {
+            node.tabIndex = "0"
+        }
+    }
 }
 
-function disableUI(state = true) {
-    disableNode(document.getElementById("main"), state)
-    disableNode(document.getElementById("info"), state)
-    disableNode(document.getElementById("menu"), state)
+function disableUI(state = true, ignore) {
+    disableNode(document.getElementById("main"), state, ignore)
+    disableNode(document.getElementById("info"), state, ignore)
+    disableNode(document.getElementById("menu"), state, ignore)
 }
 
 const generateDependIds = (depend, settings) => {
@@ -125,34 +137,42 @@ const connectionDepend = (depend, settings) => {
 }
 
 //this is dynamic as it is depending on the preferences settings
-const settingsDepend = (depend, settings, isOr=false) => {
-    if (typeof depend!="undefined"){
+const settingsDepend = (depend, settings, isOr = false) => {
+    if (typeof depend != "undefined") {
         //console.log("settingsDepend", depend, settings, isOr)
-        //console.log("settingsDepend", depend[0])    
+        //console.log("settingsDepend", depend[0])
     }
     if (Array.isArray(depend)) {
         return depend.reduce(
             (acc, d) => {
                 if (d.id) {
-                    if (typeof d.value != "undefined"){
-                    const element = useUiContextFn.getElement(d.id, settings)
-                    if (isOr) {
-                        if (element) return acc || element.value === d.value
-                        return acc || false === d.value
-                    } else {
-                        if (element) return acc && element.value === d.value
-                        else return acc && false === d.value
+                    if (typeof d.value != "undefined") {
+                        const element = useUiContextFn.getElement(
+                            d.id,
+                            settings
+                        )
+                        if (isOr) {
+                            if (element) return acc || element.value === d.value
+                            return acc || false === d.value
+                        } else {
+                            if (element) return acc && element.value === d.value
+                            else return acc && false === d.value
+                        }
+                    } else if (typeof d.notvalue != "undefined") {
+                        const element = useUiContextFn.getElement(
+                            d.id,
+                            settings
+                        )
+                        if (isOr) {
+                            if (element)
+                                return acc || element.value != d.notvalue
+                            return acc || false != d.notvalue
+                        } else {
+                            if (element)
+                                return acc && element.value != d.notvalue
+                            else return acc && false != d.notvalue
+                        }
                     }
-                } else if (typeof d.notvalue != "undefined"){
-                    const element = useUiContextFn.getElement(d.id, settings)
-                    if (isOr) {
-                        if (element) return acc || element.value != d.notvalue
-                        return acc || false != d.notvalue
-                    } else {
-                        if (element) return acc && element.value != d.notvalue
-                        else return acc && false != d.notvalue
-                    }
-                }
                 }
                 if (d.ids) {
                     return acc && settingsDepend(d.ids, settings, true)

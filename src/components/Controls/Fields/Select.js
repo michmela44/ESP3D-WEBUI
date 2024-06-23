@@ -58,6 +58,7 @@ const Select = ({
     inline,
     setValue,
     value,
+    help,
     button,
     ...rest
 }) => {
@@ -108,9 +109,10 @@ const Select = ({
     }, [value])
 
     return (
-        <Fragment>
+        <div class={`${inline ? "column" : ""} ${help ? "tooltip tooltip-top" : ""}`}
+                data-tooltip={T(help)}>
             <select
-                class={`form-select ${inline ? "column" : ""}`}
+                class={`form-select  ${inline ? "column" : ""}`}
                 {...props}
                 {...rest}
                 value={value}
@@ -119,7 +121,7 @@ const Select = ({
                 {optionList}
             </select>
             {button}
-        </Fragment>
+        </div>
     )
 }
 export default Select

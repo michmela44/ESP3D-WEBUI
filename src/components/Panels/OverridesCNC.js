@@ -17,11 +17,12 @@ SpindleCNC.js - ESP3D WebUI component file
 */
 
 import { Fragment, h } from "preact"
+import { useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Repeat } from "preact-feather"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
-import { ButtonImg } from "../Controls"
+import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 
@@ -71,10 +72,7 @@ const OverridesPanel = () => {
     const { toasts, panels } = useUiContext()
     const { createNewRequest } = useHttpFn
     const id = "OverridesPanel"
-    const hidePanel = () => {
-        useUiContextFn.haptic()
-        panels.hide(id)
-    }
+    const panelRef = useRef(null)
 
     const buttons_list = [
         {
@@ -183,18 +181,23 @@ const OverridesPanel = () => {
         )
     }
     return (
-        <div class="panel panel-dashboard">
+        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Repeat />
                     <strong class="text-ellipsis">{T("CN65")}</strong>
                 </span>
                 <span class="navbar-section">
-                    <span style="height: 100%;">
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={hidePanel}
+                    <span class="full-height">
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>

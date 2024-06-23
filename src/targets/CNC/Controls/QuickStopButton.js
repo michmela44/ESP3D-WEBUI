@@ -63,7 +63,7 @@ const QuickStopButton = () => {
                 const cmds = useUiContextFn.getValue("emergencystop").split(";")
                 cmds.forEach((cmd) => {
                     SendCommand(cmd)
-                   // console.log(cmd)
+                    // console.log(cmd)
                 })
             }}
         />

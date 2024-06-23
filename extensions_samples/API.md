@@ -1,4 +1,28 @@
-# Extension API
+# Extensions API
+
+## Table of content
+- [Basic code](#basic-code)
+- [Send message](#send-message)
+- [Send GCODE command or ESP command](#send-gcode-command-or-esp-command)
+- [Send web query](#send-web-query)
+- [Send web upload](#send-web-upload)
+- [Send webdownload request](#send-webdownload-request)
+- [Send sound notification](#send-sound-notification)
+- [Send toast notification](#send-toast-notification)
+- [Send translation request](#send-translation-request)
+- [Send capabilities request](#send-capabilities-request)
+- [Save extension settings to preferences.json](#save-extension-settings-to-preferencesjson)
+- [Send icon request](#send-icon-request)
+- [Dispatch message to other extensions](#dispatch-message-to-other-extensions)
+- [Modal Dialog Documentation](#modal-dialog-documentation)
+  - [Modal Types](#modal-types)
+  - [Sending Messages](#sending-messages)
+  - [Modal Content](#modal-content)
+  - [Fields types and options](#fields-types-and-options)
+  - [Handling Messages](#handling-messages)
+- [Install an extension in Web UI](#install-an-extension-in-web-ui)
+- [Sample codes](#sample-codes)
+
 
 ## Basic code
 
@@ -455,10 +479,21 @@ There is no answer for this message, so `id` is not necessary
 ---
 ### Send capabilities request
 
-Example: `{type:'capabilities', target:'webui', id:'transpanel'}`   
+This allow to collect all capabilities for specific topic:   
+* if id is `connection` you will get the json of [ESP800] response jsonified
+* if id is `features` you will get the [ESP400] response jsonified
+* if id is `interface` you will get the settings from preferences.json jsonified
+* if id is `settings` you will get specific settings from target fw in json format
+* if id is `extensions` you will get the extensions from preferences.json jsonified of the `name` extensions
+
+Be noted this API only collect existing data, so for `features`,`interface`, `extensions`and `settings` you may get empty response if corresponding query has not be done.
+
+About settings the format may differ from one firmware to another, so you need to check the response to know how to use it, response is always a variable named machineSettings and important content may usualy located in `machineSettings.cache` 
+
+Example: `{type:'capabilities', target:'webui', id:'connection'}`   
 **type** is `capabilities` (mandatory)  
 **target** is `webui` (mandatory)  
-**id** is `infopanel` (optional)  
+**id** is `connection` (mandatory)  
 
 * Answer format: check the `eventMsg.data`   
 
@@ -466,24 +501,252 @@ Example: `{type:'capabilities', target:'webui', id:'transpanel'}`
     {
         "type": "capabilities",
         "content": {
-            "response": "Your session will end soon, do you want to stay connected ?",
+            "response": "{
+                "FWVersion": "3.0.0.a111",
+                "FWTarget": "marlin",
+                "FWTargetID": "40",
+                "Setup": "Enabled",
+                "Screen": "HMI V3",
+                "Streaming": "Enabled",
+                "SDConnection": "direct",
+                "SerialProtocol": "Raw",
+                "Authentication": "Disabled",
+                "WebCommunication": "Asynchronous",
+                "WebSocketIP": "localhost",
+                "WebSocketPort": "81",
+                "Hostname": "esp3d",
+                "WiFiMode": "STA",
+                "WebUpdate": "Enabled",
+                "FlashFileSystem": "LittleFS",
+                "HostPath": "/",
+                "Time": "none",
+                "HostTarget": "files",
+                "HostUploadPath": "/",
+                "HostDownloadPath": "/",
+                "wsID": "0"
+            }",
             "initiator": {
                             "type":"capabilities", 
                             "target":"webui", 
-                            "id":"infopanel"
+                            "id":"connection"
                         }
         },
-        "id": "infopanel"
+        "id": "connection"
     }  
     ```
     **type** is `capabilities`   
-    **id** is the id set in command message to help to screen    
-    **content** has the response it self **response**, in our case a JSON and also the  **initiator** is the initial command for reference   
+    **id** is the id of requested capability  
+    **content** has the response it self **response**, in our case a JSON and also the  **initiator** is the initial command for reference 
+
+---
+### Save extension settings to preferences.json
+
+This allow to save extension settings to preferences.json, it is a way to store settings for extension that need to be saved for next session:   
+
+
+Example: `{type:'extensionsData', target:'webui', id:'myextension', content:'{"setting1":"value1","setting2":"value2"}'}`   
+
+**type** is `extensionsData` (mandatory)  
+**target** is `webui` (mandatory)  
+**id** is `myextension` (mandatory)  
+**content** is the settings to save, in stringified JSON format, in our case `{"setting1":"value1","setting2":"value2"}` (mandatory)
+
+* Answer format: check the `eventMsg.data`   
+
+    ```
+    {
+        "type": "extensionsData",
+        "content": {
+            "response": "{
+                "status": "success"
+            }",
+            "initiator": {
+                            "type":"extensionsData", 
+                            "target":"webui", 
+                            "id":"myextension",
+                            "content":"{"setting1":"value1","setting2":"value2"}"
+                        }
+        },
+        "id": "myextension"
+    }  
+    ```
+    **type** is `extensionsData`   
+    **id** is the id of extension that saved settings
+    **content** has the response which is the status and also the  **initiator** is the initial command for reference 
+
+---
+### Send icon request
+
+The WebUI already a set of icons, so no need to bother with new icons, you can request a specific one if needed
+
+Be noted some icons may be specific to a system, so it may not be available in all systems, the svg icon will be returned in response use quote into the svg tag so be sure to use it properly.
+
+Main icons are :
+```
+None: null,
+Activity: <Activity />,
+AlertCircle: <AlertCircle />,
+Anchor: <Anchor />,
+Aperture: <Aperture />,
+Award: <Award />,
+BarChart: <BarChart />,
+BellOff: <BellOff />,
+Bell: <Bell />,
+Bluetooth: <Bluetooth />,
+Bookmark: <Bookmark />,
+Box: <Box />,
+Camera: <Camera />,
+Cast: <Cast />,
+ChevronDown: <ChevronDown />,
+ChevronLeft: <ChevronLeft />,
+ChevronRight: <ChevronRight />,
+ChevronUp: <ChevronUp />,
+ChevronsDown: <ChevronsDown />,
+ChevronsLeft: <ChevronsLeft />,
+ChevronsRight: <ChevronsRight />,
+ChevronsUp: <ChevronsUp />,
+Clipboard: <Clipboard />,
+Clock: <Clock />,
+Cpu: <Cpu />,
+Crosshair: <Crosshair />,
+Database: <Database />,
+Delete: <Delete />,
+Download: <Download />,
+Droplet: <Droplet />,
+Edit: <Edit />,
+EyeOff: <EyeOff />,
+Eye: <Eye />,
+File: <File />,
+Filter: <Filter />,
+Flag: <Flag />,
+Frown: <Frown />,
+GitCommit: <GitCommit />,
+Globe: <Globe />,
+Grid: <Grid />,
+HardDrive: <HardDrive />,
+Hash: <Hash />,
+Heart: <Heart />,
+HelpCircle: <HelpCircle />,
+Home: <Home />,
+Image: <Image />,
+Info: <Info />,
+Layers: <Layers />,
+LifeBuoy: <LifeBuoy />,
+List: <List />,
+Loader: <Loader />,
+Lock: <Lock />,
+LogIn: <LogIn />,
+LogOut: <LogOut />,
+Mail: <Mail />,
+MapPin: <MapPin />,
+Meh: <Meh />,
+Menu: <Menu />,
+MessageSquare: <MessageSquare />,
+MinusCircle: <MinusCircle />,
+Monitor: <Monitor />,
+Moon: <Moon />,
+MoreHorizontal: <MoreHorizontal />,
+MoreVertical: <MoreVertical />,
+Move: <Move />,
+PauseCircle: <PauseCircle />,
+Percent: <Percent />,
+PlayCircle: <PlayCircle />,
+PlusCircle: <PlusCircle />,
+Power: <Power />,
+Printer: <Printer />,
+Radio: <Radio />,
+RefreshCw: <RefreshCw />,
+Repeat: <Repeat />,
+RotateCcw: <RotateCcw />,
+Save: <Save />,
+Scissors: <Scissors />,
+Send: <Send />,
+Server: <Server />,
+Settings: <Settings />,
+Share: <Share />,
+Slash: <Slash />,
+Sliders: <Sliders />,
+Smile: <Smile />,
+Star: <Star />,
+StopCircle: <StopCircle />,
+Sun: <Sun />,
+Sunrise: <Sunrise />,
+Sunset: <Sunset />,
+Tag: <Tag />,
+Target: <Target />,
+Terminal: <Terminal />,
+Thermometer: <Thermometer />,
+Tool: <Tool />,
+Trash2: <Trash2 />,
+Underline: <Underline />,
+Upload: <Upload />,
+VideoOff: <VideoOff />,
+Video: <Video />,
+VolumeX: <VolumeX />,
+Volume: <Volume />,
+WifiOff: <WifiOff />,
+Wifi: <Wifi />,
+Wind: <Wind />,
+XCircle: <XCircle />,
+ZapOff: <ZapOff />,
+Zap: <Zap />,
+```
+
+3D printers have in addition:
+
+```
+Fan, 
+FeedRate, 
+FlowRate, 
+Extruder
+```
+
+cnc  has in addition :
+
+```
+Fan, 
+FeedRate, 
+FlowRate,
+```
+
+Example: `{type:'icon', target:'webui', id:'Activity'}`   
+**type** is `icon` (mandatory)  
+**target** is `webui` (mandatory)  
+**id** is `Activity` (mandatory)  
+
+* Answer format: check the `eventMsg.data`   
+
+    ```
+    {
+    "type": "icon",
+    "content": {
+        "response": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z'></path><polyline points='13 2 13 9 20 9'></polyline></svg>",
+        "initiator": {
+            "type": "icon",
+            "target": "webui",
+            "id": "Activity"
+        }
+    },
+    "id": "Activity"
+    }
+    ```
+    **type** is `icon`   
+    **id** is the id of requested "Activity"  
+    **content** has the response it self **response**, in our case svg using quote , also the **initiator** is the initial command for reference   
 
 ---
 ### Dispatch message to other extensions
 
-Example: `{type:'dispatch', target:'webui', id:'senderpanel', content:'any message' , targetid:'receiverpanel'}`   
+Example: 
+```json
+{
+    type:'dispatch', 
+    target:'webui', 
+    id:'senderpanel', 
+    content:'any message' , 
+    targetid:'receiverpanel'
+}
+```   
 **type** is `dispatch` (mandatory)  
 **target** is `webui` (mandatory)  
 **id** is `senderpanel` (optional)  
@@ -492,155 +755,466 @@ Example: `{type:'dispatch', target:'webui', id:'senderpanel', content:'any messa
 Note: there no answer as the purpose of this is to send answer
 
 ---
-### Send Modal dialog display request
 
-- Simple modal
-    Example: `{type:'modal', target:'webui', id:'modalpanel', content:{title:'This is tile', id:'simple_modal', style:'default', bt1Txt:'S126', response1:'ok', text:'some text', overlay:true}}`   
-    **type** is `modal` (mandatory)  
-    **target** is `webui` (mandatory)  
-    **id** is `modalpanel` (optional)  
-    **content** is modal deescription:     
-    - **title** of the modal (mandatory), `This is tile` is used as example but you better use predefined text that could be translated
-    - **id** is modal id (mandatory), here `simple_modal`  
-    - **style** is modal style (mandatory), for simple modal it is `default`,   
-    - **bt1Txt** is the text to show on button 1 (optional), `S126` will be translated as `Ok`, if not defined button won't be displayed   
-    - **response1** is the message sent if button 1 is clicked (optional), here `ok`, the click close the modal   
-    - **bt2Txt** is the text to show on button 2 (optional), if not defined button won't be displayed   
-    - **response2** is the message sent if button 2 is clicked (optional), the click close the modal  
-    - **hideclose** if set and true it will hide the cross button to close the modal (optional)  
-    - **overlay** if set and true it will automatically close modal if modal loose focus (optional)  
-    - **text** display the text in modal, if it is predefined's one it will be translated (optional)
+### Modal Dialog Documentation
 
-    Note: close button and overlay feature won't send any notification when modal is closed, be aware of it
+This documentation describes how to use the modal dialog functionality. The modal dialog is a pop-up window that displays a message to the user and requires the user to respond before they can continue. The modal dialog can be used to display simple messages, confirmations, input fields, and multiple input fields.
 
-    * Answer format: check the `eventMsg.data`   
+#### Modal Types
 
-        ```
-        {
-            "type": "modal",
-            "content": {
-                "response": "ok",
-                "initiator": {
-                                type:'modal', 
-                                target:'webui', 
-                                id:'modalpanel', 
-                                content : { 
-                                            "title":"This is tile", 
-                                            "id":"simple_modal", 
-                                            "style":"default", 
-                                            "bt1Txt":"S126", 
-                                            "response1":"ok", 
-                                            "text":"some text", 
-                                            "overlay":true
-                                          }
-                             }
-            },
-            "id": "modalpanel"
-        }  
-        ```
-        **type** is `modal`   
-        **id** is the id set in command message to help to screen    
-        **content** has the response it self **response**, in our case `ok` because only one button, and also the  **initiator** is the initial command for reference   
+The code supports four types of modal dialogs:
 
-- Confirmation modal
-    Example: `{type:'modal', target:'webui', id:'modalpanel', content:{title:'S26', id:'confirm_modal',style:'question',bt1Txt:'S27', response1:'yes',bt2Txt:'S28', response2:'cancel', text:'S30',hideclose:true}}`   
-    **type** is `modal` (mandatory)  
-    **target** is `webui` (mandatory)  
-    **id** is `modalpanel` (optional)  
-    **content** is modal deescription:     
-    - **title** of the modal (mandatory), `S26` will be translated as `Please Confirm`    
-    - **id** is modal id (mandatory), here `confirmation_modal` 
-    - **style** is modal style (mandatory), for confirmation modal it is `question`,   
-    - **bt1Txt** is the text to show on button 1 (optional), here `S27` will be translated as `Yes`, if not defined button won't be displayed   
-    - **response1** is the message sent if button 1 is clicked (optional), here `yes`, the click close the modal   
-    - **bt2Txt** is the text to show on button 2 (optional), here `S28` will be translated as `Cancel`, if not defined button won't be displayed   
-    - **response2** is the message sent if button 2 is clicked (optional), here `cancel`, the click close the modal  
-    - **hideclose** if set and true it will hide the cross button to close the modal (optional)  
-    - **overlay** if set and true it will automatically close modal if modal loose focus (optional)  
-    - **text** display the text in moda  (optional), here `S30` will be translated as`Do you want to update?`
+1. Simple Modal: Displays a basic modal with a title, text, and a single button.
+2. Confirmation Modal: Displays a modal with a title, text, and two buttons for confirmation.
+3. Input Modal: Displays a modal with a title, text, an input field, and two buttons.
+4. Fields Modal: Displays a modal with a title, multiple input fields, and two buttons.
 
-    Note: close button and overlay feature won't send any notification when modal is closed, be aware of it
+#### Sending Messages
 
-    * Answer format: check the `eventMsg.data`   
+To open a modal dialog, you need to send a message to the parent window using the `sendMessage` function. The message should have the following structure:
 
-        ```
-        {
-            "type": "modal",
-            "content": {
-                "response": "yes",
-                "initiator": {
-                                type:'modal', 
-                                target:'webui', 
-                                id:'modalpanel', 
-                                content : { 
-                                            "title":"S26", 
-                                            "id":"confirmation_modal", 
-                                            "style":"question", 
-                                            "bt1Txt":"S27", 
-                                            "response1":"yes",
-                                            "bt2Txt":"S28", 
-                                            "response2":"cancel", 
-                                            "text":"S30", 
-                                            "hideclose":true
-                                          }
-                             }
-            },
-            "id": "modalpanel"
-        }  
-        ```
-        **type** is `modal`   
-        **id** is the id set in command message to help to screen    
-        **content** has the response it self **response**, in our case `yes` because user clicked on button 1, and also the  **initiator** is the initial command for reference   
+```javascript
+sendMessage({
+  type: 'modal',
+  target: 'webui',
+  id: 'modalpanel',
+  content: {
+    // Modal-specific content
+  }
+});
 
-- Input modal
-    Example: `{type:'modal', target:'webui', id:'modalpanel', content:{title:'S90', id:'input_modal',style:'input',bt1Txt:'S106', response1:'create',bt2Txt:'S28', response2:'cancel', text:'S104',hideclose:true}}`   
-    **type** is `modal` (mandatory)  
-    **target** is `webui` (mandatory)  
-    **id** is `modalpanel` (optional)  
-    **content** is modal deescription:     
-    - **title** of the modal (mandatory), `S90` will be translated as `Create Directory`    
-    - **id** is modal id (mandatory), here `inputmodal` 
-    - **style** is modal style (mandatory), for input modal it is `input`,   
-    - **bt1Txt** is the text to show on button 1 (optional), here `S106` will be translated as `Create`, if not defined button won't be displayed   
-    - **response1** is the message sent if button 1 is clicked (optional), here `create`, the click close the modal   
-    - **bt2Txt** is the text to show on button 2 (optional), here `S28` will be translated as `Cancel`, if not defined button won't be displayed   
-    - **response2** is the message sent if button 2 is clicked (optional), here `cancel`, the click close the modal  
-    - **hideclose** if set and true it will hide the cross button to close the modal (optional)  
-    - **overlay** if set and true it will automatically close modal if modal loose focus (optional)  
-    - **text** display the text in moda  (optional), here `S104` will be translated as`Please type directory name`
+* type: Always set to 'modal'.
+* target: Always set to 'webui'.
+* id: Set to 'modalpanel' for all modal types.
+* content: An object containing the modal-specific content.
 
-    Note: close button and overlay feature won't send any notification when modal is closed, be aware of it
+#### Modal Content
+Each modal type has its own specific content structure:
 
-    * Answer format: check the `eventMsg.data`   
+1. Simple Modal
+   Example: 
+   ```json
+   {
+        type:'modal', 
+        target:'webui', 
+        id:'modalpanel', 
+        content:
+            {
+                title:'This is title', 
+                id:'simple_modal', 
+                style:'default', 
+                bt1Txt:'S126', 
+                response1:'ok', 
+                text:'some text', 
+                overlay:true
+            }
+    }
+    ```   
+   - **type** (mandatory): 'modal'
+   - **target** (mandatory): 'webui'
+   - **id** (optional): 'modalpanel'
+   - **content** (mandatory): Modal description
+     - **title** (mandatory): Title of the modal. Use predefined text for translation.
+     - **id** (mandatory): Modal ID. Example: 'simple_modal'
+     - **style** (mandatory): Modal style. For simple modal, use 'default'.
+     - **bt1Txt** (optional): Text for button 1. 'S126' will be translated as 'Ok'. If not defined, the button won't be displayed.
+     - **response1** (optional): Message sent if button 1 is clicked. Example: 'ok'. The click closes the modal.
+     - **bt2Txt** (optional): Text for button 2. If not defined, the button won't be displayed.
+     - **response2** (optional): Message sent if button 2 is clicked. The click closes the modal.
+     - **hideclose** (optional): If set to true, it hides the close button of the modal.
+     - **overlay** (optional): If set to true, it automatically closes the modal if it loses focus.
+     - **text** (optional): Text to display in the modal. If it's a predefined text, it will be translated.
 
-        ```
-        {
-            "type": "modal",
-            "content": {
-                "response": "create",
-                "inputData": "mydir"
-                "initiator": {
-                                type:'modal', 
-                                target:'webui', 
-                                id:'modalpanel', 
-                                content : { 
-                                            "title":"S90", 
-                                            "id":"input_modal", 
-                                            "style":"input", 
-                                            "bt1Txt":"S106", 
-                                            "response1":"create",
-                                            "bt2Txt":"S28", 
-                                            "response2":"cancel", 
-                                            "text":"S104", 
-                                            "hideclose":true
-                                          }
-                             }
-            },
-            "id": "modalpanel"
-        }  
-        ```
-        **type** is `modal`   
-        **id** is the id set in command message to help to screen    
-        **content** has the response it self **response**, in our case `create` because user clicked on button 1, and the text entered is in **inputData**, here `mydir`, and also the  **initiator** is the initial command for reference
+   Note: The close button and overlay feature won't send any notification when the modal is closed.
 
-        Note: **inputData** is present for both buttons clicked, so screening must be done according response
+   Answer format: Check `eventMsg.data`
+   ```json
+   {
+     "type": "modal",
+     "content": {
+       "response": "ok",
+       "initiator": {
+         "type": "modal",
+         "target": "webui",
+         "id": "modalpanel",
+         "content": {
+           "title": "This is title",
+           "id": "simple_modal",
+           "style": "default",
+           "bt1Txt": "S126",
+           "response1": "ok",
+           "text": "some text",
+           "overlay": true
+         }
+       }
+     },
+     "id": "modalpanel"
+   }
+   ```
+   - **type**: 'modal'
+   - **id**: ID set in the command message to help with screening
+   - **content**: Contains the response itself (**response**) and the initiator (initial command for reference)
+
+2. Confirmation Modal
+   Example: 
+   ```json
+   {
+        type:'modal', 
+        target:'webui', 
+        id:'modalpanel', 
+        content:
+            {
+                title:'S26', 
+                id:'confirm_modal', 
+                style:'question', 
+                bt1Txt:'S27', 
+                response1:'yes', 
+                bt2Txt:'S28', 
+                response2:'cancel', 
+                text:'S30', 
+                hideclose:true
+            }
+    }
+    ```
+   - **type** (mandatory): 'modal'
+   - **target** (mandatory): 'webui'
+   - **id** (optional): 'modalpanel'
+   - **content** (mandatory): Modal description
+     - **title** (mandatory): Title of the modal. 'S26' will be translated as 'Please Confirm'.
+     - **id** (mandatory): Modal ID. Example: 'confirm_modal'
+     - **style** (mandatory): Modal style. For confirmation modal, use 'question'.
+     - **bt1Txt** (optional): Text for button 1. 'S27' will be translated as 'Yes'. If not defined, the button won't be displayed.
+     - **response1** (optional): Message sent if button 1 is clicked. Example: 'yes'. The click closes the modal.
+     - **bt2Txt** (optional): Text for button 2. 'S28' will be translated as 'Cancel'. If not defined, the button won't be displayed.
+     - **response2** (optional): Message sent if button 2 is clicked. Example: 'cancel'. The click closes the modal.
+     - **hideclose** (optional): If set to true, it hides the close button of the modal.
+     - **overlay** (optional): If set to true, it automatically closes the modal if it loses focus.
+     - **text** (optional): Text to display in the modal. 'S30' will be translated as 'Do you want to update?'.
+
+   Note: The close button and overlay feature won't send any notification when the modal is closed.
+
+   Answer format: Check `eventMsg.data`
+   ```json
+   {
+     "type": "modal",
+     "content": {
+       "response": "yes",
+       "initiator": {
+         "type": "modal",
+         "target": "webui",
+         "id": "modalpanel",
+         "content": {
+           "title": "S26",
+           "id": "confirm_modal",
+           "style": "question",
+           "bt1Txt": "S27",
+           "response1": "yes",
+           "bt2Txt": "S28",
+           "response2": "cancel",
+           "text": "S30",
+           "hideclose": true
+         }
+       }
+     },
+     "id": "modalpanel"
+   }
+   ```
+   - **type**: 'modal'
+   - **id**: ID set in the command message to help with screening
+   - **content**: Contains the response itself (**response**) and the initiator (initial command for reference)
+
+3. Input Modal
+   Example: 
+   ```json
+   {
+        type:'modal', 
+        target:'webui', 
+        id:'modalpanel', 
+        content:
+            {
+                title:'S90', 
+                id:'input_modal', 
+                style:'input',
+                validation:'bt1', 
+                bt1Txt:'S106', 
+                response1:'create', 
+                bt2Txt:'S28', 
+                response2:'cancel', 
+                text:'S104', 
+                hideclose:true
+            }
+    }
+    ```
+   - **type** (mandatory): 'modal'
+   - **target** (mandatory): 'webui'
+   - **id** (optional): 'modalpanel'
+   - **content** (mandatory): Modal description
+     - **title** (mandatory): Title of the modal. 'S90' will be translated as 'Create Directory'.
+     - **id** (mandatory): Modal ID. Example: 'input_modal'
+     - **style** (mandatory): Modal style. For input modal, use 'input'.
+     - **bt1Txt** (optional): Text for button 1. 'S106' will be translated as 'Create'. If not defined, the button won't be displayed.
+     - **response1** (optional): Message sent if button 1 is clicked. Example: 'create'. The click closes the modal.
+     - **bt2Txt** (optional): Text for button 2. 'S28' will be translated as 'Cancel'. If not defined, the button won't be displayed.
+     - **response2** (optional): Message sent if button 2 is clicked. Example: 'cancel'. The click closes the modal.
+     - **hideclose** (optional): If set to true, it hides the close button of the modal.
+     - **overlay** (optional): If set to true, it automatically closes the modal if it loses focus.
+     - **text** (optional): Text to display in the modal. 'S104' will be translated as 'Please type directory name'.
+
+   Note: The close button and overlay feature won't send any notification when the modal is closed.
+
+   Answer format: Check `eventMsg.data`
+   ```json
+   {
+     "type": "modal",
+     "content": {
+       "response": "create",
+       "inputData": "mydir",
+       "initiator": {
+         "type": "modal",
+         "target": "webui",
+         "id": "modalpanel",
+         "content": {
+           "title": "S90",
+           "id": "input_modal",
+           "style": "input",
+           "bt1Txt": "S106",
+           "response1": "create",
+           "bt2Txt": "S28",
+           "response2": "cancel",
+           "text": "S104",
+           "hideclose": true
+         }
+       }
+     },
+     "id": "modalpanel"
+   }
+   ```
+   - **type**: 'modal'
+   - **id**: ID set in the command message to help with screening
+   - **content**: Contains the response itself
+
+
+4. Fields Modal
+   Example: 
+   ```json
+   {
+        type:'modal', 
+        target:'webui', 
+        id:'modalpanel', 
+        content:
+            {
+                title:'S90', 
+                id:'fields_modal',
+                validation:'bt1', 
+                style:'fields', 
+                bt1Txt:'S106', 
+                response1:'create',
+                bt2Txt:'S28', 
+                response2:'cancel', 
+                hideclose:true, 
+                fields:
+                    [
+                         {
+                            id: "area",
+                            label: "Area",
+                            type: "group",
+                            value: [
+                                {
+                                id: "xmin",
+                                type: "number",
+                                label: "Xmin",
+                                value: 0
+                                },
+                                {
+                                id: "xmax",
+                                type: "number",
+                                label: "Xmax",
+                                value: 0
+                                }
+                            ]
+                            },
+                            {
+                            id: "precision",
+                            type: "number",
+                            label: "Precision",
+                            value: 0,
+                            min: "0",
+                            max: "5"
+                            }
+                    ]
+            }
+        }
+    ```
+   - **type** (mandatory): 'modal'
+   - **target** (mandatory): 'webui'
+   - **id** (optional): 'modalpanel'
+   - **content** (mandatory): Modal description
+     - **title** (mandatory): Title of the modal. 'S90' will be translated as 'Create Item'.
+     - **id** (mandatory): Modal ID. Example: 'fields_modal'
+     - **style** (mandatory): Modal style. For fields modal, use 'fields'.
+     - **validation** (mandatory): Define which button is performing the validation and send back the modified values: 'bt1' or 'bt2'.
+     - **bt1Txt** (optional): Text for button 1. 'S106' will be translated as 'Create'. If not defined, the button won't be displayed.
+     - **response1** (optional): Message sent if button 1 is clicked. Example: 'create'. The click closes the modal.
+     - **bt2Txt** (optional): Text for button 2. 'S28' will be translated as 'Cancel'. If not defined, the button won't be displayed.
+     - **response2** (optional): Message sent if button 2 is clicked. Example: 'cancel'. The click closes the modal.
+     - **hideclose** (optional): If set to true, it hides the close button of the modal.
+     - **overlay** (optional): If set to true, it automatically closes the modal if it loses focus.
+     - **fields** (mandatory): An array of field definitions for the modal.
+       - **id** (mandatory): ID of the field.
+       - **label** (mandatory): Label for the field.
+       - **type** (mandatory): Type of the field. Supported types: 'text', 'select', 'boolean', group.
+       - **value** (optional): Default value for the field.
+
+   Note: The close button and overlay feature won't send any notification when the modal is closed.
+
+   Answer format: Check `eventMsg.data`
+   ```json
+   {
+     "type": "modal",
+     "content": {
+       "response": "create",
+       "fields": {
+         "field1": "Value 1",
+         "field2": "Option 2"
+       },
+       "initiator": {
+         "type": "modal",
+         "target": "webui",
+         "id": "modalpanel",
+         "content": {
+           "title": "S90",
+           "id": "fields_modal",
+           "validation": "bt1",
+           "style": "fields",
+           "bt1Txt": "S106",
+           "response1": "create",
+           "bt2Txt": "S28",
+           "response2": "cancel",
+           "hideclose": true,
+           "fields": [
+             {
+               "id": "field1",
+               "label": "Field 1",
+               "type": "text"
+             },
+             {
+               "id": "field2",
+               "label": "Field 2",
+               "type": "select",
+               "options": [
+                 "Option 1",
+                 "Option 2"
+               ]
+             }
+           ]
+         }
+       }
+     },
+     "id": "modalpanel"
+   }
+
+   * type: 'modal'
+   * id: ID set in the command message to help with screening
+   * content: Contains the response itself (response), the field values entered by the user (fields), and the initiator (initial command for reference)
+
+#### Fields types and options
+The fields modal supports the same as the interface fields but with some limitations, each type may support different options.  
+The existing types and options are:   
+1. "pickup":
+Currently not supported in the modal dialog it is used in interface tab to select language or theme
+   - "id" (mandatory)
+   - "type" (mandatory)
+   - "label" (mandatory)
+   - "value" (mandatory) a string with the selected value  
+
+2. "boolean":
+Supported in the modal dialog is used to select a boolean value like for a checkbox or a switch
+   - "id" (mandatory)
+   - "type" (mandatory)
+   - "label" (mandatory)   
+   - "value" (mandatory) a boolean value
+   - "help" (optionnel) a string with a help text in tooltip
+   - "depend" (optionnel) this is not supported in the modal dialog, but used in interface tab to show or hide a field based on the value of another field
+
+3. "group":
+Supported in the modal dialog is used to group fields together, it may contain any type of fields but not another group
+   - "id" (mandatory)
+   - "type" (mandatory)
+   - "label" (optional)
+   - "value" (mandatory) an array of fields
+   - "depend" (optionnel) this is not supported in the modal dialog, but used in interface tab to show or hide a field based on the value of another field
+
+4. "number":
+Supported in the modal dialog is used to select a number value float or integer
+   - "id" (mandatory)
+   - "type" (mandatory)
+   - "label" (mandatory)
+   - "min" (optional) a string with the minimum value
+   - "max" (optional) a string with the maximum value
+   - "help" (optionnel) a string with a help text in tooltip
+   - "step" (optionnel) a string with the step value for the input, can be a float
+   - "placeholder" (optionnel) a string with a placeholder text
+   - "append" (optionnel) a string to append to the value input like a unit
+   - "value" (mandatory) a number value
+   - "depend" (optionnel) this is not supported in the modal dialog, but used in interface tab to show or hide a field based on the value of another field
+
+5. "text":
+Supported in the modal dialog is used to select a text value
+   - "id" (mandatory)
+   - "type" (mandatory)
+   - "label" (mandatory)
+   - "value" (mandatory) a string with the selected value
+   - "help" (optionnel) a string with a help text in tooltip
+   - "placeholder" (optionnel) a string with a placeholder text
+   - "depend" (optionnel) this is not supported in the modal dialog, but used in interface tab to show or hide a field based on the value of another field
+   - "min" (optionnel) minimum length of the text
+   - "max" (optionnel) maximum length of the text
+   - "append" (optionnel) a string to append to the value input like a unit
+
+6. "list":
+Currently not supported in the modal dialog it is used in interface tab to select a value from a list (macros, extracontent, panels order, shorkeys)
+   - "id" (mandatory)
+   - "depend" (optionnel) this is not supported in the modal dialog, but used in interface tab to show or hide a field based on the value of another field
+   - "fixed" (optionnel) 
+   - "sorted" (optionnel)
+   - "type" (mandatory)
+   - "label" (mandatory)
+   - "value" (mandatory)
+   - "nodelete" (optionnel)
+   - "editable" (optionnel)
+
+7. "select":
+Supported in the modal dialog is used to select a value from a drop list
+   - "id" (mandatory)
+   - "type" (mandatory)     
+   - "label" (optional)
+   - "value" (mandatory) a string with the selected value
+   - "options" (mandatory) an array of objects with the options
+   - "help" (optionnel) a string with a help text in tooltip
+   - "depend" (optionnel) this is not supported in the modal dialog, but used in interface tab to show or hide a field based on the value of another field
+
+
+
+#### Handling Messages
+The code listens for messages from the parent window using the handleMessage function. When a message is received, it checks the type and id properties to determine if it's a modal-related message.
+
+If the message is a modal response, it logs the clicked button (line.response) and performs specific actions based on the modal type and response.
+
+For the Fields Modal, if the response is 'create' (response1 because validation is bt1), it updates the defaultSettings object with the values entered in the fields (line.inputData).
+For the Input Modal, if the response is 'create' (response1 because validation is bt1), it displays the entered input value (line.inputData).
+
+
+
+## Install an extension in Web UI
+
+### Upload it to local filesystem or any path available to web server
+![image](upload_extension.png)
+
+### Add extra panel or page using this extension
+![image](add_extension.png)
+
+It will be displayed according your settings
+![image](extra_extension_panel.png)
+
+## Sample codes   
+{{% resources color="blue" icon="fas fa-paperclip" sort="asc" pattern=".*\.(gz)"/%}}

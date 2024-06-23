@@ -292,7 +292,10 @@
                 "id": "tftusbcommands",
                 "type": "group",
                 "label": "P103",
-                "depend": [{ "id": "tftfs", "notvalue": "none"},{ "id": "tftusb", "value": true }],
+                "depend": [
+                    { "id": "tftfs", "notvalue": "none" },
+                    { "id": "tftusb", "value": true }
+                ],
                 "value": [
                     {
                         "id": "tftusbpausecmd",

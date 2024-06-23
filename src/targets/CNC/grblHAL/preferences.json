@@ -76,18 +76,14 @@
             {
                 "id": "flashfs",
                 "type": "boolean",
-                "depend": [
-                    { "connection_id": "FlashFileSystem", "value": "!='none'" }
-                ],
+                "depend": [{ "connection_id": "FlashFileSystem", "value": "!='none'" }],
                 "label": "S137",
                 "value": true
             },
             {
                 "id": "directsd",
                 "type": "boolean",
-                "depend": [
-                    { "connection_id": "SDConnection", "value": "!='none'" }
-                ],
+                "depend": [{ "connection_id": "SDConnection", "value": "!='none'" }],
                 "label": "S190",
                 "value": true
             },

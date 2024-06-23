@@ -244,26 +244,25 @@
         ],
 
         "files": [
-
             {
                 "id": "filesfilter",
                 "type": "text",
                 "label": "S96",
                 "value": "g;G;gco;GCO;gcode;GCODE",
                 "help": "S97",
-                "depend":[{"id":"showfilespanel", "value":true}]
+                "depend": [{ "id": "showfilespanel", "value": true }]
             },
             {
                 "id": "flashfs",
                 "type": "boolean",
                 "depend": [
                     { "connection_id": "FlashFileSystem", "value": "!='none'" },
-                    {"id":"showfilespanel", "value":true}
+                    { "id": "showfilespanel", "value": true }
                 ],
                 "label": "S137",
                 "value": true
             },
-           
+
             {
                 "id": "tftfs",
                 "type": "select",
@@ -277,7 +276,7 @@
                 "depend": [
                     { "connection_id": "Screen", "value": "=='none'" },
                     { "connection_id": "FWTargetID", "value": "!='30'" },
-                    { "id":"showfilespanel", "value":true}
+                    { "id": "showfilespanel", "value": true }
                 ]
             },
             {
@@ -285,16 +284,19 @@
                 "type": "boolean",
                 "label": "S188",
                 "value": false,
-                "depend": [{ "id": "tftfs", "notvalue": "none"},  {
-                    "id": "showfilespanel",
-                    "value": true
-                }]
+                "depend": [
+                    { "id": "tftfs", "notvalue": "none" },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
             },
             {
                 "id": "tftbttsdlistcmd",
                 "type": "text",
                 "label": "P117",
-                "value": "M21;M20 SD:#",
+                "value": "M20 SD:#",
                 "help": "S97",
                 "depend": [
                     {
@@ -304,7 +306,8 @@
                     {
                         "id": "tftfs",
                         "value": "btt"
-                    }, {
+                    },
+                    {
                         "id": "showfilespanel",
                         "value": true
                     }
@@ -314,7 +317,7 @@
                 "id": "tftbttsdplaycmd",
                 "type": "text",
                 "label": "P120",
-                "value": "M21;M23 SD:#;M24",
+                "value": "M23 SD:#;M24",
                 "help": "S97",
                 "depend": [
                     {
@@ -335,7 +338,7 @@
                 "id": "tftbttsddeletecmd",
                 "type": "text",
                 "label": "P123",
-                "value": "M21;M30 SD:#",
+                "value": "M30 SD:#",
                 "help": "S97",
                 "depend": [
                     {
@@ -399,16 +402,19 @@
                 "type": "boolean",
                 "label": "S189",
                 "value": false,
-                "depend": [{ "id": "tftfs", "notvalue": "none"},  {
-                    "id": "showfilespanel",
-                    "value": true
-                }]
+                "depend": [
+                    { "id": "tftfs", "notvalue": "none" },
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    }
+                ]
             },
             {
                 "id": "tftbttusblistcmd",
                 "type": "text",
                 "label": "P118",
-                "value": "M21;M20 U:#",
+                "value": "M20 U:#",
                 "help": "S97",
                 "depend": [
                     {
@@ -450,7 +456,7 @@
                 "id": "tftbttusbplaycmd",
                 "type": "text",
                 "label": "P121",
-                "value": "M21;M23 U:#;M24",
+                "value": "M23 U:#;M24",
                 "help": "S97",
                 "depend": [
                     {
@@ -471,7 +477,7 @@
                 "id": "tftbttusbdeletecmd",
                 "type": "text",
                 "label": "P124",
-                "value": "M21;M30 U:#",
+                "value": "M30 U:#",
                 "help": "S97",
                 "depend": [
                     {

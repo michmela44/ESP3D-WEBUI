@@ -59,7 +59,7 @@ const Progress = ({ progressBar, max = 100, precision = -1 }) => {
     return (
         <center>
             <progress ref={progressValue} value="0" max="100" />
-            <label style="margin-left:15px" ref={progressValueDisplay}></label>
+            <label class="progress-value-label" ref={progressValueDisplay}></label>
         </center>
     )
 }

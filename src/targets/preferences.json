@@ -124,33 +124,32 @@
                 "label": "S63",
                 "value": true
             },
-            {"id": "terminalsettings",
-            "type": "group",
-            "label": "",
-            "depend":[{"id":"showterminalpanel", "value":true}],
-            "value": [
-                {
-                    "id": "openterminalonstart",
-                    "type": "boolean",
-                    "label": "S93",
-                    "value": true
-                },
-                {
-                    "id": "verbose",
-                    "type": "boolean",
-                    "label": "S76",
-                    "value": true
-                },
-                {
-                    "id": "autoscroll",
-                    "type": "boolean",
-                    "label": "S77",
-                    "value": true
-                }
-            ]
-
+            {
+                "id": "terminalsettings",
+                "type": "group",
+                "label": "",
+                "depend": [{ "id": "showterminalpanel", "value": true }],
+                "value": [
+                    {
+                        "id": "openterminalonstart",
+                        "type": "boolean",
+                        "label": "S93",
+                        "value": true
+                    },
+                    {
+                        "id": "verbose",
+                        "type": "boolean",
+                        "label": "S76",
+                        "value": true
+                    },
+                    {
+                        "id": "autoscroll",
+                        "type": "boolean",
+                        "label": "S77",
+                        "value": true
+                    }
+                ]
             }
-           
         ],
         "files": [
             {
@@ -164,7 +163,7 @@
                 "type": "boolean",
                 "label": "S93",
                 "value": true,
-                "depend":[{"id":"showfilespanel", "value":true}]
+                "depend": [{ "id": "showfilespanel", "value": true }]
             }
         ],
         "jog": [

@@ -25,7 +25,7 @@ import {
     formatStatus,
     filterResultFiles,
 } from "../../../components/Helpers"
-import { useUiContextFn, useSettingsContextFn } from '../../../contexts'
+import { useUiContextFn, useSettingsContextFn } from "../../../contexts"
 
 //Extract information from string - specific to FW / source
 const formatFileSerialLine = (acc, line) => {
@@ -83,13 +83,18 @@ const capabilities = {
 const commands = {
     list: (path, filename) => {
         //console.log("path: ", path)
-        const spath = (path + (path == '/' ? '' : '/')).replaceAll('//', '/')
-        const cmd =   "echo BeginFiles;"+useUiContextFn.getValue('sdlistcmd').replace("#",spath).replaceAll('//', '/')+";echo EndFiles"
+        const spath = (path + (path == "/" ? "" : "/")).replaceAll("//", "/")
+        const cmd =
+            "echo BeginFiles;" +
+            useUiContextFn
+                .getValue("sdlistcmd")
+                .replace("#", spath)
+                .replaceAll("//", "/") +
+            ";echo EndFiles"
         return {
             type: "cmd",
             cmd,
         }
-       
     },
     formatResult: (result) => {
         const res = {}
@@ -108,21 +113,35 @@ const commands = {
         return res
     },
     play: (path, filename) => {
-        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-        const cmd =  useUiContextFn.getValue('sdplaycmd').replace("#",spath).replaceAll('//', '/')
+        const spath = (path + (path == "/" ? "" : "/") + filename).replaceAll(
+            "//",
+            "/"
+        )
+        const cmd = useUiContextFn
+            .getValue("sdplaycmd")
+            .replace("#", spath)
+            .replaceAll("//", "/")
         return {
             type: "cmd",
             cmd,
         }
     },
     delete: (path, filename) => {
-        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-        const cmd =  useUiContextFn.getValue('sddeletecmd').replace("#",spath).replaceAll('//', '/')+ ";echo:delete:" + filename
+        const spath = (path + (path == "/" ? "" : "/") + filename).replaceAll(
+            "//",
+            "/"
+        )
+        const cmd =
+            useUiContextFn
+                .getValue("sddeletecmd")
+                .replace("#", spath)
+                .replaceAll("//", "/") +
+            ";echo:delete:" +
+            filename
         return {
             type: "cmd",
             cmd,
         }
-
     },
 }
 

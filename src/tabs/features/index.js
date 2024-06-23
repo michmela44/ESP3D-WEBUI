@@ -17,18 +17,18 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, h } from 'preact'
-import { useEffect, useState, useRef } from 'preact/hooks'
-import { ButtonImg, Loading, Progress } from '../../components/Controls'
-import { useHttpQueue } from '../../hooks'
-import { espHttpURL } from '../../components/Helpers'
-import { T } from '../../components/Translations'
+import { Fragment, h } from "preact"
+import { useEffect, useState, useRef } from "preact/hooks"
+import { ButtonImg, Loading, Progress } from "../../components/Controls"
+import { useHttpQueue } from "../../hooks"
+import { espHttpURL } from "../../components/Helpers"
+import { T } from "../../components/Translations"
 import {
     useUiContext,
     useSettingsContext,
     useWsContext,
     useUiContextFn,
-} from '../../contexts'
+} from "../../contexts"
 import {
     RefreshCcw,
     RotateCcw,
@@ -36,16 +36,16 @@ import {
     ExternalLink,
     Flag,
     Download,
-} from 'preact-feather'
+} from "preact-feather"
 import {
     showConfirmationModal,
     showProgressModal,
-} from '../../components/Modal'
-import { Field } from '../../components/Controls'
-import { formatStructure } from './formatHelper'
-import { exportFeatures } from './exportHelper'
-import { importFeatures } from './importHelper'
-import { restartdelay, useTargetContextFn } from '../../targets'
+} from "../../components/Modal"
+import { Field } from "../../components/Controls"
+import { formatStructure } from "./formatHelper"
+import { exportFeatures } from "./exportHelper"
+import { importFeatures } from "./importHelper"
+import { restartdelay, useTargetContextFn } from "../../targets"
 
 const FeaturesTab = () => {
     const { toasts, modals, uisettings } = useUiContext()
@@ -61,8 +61,8 @@ const FeaturesTab = () => {
     const getFeatures = () => {
         setIsLoading(true)
         createNewRequest(
-            espHttpURL('command', { cmd: '[ESP400]json=yes' }),
-            { method: 'GET' },
+            espHttpURL("command", { cmd: "[ESP400]json=yes" }),
+            { method: "GET" },
             {
                 onSuccess: (result) => {
                     try {
@@ -70,12 +70,12 @@ const FeaturesTab = () => {
                         if (
                             !jsonResult ||
                             jsonResult.cmd != 400 ||
-                            jsonResult.status == 'error' ||
+                            jsonResult.status == "error" ||
                             !jsonResult.data
                         ) {
                             toasts.addToast({
-                                content: T('S194'),
-                                type: 'error',
+                                content: T("S194"),
+                                type: "error",
                             })
                             return
                         }
@@ -83,8 +83,8 @@ const FeaturesTab = () => {
                         featuresSettings.current = { ...feat }
                         setFeatures(featuresSettings.current)
                     } catch (e) {
-                        console.log(e, T('S21'))
-                        toasts.addToast({ content: T('S21'), type: 'error' })
+                        console.log(e, T("S21"))
+                        toasts.addToast({ content: T("S21"), type: "error" })
                     } finally {
                         setIsLoading(false)
                     }
@@ -92,7 +92,7 @@ const FeaturesTab = () => {
                 onFail: (error) => {
                     setIsLoading(false)
                     console.log(error)
-                    toasts.addToast({ content: error, type: 'error' })
+                    toasts.addToast({ content: error, type: "error" })
                 },
             }
         )
@@ -102,8 +102,8 @@ const FeaturesTab = () => {
      * *Aborts the save request and displays an error message.*
      */
     function abortSave() {
-        abortRequest('ESP401')
-        toasts.addToast({ content: T('S175'), type: 'error' })
+        abortRequest("ESP401")
+        toasts.addToast({ content: T("S175"), type: "error" })
         endProgression(false)
     }
 
@@ -115,15 +115,15 @@ const FeaturesTab = () => {
      * @param needrestart - If true, the board will ask for restart after the progression is finished.
      */
     function endProgression(needrestart) {
-        modals.removeModal(modals.getModalIndex('progression'))
+        modals.removeModal(modals.getModalIndex("progression"))
         setIsLoading(false)
         if (needrestart) {
             showConfirmationModal({
                 modals,
-                title: T('S58'),
-                content: T('S174'),
-                button1: { cb: reStartBoard, text: T('S27') },
-                button2: { text: T('S28') },
+                title: T("S58"),
+                content: T("S174"),
+                button1: { cb: reStartBoard, text: T("S27") },
+                button2: { text: T("S28") },
             })
         }
     }
@@ -137,44 +137,44 @@ const FeaturesTab = () => {
      */
     function saveEntry(entry, index, total, needrestart) {
         let cmd =
-            '[ESP401]P=' +
+            "[ESP401]P=" +
             entry.id +
-            ' T=' +
+            " T=" +
             entry.cast +
-            ' V=' +
-            entry.value.toString().replaceAll(' ', '\\ ') +
-            ' json=yes'
+            " V=" +
+            entry.value.toString().replaceAll(" ", "\\ ") +
+            " json=yes"
         createNewRequest(
-            espHttpURL('command', { cmd }),
-            { method: 'GET', id: 'ESP401' },
+            espHttpURL("command", { cmd }),
+            { method: "GET", id: "ESP401" },
             {
                 onSuccess: (result) => {
                     try {
                         if (
                             progressBar.update &&
-                            typeof progressBar.update === 'function'
+                            typeof progressBar.update === "function"
                         )
                             progressBar.update(index + 1)
                         const jsonResult = JSON.parse(result)
                         if (
                             !jsonResult ||
                             jsonResult.cmd != 401 ||
-                            jsonResult.status == 'error' ||
+                            jsonResult.status == "error" ||
                             !jsonResult.data
                         ) {
                             if (jsonResult.cmd != 401)
                                 toasts.addToast({
-                                    content: T('S194'),
-                                    type: 'error',
+                                    content: T("S194"),
+                                    type: "error",
                                 })
-                            else if (jsonResult.status == 'error') {
-                                let content = T('S195')
-                                if (typeof jsonResult.data === 'string') {
-                                    content += ': ' + T(jsonResult.data)
+                            else if (jsonResult.status == "error") {
+                                let content = T("S195")
+                                if (typeof jsonResult.data === "string") {
+                                    content += ": " + T(jsonResult.data)
                                 }
                                 toasts.addToast({
                                     content: content,
-                                    type: 'error',
+                                    type: "error",
                                 })
                             }
                             return
@@ -182,7 +182,7 @@ const FeaturesTab = () => {
                         entry.initial = entry.value
                     } catch (e) {
                         console.log(e)
-                        toasts.addToast({ content: e, type: 'error' })
+                        toasts.addToast({ content: e, type: "error" })
                     } finally {
                         if (index == total - 1) {
                             endProgression(needrestart)
@@ -192,11 +192,11 @@ const FeaturesTab = () => {
                 onFail: (error) => {
                     if (
                         progressBar.update &&
-                        typeof progressBar.update === 'function'
+                        typeof progressBar.update === "function"
                     )
                         progressBar.update(index + 1)
                     console.log(error)
-                    toasts.addToast({ content: error, type: 'error' })
+                    toasts.addToast({ content: error, type: "error" })
                     if (index == total - 1) {
                         endProgression(needrestart)
                     }
@@ -222,7 +222,7 @@ const FeaturesTab = () => {
                     const entry = subsection[entryId]
                     if (entry.initial != entry.value) {
                         total++
-                        if (entry.needRestart == '1') {
+                        if (entry.needRestart == "1") {
                             needrestart = true
                         }
                     }
@@ -231,8 +231,8 @@ const FeaturesTab = () => {
         })
         showProgressModal({
             modals,
-            title: T('S91'),
-            button1: { cb: abortSave, text: T('S28') },
+            title: T("S91"),
+            button1: { cb: abortSave, text: T("S28") },
             content: <Progress progressBar={progressBar} max={total} />,
         })
         Object.keys(features).map((sectionId) => {
@@ -273,22 +273,22 @@ const FeaturesTab = () => {
      */
     function reStartBoard() {
         createNewRequest(
-            espHttpURL('command', { cmd: '[ESP444]RESTART' }),
-            { method: 'GET' },
+            espHttpURL("command", { cmd: "[ESP444]RESTART" }),
+            { method: "GET" },
             {
                 onSuccess: (result) => {
-                    Disconnect('restart')
+                    Disconnect("restart")
                     setTimeout(() => {
                         window.location.reload()
                     }, restartdelay * 1000)
                 },
                 onFail: (error) => {
                     console.log(error)
-                    toasts.addToast({ content: error, type: 'error' })
+                    toasts.addToast({ content: error, type: "error" })
                 },
             }
         )
-        console.log('restart')
+        console.log("restart")
     }
 
     const fileSelected = () => {
@@ -305,13 +305,13 @@ const FeaturesTab = () => {
                         importData
                     )
                     if (haserrors) {
-                        toasts.addToast({ content: 'S56', type: 'error' })
+                        toasts.addToast({ content: "S56", type: "error" })
                     }
                     setFeatures(featuresSettings.current)
                 } catch (e) {
                     console.log(e)
-                    console.log('Error')
-                    toasts.addToast({ content: 'S56', type: 'error' })
+                    console.log("Error")
+                    toasts.addToast({ content: "S56", type: "error" })
                 } finally {
                     setIsLoading(false)
                 }
@@ -331,8 +331,8 @@ const FeaturesTab = () => {
             valid: true,
             modified: true,
         }
-        if (fieldData.type == 'text') {
-            if (fieldData.cast == 'A') {
+        if (fieldData.type == "text") {
+            if (fieldData.cast == "A") {
                 if (
                     !/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
                         fieldData.value
@@ -360,7 +360,7 @@ const FeaturesTab = () => {
                     }
                 }
             }
-        } else if (fieldData.type == 'number') {
+        } else if (fieldData.type == "number") {
             if (fieldData.prec) {
                 if (
                     parseFloat(fieldData.value) !=
@@ -381,7 +381,7 @@ const FeaturesTab = () => {
                     validation.valid = false
                 }
             }
-        } else if (fieldData.type == 'select') {
+        } else if (fieldData.type == "select") {
             const index = fieldData.options.findIndex(
                 (element) => element.value == fieldData.value
             )
@@ -390,14 +390,14 @@ const FeaturesTab = () => {
             }
         }
         if (!validation.valid) {
-            validation.message = T('S42')
+            validation.message = T("S42")
         }
         fieldData.haserror = !validation.valid
         if (fieldData.value == fieldData.initial) {
             fieldData.hasmodified = false
         } else {
             if (
-                fieldData.type == 'number' &&
+                fieldData.type == "number" &&
                 parseFloat(fieldData.value) == parseFloat(fieldData.initial)
             )
                 fieldData.hasmodified = false
@@ -416,12 +416,13 @@ const FeaturesTab = () => {
             setFeatures(featuresSettings.current)
             setIsLoading(false)
         } else {
-            if (uisettings.getValue('autoload')) {
+            if (uisettings.getValue("autoload")) {
                 getFeatures()
             } else setIsLoading(false)
         }
     }, [])
-    console.log('feature')
+    console.log("feature")
+    console.log(featuresSettings.current)
     return (
         <div id="features">
             <input
@@ -431,7 +432,7 @@ const FeaturesTab = () => {
                 accept=".json"
                 onChange={fileSelected}
             />
-            <h4 class="show-low title">{T('S36')}</h4>
+            <h4 class="show-low title">{T("S36")}</h4>
             <div class="m-2" />
             {isLoading && <Loading large />}
 
@@ -522,7 +523,7 @@ const FeaturesTab = () => {
                                                                                         label,
                                                                                         fieldData
                                                                                     )
-                                                                                        ? 'scan'
+                                                                                        ? "scan"
                                                                                         : null
                                                                                 }
                                                                                 initial={
@@ -573,9 +574,9 @@ const FeaturesTab = () => {
                 {!isLoading && (
                     <ButtonImg
                         m2
-                        label={T('S50')}
+                        label={T("S50")}
                         tooltip
-                        data-tooltip={T('S23')}
+                        data-tooltip={T("S23")}
                         icon={<RefreshCcw />}
                         onClick={() => {
                             useUiContextFn.haptic()
@@ -587,22 +588,22 @@ const FeaturesTab = () => {
                     <Fragment>
                         <ButtonImg
                             m2
-                            label={T('S54')}
+                            label={T("S54")}
                             tooltip
-                            data-tooltip={T('S55')}
+                            data-tooltip={T("S55")}
                             icon={<Download />}
                             onClick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
-                                inputFile.current.value = ''
+                                inputFile.current.value = ""
                                 inputFile.current.click()
                             }}
                         />
                         <ButtonImg
                             m2
-                            label={T('S52')}
+                            label={T("S52")}
                             tooltip
-                            data-tooltip={T('S53')}
+                            data-tooltip={T("S53")}
                             icon={<ExternalLink />}
                             onClick={(e) => {
                                 useUiContextFn.haptic()
@@ -614,8 +615,8 @@ const FeaturesTab = () => {
                             <ButtonImg
                                 m2
                                 tooltip
-                                data-tooltip={T('S62')}
-                                label={T('S61')}
+                                data-tooltip={T("S62")}
+                                label={T("S61")}
                                 icon={<Save />}
                                 onClick={(e) => {
                                     useUiContextFn.haptic()
@@ -628,21 +629,21 @@ const FeaturesTab = () => {
                         <ButtonImg
                             m2
                             tooltip
-                            data-tooltip={T('S59')}
-                            label={T('S58')}
+                            data-tooltip={T("S59")}
+                            label={T("S58")}
                             icon={<RotateCcw />}
                             onClick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
                                 showConfirmationModal({
                                     modals,
-                                    title: T('S58'),
-                                    content: T('S59'),
+                                    title: T("S58"),
+                                    content: T("S59"),
                                     button1: {
                                         cb: reStartBoard,
-                                        text: T('S27'),
+                                        text: T("S27"),
                                     },
-                                    button2: { text: T('S28') },
+                                    button2: { text: T("S28") },
                                 })
                             }}
                         />

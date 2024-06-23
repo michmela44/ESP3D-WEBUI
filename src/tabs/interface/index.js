@@ -35,12 +35,248 @@ import {
 import { T } from "../../components/Translations"
 import { RefreshCcw, Save, ExternalLink, Flag, Download } from "preact-feather"
 import { Field, FieldGroup } from "../../components/Controls"
-import { exportPreferences } from "./exportHelper"
-import { importPreferences, formatPreferences } from "./importHelper"
+import { exportPreferences, exportPreferencesSection } from "./exportHelper"
+import { importPreferencesSection, formatPreferences } from "./importHelper"
 
 const isDependenciesMet = (depend) => {
     const { interfaceSettings } = useSettingsContext()
-    return  settingsDepend(depend, interfaceSettings.current.settings)
+    return settingsDepend(depend, interfaceSettings.current.settings)
+}
+
+const generateValidationGlobal = (
+    fieldData,
+    isFlashFS,
+    isSDFS,
+    connectionSettings,
+    interfaceSettings,
+    setShowSave,
+    checkSaveStatus
+) => {
+    const validation = {
+        message: <Flag size="1rem" />,
+        valid: true,
+        modified: true,
+    }
+
+    if (fieldData.shortkey && interfaceSettings) {
+        console.log(
+            "shortkeys",
+            interfaceSettings.current,
+            connectionSettings.current
+        )
+        if (fieldData.value.length > 0) {
+            if (fieldData.value.endsWith("+")) {
+                validation.message = T("S214")
+                validation.valid = false
+            }
+            //look if used
+            const keysRefs = [
+                {
+                    ref: interfaceSettings.current.settings.jog,
+                    entry: "keymap",
+                },
+                {
+                    ref: interfaceSettings.current.settings.macros,
+                    entry: "macros",
+                },
+            ]
+            keysRefs.forEach((list) => {
+                let keysmap = list.ref.find((element) => {
+                    if (element.id == list.entry) return true
+                })
+                if (keysmap) {
+                    let counter = 0
+                    keysmap.value.forEach((element) => {
+                        element.value.forEach((sub) => {
+                            if (
+                                sub.name == "key" &&
+                                sub.value == fieldData.value &&
+                                sub.id != fieldData.id
+                            ) {
+                                counter++
+                            }
+                        })
+                    })
+                    if (counter != 0) {
+                        validation.message = T("S213")
+                        validation.valid = false
+                    }
+                }
+            })
+        }
+    } else {
+        if (typeof fieldData.step !== "undefined") {
+            //hack to avoid float precision issue
+            const mult =
+                (1 / fieldData.step).toFixed(0) > 0
+                    ? (1 / fieldData.step).toFixed(0)
+                    : 1
+            const valueMult = Math.round(fieldData.value * mult)
+            const stepMult = Math.round(fieldData.step * mult)
+
+            if (valueMult % stepMult != 0) {
+                validation.message = <Flag size="1rem" color="red" />
+                validation.valid = false
+            }
+        }
+        if (fieldData.type == "list") {
+            const stringified = JSON.stringify(fieldData.value)
+            //check new item or modified item
+            if (
+                stringified.includes('"newItem":true') ||
+                fieldData.nb != fieldData.value.length
+            )
+                fieldData.hasmodified = true
+            else
+                fieldData.hasmodified =
+                    stringified.includes('"hasmodified":true')
+            //check order change
+            fieldData.value.forEach((element, index) => {
+                if (element.index != index) fieldData.hasmodified = true
+            })
+            validation.valid = !stringified.includes('"haserror":true')
+        }
+        if (fieldData.type == "text") {
+            if (fieldData.regexpattern) {
+                const regex = new RegExp(fieldData.regexpattern)
+                if (!regex.test(fieldData.value)) {
+                    validation.valid = false
+                }
+            }
+            if (typeof fieldData.min != undefined) {
+                if (fieldData.value.trim().length < fieldData.min) {
+                    validation.valid = false
+                } else if (typeof fieldData.minSecondary != undefined) {
+                    if (
+                        fieldData.value.trim().length <
+                            fieldData.minSecondary &&
+                        fieldData.value.trim().length > fieldData.min
+                    ) {
+                        validation.valid = false
+                    }
+                }
+            }
+
+            if (fieldData.max) {
+                if (fieldData.value.trim().length > fieldData.max) {
+                    validation.valid = false
+                }
+            }
+        } else if (fieldData.type == "number") {
+            if (fieldData.max != undefined) {
+                if (fieldData.value > parseInt(fieldData.max)) {
+                    validation.valid = false
+                }
+            }
+            if (fieldData.min != undefined) {
+                if (fieldData.minSecondary != undefined) {
+                    if (
+                        fieldData.value != parseInt(fieldData.min) &&
+                        fieldData.value < parseInt(fieldData.minsecondary)
+                    ) {
+                        validation.valid = false
+                    }
+                } else if (fieldData.value < parseInt(fieldData.min)) {
+                    validation.valid = false
+                }
+            }
+        } else if (fieldData.type == "select") {
+            const opt = fieldData.options.find(
+                (element) => element.value == fieldData.value
+            )
+            if (opt && opt.depend) {
+                if (connectionSettings) {
+                    const canshow = connectionDepend(
+                        opt.depend,
+                        connectionSettings.current
+                    )
+                    if (!canshow) {
+                        validation.valid = false
+                    }
+                }
+                if (interfaceSettings) {
+                    const canshow2 = settingsDepend(
+                        opt.depend,
+                        interfaceSettings.current.settings
+                    )
+                    if (!canshow2) {
+                        validation.valid = false
+                    }
+                }
+            }
+            if (
+                fieldData.name == "type" &&
+                fieldData.value == "camera" &&
+                interfaceSettings
+            ) {
+                //Update camera source automaticaly
+                //Note: is there a less complexe way to do ?
+                const sourceId = fieldData.id.split("-")[0]
+                const extraList =
+                    interfaceSettings.current.settings.extracontents
+                //look for extra panels entry
+                const subextraList =
+                    extraList[
+                        extraList.findIndex((element) => {
+                            return element.id == "extracontents"
+                        })
+                    ].value
+                //look for extra panel specific id
+                const datavalue =
+                    subextraList[
+                        subextraList.findIndex((element) => {
+                            return element.id == sourceId
+                        })
+                    ].value
+                //get source item
+                const sourceItemValue =
+                    datavalue[
+                        datavalue.findIndex((element) => {
+                            return element.id == sourceId + "-source"
+                        })
+                    ]
+                //force /snap as source
+                sourceItemValue.value = "/snap"
+            }
+            const index = fieldData.options.findIndex(
+                (element) =>
+                    element.value == parseInt(fieldData.value) ||
+                    element.value == fieldData.value
+            )
+            if (index == -1) {
+                validation.valid = false
+            }
+        }
+    }
+    if (!validation.valid) {
+        if (!fieldData.shortkey) validation.message = T("S42")
+    }
+    fieldData.haserror = !validation.valid
+    if (fieldData.type != "list") {
+        if (fieldData.value == fieldData.initial) {
+            fieldData.hasmodified = false
+        } else {
+            fieldData.hasmodified = true
+        }
+        if (fieldData.newItem) fieldData.hasmodified = true
+    }
+    if (
+        (typeof isFlashFS != "undefined" || typeof isSDFS != "undefined") &&
+        typeof setShowSave != "undefined" &&
+        typeof checkSaveStatus != "undefined"
+    ) {
+        if (isFlashFS || isSDFS) {
+            setShowSave(checkSaveStatus())
+        } else {
+            setShowSave(false)
+        }
+    }
+    if (!fieldData.hasmodified && !fieldData.haserror) {
+        validation.message = null
+        validation.valid = true
+        validation.modified = false
+    }
+    return validation
 }
 
 const InterfaceTab = () => {
@@ -58,202 +294,17 @@ const InterfaceTab = () => {
             : true
     const isSDFS =
         useSettingsContextFn.getValue("SDConnection") == "none" ? false : true
+
     const generateValidation = (fieldData) => {
-        const validation = {
-            message: <Flag size="1rem" />,
-            valid: true,
-            modified: true,
-        }
-
-        if (fieldData.shortkey) {
-            if (fieldData.value.length > 0) {
-                if (fieldData.value.endsWith("+")) {
-                    validation.message = T("S214")
-                    validation.valid = false
-                }
-                //look if used
-                const keysRefs = [
-                    {
-                        ref: interfaceSettings.current.settings.jog,
-                        entry: "keymap",
-                    },
-                    {
-                        ref: interfaceSettings.current.settings.macros,
-                        entry: "macros",
-                    },
-                ]
-                keysRefs.forEach((list) => {
-                    let keysmap = list.ref.find((element) => {
-                        if (element.id == list.entry) return true
-                    })
-                    if (keysmap) {
-                        let counter = 0
-                        keysmap.value.forEach((element) => {
-                            element.value.forEach((sub) => {
-                                if (
-                                    sub.name == "key" &&
-                                    sub.value == fieldData.value &&
-                                    sub.id != fieldData.id
-                                ) {
-                                    counter++
-                                }
-                            })
-                        })
-                        if (counter != 0) {
-                            validation.message = T("S213")
-                            validation.valid = false
-                        }
-                    }
-                })
-            }
-        } else {
-            if (typeof fieldData.step!=="undefined" ) {  
-                //hack to avoid float precision issue
-                const mult=(1/fieldData.step).toFixed(0)>0?(1/fieldData.step).toFixed(0):1
-                const valueMult = Math.round(fieldData.value * mult )
-                const stepMult = Math.round(fieldData.step* mult)
-                
-                if ((valueMult  % stepMult ) != 0) {
-                    validation.message = <Flag size="1rem" color="red" />
-                    validation.valid = false
-                }
-            } 
-            if (fieldData.type == "list") {
-                const stringified = JSON.stringify(fieldData.value)
-                //check new item or modified item
-                if (
-                    stringified.includes('"newItem":true') ||
-                    fieldData.nb != fieldData.value.length
-                )
-                    fieldData.hasmodified = true
-                else
-                    fieldData.hasmodified =
-                        stringified.includes('"hasmodified":true')
-                //check order change
-                fieldData.value.forEach((element, index) => {
-                    if (element.index != index) fieldData.hasmodified = true
-                })
-                validation.valid = !stringified.includes('"haserror":true')
-            }
-            if (fieldData.type == "text") {
-                if (typeof fieldData.min != undefined) {
-                    if (fieldData.value.trim().length < fieldData.min) {
-                        validation.valid = false
-                    } else if (typeof fieldData.minSecondary != undefined) {
-                        if (
-                            fieldData.value.trim().length <
-                                fieldData.minSecondary &&
-                            fieldData.value.trim().length > fieldData.min
-                        ) {
-                            validation.valid = false
-                        }
-                    }
-                }
-
-                if (fieldData.max) {
-                    if (fieldData.value.trim().length > fieldData.max) {
-                        validation.valid = false
-                    }
-                }
-            } else if (fieldData.type == "number") {
-                if (fieldData.max != undefined) {
-                    if (fieldData.value > parseInt(fieldData.max)) {
-                        validation.valid = false
-                    }
-                }
-                if (fieldData.min != undefined) {
-                    if (fieldData.minSecondary != undefined) {
-                        if (
-                            fieldData.value != parseInt(fieldData.min) &&
-                            fieldData.value < parseInt(fieldData.minsecondary)
-                        ) {
-                            validation.valid = false
-                        }
-                    } else if (fieldData.value < parseInt(fieldData.min)) {
-                        validation.valid = false
-                    }
-                }
-            } else if (fieldData.type == "select") {
-                const opt = fieldData.options.find(
-                    (element) => element.value == fieldData.value
-                )
-                if (opt && opt.depend) {
-                    const canshow = connectionDepend(
-                        opt.depend,
-                        connectionSettings.current
-                    )
-                    const canshow2 = settingsDepend(
-                        opt.depend,
-                        interfaceSettings.current.settings
-                    )
-                    if (!canshow || !canshow2) {
-                        validation.valid = false
-                    }
-                }
-                if (fieldData.name == "type" && fieldData.value == "camera") {
-                    //Update camera source automaticaly
-                    //Note: is there a less complexe way to do ?
-                    const sourceId = fieldData.id.split("-")[0]
-                    const extraList =
-                        interfaceSettings.current.settings.extracontents
-                    //look for extra panels entry
-                    const subextraList =
-                        extraList[
-                            extraList.findIndex((element) => {
-                                return element.id == "extracontents"
-                            })
-                        ].value
-                    //look for extra panel specific id
-                    const datavalue =
-                        subextraList[
-                            subextraList.findIndex((element) => {
-                                return element.id == sourceId
-                            })
-                        ].value
-                    //get source item
-                    const sourceItemValue =
-                        datavalue[
-                            datavalue.findIndex((element) => {
-                                return element.id == sourceId + "-source"
-                            })
-                        ]
-                    //force /snap as source
-                    sourceItemValue.value = "/snap"
-                }
-                const index = fieldData.options.findIndex(
-                    (element) =>
-                        element.value == parseInt(fieldData.value) ||
-                        element.value == fieldData.value
-                )
-                if (index == -1) {
-                    validation.valid = false
-                }
-            }
-        }
-        if (!validation.valid) {
-            if (!fieldData.shortkey) validation.message = T("S42")
-        }
-        fieldData.haserror = !validation.valid
-        if (fieldData.type != "list") {
-            if (fieldData.value == fieldData.initial) {
-                fieldData.hasmodified = false
-            } else {
-                fieldData.hasmodified = true
-            }
-            if (fieldData.newItem) fieldData.hasmodified = true
-        }
-
-        if (isFlashFS || isSDFS) {
-            setShowSave(checkSaveStatus())
-        } else {
-            setShowSave(false)
-        }
-        if (!fieldData.hasmodified && !fieldData.haserror) {
-            validation.message = null
-            validation.valid = true
-            validation.modified = false
-        }
-        return validation
+        return generateValidationGlobal(
+            fieldData,
+            isFlashFS,
+            isSDFS,
+            connectionSettings,
+            interfaceSettings,
+            setShowSave,
+            checkSaveStatus
+        )
     }
 
     function checkSaveStatus() {
@@ -271,7 +322,6 @@ const InterfaceTab = () => {
     }
 
     const fileSelected = () => {
-        let haserrors = false
         if (inputFile.current.files.length > 0) {
             setIsLoading(true)
             const reader = new FileReader()
@@ -279,11 +329,23 @@ const InterfaceTab = () => {
                 const importFile = e.target.result
                 try {
                     const importData = JSON.parse(importFile)
-                    ;[interfaceSettings.current, haserrors] = importPreferences(
-                        interfaceSettings.current,
-                        importData
-                    )
+
+                    const [preferences_settings, haserrors] =
+                        importPreferencesSection(
+                            interfaceSettings.current.settings,
+                            importData.settings
+                        )
+                    interfaceSettings.current.settings = preferences_settings
+                    if (importData.custom) {
+                        interfaceSettings.current.custom = importData.custom
+                    }
+                    if (importData.extensions) {
+                        interfaceSettings.current.extensions =
+                            importData.extensions
+                    }
                     formatPreferences(interfaceSettings.current.settings)
+                    console.log("Imported")
+                    console.log(interfaceSettings.current)
                     if (haserrors) {
                         toasts.addToast({ content: "S56", type: "error" })
                         console.log("Error")
@@ -301,11 +363,11 @@ const InterfaceTab = () => {
     }
 
     const SaveSettings = () => {
-        const preferencestosave = JSON.stringify(
-            exportPreferences(interfaceSettings.current, false),
-            null,
-            " "
+        const settings_to_save = exportPreferences(
+            interfaceSettings.current,
+            false
         )
+        const preferencestosave = JSON.stringify(settings_to_save, null, " ")
         const blob = new Blob([preferencestosave], {
             type: "application/json",
         })
@@ -334,7 +396,6 @@ const InterfaceTab = () => {
             }
         )
     }
-
     return (
         <div id="interface">
             <input
@@ -570,6 +631,7 @@ const InterfaceTab = () => {
                             onClick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
+                                console.log(interfaceSettings.current)
                                 exportPreferences(interfaceSettings.current)
                             }}
                         />
@@ -594,4 +656,11 @@ const InterfaceTab = () => {
     )
 }
 
-export { InterfaceTab }
+export {
+    InterfaceTab,
+    generateValidationGlobal,
+    exportPreferences,
+    exportPreferencesSection,
+    importPreferencesSection,
+    formatPreferences,
+}

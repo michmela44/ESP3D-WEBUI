@@ -100,18 +100,24 @@ const commands = {
         return res
     },
     play: (path, filename) => {
-        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-        const cmd  = useUiContextFn.getValue('sdplaycmd').replace('#', spath)
+        const spath = (path + (path == "/" ? "" : "/") + filename).replaceAll(
+            "//",
+            "/"
+        )
+        const cmd = useUiContextFn.getValue("sdplaycmd").replace("#", spath)
         return {
-            type: 'cmd',
+            type: "cmd",
             cmd,
         }
     },
     delete: (path, filename) => {
-        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-        const cmd =  useUiContextFn.getValue('sddeletecmd').replace("#",spath)
+        const spath = (path + (path == "/" ? "" : "/") + filename).replaceAll(
+            "//",
+            "/"
+        )
+        const cmd = useUiContextFn.getValue("sddeletecmd").replace("#", spath)
         return {
-            type: 'cmd',
+            type: "cmd",
             cmd,
         }
     },

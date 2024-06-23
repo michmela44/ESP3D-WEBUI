@@ -29,8 +29,8 @@ import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { T } from "../Translations"
-import { Loading, Button, ButtonImg, CenterLeft } from "../Controls"
-import { useEffect, useState } from "preact/hooks"
+import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import { useEffect, useState, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext, variablesList } from "../../targets"
 
@@ -118,7 +118,7 @@ const JogPanel = () => {
     const { positions } = useTargetContext()
     const id = "jogPanel"
     console.log(id)
-
+    const panelRef = useRef(null)
     function onChangeAxis(e) {
         let value = e.target ? e.target.value : e
         setCurrentSelectedAxis(value)
@@ -189,8 +189,8 @@ const JogPanel = () => {
             axis.startsWith("X") || axis.startsWith("Y")
                 ? currentFeedRate["XY"]
                 : axis.startsWith("Z")
-                ? currentFeedRate["Z"]
-                : currentFeedRate[currentAxis]
+                  ? currentFeedRate["Z"]
+                  : currentFeedRate[currentAxis]
         if (axis.startsWith("Axis"))
             selected_axis = axis.replace("Axis", currentAxis)
         else selected_axis = axis
@@ -337,7 +337,8 @@ const JogPanel = () => {
         }
     })
     return (
-        <div id={id} class="panel panel-dashboard">
+        <div id={id} class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Move />
@@ -397,13 +398,14 @@ const JogPanel = () => {
                                 })}
                             </ul>
                         </div>
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>
@@ -630,7 +632,6 @@ const JogPanel = () => {
                             <select
                                 id="selectAxisList"
                                 class="form-select"
-                                style="border-color: #5755d9!important"
                                 onchange={(e) => {
                                     onChangeAxis(e)
                                 }}
@@ -753,7 +754,7 @@ const JogPanel = () => {
                                 sendZeroCommand("")
                             }}
                         >
-                            <label style="font-size:150%; vertical-align: top;">
+                            <label class="text-like-icon">
                                 &Oslash;
                             </label>
                             <MoreHorizontal />

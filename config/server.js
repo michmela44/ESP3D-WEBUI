@@ -38,9 +38,11 @@ const {
     configURI,
     getLastconnection,
     hasEnabledAuthentication,
-} = require(path.normalize(
-    __dirname + "/targets/" + target + "/" + subtarget + "/index.js"
-))
+} = require(
+    path.normalize(
+        __dirname + "/targets/" + target + "/" + subtarget + "/index.js"
+    )
+)
 
 const WebSocketServer = require("ws").Server,
     wss = new WebSocketServer({ port: 8089 })

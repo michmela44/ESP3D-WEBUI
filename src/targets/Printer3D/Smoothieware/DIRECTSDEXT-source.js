@@ -20,7 +20,7 @@
 import { h } from "preact"
 import { sortedFilesList, formatStatus } from "../../../components/Helpers"
 import { canProcessFile } from "../../helpers"
-import { useUiContextFn, useSettingsContextFn } from '../../../contexts'
+import { useUiContextFn, useSettingsContextFn } from "../../../contexts"
 
 const capabilities = {
     Process: (path, filename) => {
@@ -102,8 +102,14 @@ const commands = {
         }
     },
     play: (path, filename) => {
-        const spath = (path + (path == '/' ? '' : '/') + filename).replaceAll('//', '/')
-        const cmd =  useUiContextFn.getValue('sdextplaycmd').replace("#",spath).replaceAll('//', '/')
+        const spath = (path + (path == "/" ? "" : "/") + filename).replaceAll(
+            "//",
+            "/"
+        )
+        const cmd = useUiContextFn
+            .getValue("sdextplaycmd")
+            .replace("#", spath)
+            .replaceAll("//", "/")
         return {
             type: "cmd",
             cmd,

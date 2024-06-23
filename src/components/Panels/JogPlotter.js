@@ -29,8 +29,8 @@ import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { T } from "../Translations"
-import { Button, ButtonImg, CenterLeft } from "../Controls"
-import { useEffect, useState } from "preact/hooks"
+import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
+import { useEffect, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext, variablesList } from "../../targets"
 import { Field } from "../Controls"
@@ -104,13 +104,13 @@ const PositionsControls = () => {
 }
 
 const JogPanel = () => {
-    const { modals, toasts, panels } = useUiContext()
+    const { modals, toasts } = useUiContext()
 
     const { createNewRequest } = useHttpFn
     const { positions } = useTargetContext()
     const id = "jogPanel"
     console.log(id)
-
+    const panelRef = useRef(null)
     //Send a request to the ESP
     const SendCommand = (command) => {
         createNewRequest(
@@ -353,7 +353,8 @@ const JogPanel = () => {
         currentSteps = useUiContextFn.getValue("steps")
     }, [])
     return (
-        <div id={id} class="panel panel-dashboard">
+        <div id={id} class="panel panel-dashboard" id={id} ref={panelRef}>
+            <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
                     <Move />
@@ -402,13 +403,14 @@ const JogPanel = () => {
                                 </li>
                             </ul>
                         </div>
-                        <span
-                            class="btn btn-clear btn-close m-1"
-                            aria-label="Close"
-                            onclick={(e) => {
-                                useUiContextFn.haptic()
-                                panels.hide(id)
-                            }}
+                        <FullScreenButton
+                            panelRef={panelRef}
+                            hideOnFullScreen={true}
+                        />
+                        <CloseButton
+                            panelRef={panelRef}
+                            panelId={id}
+                            hideOnFullScreen={true}
                         />
                     </span>
                 </span>
@@ -426,11 +428,11 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <Button
+                                        class="button-minimal"
                                         lg
                                         m2
                                         tooltip
                                         nomin
-                                        style="min-width:2.5rem"
                                         data-tooltip={T(buttonsInfos.T.tooltip)}
                                         id="btnjogup"
                                         onclick={(e) => {
@@ -451,11 +453,11 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <ButtonImg
+                                        class="button-minimal"
                                         m2
                                         lg
                                         tooltip
                                         nomin
-                                        style="min-width:2.5rem"
                                         data-tooltip={T(buttonsInfos.L.tooltip)}
                                         id="btnjogleft"
                                         label={buttonsInfos.L.label}
@@ -487,10 +489,10 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <ButtonImg
+                                        class="button-minimal"
                                         lg
                                         m2
                                         nomin
-                                        style="min-width:2.5rem"
                                         label={buttonsInfos.R.label}
                                         tooltip
                                         data-tooltip={T(buttonsInfos.R.tooltip)}
@@ -511,10 +513,10 @@ const JogPanel = () => {
                                             "Y"
                                         ))) && (
                                     <ButtonImg
+                                        class="button-minimal"
                                         lg
                                         m2
                                         nomin
-                                        style="min-width:2.5rem"
                                         tooltip
                                         data-tooltip={T(buttonsInfos.B.tooltip)}
                                         id="btnjogdown"

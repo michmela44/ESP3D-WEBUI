@@ -29,7 +29,7 @@ import {
 } from "../../contexts"
 import { TargetContextProvider } from "../../targets"
 import { ToastsContainer } from "../Toast"
-import { Modal } from "../Modal"
+import { ModalContainer } from "../Modal"
 import { ContentContainer } from "../../areas"
 
 const App = () => {
@@ -42,8 +42,8 @@ const App = () => {
                             <HttpQueueContextProvider>
                                 <SettingsContextProvider>
                                     <WsContextProvider>
-                                        <ToastsContainer />
-                                        <Modal />
+                                        <ToastsContainer id="top_toasts_container"/>
+                                        <ModalContainer id="top_modals_container"/>
                                         <ContentContainer />
                                     </WsContextProvider>
                                 </SettingsContextProvider>

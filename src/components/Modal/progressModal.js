@@ -31,10 +31,7 @@ const showProgressModal = ({ modals, title, button1, content }) => {
         modals.addModal({
             id: id,
             title: (
-                <div
-                    class="text-primary feather-icon-container"
-                    style="line-height:24px!important"
-                >
+                <div class="text-primary feather-icon-container modal_title">
                     <Info />
                     <label>{title}</label>
                 </div>
