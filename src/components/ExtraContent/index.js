@@ -255,7 +255,7 @@ const ExtraContent = ({
                     <Fragment>
                         <span class="m-1" />
                         <FullScreenButton
-                            panelRef={element}
+                            panelRef={panelRef}
                             hideOnFullScreen={true}
                             asButton={true}
                         />
@@ -326,10 +326,11 @@ const ExtraContent = ({
     })
     if (target == "page")
         return (
-            <Fragment>
+            <div id={"page_"+id} ref={panelRef} style="height: 100%">
+             <ContainerHelper id={"page_"+id} /> 
                 <MainContent />
                 <ControlButtons />
-            </Fragment>
+            </div>
         )
     if (target == "panel") {
         const displayIcon = iconsList[icon] ? iconsList[icon] : ""

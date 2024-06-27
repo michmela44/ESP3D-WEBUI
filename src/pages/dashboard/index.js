@@ -186,13 +186,13 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (!intialisationDone) {
-            console.log("Init")
+            //console.log("Init")
             intialisationDone = true
-            console.log(uisettings.getValue("enableshortcuts"))
+            //console.log(uisettings.getValue("enableshortcuts"))
             setIsKeyboardEnabled(uisettings.getValue("enableshortcuts"))
             shortcuts.enable(uisettings.getValue("enableshortcuts"))
         } else {
-            console.log("Init Done")
+            //console.log("Init Done")
         }
     }, [])
 

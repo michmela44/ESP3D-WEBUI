@@ -201,7 +201,7 @@ const useSettings = () => {
                         connectionSettings.current.Screen = "none"
                     }
                     processData("core", "ESP800", true)
-                    console.log(connectionSettings.current)
+                    //console.log(connectionSettings.current)
                     document.title = connectionSettings.current.Hostname
                     if (
                         !connectionSettings.current.HostPath ||
@@ -326,7 +326,7 @@ const useSettings = () => {
             if (elem) elem.parentNode.removeChild(elem)
 
             if (themepack != "default") {
-                console.log("Loading theme: " + themepack)
+                //console.log("Loading theme: " + themepack)
                 createNewRequest(
                     espHttpURL(
                         useSettingsContextFn.getValue("HostDownloadPath") +
@@ -380,15 +380,15 @@ const useSettings = () => {
                 onSuccess: (result) => {
                     const jsonResult = JSON.parse(result)
                    
-                    console.log("preferences.json")
-                    console.log(jsonResult)
+                    //console.log("preferences.json")
+                    //console.log(jsonResult)
                     const [preferences_settings, haserrors] = importPreferencesSection(
                         defaultPreferences.settings,
                         jsonResult.settings
                     )
-                    console.log("Format preferences.settings")
+                    //console.log("Format preferences.settings")
                     formatPreferences(preferences_settings)
-                    console.log(preferences_settings)
+                    //console.log(preferences_settings)
                     uisettings.set(
                         JSON.parse(JSON.stringify(preferences_settings))
                     )
@@ -411,8 +411,8 @@ const useSettings = () => {
                     if (jsonResult.extensions) {
                         interfaceSettings.current.extensions = jsonResult.extensions
                     }
-                    console.log("interfaceSettings.current")
-                    console.log(interfaceSettings.current)
+                    //console.log("interfaceSettings.current")
+                    //console.log(interfaceSettings.current)
 
                     //Mobile view
                     if (uisettings.getValue("mobileview", preferences_settings))
