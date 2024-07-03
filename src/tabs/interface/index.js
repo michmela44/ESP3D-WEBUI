@@ -59,7 +59,6 @@ const generateValidationGlobal = (
     }
 
     if (fieldData.shortkey && interfaceSettings) {
-
         if (fieldData.value.length > 0) {
             if (fieldData.value.endsWith("+")) {
                 validation.message = T("S214")
@@ -246,17 +245,29 @@ const generateValidationGlobal = (
                 //force /snap as source
                 sourceItemValue.value = "/snap"
             }
-            const index = fieldData.options.findIndex(
-                (element) => {
-                    if (fieldData.id=="default_filesystem"){
-                        console.log("checking :*" + element.value+ "* vs*" + fieldData.value + "*")
-                        console.log("checking :*" + parseInt(element.value)+ "* vs*" + parseInt(fieldData.value) + "*")
-                    }
-                    return (
-                    (parseInt(element.value) == parseInt(fieldData.value) && !isNaN(parseInt(element.value))) ||
-                    element.value == fieldData.value)
+            const index = fieldData.options.findIndex((element) => {
+                if (fieldData.id == "default_filesystem") {
+                    console.log(
+                        "checking :*" +
+                            element.value +
+                            "* vs*" +
+                            fieldData.value +
+                            "*"
+                    )
+                    console.log(
+                        "checking :*" +
+                            parseInt(element.value) +
+                            "* vs*" +
+                            parseInt(fieldData.value) +
+                            "*"
+                    )
                 }
-            ) 
+                return (
+                    (parseInt(element.value) == parseInt(fieldData.value) &&
+                        !isNaN(parseInt(element.value))) ||
+                    element.value == fieldData.value
+                )
+            })
             if (index == -1) {
                 validation.valid = false
                 console.log("Error")
@@ -291,7 +302,7 @@ const generateValidationGlobal = (
         validation.valid = true
         validation.modified = false
     }
-    if ( !validation.valid){
+    if (!validation.valid) {
         console.log(fieldData)
     }
     return validation
@@ -326,11 +337,10 @@ const InterfaceTab = () => {
     }
 
     function checkSaveStatus() {
-        let stringified = JSON.stringify(interfaceSettings.current.settings)
-        let hasmodified = stringified.includes('"hasmodified":true')
-        let haserrors = stringified.includes('"haserror":true')
-        if (haserrors || !hasmodified) return false
-        return true
+        const stringified = JSON.stringify(interfaceSettings.current.settings)
+        const hasmodified = stringified.includes('"hasmodified":true')
+        const haserrors = stringified.includes('"haserror":true')
+        return !haserrors && hasmodified
     }
 
     const getInterface = () => {
