@@ -2,6 +2,12 @@
     "settings": {
         "general": [
             {
+                "id": "theme",
+                "type": "pickup",
+                "label": "S181",
+                "value": "default"
+            },
+            {
                 "id": "emergencystop",
                 "type": "text",
                 "label": "P15",
@@ -29,13 +35,13 @@
                 "type": "list",
                 "label": "S202",
                 "value": [
-                    { "id": "Files", "name": "files" },
+                    { "id": "Status", "name": "status" },
                     { "id": "Terminal", "name": "terminal" },
                     { "id": "Jog", "name": "jog", "value": "jog" },
+                    { "id": "Probe", "name": "probe" },
+                    { "id": "Files", "name": "files" },
                     { "id": "Laser", "name": "laser" },
                     { "id": "Spindle", "name": "spindle" },
-                    { "id": "Probe", "name": "probe" },
-                    { "id": "Status", "name": "status" },
                     { "id": "Overrrides", "name": "overrides" },
                     { "id": "Notifications", "name": "notification" },
                     { "id": "Macros", "name": "macros" },
@@ -44,6 +50,12 @@
             }
         ],
         "polling": [
+            {
+                "id": "enablepolling",
+                "type": "boolean",
+                "label": "S112",
+                "value": true
+            },
             {
                 "id": "pollingcmds",
                 "depend": [
@@ -58,9 +70,9 @@
                 "value": [
                     {
                         "id": "samplepolling",
-                        "name": "3s",
-                        "cmds": "?;[ESP701]json",
-                        "refreshtime": "3000"
+                        "name": "1.5s",
+                        "cmds": "?",
+                        "refreshtime": "1500"
                     }
                 ]
             }
@@ -71,28 +83,123 @@
                 "type": "text",
                 "label": "S96",
                 "value": "g;G;gco;GCO;gcode;GCODE;nc;txt;cnc;ngc",
-                "help": "S97"
+                "help": "S97",
+                "depend": [{ "id": "showfilespanel", "value": true }]
             },
             {
-                "id": "flashfs",
-                "type": "boolean",
+                "id": "flashfsgroup",
+                "type": "group",
+                "label": "S137",
                 "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    },
                     { "connection_id": "FlashFileSystem", "value": "!='none'" }
                 ],
-                "label": "S137",
-                "value": true
+                "value": [
+                    {
+                        "id": "flashfs",
+                        "type": "boolean",
+                        "label": "S63",
+                        "value": true
+                    },
+                    {
+                        "id": "sort_flashfs_files",
+                        "type": "boolean",
+                        "label": "S224",
+                        "value": true,
+                        "depend": [{ "id": "flashfs", "value": true }]
+                    }
+                ]
             },
             {
-                "id": "directsd",
-                "type": "boolean",
+                "id": "sdfsgroup",
+                "type": "group",
+                "label": "S190",
                 "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    },
                     { "connection_id": "SDConnection", "value": "!='none'" }
                 ],
-                "label": "S190",
-                "value": true
-            }
+                "value": [
+                    {
+                        "id": "directsd",
+                        "type": "boolean",
+                        "depend": [{ "connection_id": "SDConnection", "value": "!='none'" }],
+                        "label": "S63",
+                        "value": true
+                    },
+                    {
+                        "id": "sort_sd_files",
+                        "type": "boolean",
+                        "label": "S224",
+                        "value": true,
+                        "depend": [{ "id": "directsd", "value": true }]
+                    }
+                    
+                ]
+            },
+            {
+                "id": "default_filesystem",
+                "type": "select",
+                "label": "S223",
+                "value": "DIRECTSD",
+                "depend": [
+                    {
+                        "id": "showfilespanel",
+                        "value": true
+                    },
+                    {
+                        "orGroups": [
+                            [{
+                                "id": "sd",
+                                "value": true
+                            }],
+                            [{
+                                "id": "flashfs",
+                                "value": true
+                            }]
+                        ]
+                    }
+                ],
+                "options": [
+                    { "value": "FLASH", "label": "S137", "depend": [{ "id": "flashfs", "value": true }] },
+                   
+                    {
+                        "value": "DIRECTSD",
+                        "label": "S190",
+                        "depend": [
+                            { "id": "directsd", "value": true },
+                            { "connection_id": "SDConnection", "value": "!='none'" }
+                        ]
+                    }
+                ]
+            }        
         ],
         "jog": [
+            {
+                "id": "home",
+                "type": "group",
+                "label": "CN17",
+                "value": [
+                    {
+                        "id": "homesingleaxis",
+                        "type": "boolean",
+                        "label": "CN16",
+                        "value": true
+                    },
+                    {
+                        "id": "homecmd",
+                        "type": "text",
+                        "label": "CN10",
+                        "value": "$H#",
+                        "help": "CN11"
+                    }
+                ]
+            },
             {
                 "id": "axis",
                 "type": "group",
@@ -144,7 +251,7 @@
                             }
                         ],
                         "label": "A",
-                        "value": true
+                        "value": false
                     },
                     {
                         "id": "showb",
@@ -156,7 +263,7 @@
                             }
                         ],
                         "label": "B",
-                        "value": true
+                        "value": false
                     },
                     {
                         "id": "showc",
@@ -168,7 +275,7 @@
                             }
                         ],
                         "label": "C",
-                        "value": true
+                        "value": false
                     },
                     {
                         "id": "showu",
@@ -180,7 +287,7 @@
                             }
                         ],
                         "label": "U",
-                        "value": true
+                        "value": false
                     },
                     {
                         "id": "showv",
@@ -192,7 +299,7 @@
                             }
                         ],
                         "label": "V",
-                        "value": true
+                        "value": false
                     },
                     {
                         "id": "showw",
@@ -204,7 +311,7 @@
                             }
                         ],
                         "label": "W",
-                        "value": true
+                        "value": false
                     }
                 ]
             },
@@ -217,15 +324,15 @@
                         "id": "xyfeedrate",
                         "depend": [
                             {
-                                "ids": [
-                                    {
+                                "orGroups": [
+                                    [{
                                         "id": "showx",
                                         "value": true
-                                    },
-                                    {
+                                    }],
+                                    [{
                                         "id": "showy",
                                         "value": true
-                                    }
+                                    }]
                                 ]
                             },
                             {
