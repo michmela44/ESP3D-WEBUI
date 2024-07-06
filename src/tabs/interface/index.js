@@ -59,15 +59,11 @@ const generateValidationGlobal = (
     }
 
     if (fieldData.shortkey && interfaceSettings) {
-        console.log(
-            "shortkeys",
-            interfaceSettings.current,
-            connectionSettings.current
-        )
         if (fieldData.value.length > 0) {
             if (fieldData.value.endsWith("+")) {
                 validation.message = T("S214")
                 validation.valid = false
+                console.log("Error")
             }
             //look if used
             const keysRefs = [
@@ -100,6 +96,7 @@ const generateValidationGlobal = (
                     if (counter != 0) {
                         validation.message = T("S213")
                         validation.valid = false
+                        console.log("Error")
                     }
                 }
             })
@@ -117,6 +114,7 @@ const generateValidationGlobal = (
             if (valueMult % stepMult != 0) {
                 validation.message = <Flag size="1rem" color="red" />
                 validation.valid = false
+                console.log("Error")
             }
         }
         if (fieldData.type == "list") {
@@ -141,11 +139,13 @@ const generateValidationGlobal = (
                 const regex = new RegExp(fieldData.regexpattern)
                 if (!regex.test(fieldData.value)) {
                     validation.valid = false
+                    console.log("Error")
                 }
             }
             if (typeof fieldData.min != undefined) {
                 if (fieldData.value.trim().length < fieldData.min) {
                     validation.valid = false
+                    console.log("Error")
                 } else if (typeof fieldData.minSecondary != undefined) {
                     if (
                         fieldData.value.trim().length <
@@ -153,6 +153,7 @@ const generateValidationGlobal = (
                         fieldData.value.trim().length > fieldData.min
                     ) {
                         validation.valid = false
+                        console.log("Error")
                     }
                 }
             }
@@ -160,12 +161,14 @@ const generateValidationGlobal = (
             if (fieldData.max) {
                 if (fieldData.value.trim().length > fieldData.max) {
                     validation.valid = false
+                    console.log("Error")
                 }
             }
         } else if (fieldData.type == "number") {
             if (fieldData.max != undefined) {
                 if (fieldData.value > parseInt(fieldData.max)) {
                     validation.valid = false
+                    console.log("Error")
                 }
             }
             if (fieldData.min != undefined) {
@@ -175,9 +178,11 @@ const generateValidationGlobal = (
                         fieldData.value < parseInt(fieldData.minsecondary)
                     ) {
                         validation.valid = false
+                        console.log("Error")
                     }
                 } else if (fieldData.value < parseInt(fieldData.min)) {
                     validation.valid = false
+                    console.log("Error")
                 }
             }
         } else if (fieldData.type == "select") {
@@ -192,6 +197,7 @@ const generateValidationGlobal = (
                     )
                     if (!canshow) {
                         validation.valid = false
+                        console.log("Error")
                     }
                 }
                 if (interfaceSettings) {
@@ -201,6 +207,7 @@ const generateValidationGlobal = (
                     )
                     if (!canshow2) {
                         validation.valid = false
+                        console.log("Error")
                     }
                 }
             }
@@ -238,13 +245,32 @@ const generateValidationGlobal = (
                 //force /snap as source
                 sourceItemValue.value = "/snap"
             }
-            const index = fieldData.options.findIndex(
-                (element) =>
-                    element.value == parseInt(fieldData.value) ||
+            const index = fieldData.options.findIndex((element) => {
+                if (fieldData.id == "default_filesystem") {
+                    console.log(
+                        "checking :*" +
+                            element.value +
+                            "* vs*" +
+                            fieldData.value +
+                            "*"
+                    )
+                    console.log(
+                        "checking :*" +
+                            parseInt(element.value) +
+                            "* vs*" +
+                            parseInt(fieldData.value) +
+                            "*"
+                    )
+                }
+                return (
+                    (parseInt(element.value) == parseInt(fieldData.value) &&
+                        !isNaN(parseInt(element.value))) ||
                     element.value == fieldData.value
-            )
+                )
+            })
             if (index == -1) {
                 validation.valid = false
+                console.log("Error")
             }
         }
     }
@@ -275,6 +301,9 @@ const generateValidationGlobal = (
         validation.message = null
         validation.valid = true
         validation.modified = false
+    }
+    if (!validation.valid) {
+        console.log(fieldData)
     }
     return validation
 }
@@ -308,11 +337,10 @@ const InterfaceTab = () => {
     }
 
     function checkSaveStatus() {
-        let stringified = JSON.stringify(interfaceSettings.current.settings)
-        let hasmodified = stringified.includes('"hasmodified":true')
-        let haserrors = stringified.includes('"haserror":true')
-        if (haserrors || !hasmodified) return false
-        return true
+        const stringified = JSON.stringify(interfaceSettings.current.settings)
+        const hasmodified = stringified.includes('"hasmodified":true')
+        const haserrors = stringified.includes('"haserror":true')
+        return !haserrors && hasmodified
     }
 
     const getInterface = () => {
@@ -344,8 +372,8 @@ const InterfaceTab = () => {
                             importData.extensions
                     }
                     formatPreferences(interfaceSettings.current.settings)
-                    console.log("Imported")
-                    console.log(interfaceSettings.current)
+                    //console.log("Imported")
+                    //console.log(interfaceSettings.current)
                     if (haserrors) {
                         toasts.addToast({ content: "S56", type: "error" })
                         console.log("Error")
@@ -396,6 +424,7 @@ const InterfaceTab = () => {
             }
         )
     }
+    //console.log(JSON.stringify(interfaceSettings.current, null, 2))
     return (
         <div id="interface">
             <input
@@ -631,7 +660,7 @@ const InterfaceTab = () => {
                             onClick={(e) => {
                                 useUiContextFn.haptic()
                                 e.target.blur()
-                                console.log(interfaceSettings.current)
+                                //console.log(interfaceSettings.current)
                                 exportPreferences(interfaceSettings.current)
                             }}
                         />
