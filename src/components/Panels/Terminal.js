@@ -59,7 +59,7 @@ const TerminalPanel = () => {
     const messagesEndRef = useRef(null)
     const terminalOutput = useRef(null)
     const id = "terminalPanel"
-    const inputHistoryIndex = useRef(terminal.inputHistory.length - 1)
+    const inputHistoryIndex = useRef(terminal.inputHistory.length )
     const scrollToBottom = () => {
         if (
             terminal.isAutoScroll.current &&
@@ -70,17 +70,17 @@ const TerminalPanel = () => {
         }
     }
     const historyPrev = () => {
-        if (terminal.inputHistory.length > 0 && inputHistoryIndex.current >= 0) {
+        if (terminal.inputHistory.length > 0 && inputHistoryIndex.current > 0) { 
+            inputHistoryIndex.current--
             inputRef.current.value = terminal.inputHistory[inputHistoryIndex.current]
             terminal.input.current = inputRef.current.value
-            inputHistoryIndex.current--
         }
     }
 
     const historyNext = () => {
         if (
             terminal.inputHistory.length > 0 &&
-            inputHistoryIndex.current < terminal.inputHistory.length - 1
+            inputHistoryIndex.current < terminal.inputHistory.length-1 
         ) {
             inputHistoryIndex.current++
             inputRef.current.value = terminal.inputHistory[inputHistoryIndex.current]
@@ -88,7 +88,8 @@ const TerminalPanel = () => {
         } else {
             inputRef.current.value = ""
             terminal.input.current = inputRef.current.value
-        }
+            inputHistoryIndex.current = terminal.inputHistory.length
+        } 
     }
     const onKeyUp = (e) => {
         switch (e.keyCode) {
@@ -122,7 +123,7 @@ const TerminalPanel = () => {
             ) {
                 terminal.addInputHistory(cmd)
             }
-            inputHistoryIndex.current = terminal.inputHistory.length - 1
+            inputHistoryIndex.current = terminal.inputHistory.length 
             processData(
                 "echo",
                 replaceVariables(variablesList.commands, cmd, true)
@@ -142,9 +143,8 @@ const TerminalPanel = () => {
                     },
                 }
             )
-        } else {
-            inputHistoryIndex.current = terminal.inputHistory.length - 1
-        }
+        } 
+        inputHistoryIndex.current = terminal.inputHistory.length 
         terminal.input.current = ""
         inputRef.current.value = ""
     }
