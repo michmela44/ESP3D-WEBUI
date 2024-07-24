@@ -621,14 +621,20 @@ const ContentContainer = () => {
                     break
                 case "icon":
                     const iconToSend = iconsFeather[eventMsg.data.id]
+                    let iconSvgString = ""
+                    if (iconToSend) {
                     //Temporary DOM
                     const tempElement = document.createElement("div")
                     //DO icon rendering
                     render(iconToSend, tempElement)
                     //Get the SVG string
-                    const iconSvgString = tempElement.firstChild.outerHTML
+                    iconSvgString = tempElement.firstChild.outerHTML
                     //Delete the temporary DOM
                     tempElement.remove()
+                    } else {
+                        iconSvgString = ""
+                        console.error("Icon not found:", eventMsg.data.id)
+                    }
 
                     dispatchToExtensions(
                         "icon",

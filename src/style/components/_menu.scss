@@ -37,6 +37,10 @@
     color: #5755d9;
 }
 
+.menu-item-panel{
+    pointer-events: none!important;
+}
+
 .menu .menu-item > .menu-entry:active,
 .menu .menu-item > .menu-entry.active {
     background: inherit;

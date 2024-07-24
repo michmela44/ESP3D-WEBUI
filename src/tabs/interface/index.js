@@ -246,7 +246,7 @@ const generateValidationGlobal = (
                 sourceItemValue.value = "/snap"
             }
             const index = fieldData.options.findIndex((element) => {
-                if (fieldData.id == "default_filesystem") {
+               /* if (fieldData.id == "default_filesystem") {
                     console.log(
                         "checking :*" +
                             element.value +
@@ -261,7 +261,7 @@ const generateValidationGlobal = (
                             parseInt(fieldData.value) +
                             "*"
                     )
-                }
+                }*/
                 return (
                     (parseInt(element.value) == parseInt(fieldData.value) &&
                         !isNaN(parseInt(element.value))) ||
