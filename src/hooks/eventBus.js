@@ -39,7 +39,7 @@ on(event, callback, id = null) {
   // check if listener with this ID already exists
   const existingListenerIndex = this.listeners[event].findIndex(listener => listener.id === listenerId);
   if (existingListenerIndex !== -1) {
-      console.warn(`Listener with ID ${listenerId} for event ${event} already exists. Replacing.`);
+      //console.warn(`Listener with ID ${listenerId} for event ${event} already exists. Replacing.`);
       // Replace existing listener
       this.listeners[event][existingListenerIndex] = { id: listenerId, callback };
   } else {

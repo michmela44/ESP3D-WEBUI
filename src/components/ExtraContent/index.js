@@ -44,10 +44,10 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }) =>
 
     const updateContentPosition = () => {
         if (!useUiContextFn.panels.isVisible(id)&& target=="panel") {
-            console.log("Not updating position for element " + extra_content_id, "in target", target_id, " of panel ", id, " because it is not visible")
+            //console.log("Not updating position for element " + extra_content_id, "in target", target_id, " of panel ", id, " because it is not visible")
             return
         }
-        console.log("Updating position for element " + extra_content_id, "in target", target_id, " of panel ", id)
+        //console.log("Updating position for element " + extra_content_id, "in target", target_id, " of panel ", id)
         const container = document.getElementById(target_id)
         if (container) {
             const { top, left, width, height } = container.getBoundingClientRect()
@@ -63,7 +63,7 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }) =>
     }, [updateContentPosition]);
     
     useEffect(() => {
-        console.log("Updating element " + extra_content_id + " because visible list changed")
+        //console.log("Updating element " + extra_content_id + " because visible list changed")
         if (useUiContextFn.panels.isVisible(id)) {
             const main = document.getElementById("main")
             if (main) {
@@ -82,11 +82,11 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }) =>
     }, [panels.updateTrigger])
 
     useEffect(() => {
-        console.log("Mount element " + id)
+        //console.log("Mount element " + id)
         if (!elementsCache.has(extra_content_id)) {
             console.error("Error display element " + extra_content_id, " because it doesn't exist")
         } else {
-            console.log("Updating element " + extra_content_id + " because it already exists")
+            //console.log("Updating element " + extra_content_id + " because it already exists")
             if (target=="page"){
                 updateContentPosition()
             }
@@ -107,7 +107,7 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }) =>
                 main.removeEventListener('resize', handleScrollAndResize)
             }
             window.removeEventListener('resize', handleScrollAndResize)
-            console.log("Hiding element " + id)
+            //console.log("Hiding element " + id)
             eventBus.emit('updateState', { id: extra_content_id, isVisible: false, from: "extraContent(return)" })
         }
     }, [])

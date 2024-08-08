@@ -155,7 +155,7 @@ const TerminalPanel = () => {
     }, [terminal.content])
     useEffect(() => {
         return () => {
-            console.log('Resetting terminal history');
+            //console.log('Resetting terminal history');
             inputHistoryIndex.current = terminal.inputHistory.length - 1;
         };
     }, []);

@@ -36,13 +36,13 @@ const ElementsCache = () => {
         });
         return result;
     };
-    console.log("ElementsCache is rendering")
+    //console.log("ElementsCache is rendering")
     useEffect(() => {
         if (ui.ready && interfaceSettings.current?.settings?.extracontents) {
             //console.log("ElementsCache can now be created")
             const isEnabled  = useUiContextFn.getValue("showextracontents")
             if (!isEnabled) {
-                console.log("ExtraContent are disabled")
+               // console.log("ExtraContent are disabled")
                 return
             }
             const isVisibleOnStart = useUiContextFn.getValue("openextrapanelsonstart")

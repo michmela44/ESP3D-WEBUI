@@ -84,12 +84,17 @@ const ExtraContentItem = ({
     }, [id])
 
     const loadContent = useCallback(() => {
+        
         if (target=="page"){
-            console.log("Loading content for page " + id)
-            console.log(useUiContextFn.panels.isVisible(elementsCache.getRootfromId(id)))
+            //console.log("Loading content for page " + id)
+            //console.log(useUiContextFn.panels.isVisible(elementsCache.getRootfromId(id)))
         }
 
-        if (isPaused || !visibilityState[id] ||  (target=="panel" && !useUiContextFn.panels.isVisible(elementsCache.getRootfromId(id)))) return
+        if (isPaused || !visibilityState[id] ||  (target=="panel" && !useUiContextFn.panels.isVisible(elementsCache.getRootfromId(id)))) {
+           // console.log("Not loading content for " + id + " because it is paused or not visible")
+            return
+        }
+        //console.log("Loading content for " + id)
         setIsLoading(true)
         if (source.startsWith("http")) {
             setContentUrl(source)
@@ -117,16 +122,16 @@ const ExtraContentItem = ({
         const listenerId = `listener_${id}`;
         const handleUpdateState = (msg) => {
             if (msg.id == id) { 
-                console.log(`Received message for ${id} with listener ${listenerId}`, msg);
+                //console.log(`Received message for ${id} with listener ${listenerId}`, msg);
                 const element = document.getElementById(id)
                 if ( 'forceRefresh' in msg && msg.forceRefresh) {
-                    console.log(`Processing forceRefresh for ${id}`);
+                    //console.log(`Processing forceRefresh for ${id}`);
                     loadContent()
                 }
                 if ('isVisible' in msg) {
                     
                     if (element) {
-                        console.log("Updating visibility for element " + id + " to " + msg.isVisible)
+                        //console.log("Updating visibility for element " + id + " to " + msg.isVisible)
                         element.style.display = msg.isVisible ? 'block' : 'none';
                         //is it the same as the current state?
                         if (visibilityState[id]!= msg.isVisible){
@@ -152,8 +157,8 @@ const ExtraContentItem = ({
 
                 }
                 if ('position' in msg) {
-                    console.log("Updating position for element " + id )
-                    console.log(msg.position)
+                    //console.log("Updating position for element " + id )
+                    //console.log(msg.position)
                     const element = document.getElementById(id)
                     element.style.top = `${msg.position.top}px`;
                     element.style.left = `${msg.position.left}px`;
@@ -164,18 +169,24 @@ const ExtraContentItem = ({
         }
         eventBus.on("updateState", handleUpdateState, listenerId)
         return () => {
-            console.log(`Removing listener ${listenerId} for ${id}`);
+            //console.log(`Removing listener ${listenerId} for ${id}`);
             //eventBus.off("updateState", handleUpdateState, listenerId)
         }
     }, [id, loadContent])
 
     useEffect(() => {
+        console.log("Updating refresh interval for " + id)
         if (refreshtime > 0 && (type === "camera" || type === "image") && visibilityState[id] && !isPaused) {
-            refreshIntervalRef.current = setInterval(loadContent, refreshtime)
+            if (!refreshIntervalRef.current){
+                console.log("Starting refresh interval for " + id+ " with refreshtime " + refreshtime)
+                refreshIntervalRef.current = setInterval(loadContent, refreshtime)
+            }
         }
         return () => {
             if (refreshIntervalRef.current) {
+                console.log("Stopping refresh interval for " + id)
                 clearInterval(refreshIntervalRef.current)
+                refreshIntervalRef.current = null
             }
         }
     }, [refreshtime, type, isPaused, loadContent])
