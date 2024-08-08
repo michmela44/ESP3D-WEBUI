@@ -19,10 +19,7 @@ body {
     height: 100vh;
 }
 
-.menu-container,
-.information-container {
-    flex: 0 1 auto;
-}
+
 
 .flex-row-between {
     display: flex;
@@ -44,22 +41,10 @@ body {
     }
 }
 
-.toasts-container {
-    position: fixed;
-    z-index: 1000;
-    right: 0.5rem;
-    top: 0.5rem;
 
-    > .toast {
-        margin: 0.2rem 0;
-    }
-}
-:fullscreen .toasts-container{
-    top: 1.2rem;
-}
 
 .footer-container {
-    height: 3rem;
+    height: 1rem;
 }
 
 .no-box {
@@ -109,3 +94,10 @@ body {
 .modal-container {
     max-height: 95vh;
 }
+
+.page_extra {
+    height: 100%;
+    display: flex;
+    flex-direction: column; 
+}
+

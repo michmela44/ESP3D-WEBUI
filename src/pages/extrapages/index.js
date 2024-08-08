@@ -18,11 +18,12 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { h } from "preact"
-import ExtraContent from "../../components/ExtraContent"
+import {ExtraContent} from "../../components/ExtraContent"
 
 const ExtraPage = ({ id, source, refreshtime, label, type }) => {
     return (
         <ExtraContent
+            key={id}
             id={id}
             label={label}
             source={source}

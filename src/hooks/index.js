@@ -1,7 +1,7 @@
 /*
  index.js - ESP3D WebUI hooks file
 
- Copyright (c) 2020 Luc Lebosse. All rights reserved.
+ Copyright (c) 2020~2024 Luc Lebosse. All rights reserved.
 
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -21,4 +21,4 @@ import { h } from "preact"
 import { useHttpQueue, useHttpFn } from "./useHttpQueue"
 import { useSettings } from "./useSettings"
 
-export { useHttpQueue, useSettings, useHttpFn }
+export { useHttpQueue, useSettings, useHttpFn}

@@ -17,7 +17,7 @@ Files.js - ESP3D WebUI component file
 */
 
 import { h } from "preact"
-import ExtraContent from "../ExtraContent"
+import {ExtraContent} from "../ExtraContent"
 
 /*
  * Local const
@@ -26,6 +26,7 @@ import ExtraContent from "../ExtraContent"
 const ExtraPanel = ({ id, source, refreshtime, label, type, icon }) => {
     return (
         <ExtraContent
+            key={id}
             label={label}
             icon={icon}
             id={id}
@@ -43,6 +44,7 @@ const ExtraPanelElement = (element, id) => {
         id,
         content: (
             <ExtraPanel
+                key={id}
                 label={element.name}
                 icon={element.icon}
                 id={id}
