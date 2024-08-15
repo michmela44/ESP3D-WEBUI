@@ -175,8 +175,8 @@ const ExtraContentItem = ({
     }, [id, loadContent])
 
     useEffect(() => {
-        console.log("Updating refresh interval for " + id)
         if (refreshtime > 0 && (type === "camera" || type === "image") && visibilityState[id] && !isPaused) {
+            console.log("Updating refresh interval for " + id)
             if (!refreshIntervalRef.current){
                 console.log("Starting refresh interval for " + id+ " with refreshtime " + refreshtime)
                 refreshIntervalRef.current = setInterval(loadContent, refreshtime)
@@ -207,6 +207,10 @@ const ExtraContentItem = ({
            
             const doc = iframeElement.contentWindow.document
             const body = doc.querySelector("body")
+            if (!body){
+                console.error("body not found")
+                return
+            } 
             body.classList.add("body-extension")
             const css = document.querySelectorAll("style")
             css.forEach((csstag) => {

@@ -142,8 +142,7 @@ const StatusControls = () => {
                             </div>
                         )}
                         {status.printState.printing &&
-                            status.printState.progress !=
-                                "NaN"(
+                            status.printState.progress != "NaN" && (
                                     <Fragment>
                                         <div class="extra-control-value">
                                             {status.printState.progress}%
