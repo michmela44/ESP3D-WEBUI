@@ -1,6 +1,6 @@
 {
   "name": "gcodeViewer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ESP3D-WEBUI extension",
   "main": "gcodeViewer.html",
   "scripts": {

@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    const gcodeViewer_version = "1.0.0"
+    const gcodeViewer_version = "1.0.1"
     // The code use batch processing to avoid memory overflow
     // The code use async/await to avoid blocking the UI due to some long process
     // The code is standalone does not need any external library like Three.js or similar to limit the size of the code
@@ -3061,43 +3061,11 @@
     // Resize the canvas
     function resizeCanvas() {
         stopAnimation()
-        const canvas = document.getElementById("glCanvas")
-        const controls = document.getElementById("controls")
-        const container = document.getElementById("extensionUI-container")
-
-        // Get the window dimensions
-        const windowWidth = window.innerWidth
-        const windowHeight = window.innerHeight
-
-        // Define the maximum canvas size (90% of the smallest window dimension)
-        const maxCanvasSize = Math.min(windowWidth, windowHeight) - 40 // 5px for left/right margins
-
-        // Define the minimum size for the controls (adjust as needed)
-        const minControlsSize = 200
-
-        let canvasSize, controlsWidth, controlsHeight
-
-        if (windowWidth > windowHeight) {
-            // Mode landscape
-            canvasSize = Math.min(maxCanvasSize, windowHeight - 40)
-            controlsHeight = canvasSize
-            container.style.flexDirection = "row"
-        } else {
-            // Mode portrait
-            canvasSize = Math.min(maxCanvasSize, windowWidth - 40)
-            controlsWidth = canvasSize
-            controlsHeight = Math.max(
-                minControlsSize,
-                windowHeight - canvasSize
-            )
-            container.style.flexDirection = "column"
-        }
-
-        // Apply the new dimensions
-        canvas.width = canvas.height = canvasSize
-        console.log("Canvas w x h", canvas.width, canvas.height)
-        controls.style.width = `${controlsWidth}px`
-        controls.style.height = `${controlsHeight}px`
+        const container = document.querySelector('.canvas-container');
+        const canvas = document.getElementById('glCanvas');
+        console.log(container.clientWidth, "X", container.clientHeight)
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight
         //draw the scene
         drawScene()
     }
@@ -3451,7 +3419,7 @@
         let computeGrid = false
         if (invertXY != currentSettings.invertXY) {
             invertXY = currentSettings.invertXY
-            computeGrid=true;
+            computeGrid = true;
             redraw = true;
             if (gcodePoints.length > 0) {
                 computeObject = true;
@@ -3470,7 +3438,7 @@
             redraw = true
         }
         if (currentSettings.controlRendering != controlRendering) {
-            controlRendering = currentSettings.controlRendering ;
+            controlRendering = currentSettings.controlRendering;
             redraw = true
         }
         isSmartZoomEnabled = currentSettings.enableSmartZoom
@@ -3730,25 +3698,51 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: hidden;
     }
 
-    #extensionUI-container {
+    .gcodeviewer_extension_container {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
         width: 100%;
         height: 100%;
-
         box-sizing: border-box;
     }
 
+    .gcodeviewer_rendering {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
     #glCanvas {
-        margin: 0px;
-        padding: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         border: 1px solid rgb(215, 215, 215);
-        max-width: 100%;
-        max-height: calc(100% - 50px);
+    }
+
+    .gcodeviewer-top-bar {
+        width: 100%;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .gcodeviewer_controls {
+        width: 250px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .canvas-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
     }
 
     #progressBar {
@@ -3758,12 +3752,9 @@
         text-align: center;
         line-height: 30px;
         color: white;
-        margin: 5px;
+        margin: 5px 0;
     }
 
-    #controls {
-        min-height: 2rem;
-    }
 
     .loader-container {
         position: absolute;
@@ -3777,12 +3768,36 @@
         background-color: rgba(255, 255, 255, 0.8);
         z-index: 1000;
     }
+
+    @media (max-aspect-ratio: 1/1) {
+        .gcodeviewer_extension_container {
+            flex-direction: column;
+        }
+
+        .gcodeviewer_controls {
+            width: 100%;
+            height: auto;
+            max-height: 30%;
+        }
+    }
+
+    /* Pour les écrans où la largeur est plus grande que la hauteur */
+    @media (min-aspect-ratio: 1/1) {
+        .gcodeviewer_extension_container {
+            flex-direction: row;
+        }
+
+        .gcodeviewer_controls {
+            height: 100%;
+            max-width: 30%;
+        }
+    }
 </style>
-<div id="extensionUI-container" lass="flex-row-between">
-    <div id="loaderContainer" class="loader-container">
-        <div class="loading loading-lg"></div>
-    </div>
-    <div class="flex-cols">
+<div id="extensionUI-container" class="gcodeviewer_extension_container">
+    <div class="gcodeviewer_rendering">
+        <div id="loaderContainer" class="loader-container">
+            <div class="loading loading-lg"></div>
+        </div>
         <div class="flex-row-between" style="width: 100%; padding-right: 10px">
             <div class="dropdown">
                 <span class="dropdown-toggle btn m-1" tabindex="0" id="drop-btn" style="z-index: 10000"></span>
@@ -3825,9 +3840,11 @@
             </div>
             <div class="text-primary mt-2" id="fileName"></div>
         </div>
-    <canvas id="glCanvas" width="400" height="400"></canvas>
+        <div class="canvas-container">
+            <canvas id="glCanvas"></canvas>
+        </div>
     </div>
-    <div id="controls" class="flex-cols" style="overflow-y: auto">
+    <div id="controls" class="gcodeviewer_controls">
         <div style="align-self: stretch">
             <div id="progressBar">0%</div>
         </div>
