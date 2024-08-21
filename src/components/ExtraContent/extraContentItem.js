@@ -103,8 +103,12 @@ const ExtraContentItem = ({
             isLoadedState[id] = true;
         } else {
             const idquery = type === "content" ? type + id : "download" + id
+            let url = source
+            if (url.endsWith(".gz")) {
+                url = url.substring(0, url.length - 3)
+            }
             createNewRequest(
-                espHttpURL(source),
+                espHttpURL(url),
                 { method: "GET", id: idquery, max: 2 },
                 {
                     onSuccess: handleContentSuccess,
