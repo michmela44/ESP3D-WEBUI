@@ -28,7 +28,7 @@ import {
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
-import { espHttpURL, replaceVariables, settingsDepend } from "../Helpers"
+import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
 
 /*
  * Local const
@@ -47,7 +47,7 @@ const spindleSpeedValue = {}
 
 const SpindleControls = () => {
     const { states } = useTargetContext()
-    const { interfaceSettings } = useSettingsContext()
+    const { interfaceSettings, connectionSettings } = useSettingsContext()
     //Add callback to reset event
     eventsList.on("reset", onReset)
     if (!useUiContextFn.getValue("showspindlepanel")) return null
@@ -72,9 +72,10 @@ const SpindleControls = () => {
                             if (states[element.id]) {
                                 if (element.depend) {
                                     if (
-                                        !settingsDepend(
+                                        !checkDependencies(
                                             element.depend,
-                                            interfaceSettings.current.settings
+                                            interfaceSettings.current.settings,
+                                            connectionSettings.current
                                         )
                                     )
                                         return null
@@ -103,11 +104,10 @@ const SpindleControls = () => {
 
 const SpindlePanel = () => {
     const { toasts } = useUiContext()
-    const { interfaceSettings } = useSettingsContext()
+    const { interfaceSettings, connectionSettings } = useSettingsContext()
     const { status, states } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const id = "SpindlePanel"
-    const panelRef = useRef(null)
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
     }
@@ -248,7 +248,7 @@ const SpindlePanel = () => {
     }
 
     return (
-        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+        <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
@@ -258,12 +258,10 @@ const SpindlePanel = () => {
                 <span class="navbar-section">
                     <span class="full-height">
                         <FullScreenButton
-                            panelRef={panelRef}
-                            hideOnFullScreen={true}
+                            elementId={id}
                         />
                         <CloseButton
-                            panelRef={panelRef}
-                            panelId={id}
+                            elementId={id}
                             hideOnFullScreen={true}
                         />
                     </span>
@@ -274,9 +272,10 @@ const SpindlePanel = () => {
                 {buttons_list.map((item) => {
                     if (item.depend) {
                         if (
-                            !settingsDepend(
+                            !checkDependencies(
                                 item.depend,
-                                interfaceSettings.current.settings
+                                interfaceSettings.current.settings,
+                                connectionSettings.current
                             )
                         )
                             return null
@@ -284,9 +283,10 @@ const SpindlePanel = () => {
                     const content = item.buttons.map((button, index) => {
                         if (button.depend) {
                             if (
-                                !settingsDepend(
+                                !checkDependencies(
                                     button.depend,
-                                    interfaceSettings.current.settings
+                                    interfaceSettings.current.settings,
+                                    connectionSettings.current
                                 )
                             )
                                 return null

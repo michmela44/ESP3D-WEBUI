@@ -1,0 +1,3875 @@
+<script type="text/javascript">
+    const gcodeViewer_version = "1.0.1"
+    // The code use batch processing to avoid memory overflow
+    // The code use async/await to avoid blocking the UI due to some long process
+    // The code is standalone does not need any external library like Three.js or similar to limit the size of the code
+
+    // Configuration WebGL
+    let gl
+    const programGridInfo = {}
+    const programGCodeInfo = {}
+    let mvMatrix = createIdentityMatrix()
+    let pMatrix = createIdentityMatrix()
+
+    // Animation
+    let animationFrameId = null
+    let autoRotationSpeed = 0.0001 //Rotation speed in radians per frame
+    let lastFrameTime = 0
+
+    // GCode file
+    let gcodePoints = []
+    let visiblePoints = []
+    let fileReader = new FileReader()
+    let chunkSize = 8192 // 8KB
+    let fileOffset = 0
+    let file
+    let totalFileSize = 0
+    let processedSize = 0
+
+    // GCode data
+    let lastPosition = { x: 0, y: 0, z: 0, e: 0 }
+    let gcodeMinX = Infinity,
+        gcodeMaxX = -Infinity
+    let gcodeMinY = Infinity,
+        gcodeMaxY = -Infinity
+    let gcodeMinZ = Infinity,
+        gcodeMaxZ = -Infinity
+    let gcode_vertices = []
+    let gcode_colors = []
+    let gcode_normals = []
+    let layers = new Set()
+    let currentLayer = -1
+    let lastSignificantZ = -Infinity
+    const lineWidths = {
+        extrude: 0.4,
+        move: 0.1,
+        retract: 0.1,
+    }
+    const MAX_VERTICES = 1000000
+    let isFileProcessing = false
+    let isComputing = false
+    let lastLayerZ = null
+    let layerHeightSum = 0
+    let layerCount = 0
+    let printStarted = false
+    const firstLayerMaxHeight = 1.0
+    const minLayerHeight = 0.05
+    let currentZoom = 1
+    let averageLayerHeight = 0
+    let verticesPerLayer
+
+    // UI state
+    let showTravels = false
+    let startLayer = 0
+    let endLayer = Infinity
+    let invertXY = false
+    let invertFrontBack = false
+    let isSmartZoomEnabled = false
+    let isWheelInverted = false
+
+    // Grid
+    let gridSide = 200
+    const gridStep = 10
+
+    // Camera
+    let scaleFactor = 1
+    const initialCameraDistance = 500
+    const minZoom = 0.1
+    const maxZoom = 15
+    const LAYER_OPTIMIZATION_THRESHOLD = 200
+    let rotation = [0, 0]
+    let rotationCenter = [gridSide / 2, gridSide / 2, gridSide / 2]
+    let cameraPosition = [0, 0, initialCameraDistance]
+    let upVector = [0, 1, 0]
+    let totalRotation = [0, 0]
+    let currentCameraDistance = initialCameraDistance
+
+    // Mouse
+    let controlRendering = true
+    let mouseDown = false
+    let lastMouseX = 0
+    let lastMouseY = 0
+    let isPanning = false
+    let startPanX, startPanY
+    let lastPinchDistance = 0
+
+    // Matrix functions
+    // Function to calculate the cross product of two vectors
+    function vec3_cross(a, b) {
+        return [
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+        ]
+    }
+
+    // Function to normalize a vector
+    function vec3_normalize(v) {
+        let length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+        return [v[0] / length, v[1] / length, v[2] / length]
+    }
+
+    // Function to create a rotation matrix
+    function createRotationMatrix(angle, axis) {
+        let c = Math.cos(angle)
+        let s = Math.sin(angle)
+        let t = 1 - c
+        let [x, y, z] = axis
+        let tx = t * x,
+            ty = t * y
+
+        return [
+            tx * x + c,
+            tx * y - s * z,
+            tx * z + s * y,
+            0,
+            tx * y + s * z,
+            ty * y + c,
+            ty * z - s * x,
+            0,
+            tx * z - s * y,
+            ty * z + s * x,
+            t * z * z + c,
+            0,
+            0,
+            0,
+            0,
+            1,
+        ]
+    }
+
+    // Function to create a translation matrix
+    function createTranslationMatrix(tx, ty, tz) {
+        return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1]
+    }
+
+    //Create a 4x4 identity matrix
+    function createIdentityMatrix() {
+        return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    }
+
+    // Function to multiply two matrices together
+    function multiplyMatrices(a, b) {
+        let result = createIdentityMatrix()
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                result[i * 4 + j] =
+                    a[i * 4 + 0] * b[0 * 4 + j] +
+                    a[i * 4 + 1] * b[1 * 4 + j] +
+                    a[i * 4 + 2] * b[2 * 4 + j] +
+                    a[i * 4 + 3] * b[3 * 4 + j]
+            }
+        }
+        return result
+    }
+
+    // Function to create a perspective matrix
+    function perspectiveMatrix(fieldOfViewInRadians, aspect, near, far) {
+        let f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians)
+        let rangeInv = 1.0 / (near - far)
+
+        return [
+            f / aspect,
+            0,
+            0,
+            0,
+            0,
+            f,
+            0,
+            0,
+            0,
+            0,
+            (near + far) * rangeInv,
+            -1,
+            0,
+            0,
+            near * far * rangeInv * 2,
+            0,
+        ]
+    }
+
+    // Function to invert a matrix
+    function invertMatrix(m) {
+        let inv = new Array(16)
+        let det
+
+        inv[0] =
+            m[5] * m[10] * m[15] -
+            m[5] * m[11] * m[14] -
+            m[9] * m[6] * m[15] +
+            m[9] * m[7] * m[14] +
+            m[13] * m[6] * m[11] -
+            m[13] * m[7] * m[10]
+        inv[4] =
+            -m[4] * m[10] * m[15] +
+            m[4] * m[11] * m[14] +
+            m[8] * m[6] * m[15] -
+            m[8] * m[7] * m[14] -
+            m[12] * m[6] * m[11] +
+            m[12] * m[7] * m[10]
+        inv[8] =
+            m[4] * m[9] * m[15] -
+            m[4] * m[11] * m[13] -
+            m[8] * m[5] * m[15] +
+            m[8] * m[7] * m[13] +
+            m[12] * m[5] * m[11] -
+            m[12] * m[7] * m[9]
+        inv[12] =
+            -m[4] * m[9] * m[14] +
+            m[4] * m[10] * m[13] +
+            m[8] * m[5] * m[14] -
+            m[8] * m[6] * m[13] -
+            m[12] * m[5] * m[10] +
+            m[12] * m[6] * m[9]
+
+        det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12]
+
+        if (det == 0) return false
+
+        det = 1.0 / det
+
+        for (let i = 0; i < 16; i++) inv[i] *= det
+
+        return inv
+    }
+
+    // Function to multiply a matrix and a point
+    function multiplyMatrixAndPoint(matrix, point) {
+        const result = new Array(4)
+        for (let i = 0; i < 4; i++) {
+            result[i] = 0
+            for (let j = 0; j < 4; j++) {
+                result[i] += matrix[i * 4 + j] * point[j]
+            }
+        }
+        return result
+    }
+
+    // View functions
+    const viewMatrices = {
+        front: {
+            normal: applyZoomToView(
+                [
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+            inverted: applyZoomToView(
+                [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    -initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+        },
+        back: {
+            normal: applyZoomToView(
+                [
+                    0,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+            inverted: applyZoomToView(
+                [
+                    -1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+        },
+        right: {
+            normal: applyZoomToView(
+                [
+                    -1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    initialCameraDistance,
+                    0,
+                    0,
+                    1,
+                ],
+                1
+            ),
+            inverted: applyZoomToView(
+                [
+                    0,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+        },
+        left: {
+            normal: applyZoomToView(
+                [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -initialCameraDistance,
+                    0,
+                    0,
+                    1,
+                ],
+                1
+            ),
+            inverted: applyZoomToView(
+                [
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+        },
+        bottom: {
+            normal: applyZoomToView(
+                [
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+            inverted: applyZoomToView(
+                [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    initialCameraDistance,
+                    0,
+                    1,
+                ],
+                1
+            ),
+        },
+        top: {
+            normal: applyZoomToView(
+                [
+                    0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -initialCameraDistance,
+                    1,
+                ],
+                1
+            ),
+            inverted: applyZoomToView(
+                [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    -initialCameraDistance,
+                    0,
+                    1,
+                ],
+                1
+            ),
+        },
+    }
+
+    // Function to apply zoom to a view matrix
+    function applyZoomToView(viewMatrix, zoomFactor) {
+        let zoomedMatrix = viewMatrix.slice()
+
+        // Extract the position of the camera
+        let cameraX = zoomedMatrix[12]
+        let cameraY = zoomedMatrix[13]
+        let cameraZ = zoomedMatrix[14]
+
+        // Calculate the center of the scene
+        let centerX = gridSide / 2
+        let centerY = gridSide / 2
+        let centerZ = gridSide / 2
+
+        // Apply the zoom to the scale/rotation part of the matrix
+        for (let i = 0; i < 12; i++) {
+            zoomedMatrix[i] *= zoomFactor
+        }
+
+        // Adjust the translation to zoom towards/from the center of the scene
+        zoomedMatrix[12] = centerX + (cameraX - centerX) * zoomFactor
+        zoomedMatrix[13] = centerY + (cameraY - centerY) * zoomFactor
+        zoomedMatrix[14] = centerZ + (cameraZ - centerZ) * zoomFactor
+
+        return zoomedMatrix
+    }
+
+    // Function to set the current view
+    function setView(viewName) {
+        currentCameraDistance = initialCameraDistance
+        currentZoom = 1
+        scaleFactor = 1
+
+        let view_name = viewName.toLowerCase()
+        if (invertFrontBack) {
+            switch (view_name) {
+                case "front":
+                    view_name = "back"
+                    break
+                case "back":
+                    view_name = "front"
+                    break
+                case "right":
+                    view_name = "left"
+                    break
+                case "left":
+                    view_name = "right"
+                    break
+                default:
+                    break
+            }
+        }
+
+        mvMatrix =
+            viewMatrices[view_name][invertXY ? "inverted" : "normal"].slice()
+        totalRotation = [0, 0]
+
+        // Center the grid for all views
+        let centerTranslation = createTranslationMatrix(
+            -gridSide / 2,
+            -gridSide / 2,
+            -gridSide / 2
+        )
+        mvMatrix = multiplyMatrices(mvMatrix, centerTranslation)
+
+        // Adjust the position of the camera according to the view
+        if (invertXY) {
+            switch (view_name) {
+                case "back":
+                    mvMatrix[14] = -currentCameraDistance + gridSide
+                    mvMatrix[12] += gridSide
+                    break
+                case "left":
+                    mvMatrix[14] = -currentCameraDistance
+                    mvMatrix[12] += gridSide
+                    break
+                case "right":
+                    mvMatrix[14] = -currentCameraDistance + gridSide
+                    break
+                case "top":
+                    mvMatrix[13] = gridSide / 2
+                    mvMatrix[14] = -currentCameraDistance
+                    break
+                case "bottom":
+                    mvMatrix[13] = -gridSide / 2
+                    mvMatrix[14] = -currentCameraDistance + gridSide
+                    break
+                default: // 'front' and other views
+                    mvMatrix[14] = -currentCameraDistance
+            }
+        } else {
+            switch (view_name) {
+                case "back":
+                    mvMatrix[14] = -currentCameraDistance + gridSide
+                    break
+                case "left":
+                    mvMatrix[12] = -gridSide / 2
+                    mvMatrix[14] = -currentCameraDistance
+                    break
+                case "right":
+                    mvMatrix[12] = gridSide / 2
+                    mvMatrix[14] = -currentCameraDistance + gridSide
+                    break
+                case "top":
+                    mvMatrix[12] = gridSide / 2
+                    mvMatrix[13] = gridSide / 2
+                    mvMatrix[14] = -currentCameraDistance
+                    break
+                case "bottom":
+                    mvMatrix[12] = gridSide / 2
+                    mvMatrix[13] = -gridSide / 2
+                    mvMatrix[14] = -currentCameraDistance + gridSide
+                    break
+                default: // 'front' and other views
+                    mvMatrix[12] = gridSide / 2
+                    mvMatrix[14] = -currentCameraDistance
+            }
+        }
+
+        cameraPosition = [mvMatrix[12], mvMatrix[13], mvMatrix[14]]
+        upVector = [mvMatrix[1], mvMatrix[5], mvMatrix[9]]
+        currentCameraDistance = Math.sqrt(
+            cameraPosition[0] * cameraPosition[0] +
+            cameraPosition[1] * cameraPosition[1] +
+            cameraPosition[2] * cameraPosition[2]
+        )
+    }
+
+    //Sanity check functions
+
+    //Buffer bind verification
+    function checkBufferStatus(buffer, name, type = gl.ARRAY_BUFFER_BINDING) {
+        if (!buffer) {
+            console.error(`Buffer ${name} does not exist`)
+            return false
+        }
+        if (checkGLError()) {
+            return false
+        }
+        if (gl.getParameter(type) != buffer) {
+            console.error(`Buffer ${name} is not bound`)
+            return false
+        }
+        return true
+    }
+
+    //GL error checking
+    function checkGLError(name = null) {
+        const error = gl.getError()
+        if (error !== gl.NO_ERROR) {
+            console.error(`Error in WebGL ${name ? name : ""}:`, error)
+            return true
+        }
+        return false
+    }
+
+    //Check WebGL status
+    function checkglStatus() {
+        if (!gl) {
+            console.error("WebGL is not initialized")
+            return false
+        }
+        if (gl.isContextLost()) {
+            console.error("WebGL context is lost")
+            gl = initWebGL(canvas)
+            if (gl.isContextLost()) {
+                return false
+            }
+            console.log("WebGL context is recovered")
+        }
+        if (checkGLError()) {
+            return false
+        }
+        return true
+    }
+
+    //Check shader program validity
+    function checkProgramStatus(program, name) {
+        if (!program) {
+            console.error("Shader program ${name} is null")
+            return false
+        }
+        gl.validateProgram(program)
+        if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
+            console.error(
+                "Validation error for shader program:",
+                gl.getProgramInfoLog(program)
+            )
+            return false
+        }
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error(
+                "Shader program ${name} failed to link:",
+                gl.getProgramInfoLog(program)
+            )
+            return false
+        }
+        return true
+    }
+    // check attribute location
+    function checkAttribut(attribId, name) {
+        if (attribId === -1) {
+            console.error("Impossible to locate the attribute ", name)
+            return false
+        }
+        return true
+    }
+    // check uniform location
+    function checkUniform(uniformId, name) {
+        if (!uniformId || uniformId === -1) {
+            console.error("Impossible to locate the uniform ", name)
+            return false
+        }
+        return true
+    }
+    // check shader compilation
+    function checkShader(shader, name) {
+        if (!shader) {
+            console.error(`Shader ${name} is null`)
+            return false
+        }
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error(
+                `Error compiling shader ${name}:`,
+                gl.getShaderInfoLog(shader)
+            )
+            gl.deleteShader(shader)
+            return false
+        }
+        return true
+    }
+
+    // Helper function to enable attributes for a specific program
+    function enableAttributes(programInfo) {
+        if (programInfo.attribLocations) {
+            Object.values(programInfo.attribLocations).forEach(
+                (attribLocation) => {
+                    gl.enableVertexAttribArray(attribLocation)
+                }
+            )
+        }
+    }
+
+    // Helper function to disable attributes for a specific program
+    function disableAttributes(programInfo) {
+        if (programInfo.attribLocations) {
+            Object.values(programInfo.attribLocations).forEach(
+                (attribLocation) => {
+                    gl.disableVertexAttribArray(attribLocation)
+                }
+            )
+        }
+    }
+
+    // Helper function to use a specific program and set up its attributes
+    function useProgram(programInfo, otherProgramInfo) {
+        gl.useProgram(programInfo.program)
+        disableAttributes(otherProgramInfo)
+        enableAttributes(programInfo)
+    }
+
+    // Initialisation functions
+
+    // initialize the camera
+    function initCamera() {
+        cameraPosition = [0, 0, initialCameraDistance]
+        upVector = [0, 1, 0]
+        totalRotation = [0, 0]
+    }
+
+    // initialize WebGL
+    function initWebGL(canvas) {
+        gl = canvas.getContext("webgl")
+        if (!gl) {
+            alert(
+                "Failed to initialize WebGL. Your browser may not support this feature."
+            )
+            return
+        }
+
+        gl.clearColor(1.0, 1.0, 1.0, 1.0)
+        gl.enable(gl.DEPTH_TEST)
+    }
+
+    // Debounce function to avoid multiple calls to the same function
+    function debounce(func, wait) {
+        let timeout
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout)
+                func(...args)
+            }
+            clearTimeout(timeout)
+            timeout = setTimeout(later, wait)
+        }
+    }
+
+    // Async function to update points and redraw
+    async function updatePointsAndRedraw() {
+        try {
+            await updateVisiblePoints(true)
+            drawScene()
+        } catch (error) {
+            console.error("Error updating visible points:", error)
+        }
+    }
+
+    // Create a debounced function to update points and redraw
+    const debouncedUpdateAndRedraw = debounce(updatePointsAndRedraw, 250)
+
+    //Shaders functions
+
+    //Shader loading function
+    function getShader(gl, id) {
+        const shaderScript = document.getElementById(id)
+        if (!shaderScript) {
+            console.error(`Shader script not found: ${id}`)
+            return null
+        }
+
+        const sourcerStr = shaderScript.textContent.trim()
+        if (!sourcerStr) {
+            console.error(`Shader content is empty: ${id}`)
+            return null
+        }
+
+        let shader
+        if (shaderScript.type === "x-shader/x-vertex") {
+            shader = gl.createShader(gl.VERTEX_SHADER)
+        } else if (shaderScript.type === "x-shader/x-fragment") {
+            shader = gl.createShader(gl.FRAGMENT_SHADER)
+        } else {
+            console.error(`Type de shader inconnu: ${shaderScript.type}`)
+            return null
+        }
+
+        gl.shaderSource(shader, sourcerStr)
+        gl.compileShader(shader)
+
+        if (!checkShader(shader, id)) {
+            return null
+        }
+        return shader
+    }
+
+    //Shader program creation function
+    function createShaderProgram(
+        vertexShader,
+        fragmentShader,
+        name,
+        attributNames
+    ) {
+        if (
+            !checkShader(vertexShader, `${name} vertex shader`) ||
+            !checkShader(fragmentShader, `${name} fragment shader`)
+        ) {
+            return null
+        }
+        const shaderProgram = gl.createProgram()
+        gl.attachShader(shaderProgram, vertexShader)
+        gl.attachShader(shaderProgram, fragmentShader)
+
+        // Bind attributes
+        attributNames.forEach((name, index) => {
+            gl.bindAttribLocation(shaderProgram, index, name)
+        })
+
+        gl.linkProgram(shaderProgram)
+
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            console.error(
+                `Unable to initialize the shader program ${name}:`,
+                gl.getProgramInfoLog(shaderProgram)
+            )
+            return null
+        }
+        return shaderProgram
+    }
+
+    // Create all shaders
+    function createShaders() {
+        if (!createGridShader()) {
+            console.error("Impossible to create the grid shader")
+            return false
+        }
+        if (!createGCodeShader()) {
+            console.error("Impossible to create the gcode shader")
+            return false
+        }
+        return true
+    }
+
+    // Create the grid shader
+    function createGridShader() {
+        //Disable attributes of the gcode program
+        disableAttributes(programGCodeInfo)
+        //load shaders sources
+        const vertexShader = getShader(gl, "grid-vertex-shader")
+        if (!vertexShader) return false
+
+        const fragmentShader = getShader(gl, "fragment-shader-grid")
+        if (!fragmentShader) return false
+
+        //create shader program
+        programGridInfo.program = createShaderProgram(
+            vertexShader,
+            fragmentShader,
+            "programGrid",
+            ["grid_aVertexPosition", "grid_aVertexColor", "grid_aVertexNormal"]
+        )
+        if (!checkProgramStatus(programGridInfo.program, "programGrid")) {
+            return false
+        }
+
+        programGridInfo.attribLocations = {}
+        //get attributes locations
+        //vertex position
+        programGridInfo.attribLocations.vertexPosition = gl.getAttribLocation(
+            programGridInfo.program,
+            "grid_aVertexPosition"
+        )
+        if (
+            !checkAttribut(
+                programGridInfo.attribLocations.vertexPosition,
+                "grid_aVertexPosition"
+            )
+        ) {
+            return false
+        }
+
+        //vertex color
+        programGridInfo.attribLocations.vertexColor = gl.getAttribLocation(
+            programGridInfo.program,
+            "grid_aVertexColor"
+        )
+        if (
+            !checkAttribut(
+                programGridInfo.attribLocations.vertexColor,
+                "grid_aVertexColor"
+            )
+        ) {
+            return false
+        }
+        //Uniforms
+        programGridInfo.uniformLocations = {}
+        programGridInfo.uniformLocations.pMatrix = gl.getUniformLocation(
+            programGridInfo.program,
+            "grid_uPMatrix"
+        )
+        if (
+            !checkUniform(
+                programGridInfo.uniformLocations.pMatrix,
+                "grid_uPMatrix"
+            )
+        ) {
+            return false
+        }
+
+        programGridInfo.uniformLocations.mvMatrix = gl.getUniformLocation(
+            programGridInfo.program,
+            "grid_uMVMatrix"
+        )
+        if (
+            !checkUniform(
+                programGridInfo.uniformLocations.mvMatrix,
+                "grid_uMVMatrix"
+            )
+        ) {
+            return false
+        }
+        return true
+    }
+
+    // Create the gcode shader
+    function createGCodeShader() {
+        //Disable attributes of the grid program
+        disableAttributes(programGridInfo)
+
+        //load shaders sources
+        const vertexShader = getShader(gl, "gcode-vertex-shader")
+        if (!vertexShader) {
+            console.error("Failed to get vertex shader")
+            return false
+        }
+
+        const fragmentShader = getShader(gl, "fragment-shader-gcode")
+        if (!fragmentShader) {
+            console.error("Failed to get fragment shader")
+            return false
+        }
+
+        //create shader program
+        const program = createShaderProgram(
+            vertexShader,
+            fragmentShader,
+            "programGCode",
+            [
+                "gcode_aVertexPosition",
+                "gcode_aVertexColor",
+                "gcode_aVertexNormal",
+            ]
+        )
+        if (!program) {
+            console.error("Failed to create shader program")
+            return false
+        }
+
+        if (!checkProgramStatus(program, "programGCode")) {
+            return false
+        }
+
+        programGCodeInfo.program = program
+
+        programGCodeInfo.attribLocations = {}
+        //get attributes locations
+        programGCodeInfo.attribLocations = {
+            vertexPosition: gl.getAttribLocation(
+                program,
+                "gcode_aVertexPosition"
+            ),
+            vertexNormal: gl.getAttribLocation(program, "gcode_aVertexNormal"),
+            vertexColor: gl.getAttribLocation(program, "gcode_aVertexColor"),
+        }
+
+        programGCodeInfo.uniformLocations = {
+            pMatrix: gl.getUniformLocation(program, "gcode_uPMatrix"),
+            mvMatrix: gl.getUniformLocation(program, "gcode_uMVMatrix"),
+            lightPosition: gl.getUniformLocation(
+                program,
+                "gcode_uLightPosition"
+            ),
+            ambientColor: gl.getUniformLocation(program, "gcode_uAmbientColor"),
+            diffuseColor: gl.getUniformLocation(program, "gcode_uDiffuseColor"),
+        }
+
+        return true
+    }
+
+    //Buffer creation functions
+
+    // Create the grid and axes buffers
+    function createGridBuffers() {
+        disableAttributes(programGCodeInfo)
+        //The grid (XZ plane) creation is actually a surface of a cube of size gridSide
+        gridSide = calculateGridSide()
+
+        if (gridSide === 0 || gridSide.toString() == "NaN") {
+            console.error(
+                "Impossible to calculate the grid side. Please check your GCode file."
+            )
+            return false
+        }
+        const gridVertices = []
+        const gridColors = []
+        for (let i = 0; i <= gridSide; i += gridStep) {
+            gridVertices.push(0, 0, i, gridSide, 0, i) // lines paralleles to axis X
+            gridVertices.push(i, 0, 0, i, 0, gridSide) // lines paralleles to axis Y
+            for (let j = 0; j < 4; j++) {
+                gridColors.push(0.8, 0.8, 0.8, 1.0)
+            }
+        }
+        // grid buffer
+        programGridInfo.buffer = gl.createBuffer()
+        if (programGridInfo.buffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.buffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(gridVertices),
+                gl.STATIC_DRAW
+            )
+        }
+
+        if (!checkBufferStatus(programGridInfo.buffer, "Grid buffer")) {
+            return false
+        }
+        //Add extra info to the buffer
+        programGridInfo.buffer.itemSize = 3
+        programGridInfo.buffer.numItems = gridVertices.length / 3
+
+        //Create the color buffer
+        programGridInfo.colorBuffer = gl.createBuffer()
+        if (programGridInfo.colorBuffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.colorBuffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(gridColors),
+                gl.STATIC_DRAW
+            )
+        }
+        if (
+            !checkBufferStatus(programGridInfo.colorBuffer, "Grid color buffer")
+        ) {
+            return false
+        }
+
+        // Axes creation
+        const axisThickness = 0.5 // Thickness of the axes
+        const axesVertices = [
+            // Axe X (red)
+            0,
+            -axisThickness,
+            -axisThickness,
+            gridSide,
+            -axisThickness,
+            -axisThickness,
+            0,
+            axisThickness,
+            -axisThickness,
+            gridSide,
+            axisThickness,
+            -axisThickness,
+            0,
+            axisThickness,
+            axisThickness,
+            gridSide,
+            axisThickness,
+            axisThickness,
+            0,
+            -axisThickness,
+            axisThickness,
+            gridSide,
+            -axisThickness,
+            axisThickness,
+            // Axe Y (green)
+            -axisThickness,
+            -axisThickness,
+            0,
+            -axisThickness,
+            -axisThickness,
+            gridSide,
+            axisThickness,
+            -axisThickness,
+            0,
+            axisThickness,
+            -axisThickness,
+            gridSide,
+            axisThickness,
+            axisThickness,
+            0,
+            axisThickness,
+            axisThickness,
+            gridSide,
+            -axisThickness,
+            axisThickness,
+            0,
+            -axisThickness,
+            axisThickness,
+            gridSide,
+            // Axe Z (blue)
+            -axisThickness,
+            0,
+            -axisThickness,
+            -axisThickness,
+            gridSide,
+            -axisThickness,
+            axisThickness,
+            0,
+            -axisThickness,
+            axisThickness,
+            gridSide,
+            -axisThickness,
+            axisThickness,
+            0,
+            axisThickness,
+            axisThickness,
+            gridSide,
+            axisThickness,
+            -axisThickness,
+            0,
+            axisThickness,
+            -axisThickness,
+            gridSide,
+            axisThickness,
+        ]
+
+        const axesColors = []
+        // Red for X
+        for (let i = 0; i < 8; i++) {
+            invertXY ? axesColors.push(1, 0, 0, 1) : axesColors.push(0, 1, 0, 1)
+        }
+        // Green for Y
+        for (let i = 0; i < 8; i++) {
+            invertXY ? axesColors.push(0, 1, 0, 1) : axesColors.push(1, 0, 0, 1)
+        }
+        // Blue for Z
+        for (let i = 0; i < 8; i++) {
+            axesColors.push(0, 0, 1, 1)
+        }
+
+        // Create the axes buffer
+        programGridInfo.axesBuffer = gl.createBuffer()
+        if (programGridInfo.axesBuffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.axesBuffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(axesVertices),
+                gl.STATIC_DRAW
+            )
+            programGridInfo.axesBuffer.itemSize = 3
+            programGridInfo.axesBuffer.numItems = axesVertices.length / 3
+        }
+        if (
+            !checkBufferStatus(programGridInfo.axesBuffer, "Grid axes buffer")
+        ) {
+            return false
+        }
+        //Add extra info to the buffer
+        programGridInfo.axesBuffer.itemSize = 3
+        programGridInfo.axesBuffer.numItems = axesVertices.length / 3
+
+        // Create the axes color buffer
+        programGridInfo.axesColorBuffer = gl.createBuffer()
+        if (programGridInfo.axesColorBuffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.axesColorBuffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(axesColors),
+                gl.STATIC_DRAW
+            )
+        }
+        if (
+            !checkBufferStatus(
+                programGridInfo.axesColorBuffer,
+                "Grid axes color buffer"
+            )
+        ) {
+            return false
+        }
+
+        // Create the axes index buffer
+        const axesIndices = [
+            // Axe X
+            0, 1, 2, 2, 1, 3, 2, 3, 6, 6, 3, 7, 4, 5, 6, 6, 5, 7, 0, 4, 1, 1, 4,
+            5,
+            // Axe Y
+            8, 9, 10, 10, 9, 11, 10, 11, 14, 14, 11, 15, 12, 13, 14, 14, 13, 15,
+            8, 12, 9, 9, 12, 13,
+            // Axe Z
+            16, 17, 18, 18, 17, 19, 18, 19, 22, 22, 19, 23, 20, 21, 22, 22, 21,
+            23, 16, 20, 17, 17, 20, 21,
+        ]
+
+        programGridInfo.axesIndexBuffer = gl.createBuffer()
+        if (programGridInfo.axesIndexBuffer) {
+            gl.bindBuffer(
+                gl.ELEMENT_ARRAY_BUFFER,
+                programGridInfo.axesIndexBuffer
+            )
+            gl.bufferData(
+                gl.ELEMENT_ARRAY_BUFFER,
+                new Uint16Array(axesIndices),
+                gl.STATIC_DRAW
+            )
+            programGridInfo.axesIndexBuffer.numItems = axesIndices.length
+        }
+        if (
+            !checkBufferStatus(
+                programGridInfo.axesIndexBuffer,
+                "Grid axes index buffer",
+                gl.ELEMENT_ARRAY_BUFFER_BINDING
+            )
+        ) {
+            return false
+        }
+
+        return createAxisLabelsBuffers()
+    }
+
+    // Update the axis colors according of invertXY
+    function updateAxisColors() {
+        const axesColors = []
+        // X axis color (red if  inverted, green if not inverted)
+        for (let i = 0; i < 8; i++) {
+            axesColors.push(invertXY ? 1 : 0, invertXY ? 0 : 1, 0, 1)
+        }
+        // Y axis color (green if  inverted, red if not inverted)
+        for (let i = 0; i < 8; i++) {
+            axesColors.push(invertXY ? 0 : 1, invertXY ? 1 : 0, 0, 1)
+        }
+        // Z axis color (always blue)
+        for (let i = 0; i < 8; i++) {
+            axesColors.push(0, 0, 1, 1)
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.axesColorBuffer)
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array(axesColors),
+            gl.STATIC_DRAW
+        )
+    }
+
+    // Create the axis labels buffers
+    function createAxisLabelsBuffers() {
+        if (!createXLabelBuffer()) {
+            return false
+        }
+        if (!createYLabelBuffer()) {
+            return false
+        }
+        return createZLabelBuffer()
+    }
+
+    // Create a buffer for the Labels (X, Y, Z)
+    function createLabelBuffer(vertices) {
+        const buffer = gl.createBuffer()
+        if (buffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(vertices),
+                gl.STATIC_DRAW
+            )
+            buffer.itemSize = 3
+            buffer.numItems = vertices.length / 3
+        }
+        return buffer
+    }
+
+    // Create a buffer for the color of the Labels (X, Y, Z)
+    function createLabelColorBuffer(color) {
+        const colors = new Array(6).fill(color).flat()
+        const buffer = gl.createBuffer()
+        if (buffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(colors),
+                gl.STATIC_DRAW
+            )
+        }
+        return buffer
+    }
+
+    // Create a buffer for the X Label
+    function createXLabelBuffer() {
+        //Set size and offset of the label
+        const labelSize = gridSide * 0.05
+        const xOffset = invertXY
+            ? gridSide + (gridSide * 0.05) / 4
+            : gridSide + (gridSide * 0.05) / 4
+        const yOffset = invertXY ? (-gridSide * 0.05) / 2 : 0
+        const zOffset = invertXY ? 0 : -gridSide * 0.05
+
+        // Dots for drawing an 'X'
+        const originalPoints = invertXY
+            ? [
+                [0, 0, 0],
+                [labelSize, labelSize, 0], // First diagonal
+                [0, labelSize, 0],
+                [labelSize, 0, 0], // Second diagonal
+            ]
+            : [
+                [0, 0, labelSize / 2],
+                [labelSize / 2, 0, 0], // Left branch
+                [labelSize, 0, labelSize / 2],
+                [labelSize / 2, 0, 0], // Right branch
+                [labelSize / 2, 0, 0],
+                [labelSize / 2, 0, -labelSize / 2], // Center branch
+            ]
+        const xLabelVertices = originalPoints.flatMap((point) => {
+            if (invertXY) {
+                return [
+                    point[0] + xOffset,
+                    point[1] + yOffset,
+                    point[2] + zOffset,
+                ]
+            } else {
+                return [
+                    point[1] + xOffset,
+                    point[2] + yOffset,
+                    point[0] + zOffset,
+                ]
+            }
+        })
+        // Create the X label buffer
+        programGridInfo.xLabelBuffer = createLabelBuffer(xLabelVertices)
+        if (
+            !checkBufferStatus(programGridInfo.xLabelBuffer, "X Label Buffer")
+        ) {
+            return false
+        }
+
+        // Create the X label color buffer
+        programGridInfo.xLabelColorBuffer = createLabelColorBuffer(
+            invertXY ? [1, 0, 0, 1] : [0, 1, 0, 1]
+        ) // red or green if invertXY
+        if (
+            !checkBufferStatus(
+                programGridInfo.xLabelColorBuffer,
+                "X Label Color Buffer"
+            )
+        ) {
+            return false
+        }
+
+        return true
+    }
+
+    // Create a buffer for the Y Label
+    function createYLabelBuffer() {
+        //Set size and offset of the label
+        const labelSize = gridSide * 0.05
+        const xOffset = invertXY ? -(gridSide * 0.05) : 0
+        const yOffset = invertXY ? 0 : (-gridSide * 0.05) / 4
+        const zOffset = invertXY
+            ? gridSide + (gridSide * 0.06) / 2
+            : gridSide + (gridSide * 0.05) / 2
+
+        // Dots for drawing an 'Y'
+        const originalPoints = invertXY
+            ? [
+                [0, 0, labelSize / 2],
+                [labelSize / 2, 0, 0], // Left branch
+                [labelSize, 0, labelSize / 2],
+                [labelSize / 2, 0, 0], // Right branch
+                [labelSize / 2, 0, 0],
+                [labelSize / 2, 0, -labelSize / 2], // Center branch
+            ]
+            : [
+                [0, 0, 0],
+                [labelSize, labelSize, 0], // First diagonal
+                [0, labelSize, 0],
+                [labelSize, 0, 0], // Second diagonal
+            ]
+
+        const yLabelVertices = originalPoints.flatMap((point) => {
+            if (invertXY) {
+                return [
+                    point[0] + xOffset - 10,
+                    point[2] + yOffset,
+                    point[1] + zOffset,
+                ]
+            } else {
+                return [
+                    point[2] + xOffset,
+                    point[0] + yOffset,
+                    point[1] + zOffset,
+                ]
+            }
+        })
+        // Create the Y label buffer
+        programGridInfo.yLabelBuffer = createLabelBuffer(yLabelVertices)
+        if (
+            !checkBufferStatus(programGridInfo.yLabelBuffer, "Y Label Buffer")
+        ) {
+            return false
+        }
+
+        // Create the Y label color buffer
+        programGridInfo.yLabelColorBuffer = createLabelColorBuffer(
+            invertXY ? [0, 1, 0, 1] : [1, 0, 0, 1],
+            yLabelVertices.length / 3
+        ) // Green
+        if (
+            !checkBufferStatus(
+                programGridInfo.yLabelColorBuffer,
+                "Y Label Color Buffer"
+            )
+        ) {
+            return false
+        }
+
+        return true
+    }
+
+    // Create a buffer for the Z Label
+    function createZLabelBuffer() {
+        //Set size and offset of the label
+        const zLabelSize = gridSide * 0.05
+        const xOffset = invertXY ? (-gridSide * 0.05) / 2 : 0
+        const yOffset = invertXY
+            ? gridSide + gridSide * 0.07
+            : gridSide + (gridSide * 0.05) / 2
+        const zOffset = invertXY ? 0 : (-gridSide * 0.05) / 2
+
+        const originalPoints = invertFrontBack
+            ? [
+                [zLabelSize, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [zLabelSize, 0, zLabelSize],
+                [zLabelSize, 0, zLabelSize],
+                [0, 0, zLabelSize],
+            ]
+            : [
+                [0, 0, 0],
+                [zLabelSize, 0, 0],
+                [zLabelSize, 0, 0],
+                [0, 0, zLabelSize],
+                [0, 0, zLabelSize],
+                [zLabelSize, 0, zLabelSize],
+            ]
+
+        const zLabelVertices = originalPoints.flatMap((point) => {
+            if (invertXY) {
+                return [
+                    point[0] + xOffset,
+                    -point[2] + yOffset,
+                    point[1] + zOffset,
+                ]
+            } else {
+                return [
+                    point[1] + xOffset,
+                    point[2] + yOffset,
+                    point[0] + zOffset,
+                ]
+            }
+        })
+        // Create the Z label buffer
+        programGridInfo.zLabelBuffer = createLabelBuffer(zLabelVertices)
+        if (
+            !checkBufferStatus(programGridInfo.zLabelBuffer, "Z Label Buffer")
+        ) {
+            return false
+        }
+
+        // Create the Z label color buffer
+        programGridInfo.zLabelColorBuffer = createLabelColorBuffer([0, 0, 1, 1]) // Blue
+        if (
+            !checkBufferStatus(
+                programGridInfo.zLabelColorBuffer,
+                "Z Label Color Buffer"
+            )
+        ) {
+            return false
+        }
+
+        return true
+    }
+
+    // Create the GCode oject buffers
+
+    // Cleanup the GCode object buffers
+    function cleanupGCodeBuffers() {
+        useProgram(programGCodeInfo, programGridInfo)
+        if (programGCodeInfo.buffers) {
+            programGCodeInfo.buffers.forEach((buffer) => {
+                gl.deleteBuffer(buffer.vertexBuffer)
+                gl.deleteBuffer(buffer.colorBuffer)
+                gl.deleteBuffer(buffer.normalBuffer)
+            })
+        }
+        programGCodeInfo.buffers = []
+        programGCodeInfo.visibleBuffers = [];
+        programGCodeInfo.totalVisibleVertices = 0;
+        if (window.gc) {
+            window.gc();
+        } else if (window.opera && window.opera.collect) {
+            window.opera.collect();
+        } else {
+            try {
+                window.CollectGarbage();
+            } catch (e) {
+                //no collect garbage
+            }
+        }
+    }
+
+    //Draw Functions
+    // Draw the scene
+    function drawScene() {
+        if (!checkglStatus()) {
+            return false
+        }
+        ////console.log("drawScene");
+
+        if (!checkProgramStatus(programGridInfo.program, "programGrid")) {
+            return false
+        }
+
+        useProgram(programGridInfo, programGCodeInfo)
+
+        //Set the viewport
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+        pMatrix = perspectiveMatrix(
+            (45 * Math.PI) / 180,
+            gl.canvas.width / gl.canvas.height,
+            0.1,
+            10000.0
+        )
+        // Draw the grid and axes
+        gl.uniformMatrix4fv(
+            programGridInfo.uniformLocations.pMatrix,
+            false,
+            new Float32Array(pMatrix)
+        )
+        if (checkGLError("pMatrix")) {
+            return false
+        }
+        gl.uniformMatrix4fv(
+            programGridInfo.uniformLocations.mvMatrix,
+            false,
+            new Float32Array(mvMatrix)
+        )
+        if (checkGLError("mvMatrix")) {
+            return false
+        }
+
+        if (!drawGrid()) {
+            //console.error("Impossible to draw the grid");
+            return false
+        }
+
+        if (!drawAxes()) {
+            //console.error("Impossible to draw the axes");
+            return false
+        }
+
+        if (!drawAxisLabels()) {
+            //console.error("Impossible to draw the axis labels");
+            return false
+        }
+
+        // Draw the GCODE only if there is data
+        if (gcodePoints.length > 0) {
+            return drawGCode()
+        }
+        isComputing = false
+        updateProgress("", 100)
+        return true
+    }
+
+    // Draw the grid
+    function drawGrid() {
+        if (!checkProgramStatus(programGridInfo.program, "programGrid")) {
+            return false
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.buffer)
+        gl.vertexAttribPointer(
+            programGridInfo.attribLocations.vertexPosition,
+            3,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        )
+        checkBufferStatus(programGridInfo.buffer, "Grid buffer")
+        if (checkGLError("Grid buffer")) {
+            return false
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.colorBuffer)
+        gl.vertexAttribPointer(
+            programGridInfo.attribLocations.vertexColor,
+            4,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        )
+
+        if (checkGLError("Grid color buffer")) {
+            return false
+        }
+
+        checkBufferStatus(programGridInfo.colorBuffer, "Grid color buffer")
+        gl.drawArrays(gl.LINES, 0, programGridInfo.buffer.numItems)
+        if (checkGLError("Draw grid")) {
+            return false
+        }
+
+        return true
+    }
+
+    // Draw the axes
+    function drawAxes() {
+        if (!checkProgramStatus(programGridInfo.program, "programGrid")) {
+            return false
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.axesBuffer)
+        gl.vertexAttribPointer(
+            programGridInfo.attribLocations.vertexPosition,
+            3,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        )
+        if (checkGLError("Axes buffer")) {
+            return false
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, programGridInfo.axesColorBuffer)
+        gl.vertexAttribPointer(
+            programGridInfo.attribLocations.vertexColor,
+            4,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        )
+
+        if (checkGLError("Axes color buffer")) {
+            return false
+        }
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, programGridInfo.axesIndexBuffer)
+        gl.drawElements(
+            gl.TRIANGLES,
+            programGridInfo.axesIndexBuffer.numItems,
+            gl.UNSIGNED_SHORT,
+            0
+        )
+
+        if (checkGLError("Draw axes")) {
+            return false
+        }
+
+        return true
+    }
+
+    //Draw the axis labels (X, Y, Z)
+    function drawAxisLabels() {
+        if (
+            !drawLabel(
+                programGridInfo.xLabelBuffer,
+                programGridInfo.xLabelColorBuffer
+            )
+        ) {
+            return false
+        }
+        if (
+            !drawLabel(
+                programGridInfo.yLabelBuffer,
+                programGridInfo.yLabelColorBuffer
+            )
+        ) {
+            return false
+        }
+        return drawLabel(
+            programGridInfo.zLabelBuffer,
+            programGridInfo.zLabelColorBuffer
+        )
+    }
+
+    // Draw a label
+    function drawLabel(vertexBuffer, colorBuffer, name) {
+        if (!checkProgramStatus(programGridInfo.program, "programGrid")) {
+            return false
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+        gl.vertexAttribPointer(
+            programGridInfo.attribLocations.vertexPosition,
+            3,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        )
+
+        if (checkGLError(`Axes buffer ${name}`)) {
+            return false
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
+        gl.vertexAttribPointer(
+            programGridInfo.attribLocations.vertexColor,
+            4,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        )
+
+        if (checkGLError(`Axes color buffer ${name}`)) {
+            return false
+        }
+
+        gl.drawArrays(gl.LINES, 0, vertexBuffer.numItems)
+
+        if (checkGLError(`Draw label ${name}`)) {
+            return false
+        }
+
+        return true
+    }
+
+    //Gcode file loading/processing functions
+    function loadGCodeFile(inputFile) {
+        updateProgress("Initializing:", 0)
+        isFileProcessing = true
+        startProcessing(inputFile)
+        processEntireFile()
+    }
+
+    // Finish the processing of the GCODE file
+    async function finishProcessing() {
+        document.getElementById("fileInput").value = null
+        updateProgress("Processing G-code:", 90)
+        createGridBuffers()
+        initLayerSliders()
+        await updateVisiblePoints(false)
+        updateProgress("Rendering:", 100)
+        isFileProcessing = false
+        setView("front")
+        drawScene()
+    }
+
+    // Read the next chunk of the GCODE file
+    function readNextChunk() {
+        return new Promise((resolve, reject) => {
+            if (fileOffset >= file.size) {
+                resolve("EOF")
+                return
+            }
+            let chunk = file.slice(fileOffset, fileOffset + chunkSize)
+            fileReader.onload = function (e) {
+                processChunk(e.target.result).then(resolve).catch(reject)
+            }
+            fileReader.onerror = reject
+            fileReader.readAsText(chunk)
+        })
+    }
+
+    // Process a chunk of the GCODE file
+    async function processChunk(chunk) {
+        let lines = chunk.split("\n")
+
+        if (fileOffset > 0) {
+            let lastLine = gcodePoints[gcodePoints.length - 1]
+            lines[0] = lastLine.gcode + lines[0]
+            gcodePoints.pop()
+        }
+
+        for (let i = 0; i < lines.length - 1; i++) {
+            processGCodeLine(lines[i])
+        }
+
+        if (fileOffset + chunkSize < file.size) {
+            gcodePoints.push({ gcode: lines[lines.length - 1] })
+        } else {
+            processGCodeLine(lines[lines.length - 1])
+        }
+
+        fileOffset += chunkSize
+        updateProgress("Loading file:", (fileOffset / file.size) * 90)
+    }
+
+    // Process the entire file
+    async function processEntireFile() {
+        try {
+            while (true) {
+                const result = await readNextChunk()
+                if (result === "EOF") {
+                    break
+                }
+            }
+            await finishProcessing()
+        } catch (error) {
+            console.error("Error processing file:", error)
+        }
+    }
+
+    //Start processing the file
+    function startProcessing(inputFile) {
+        file = inputFile
+        fileOffset = 0
+        gcodePoints = []
+        gcodeMinX = gcodeMinY = gcodeMinZ = Infinity
+        gcodeMaxX = gcodeMaxY = gcodeMaxZ = -Infinity
+        lastLayerZ = null
+        layerHeightSum = 0
+        layerCount = 0
+        printStarted = false
+        totalFileSize = inputFile.size
+        processedSize = 0
+        lastSignificantZ = -Infinity
+        currentLayer = -1
+        lastPosition = { x: 0, y: 0, z: 0, e: 0, layer: 0 }
+    }
+
+    // Process a GCode line
+    function processGCodeLine(line) {
+        let moveType = "move"
+        processedSize += line.length + 1 // +1 for newline character
+        // Ignore comments and empty lines
+        if (line.trim().startsWith(";") || line.trim() === "") return
+
+        // Ignore lines if not starting with G0 or G1 or G28
+        if (
+            !line.trim().startsWith("G0") &&
+            !line.trim().startsWith("G1") &&
+            !line.trim().startsWith("G28")
+        )
+            return
+
+        let x = null,
+            y = null,
+            z = null,
+            e = null
+        let parts = line.split(" ")
+        let isG0 = line.trim().startsWith("G0")
+        if (!line.trim().startsWith("G28")) {
+            //ignore if value already set
+            for (let part of parts) {
+                let value = parseFloat(part.substring(1))
+                if (value == "NaN") continue
+                switch (part[0]) {
+                    case "X":
+                        if (!x) x = value
+                        break
+                    case "Y":
+                        if (!y) y = value
+                        break
+                    case "Z":
+                        if (!z) z = value
+                        break
+                    case "E":
+                        if (!e) e = value
+                        break
+                }
+            }
+        } else {
+            // G28 it may not  have X,Y,Z,E values
+            moveType = "move"
+            for (let part of parts) {
+                let value = parseFloat(part.substring(1))
+                switch (part[0]) {
+                    case "X":
+                        if (!x) x = 0
+                        break
+                    case "Y":
+                        if (!y) y = 0
+                        break
+                    case "Z":
+                        if (!z) z = 0
+                        break
+                }
+            }
+            // if no X,Y,Z values set to 0
+            if (x == null && y == null && z == null) {
+                x = 0
+                y = 0
+                z = 0
+            }
+        }
+        if (e !== null) {
+            if (e > 0) {
+                moveType = "extrude"
+            } else {
+                moveType = "retract"
+            }
+        }
+        // Update the position with the new values, if they are defined
+        let newPosition = {
+            x: x !== null ? x : lastPosition.x,
+            y: y !== null ? y : lastPosition.y,
+            z: z !== null ? z : lastPosition.z,
+            e: e !== null ? e : lastPosition.e,
+        }
+
+        if (moveType === "extrude") {
+            if (
+                !printStarted &&
+                newPosition.z > 0 &&
+                newPosition.z < firstLayerMaxHeight
+            ) {
+                printStarted = true
+                lastLayerZ = newPosition.z
+            } else if (
+                printStarted &&
+                Math.abs(newPosition.z - lastLayerZ) >= minLayerHeight
+            ) {
+                layerHeightSum += Math.abs(newPosition.z - lastLayerZ)
+                layerCount++
+                lastLayerZ = newPosition.z
+            }
+        }
+
+        // Detect the change of layer
+        if (newPosition.z !== lastPosition.z) {
+            if (Math.abs(newPosition.z - lastSignificantZ) > 0.001) {
+                lastSignificantZ = newPosition.z
+                currentLayer++
+                layers.add(currentLayer)
+            }
+        }
+
+        gcodeMinX = Math.min(gcodeMinX, newPosition.x)
+        gcodeMaxX = Math.max(gcodeMaxX, newPosition.x)
+        gcodeMinY = Math.min(gcodeMinY, newPosition.y)
+        gcodeMaxY = Math.max(gcodeMaxY, newPosition.y)
+        gcodeMinZ = Math.min(gcodeMinZ, newPosition.z)
+        gcodeMaxZ = Math.max(gcodeMaxZ, newPosition.z)
+
+        //Horizontal / Verticales lines are not displayed properly this is a workaround
+        if (!invertXY) {
+            if (lastPosition.x == newPosition.x) {
+                newPosition.x += 0.00001
+            }
+            if (lastPosition.y == newPosition.y) {
+                newPosition.y += 0.00001
+            }
+        }
+
+        // Transform the points
+        let transformedLastPosition = transformGCodePoint(lastPosition)
+        let transformedNewPosition = transformGCodePoint(newPosition)
+
+        // Add the point only if there is a change of position
+        if (x !== null || y !== null || z !== null) {
+            let direction = {
+                x: transformedNewPosition.x - transformedLastPosition.x,
+                y: transformedNewPosition.y - transformedLastPosition.y,
+                z: transformedNewPosition.z - transformedLastPosition.z,
+            }
+            let length = Math.sqrt(
+                direction.x * direction.x +
+                direction.y * direction.y +
+                direction.z * direction.z
+            )
+            let normal = {
+                x: direction.x / length,
+                y: direction.y / length,
+                z: direction.z / length,
+            }
+
+            gcodePoints.push({
+                start: transformedLastPosition,
+                end: transformedNewPosition,
+                isG0: isG0,
+                moveType: moveType,
+                layer: currentLayer,
+                normal: normal,
+            })
+            ////console.log(`Added point: Layer ${currentLayer}, Type: ${moveType}`);
+        }
+
+        // Update the last position
+        lastPosition = newPosition
+    }
+
+    // Get the average layer height
+    function getAverageLayerHeight() {
+        return layerCount > 0 ? layerHeightSum / layerCount : 0
+    }
+
+    //Calculate the side of the grid which is the biggest dimension of the bounding box of the gcode
+    function calculateGridSide() {
+        if (gcodePoints.length === 0) {
+            return 200 // default size if no GCode
+        }
+        //calculate the dimensions of the bounding box of the gcode
+        const X_dimension =
+            gcodeMaxX - gcodeMinX + (gcodeMinX > 0 ? gcodeMinX : 0)
+        const Y_dimension =
+            gcodeMaxY - gcodeMinY + (gcodeMinY > 0 ? gcodeMinY : 0)
+        const Z_dimension =
+            gcodeMaxZ - gcodeMinZ + (gcodeMinZ > 0 ? gcodeMinZ : 0)
+        //find the biggest dimension
+        let maxDimension = Math.max(X_dimension, Y_dimension, Z_dimension)
+        // round to the nearest 10 and add a margin of 10 mm
+        const gridSide = Math.ceil(maxDimension / 10) * 10 + 10
+
+        return gridSide
+    }
+
+    // Get the skip factor for the current scale
+    const getSkipFactor = (scale, layerCount) => {
+        //the rendering is not acceptable using skip factors, so let's temporarily disable it
+        return 1
+        if (layerCount <= LAYER_OPTIMIZATION_THRESHOLD) return 1
+        let skipFactor = 1
+        if (scale <= 1.2) skipFactor = 2
+        if (scale <= 0.8) skipFactor = 4
+        if (scale <= 0.5) skipFactor = 10
+        //console.log("Scale:", scale, "factor:", factor, "skipFactor:", skipFactor);
+        return skipFactor
+    }
+
+    // Transform a GCode point to a 3D point with the correct rotation
+    function transformGCodePoint(point) {
+        return {
+            x: point.y,
+            y: point.z,
+            z: point.x,
+            e: point.e,
+        }
+    }
+
+    // get point if invertXY is true else return point
+    function getTransformedPoint(point) {
+        if (invertXY) {
+            return {
+                x: point.z,
+                y: point.y,
+                z: point.x,
+                e: point.e,
+            }
+        } else {
+            return point
+        }
+    }
+
+    // Function to round a vector to the nearest integer
+    function roundToInteger(vector) {
+        return vector.map((v) => Math.round(v * 127))
+    }
+
+    // Update the visible points
+    async function updateVisiblePoints(useExistingBuffers = false) {
+        if (isComputing) {
+            //console.log("Computing is already running");
+            return
+        }
+
+        isComputing = true
+        updateProgress("Processing G-code:", 90)
+
+        if (
+            !useExistingBuffers ||
+            !programGCodeInfo.buffers ||
+            programGCodeInfo.buffers.length === 0
+        ) {
+            await recalculateBuffers()
+        } else {
+            createVisibleBuffer()
+        }
+
+        isComputing = false
+        drawScene()
+    }
+
+    async function recalculateBuffers() {
+        //console.log("Starting recalculateBuffers");
+        cleanupGCodeBuffers()
+        gcode_vertices = []
+        gcode_colors = []
+        gcode_normals = []
+        programGCodeInfo.buffers = []
+
+        visiblePoints = gcodePoints
+            .filter(
+                (point) =>
+                    (showTravels || point.moveType === "extrude") &&
+                    point.layer >= startLayer &&
+                    point.layer <= endLayer
+            )
+            .map((point) => ({
+                ...point,
+                start: getTransformedPoint(point.start),
+                end: getTransformedPoint(point.end),
+            }))
+
+        //console.log(`Visible points: ${visiblePoints.length}`);
+        //console.log(`First point: `, visiblePoints[0]);
+
+        const totalPoints = visiblePoints.length
+        const modulo = Math.max(1, Math.floor(totalPoints / 100))
+
+        if (totalPoints === 0) {
+            //console.log("No points to process");
+            return
+        }
+
+        let processedPoints = 0
+        let currentBatch = {
+            vertices: [],
+            colors: [],
+            normals: [],
+            firstLayer: Infinity,
+            lastLayer: -Infinity,
+        }
+
+        for (
+            let pointIndex = 0;
+            pointIndex < visiblePoints.length;
+            pointIndex++
+        ) {
+            const point = visiblePoints[pointIndex]
+            const lineWidth = lineWidths[point.moveType] || lineWidths.move
+
+            const direction = {
+                x: point.end.x - point.start.x,
+                y: point.end.y - point.start.y,
+                z: point.end.z - point.start.z,
+            }
+            const length = Math.sqrt(
+                direction.x ** 2 + direction.y ** 2 + direction.z ** 2
+            )
+
+            const normalizedDirection = {
+                x: direction.x / length,
+                y: direction.y / length,
+                z: direction.z / length,
+            }
+
+            let bitangent
+            if (Math.abs(normalizedDirection.y) < 0.99) {
+                bitangent = vec3_normalize(
+                    vec3_cross(
+                        [
+                            normalizedDirection.x,
+                            normalizedDirection.y,
+                            normalizedDirection.z,
+                        ],
+                        [0, 1, 0]
+                    )
+                )
+            } else {
+                bitangent = vec3_normalize(
+                    vec3_cross(
+                        [
+                            normalizedDirection.x,
+                            normalizedDirection.y,
+                            normalizedDirection.z,
+                        ],
+                        [1, 0, 0]
+                    )
+                )
+            }
+
+            const tangent = vec3_cross(
+                [
+                    normalizedDirection.x,
+                    normalizedDirection.y,
+                    normalizedDirection.z,
+                ],
+                bitangent
+            )
+
+            const segments = 8
+            for (let i = 0; i < segments; i++) {
+                const angle1 = (i / segments) * 2 * Math.PI
+                const angle2 = ((i + 1) / segments) * 2 * Math.PI
+
+                const cos1 = Math.cos(angle1)
+                const sin1 = Math.sin(angle1)
+                const cos2 = Math.cos(angle2)
+                const sin2 = Math.sin(angle2)
+
+                const v1 = {
+                    x:
+                        point.start.x +
+                        ((bitangent[0] * cos1 + tangent[0] * sin1) *
+                            lineWidth) /
+                        2,
+                    y:
+                        point.start.y +
+                        ((bitangent[1] * cos1 + tangent[1] * sin1) *
+                            lineWidth) /
+                        2,
+                    z:
+                        point.start.z +
+                        ((bitangent[2] * cos1 + tangent[2] * sin1) *
+                            lineWidth) /
+                        2,
+                }
+                const v2 = {
+                    x:
+                        point.start.x +
+                        ((bitangent[0] * cos2 + tangent[0] * sin2) *
+                            lineWidth) /
+                        2,
+                    y:
+                        point.start.y +
+                        ((bitangent[1] * cos2 + tangent[1] * sin2) *
+                            lineWidth) /
+                        2,
+                    z:
+                        point.start.z +
+                        ((bitangent[2] * cos2 + tangent[2] * sin2) *
+                            lineWidth) /
+                        2,
+                }
+                const v3 = {
+                    x:
+                        point.end.x +
+                        ((bitangent[0] * cos1 + tangent[0] * sin1) *
+                            lineWidth) /
+                        2,
+                    y:
+                        point.end.y +
+                        ((bitangent[1] * cos1 + tangent[1] * sin1) *
+                            lineWidth) /
+                        2,
+                    z:
+                        point.end.z +
+                        ((bitangent[2] * cos1 + tangent[2] * sin1) *
+                            lineWidth) /
+                        2,
+                }
+                const v4 = {
+                    x:
+                        point.end.x +
+                        ((bitangent[0] * cos2 + tangent[0] * sin2) *
+                            lineWidth) /
+                        2,
+                    y:
+                        point.end.y +
+                        ((bitangent[1] * cos2 + tangent[1] * sin2) *
+                            lineWidth) /
+                        2,
+                    z:
+                        point.end.z +
+                        ((bitangent[2] * cos2 + tangent[2] * sin2) *
+                            lineWidth) /
+                        2,
+                }
+
+                currentBatch.vertices.push(
+                    v1.x,
+                    v1.y,
+                    v1.z,
+                    v2.x,
+                    v2.y,
+                    v2.z,
+                    v3.x,
+                    v3.y,
+                    v3.z,
+                    v2.x,
+                    v2.y,
+                    v2.z,
+                    v3.x,
+                    v3.y,
+                    v3.z,
+                    v4.x,
+                    v4.y,
+                    v4.z
+                )
+
+                const normal1 = roundToInteger(
+                    vec3_normalize([
+                        bitangent[0] * cos1 + tangent[0] * sin1,
+                        bitangent[1] * cos1 + tangent[1] * sin1,
+                        bitangent[2] * cos1 + tangent[2] * sin1,
+                    ])
+                )
+                const normal2 = roundToInteger(
+                    vec3_normalize([
+                        bitangent[0] * cos2 + tangent[0] * sin2,
+                        bitangent[1] * cos2 + tangent[1] * sin2,
+                        bitangent[2] * cos2 + tangent[2] * sin2,
+                    ])
+                )
+
+                currentBatch.normals.push(
+                    ...normal1,
+                    ...normal2,
+                    ...normal1,
+                    ...normal2,
+                    ...normal1,
+                    ...normal2
+                )
+
+                let color
+                switch (point.moveType) {
+                    case "extrude":
+                        color = [0, 1, 1, 1]
+                        break
+                    case "retract":
+                        color = [1, 0, 0, 1]
+                        break
+                    default:
+                        color = [0, 0, 1, 1]
+                }
+
+                for (let j = 0; j < 6; j++) {
+                    currentBatch.colors.push(...color)
+                }
+            }
+
+            currentBatch.firstLayer = Math.min(
+                currentBatch.firstLayer,
+                point.layer
+            )
+            currentBatch.lastLayer = Math.max(
+                currentBatch.lastLayer,
+                point.layer
+            )
+
+            if (
+                currentBatch.vertices.length >= MAX_VERTICES ||
+                pointIndex === visiblePoints.length - 1
+            ) {
+                gcode_vertices.push(currentBatch.vertices)
+                gcode_colors.push(currentBatch.colors)
+                gcode_normals.push(currentBatch.normals)
+                programGCodeInfo.buffers.push({
+                    firstLayer: currentBatch.firstLayer,
+                    lastLayer: currentBatch.lastLayer,
+                })
+                currentBatch = {
+                    vertices: [],
+                    colors: [],
+                    normals: [],
+                    firstLayer: Infinity,
+                    lastLayer: -Infinity,
+                }
+            }
+
+            processedPoints++
+            if (processedPoints % modulo === 0) {
+                updateProgress(
+                    "Processing G-code:",
+                    Math.ceil((processedPoints / totalPoints) * 100)
+                )
+                await new Promise((resolve) => setTimeout(resolve, 0))
+            }
+        }
+
+        verticesPerLayer = Math.ceil(
+            gcode_vertices.reduce((sum, batch) => sum + batch.length, 0) /
+            (endLayer - startLayer + 1)
+        )
+        //console.log(`Vertices per layer: ${verticesPerLayer}`);
+        //console.log(`Total vertices: ${gcode_vertices.reduce((sum, batch) => sum + batch.length, 0)}`);
+        //console.log(`Total colors: ${gcode_colors.reduce((sum, batch) => sum + batch.length, 0)}`);
+        //console.log(`Total normals: ${gcode_normals.reduce((sum, batch) => sum + batch.length, 0)}`);
+        //console.log(`Number of buffers: ${programGCodeInfo.buffers.length}`);
+        //console.log(`Vertices per layer: ${verticesPerLayer}`);
+
+        await createGCodeBuffers()
+        //console.log("Finished recalculateBuffers");
+    }
+
+    // Create the visible buffer
+    async function createGCodeBuffers() {
+        for (let i = 0; i < gcode_vertices.length; i++) {
+            const vertexBuffer = gl.createBuffer()
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(gcode_vertices[i]),
+                gl.STATIC_DRAW
+            )
+
+            const colorBuffer = gl.createBuffer()
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array(gcode_colors[i]),
+                gl.STATIC_DRAW
+            )
+
+            const normalBuffer = gl.createBuffer()
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer)
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Int8Array(gcode_normals[i]),
+                gl.STATIC_DRAW
+            )
+
+            programGCodeInfo.buffers[i].vertexBuffer = vertexBuffer
+            programGCodeInfo.buffers[i].colorBuffer = colorBuffer
+            programGCodeInfo.buffers[i].normalBuffer = normalBuffer
+            programGCodeInfo.buffers[i].vertexCount =
+                gcode_vertices[i].length / 3
+
+            //console.log(`Created WebGL buffers for buffer ${i}: layers ${programGCodeInfo.buffers[i].firstLayer}-${programGCodeInfo.buffers[i].lastLayer}, vertexCount: ${programGCodeInfo.buffers[i].vertexCount}`);
+
+            await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+
+        createVisibleBuffer()
+    }
+
+    function createVisibleBuffer() {
+        //console.log(`Creating visible buffer. startLayer: ${startLayer}, endLayer: ${endLayer}`);
+        programGCodeInfo.visibleBuffers = []
+        let totalVertices = 0
+
+        for (let i = 0; i < programGCodeInfo.buffers.length; i++) {
+            let buffer = programGCodeInfo.buffers[i]
+            //console.log(`Checking buffer ${i}: firstLayer=${buffer.firstLayer}, lastLayer=${buffer.lastLayer}, vertexCount=${buffer.vertexCount}`);
+
+            if (
+                buffer.lastLayer >= startLayer &&
+                buffer.firstLayer <= endLayer
+            ) {
+                let startVertex = 0
+                let endVertex = buffer.vertexCount
+
+                if (buffer.firstLayer < startLayer) {
+                    startVertex = Math.floor(
+                        ((startLayer - buffer.firstLayer) /
+                            (buffer.lastLayer - buffer.firstLayer + 1)) *
+                        buffer.vertexCount
+                    )
+                }
+                if (buffer.lastLayer > endLayer) {
+                    endVertex = Math.ceil(
+                        ((endLayer - buffer.firstLayer + 1) /
+                            (buffer.lastLayer - buffer.firstLayer + 1)) *
+                        buffer.vertexCount
+                    )
+                }
+
+                let visibleVertexCount = endVertex - startVertex
+
+                programGCodeInfo.visibleBuffers.push({
+                    vertexBuffer: buffer.vertexBuffer,
+                    colorBuffer: buffer.colorBuffer,
+                    normalBuffer: buffer.normalBuffer,
+                    startVertex: startVertex,
+                    vertexCount: visibleVertexCount,
+                })
+
+                totalVertices += visibleVertexCount
+                //console.log(`Added buffer ${i} to visible buffers. Vertices: ${visibleVertexCount}`);
+            }
+        }
+
+        //console.log(`Created ${programGCodeInfo.visibleBuffers.length} visible buffers. Total vertices: ${totalVertices}`);
+        programGCodeInfo.totalVisibleVertices = totalVertices
+    }
+
+    // Draw the GCODE
+    function drawGCode() {
+        if (!checkProgramStatus(programGCodeInfo.program, "programGCode")) {
+            return false
+        }
+
+        if (
+            !programGCodeInfo.buffers ||
+            programGCodeInfo.buffers.length === 0
+        ) {
+            console.warn("No GCode buffers to draw")
+            return true // No need to draw anything if there are no buffers
+        }
+
+        useProgram(programGCodeInfo, programGridInfo)
+
+        gl.uniformMatrix4fv(
+            programGCodeInfo.uniformLocations.pMatrix,
+            false,
+            new Float32Array(pMatrix)
+        )
+        if (checkGLError("pMatrix")) {
+            return false
+        }
+        gl.uniformMatrix4fv(
+            programGCodeInfo.uniformLocations.mvMatrix,
+            false,
+            new Float32Array(mvMatrix)
+        )
+        if (checkGLError("mvMatrix")) {
+            return false
+        }
+
+        if (invertXY) {
+            gl.uniform3fv(programGCodeInfo.uniformLocations.lightPosition, [
+                -2 * gridSide,
+                -gridSide,
+                gridSide,
+            ])
+        } else {
+            gl.uniform3fv(programGCodeInfo.uniformLocations.lightPosition, [
+                2 * gridSide,
+                -gridSide,
+                gridSide * 2,
+            ])
+        }
+        gl.uniform3fv(
+            programGCodeInfo.uniformLocations.ambientColor,
+            [0.2, 0.2, 0.2]
+        )
+        gl.uniform3fv(
+            programGCodeInfo.uniformLocations.diffuseColor,
+            [0.8, 0.8, 0.8]
+        )
+
+        if (checkGLError("GCode uniforms")) {
+            return false
+        }
+        //console.log("Vertex position attribute location:", programGCodeInfo.attribLocations.vertexPosition);
+        //console.log("Vertex normal attribute location:", programGCodeInfo.attribLocations.vertexNormal);
+        //console.log("Vertex color attribute location:", programGCodeInfo.attribLocations.vertexColor);
+
+        let totalVerticesDrawn = 0
+        programGCodeInfo.visibleBuffers.forEach((buffer, index) => {
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer.vertexBuffer)
+            gl.vertexAttribPointer(
+                programGCodeInfo.attribLocations.vertexPosition,
+                3,
+                gl.FLOAT,
+                false,
+                0,
+                buffer.startVertex * 12
+            ) // 12 bytes per vertex (3 floats * 4 bytes)
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer.normalBuffer)
+            gl.vertexAttribPointer(
+                programGCodeInfo.attribLocations.vertexNormal,
+                3,
+                gl.BYTE,
+                true,
+                0,
+                buffer.startVertex * 3
+            ) // 3 bytes per normal (3 bytes)
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer.colorBuffer)
+            gl.vertexAttribPointer(
+                programGCodeInfo.attribLocations.vertexColor,
+                4,
+                gl.FLOAT,
+                false,
+                0,
+                buffer.startVertex * 16
+            ) // 16 bytes per color (4 floats * 4 bytes)
+
+            gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
+            totalVerticesDrawn += buffer.vertexCount
+            //console.log(`Drew buffer ${index}: ${buffer.vertexCount} vertices. Total so far: ${totalVerticesDrawn}`);
+        })
+
+        //console.log(`Total vertices drawn: ${totalVerticesDrawn}`);
+
+        isComputing = false
+        updateProgress("", 100)
+        return true
+    }
+
+    //UI functions
+    // Update progress bar
+    function updateProgress(message, percentage = null) {
+        const progressBar = document.getElementById("progressBar")
+        if (percentage === null || (percentage > 0 && percentage < 100)) {
+            progressBar.style.display = "block"
+        } else {
+            progressBar.style.display = "none"
+        }
+        if (!percentage) {
+            percentage = 0
+            progressBar.textContent = message
+        } else {
+            progressBar.style.width = percentage + "%"
+            progressBar.textContent =
+                message + " " + percentage.toFixed(1) + "%"
+        }
+    }
+
+    // Init layer sliders
+    function initLayerSliders() {
+        const totalLayers = layers.size
+        const startSlider = document.getElementById("startLayerSlider")
+        const endSlider = document.getElementById("endLayerSlider")
+        startSlider.max = totalLayers - 1
+        endSlider.max = totalLayers - 1
+        endSlider.value = totalLayers - 1
+        startSlider.value = 0
+        startLayer = 0
+        endLayer = totalLayers - 1
+
+        updateLayerDisplay()
+    }
+
+    // Update layer sliders text display
+    function updateLayerDisplay() {
+        document.getElementById("startLayerDisplay").textContent =
+            startLayer + 1
+        document.getElementById("endLayerDisplay").textContent = endLayer
+        document.getElementById("startLayerSlider").value = startLayer
+        document.getElementById("endLayerSlider").value = endLayer
+        if (gcodePoints.length > 0) {
+            document.getElementById("layers_control").classList.remove("d-none")
+        }
+    }
+
+    // Auto rotation function
+    function autoRotate(currentTime) {
+        if (!animationFrameId) return
+
+        const deltaTime = currentTime - lastFrameTime
+        lastFrameTime = currentTime
+
+        const rotationSpeed = autoRotationSpeed * deltaTime
+
+        // Extract the vertical (Y) axis of the current view
+        const upAxis = [mvMatrix[1], mvMatrix[5], mvMatrix[9]]
+        const rotationAxis = vec3_normalize(upAxis)
+
+        // Create the rotation matrix around the Y axis of the view
+        const rotationMatrix = createRotationMatrix(rotationSpeed, rotationAxis)
+
+        // define the center of rotation
+        const centerX = gridSide / 2
+        const centerY = gridSide / 2
+        const centerZ = gridSide / 2
+
+        // Create the translation matrices
+        let translationToOrigin = createTranslationMatrix(
+            -centerX,
+            -centerY,
+            -centerZ
+        )
+        let translationBack = createTranslationMatrix(centerX, centerY, centerZ)
+
+        // Apply the transformations
+        mvMatrix = multiplyMatrices(translationBack, mvMatrix)
+        mvMatrix = multiplyMatrices(rotationMatrix, mvMatrix)
+        mvMatrix = multiplyMatrices(translationToOrigin, mvMatrix)
+
+        // Update the camera position
+        cameraPosition = [mvMatrix[12], mvMatrix[13], mvMatrix[14]]
+
+        drawScene()
+        requestAnimationFrame(autoRotate)
+    }
+
+    // Animation function
+    function animate(currentTime) {
+        if (!animationFrameId) return // Stop the animation if animationFrameId is null
+
+        autoRotate(currentTime)
+        drawScene()
+        animationFrameId = requestAnimationFrame(animate)
+    }
+
+    function stopAnimation() {
+        if (animationFrameId) {
+            // Stop animation
+            cancelAnimationFrame(animationFrameId)
+            animationFrameId = null
+        }
+        updateAutoRotationButton()
+    }
+
+    // toggleAutoRotation function
+    function toggleAutoRotation() {
+        if (animationFrameId) {
+            // Stop animation
+            cancelAnimationFrame(animationFrameId)
+            animationFrameId = null
+        } else {
+            // Start animation
+            lastFrameTime = performance.now()
+            animationFrameId = requestAnimationFrame(animate)
+        }
+        updateAutoRotationButton()
+    }
+
+    // Update the auto rotation button text
+    function updateAutoRotationButton() {
+        const index = getIndexOfIcon(
+            iconsToLoad,
+            animationFrameId ? "CheckCircle" : "Circle"
+        )
+        const menuItem = document.getElementById("animateIcon")
+        if (index && menuItem) {
+            menuItem.innerHTML =
+                loadedIcons[animationFrameId ? "CheckCircle" : "Circle"]
+        }
+    }
+
+    //invertXY function
+    async function toggleXYInversion() {
+        invertXY = document.getElementById("invertXY").checked
+        ////console.log("Inversion X/Y:", invertXY);
+        // Update the axis colors
+        useProgram(programGridInfo, programGridInfo)
+        updateAxisColors()
+        createAxisLabelsBuffers()
+
+        useProgram(programGCodeInfo, programGridInfo)
+        // Update the visible points
+        try {
+            await updateVisiblePoints(false)
+            setView("front")
+            drawScene()
+        } catch (error) {
+            console.error("Error updating visible points:", error)
+        }
+    }
+
+    // Mouse functions
+    //Mouse down event
+    function handleMouseDown(event) {
+        if (!controlRendering) return;
+        stopAnimation()
+        if (isComputing || isFileProcessing) {
+            console.warn(
+                "Computing is already running, ignoring mouse down event"
+            )
+            return
+        }
+        mouseDown = true
+        lastMouseX = event.clientX
+        lastMouseY = event.clientY
+        startPanX = event.clientX
+        startPanY = event.clientY
+        isPanning = event.button === 2 // Right click for pan
+    }
+
+    //Mouse move event
+    function handleMouseMove(event) {
+        if (!controlRendering) return;
+        if (!mouseDown) {
+            return
+        }
+        stopAnimation()
+        const newX = event.clientX
+        const newY = event.clientY
+
+        const deltaX = newX - lastMouseX
+        const deltaY = newY - lastMouseY
+
+        if (isPanning) {
+            panScene(deltaX, deltaY)
+        } else {
+            rotateScene(deltaX, deltaY)
+        }
+
+        lastMouseX = newX
+        lastMouseY = newY
+
+        drawScene()
+    }
+
+    //Mouse up event
+    function handleMouseUp(event) {
+        if (!controlRendering) return;
+        mouseDown = false
+        isPanning = false
+        lastPinchDistance = 0
+    }
+
+    // rotateScene function
+    function rotateScene(deltaX, deltaY) {
+        const rotationSpeed = 0.005
+
+        // Extract the axes of the current view
+        const rightAxis = [mvMatrix[0], mvMatrix[4], mvMatrix[8]]
+        const upAxis = [mvMatrix[1], mvMatrix[5], mvMatrix[9]]
+
+        // Calculate the axes of rotation based on the current view
+        const verticalRotationAxis = vec3_normalize(rightAxis)
+        const horizontalRotationAxis = vec3_normalize(upAxis)
+
+        // Create the rotation matrices
+        const horizontalRotation = createRotationMatrix(
+            -deltaX * rotationSpeed,
+            horizontalRotationAxis
+        )
+        const verticalRotation = createRotationMatrix(
+            -deltaY * rotationSpeed,
+            verticalRotationAxis
+        )
+
+        // Define the center of rotation
+        const centerX = gridSide / 2
+        const centerY = gridSide / 2
+        const centerZ = gridSide / 2
+
+        // Create the translation matrices
+        let translationToOrigin = createTranslationMatrix(
+            -centerX,
+            -centerY,
+            -centerZ
+        )
+        let translationBack = createTranslationMatrix(centerX, centerY, centerZ)
+
+        // Apply the transformations
+        mvMatrix = multiplyMatrices(translationBack, mvMatrix)
+        mvMatrix = multiplyMatrices(horizontalRotation, mvMatrix)
+        mvMatrix = multiplyMatrices(verticalRotation, mvMatrix)
+        mvMatrix = multiplyMatrices(translationToOrigin, mvMatrix)
+
+        // Update the camera position
+        cameraPosition = [mvMatrix[12], mvMatrix[13], mvMatrix[14]]
+    }
+
+    // Pan the scene
+    function panScene(deltaX, deltaY) {
+        const panSpeed = 0.5
+        mvMatrix[12] += deltaX * panSpeed
+        mvMatrix[13] -= deltaY * panSpeed
+        cameraPosition[0] = mvMatrix[12]
+        cameraPosition[1] = mvMatrix[13]
+    }
+
+    // handleWheel function
+    function handleWheel(event) {
+        if (!controlRendering) return;
+        stopAnimation()
+        event.preventDefault()
+        if (isComputing || isFileProcessing) {
+            console.warn("Computing is already running, ignoring wheel event")
+            return
+        }
+
+        const rect = event.target.getBoundingClientRect()
+        const mouseX = event.clientX - rect.left
+        const mouseY = event.clientY - rect.top
+
+        let delta = Math.sign(event.deltaY)
+        if (isWheelInverted) delta = -delta
+        const zoomSpeed = 0.1
+
+        // Update the scale factor
+        const oldScaleFactor = scaleFactor
+        scaleFactor -= delta * zoomSpeed // Soustraire pour un comportement de zoom intuitif
+
+        scaleFactor = Math.max(minZoom, Math.min(scaleFactor, maxZoom))
+        //console.log("Old scale factor:", oldScaleFactor, "New scale factor:", scaleFactor);
+
+        const zoomFactor = scaleFactor / oldScaleFactor
+
+        // Center of the zoom
+        const centerX = -gridSide / 2
+        const centerY = gcodePoints > 0 ? -gcodeMaxZ / 2 : -gridSide / 2
+        const centerZ = -gridSide / 2
+
+        // Create a translation matrix to move the center of the zoom to the origin
+        const translateToOrigin = createTranslationMatrix(
+            -centerX,
+            -centerY,
+            -centerZ
+        )
+
+        // Create a translation matrix to return to the initial position
+        const translateBack = createTranslationMatrix(centerX, centerY, centerZ)
+
+        // Create a zoom matrix
+        const zoomMatrix = [
+            zoomFactor,
+            0,
+            0,
+            0,
+            0,
+            zoomFactor,
+            0,
+            0,
+            0,
+            0,
+            zoomFactor,
+            0,
+            0,
+            0,
+            0,
+            1,
+        ]
+
+        // Apply the zoom to the view matrix
+        mvMatrix = multiplyMatrices(
+            translateBack,
+            multiplyMatrices(
+                zoomMatrix,
+                multiplyMatrices(translateToOrigin, mvMatrix)
+            )
+        )
+
+        if (isSmartZoomEnabled) {
+            // Convert the mouse coordinates to normalized coordinates (-1 to 1)
+            const normalizedX = (mouseX / gl.canvas.width) * 2 - 1
+            const normalizedY = 1 - (mouseY / gl.canvas.height) * 2
+
+            // Calculate and apply the offset
+            const offsetX = normalizedX * (1 - zoomFactor) * mvMatrix[14]
+            const offsetY = normalizedY * (1 - zoomFactor) * mvMatrix[14]
+            mvMatrix[12] += offsetX
+            mvMatrix[13] += offsetY
+        }
+
+        // Update the camera position and distance
+        cameraPosition = [mvMatrix[12], mvMatrix[13], mvMatrix[14]]
+        currentCameraDistance = initialCameraDistance * scaleFactor
+
+        const oldSkipFactor = getSkipFactor(oldScaleFactor, layers.size)
+        const newSkipFactor = getSkipFactor(scaleFactor, layers.size)
+
+        if (oldSkipFactor !== newSkipFactor) {
+            //console.log("Skip Factor Changed from", oldSkipFactor, "to", newSkipFactor, "because scale factor changed from", oldScaleFactor.toFixed(4), "to", scaleFactor.toFixed(4));
+            //console.log("Camera Position:", cameraPosition);
+            //console.log("Camera Distance:", currentCameraDistance.toFixed(4));
+
+            updateVisiblePoints(false)
+                .then(() => {
+                    drawScene()
+                })
+                .catch((error) => {
+                    console.error("Error updating visible points:", error)
+                })
+        } else {
+            drawScene()
+        }
+    }
+
+    // Touch functions
+
+    // Handle touch start event
+    function handleTouchStart(event) {
+        if (!controlRendering) return;
+        event.preventDefault()
+        stopAnimation()
+        if (event.touches.length === 1) {
+            handleMouseDown(event.touches[0])
+        } else if (event.touches.length === 2) {
+            isPanning = true
+            handleMouseDown(event.touches[0])
+        }
+    }
+
+    // Handle touch move event
+    function handleTouchMove(event) {
+        if (!controlRendering) return;
+        event.preventDefault()
+        stopAnimation()
+        if (event.touches.length === 1) {
+            handleMouseMove(event.touches[0])
+        } else if (event.touches.length === 2) {
+            const touch1 = event.touches[0]
+            const touch2 = event.touches[1]
+            const dist = Math.hypot(
+                touch1.pageX - touch2.pageX,
+                touch1.pageY - touch2.pageY
+            )
+            handlePinchZoom(dist)
+        }
+    }
+
+    // Handle touch end event
+    function handleTouchEnd(event) {
+        if (!controlRendering) return;
+        handleMouseUp(event)
+    }
+
+    // Handle pinch zoom event
+    function handlePinchZoom(newDistance) {
+        if (!controlRendering) return;
+        stopAnimation()
+        if (lastPinchDistance === 0) {
+            lastPinchDistance = newDistance
+            return
+        }
+
+        const delta = lastPinchDistance - newDistance
+        handleWheel({
+            preventDefault: () => { },
+            deltaY: delta,
+            clientX: 0,
+            clientY: 0,
+            target: gl.canvas,
+        })
+
+        lastPinchDistance = newDistance
+    }
+
+    // Resize the canvas
+    function resizeCanvas() {
+        stopAnimation()
+        const container = document.querySelector('.canvas-container');
+        const canvas = document.getElementById('glCanvas');
+        console.log(container.clientWidth, "X", container.clientHeight)
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight
+        //draw the scene
+        drawScene()
+    }
+
+    // Helper function to format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes"
+        const k = 1024
+        const sizes = ["Bytes", "KB", "MB", "GB"]
+        const i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    }
+
+    // Initialisation of the WebGL context
+    function init() {
+        const canvas = document.getElementById("glCanvas")
+        initWebGL(canvas)
+        if (gl) {
+            initCamera()
+            if (!createShaders()) {
+                console.error("Impossible to initialize the shaders")
+                return
+            }
+            if (!createGridBuffers()) {
+                console.error("Impossible to initialize the grid buffers")
+                return
+            }
+            initViewControls()
+            setView("front") // Set initial view to front
+
+            // Resize the canvas when the window is resized
+            window.addEventListener("resize", resizeCanvas)
+            resizeCanvas()
+
+            if (!drawScene()) {
+                console.error("Impossible to draw the scene")
+                return
+            }
+
+            // Function to initialize the view controls
+            function initViewControls() {
+                const views = [
+                    "front",
+                    "back",
+                    "left",
+                    "right",
+                    "top",
+                    "bottom",
+                ]
+                views.forEach((view) => {
+                    document
+                        .getElementById(`${view}View`)
+                        .addEventListener("click", () => {
+                            setView(view)
+                            drawScene()
+                        })
+                })
+            }
+
+            // Add event listeners
+            // Mouse events
+
+            canvas.onmousedown = handleMouseDown
+            document.onmouseup = handleMouseUp
+            document.onmousemove = handleMouseMove
+            canvas.addEventListener("wheel", handleWheel, { passive: false })
+            canvas.oncontextmenu = (e) => e.preventDefault() // Prevent right-click context menu
+
+            // Touch events
+            canvas.addEventListener("touchstart", handleTouchStart, {
+                passive: false,
+            })
+            canvas.addEventListener("touchmove", handleTouchMove, {
+                passive: false,
+            })
+            canvas.addEventListener("touchend", handleTouchEnd)
+
+            //Button events
+            const fileInput = document.getElementById("fileInput")
+            const fileNameSpan = document.getElementById("fileName")
+
+            // Load GCode file
+            fileInput.addEventListener("change", function (event) {
+                if (isComputing || isFileProcessing) {
+                    //console.log("Computing is already running");
+                    return
+                }
+                stopAnimation()
+                gcodePoints = []
+                visiblePoints = []
+                setView("front")
+                drawScene()
+                let file = event.target.files[0]
+                if (file) {
+                    if (fileNameSpan) {
+                        fileNameSpan.textContent = `${file.name} (${formatFileSize(file.size)})`
+                    }
+                    loadGCodeFile(file)
+                }
+            })
+
+            // Start layer slider
+            document
+                .getElementById("startLayerSlider")
+                .addEventListener("input", function () {
+                    if (isComputing || isFileProcessing) {
+                        //console.log("Computing is already running");
+                        return
+                    }
+                    stopAnimation()
+                    if (gcodePoints.length === 0) return
+                    startLayer = parseInt(this.value)
+                    if (startLayer > endLayer) {
+                        endLayer = startLayer
+                        document.getElementById("endLayerSlider").value =
+                            endLayer
+                    }
+                    updateLayerDisplay()
+                    debouncedUpdateAndRedraw()
+                })
+
+            // End layer slider
+            document
+                .getElementById("endLayerSlider")
+                .addEventListener("input", function () {
+                    if (isComputing || isFileProcessing) {
+                        //console.log("Computing is already running");
+                        return
+                    }
+                    stopAnimation()
+                    if (gcodePoints.length === 0) return
+                    endLayer = parseInt(this.value)
+                    if (endLayer < startLayer) {
+                        startLayer = endLayer
+                        document.getElementById("startLayerSlider").value =
+                            startLayer
+                    }
+                    updateLayerDisplay()
+                    debouncedUpdateAndRedraw()
+                })
+            updateAutoRotationButton()
+        }
+    }
+
+    const iconsToLoad = [
+        {
+            icon: "Settings",
+            id: "settingsIcon",
+        },
+        {
+            icon: "Info",
+            id: "aboutIcon",
+        },
+        {
+            icon: "Upload",
+            id: "uploadButtonIcon",
+        },
+        {
+            icon: "List",
+            id: "drop-btn",
+        },
+        {
+            icon: "CheckCircle",
+            id: "CheckCircleIcon",
+        },
+        {
+            icon: "Circle",
+            id: "CircleIcon",
+        },
+    ]
+    const loadedIcons = {}
+    let iconsLoaded = false
+    let settingsLoaded = false
+    const about_text = `<div class='modal-content'>
+<h2>GCode Viewer Extension v${gcodeViewer_version}</h2>
+<p>This ESP3D-WebUI extension  is a WebGL-based G-code viewer designed to provide an interactive and high-performance visualization of G-code files directly in the web browser.</p>
+<p>It offers the following features:</p>
+<ul>
+<li>Real-time 3D rendering of 3D printing toolpaths.</li>
+<li>Efficient loading and processing of large G-code files.</li>
+<li>Intuitive user interface with visualization controls.</li>
+<li>Dynamic filtering of print layers.</li>
+<li>Customizable viewing options (auto-rotation, axis inversion, etc.).</li>
+<li>Performance optimizations for smooth experience even with complex models.</li> 
+</ul>
+<p>
+  Developed by <a href='https://github.com/luc-github/esp3d-webui' target='_blank'>Luc Lebosse</a>. 
+  Licensed under <a href='https://www.gnu.org/licenses/lgpl-3.0.en.html' target='_blank'>LGPL</a>. 
+  Copyright © 2024.
+</p>
+</div>`
+    //About modal msg
+    const about_modal = {
+        type: "modal",
+        target: "webui",
+        id: "gcodeViewer_about",
+        content: {
+            title: "About gcodeViewer",
+            id: "simple_modal",
+            icon: "Info",
+            style: "default",
+            bt1Txt: "S24",
+            response1: "ok",
+            text: about_text,
+            overlay: true,
+        },
+    }
+
+    //Command message format
+    const command_msg = {
+        type: "query",
+        target: "webui",
+        id: "gcodeViewer_command",
+        url: "command",
+        args: { cmd: "" },
+    }
+
+    //Settings storage
+    const currentSettings = {
+        showTravels: false,
+        invertXY: false,
+        invertFrontBack: false,
+        enableSmartZoom: false,
+        invertWheelDirection: false,
+        controlRendering: true,
+    }
+
+    //Settings format
+    const settingsFormat = [
+        {
+            id: "showTravels",
+            type: "boolean",
+            label: "Show Travels",
+            help: "Show/Hide travels without extrusion",
+            value: false,
+        },
+        {
+            id: "invertXY",
+            type: "boolean",
+            label: "Invert X/Y",
+            help: "Invert X/Y axes",
+            value: false,
+        },
+        {
+            id: "invertFrontBack",
+            type: "boolean",
+            label: "Invert Front/Back",
+            help: "Invert Front/Back views",
+            value: false,
+        },
+        {
+            id: "controlRendering",
+            type: "boolean",
+            label: "Enable View Control",
+            help: "Enable View Control",
+            value: true,
+        },
+        {
+            id: "enableSmartZoom",
+            type: "boolean",
+            label: "Enable Smart Zoom",
+            help: "Enable Smart Zoom",
+            value: false,
+        },
+        {
+            id: "invertWheelDirection",
+            type: "boolean",
+            label: "Invert Wheel Direction",
+            help: "Invert Wheel Direction for the Zoom",
+            value: false,
+        },
+    ]
+    //Settings modal msg
+    const settings_modal = {
+        type: "modal",
+        target: "webui",
+        id: "gcodeViewer_settings",
+        content: {
+            title: "GCode Viewer Settings",
+            id: "fields_modal",
+            icon: "Settings",
+            style: "fields",
+            validation: "bt1",
+            bt1Txt: "S61",
+            response1: "update",
+            bt2Txt: "S28",
+            response2: "cancel",
+            fields: settingsFormat,
+            values: currentSettings,
+            hideclose: true,
+        },
+    }
+
+    //Settings modal msg
+    const please_wait_modal = {
+        type: "modal",
+        target: "webui",
+        id: "gcodeViewer_please_wait",
+        content: {
+            title: "GCode Viewer Settings",
+            id: "simple_modal",
+            style: "default",
+            bt1Txt: "S126",
+            response1: "ok",
+            text: "Please wait end of processing. ",
+            overlay: true,
+        },
+    }
+
+    //Request settings
+    const settings_request_msg = {
+        type: "capabilities",
+        target: "webui",
+        id: "extensions",
+        name: "gcodeViewer",
+    }
+
+    //Save data to settings message
+    const save_settings_msg = {
+        type: "extensionsData",
+        target: "webui",
+        id: "gcodeViewer",
+        content: "",
+    }
+
+    //Toast message
+    const toast_msg = {
+        type: "toast",
+        target: "webui",
+        content: { text: "", type: "default" },
+    }
+
+    //Save settings
+    function onSave(settings) {
+        currentSettings.showTravels = settings.showTravels
+        currentSettings.invertXY = settings.invertXY
+        currentSettings.invertFrontBack = settings.invertFrontBack
+        currentSettings.controlRendering = settings.controlRendering
+        currentSettings.enableSmartZoom = settings.enableSmartZoom
+        currentSettings.invertWheelDirection = settings.invertWheelDirection
+        updateSettings()
+        //Todo: Save settings to preferences.json
+        save_settings_msg.content = currentSettings
+        sendMessage(save_settings_msg)
+    }
+
+    function updateSettings() {
+        showLoader()
+        let redraw = false
+        let computeObject = false
+        let computeGrid = false
+        if (invertXY != currentSettings.invertXY) {
+            invertXY = currentSettings.invertXY
+            computeGrid = true;
+            redraw = true;
+            if (gcodePoints.length > 0) {
+                computeObject = true;
+            }
+        }
+        if (showTravels != currentSettings.showTravels) {
+            showTravels = currentSettings.showTravels
+            redraw = true;
+            if (gcodePoints.length > 0) {
+                computeObject = true;
+            }
+        }
+        if (invertFrontBack != currentSettings.invertFrontBack) {
+            invertFrontBack = currentSettings.invertFrontBack
+            computeGrid = true
+            redraw = true
+        }
+        if (currentSettings.controlRendering != controlRendering) {
+            controlRendering = currentSettings.controlRendering;
+            redraw = true
+        }
+        isSmartZoomEnabled = currentSettings.enableSmartZoom
+        isWheelInverted = currentSettings.invertWheelDirection
+        if (gl && checkglStatus()) {
+            stopAnimation();
+            if (computeGrid) {
+                useProgram(programGridInfo, programGridInfo)
+                updateAxisColors()
+                createAxisLabelsBuffers()
+            }
+            if (computeObject) {
+                useProgram(programGCodeInfo, programGridInfo)
+                // Update the visible points
+                updateVisiblePoints(false)
+            }
+            if (redraw) {
+                setView("front")
+                drawScene();
+            }
+        }
+        hideLoader()
+
+    }
+
+    //Settings modal
+    function settingsFn() {
+        if (isComputing || isFileProcessing) {
+            sendMessage(please_wait_modal)
+        } else {
+            sendMessage(settings_modal)
+        }
+    }
+
+    //About modal
+    function aboutFn() {
+        sendMessage(about_modal)
+    }
+
+    //Send message to WebUI
+    function sendMessage(msg) {
+        window.parent.postMessage(msg, "*")
+    }
+
+    function applySettings(settings) {
+        settingsLoaded = true
+        if (settings != null && Object.keys(settings).length > 2) {
+            currentSettings.showTravels = settings.showTravels
+            currentSettings.invertXY = settings.invertXY
+            currentSettings.invertFrontBack = settings.invertFrontBack
+            currentSettings.controlRendering = settings.controlRendering
+            currentSettings.enableSmartZoom = settings.enableSmartZoom
+            currentSettings.invertWheelDirection = settings.invertWheelDirection
+            updateSettings()
+        } else {
+            console.log("No Settings")
+        }
+        initExtension()
+    }
+
+    //Initialize the extension and add event listeners
+    //Should be called on load and only once
+    function initExtension() {
+        init()
+        hideLoader()
+        console.log("Init extension")
+    }
+
+    //Use loaded icons
+    function useLoadedIcons() {
+        const buttonContainer = document.getElementById("controls")
+        // Create a button for each button definition
+        iconsToLoad.forEach((item) => {
+            const element = document.getElementById(item.id)
+            if (element) {
+                element.innerHTML = loadedIcons[item.icon]
+            }
+        })
+    }
+
+    function containsIcon(icons, iconName) {
+        return icons.some((iconObj) => iconObj.icon === iconName)
+    }
+
+    function getIndexOfIcon(icons, iconName) {
+        return icons.findIndex((iconObj) => iconObj.icon === iconName)
+    }
+
+
+    function processSavingSettings(response) {
+        //Displaying result
+        if (response.status == "success") {
+            toast_msg.content.text = "Settings saved successfully"
+            toast_msg.content.type = "success"
+            sendMessage(toast_msg)
+        } else if (response.status == "error") {
+            toast_msg.content.text = "Error saving settings"
+            toast_msg.content.type = "error"
+            sendMessage(toast_msg)
+        }
+    }
+
+    //Load icons from WebUI
+    function loadIcons() {
+        iconsToLoad.forEach((element) => {
+            sendMessage({ type: "icon", target: "webui", id: element.icon })
+        })
+    }
+
+    function loadSettings() {
+        sendMessage(settings_request_msg)
+    }
+
+    //Process message from WebUI
+    function processMessage(eventMsg) {
+        //Check if icons are loaded
+        console.log(eventMsg.data)
+        if (!iconsLoaded) {
+            if (
+                eventMsg.data.type &&
+                eventMsg.data.id &&
+                containsIcon(iconsToLoad, eventMsg.data.id)
+            ) {
+                if (eventMsg.data.type === "icon") {
+                    const iconName = eventMsg.data.id
+                    const iconSvg = eventMsg.data.content.response
+                    loadedIcons[iconName] = iconSvg
+                    if (
+                        Object.keys(loadedIcons).length === iconsToLoad.length
+                    ) {
+                        useLoadedIcons()
+                        iconsLoaded = true
+                    }
+                }
+            }
+        } else {
+            //Icons are loaded lets process other messages
+            //Check if message is a response to a modal for settings
+            if (
+                eventMsg.data.type === "capabilities" &&
+                eventMsg.data.id === "extensions"
+            ) {
+                if (eventMsg.data.content.initiator.name === "gcodeViewer") {
+                    applySettings(eventMsg.data.content.response)
+                }
+            } else if (
+                eventMsg.data.type &&
+                (!eventMsg.data.id ||
+                    eventMsg.data.id.startsWith("gcodeViewer"))
+            ) {
+                if (
+                    eventMsg.data.type === "modal" &&
+                    eventMsg.data.id === "gcodeViewer_settings"
+                ) {
+                    if (eventMsg.data.content.response === "update") {
+                        onSave(eventMsg.data.content.inputData)
+                    }
+                } // Check if message is a response to a extensionsData for saving settings
+                else if (
+                    eventMsg.data.type === "extensionsData" &&
+                    eventMsg.data.id === "gcodeViewer"
+                ) {
+                    processSavingSettings(eventMsg.data.content.response)
+                }
+            }
+        }
+    }
+    function showLoader() {
+        const loader = document.getElementById("loaderContainer")
+        if (loader) {
+            loader.classList.remove("d-none");
+        }
+    }
+
+    function hideLoader() {
+        const loader = document.getElementById("loaderContainer")
+        if (loader) {
+            loader.classList.add("d-none");
+        }
+    }
+
+    window.onload = (event) => {
+        window.addEventListener("message", processMessage, false)
+        loadIcons()
+        loadSettings()
+    }
+</script>
+<script id="grid-vertex-shader" type="x-shader/x-vertex">
+    attribute vec3 grid_aVertexPosition;
+    attribute vec4 grid_aVertexColor;
+    uniform mat4 grid_uMVMatrix;
+    uniform mat4 grid_uPMatrix;
+    varying vec4 grid_vColor;
+    void main(void) {
+        gl_Position = grid_uPMatrix * grid_uMVMatrix * vec4(grid_aVertexPosition, 1.0);
+        grid_vColor = grid_aVertexColor;
+    }
+</script>
+<script id="fragment-shader-grid" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 grid_vColor;
+    void main(void) {
+        gl_FragColor = grid_vColor;
+    }
+</script>
+<script id="gcode-vertex-shader" type="x-shader/x-vertex">
+    attribute vec3 gcode_aVertexPosition;
+    attribute vec3 gcode_aVertexNormal;
+    attribute vec4 gcode_aVertexColor;
+
+    uniform mat4 gcode_uMVMatrix;
+    uniform mat4 gcode_uPMatrix;
+    uniform vec3 gcode_uLightPosition;
+
+    varying vec3 vNormal;
+    varying vec3 vLightRay;
+    varying vec4 vColor;
+
+    void main(void) {
+        vec4 vertex = gcode_uMVMatrix * vec4(gcode_aVertexPosition, 1.0);
+        gl_Position = gcode_uPMatrix * vertex;
+
+        vNormal = mat3(gcode_uMVMatrix) * gcode_aVertexNormal;
+        vLightRay = gcode_uLightPosition - vertex.xyz;
+        vColor = gcode_aVertexColor;
+    }
+</script>
+
+<script id="fragment-shader-gcode" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec3 vNormal;
+    varying vec3 vLightRay;
+    varying vec4 vColor;
+
+    uniform vec3 gcode_uAmbientColor;
+    uniform vec3 gcode_uDiffuseColor;
+
+    void main(void) {
+        vec3 L = normalize(vLightRay);
+        vec3 N = normalize(vNormal);
+
+        float lambertTerm = max(dot(N, L), 0.0);
+
+        vec3 finalColor = gcode_uAmbientColor + lambertTerm * gcode_uDiffuseColor;
+
+        gl_FragColor = vec4(finalColor * vColor.rgb, vColor.a);
+    }
+</script>
+<style>
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .gcodeviewer_extension_container {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .gcodeviewer_rendering {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #glCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 1px solid rgb(215, 215, 215);
+    }
+
+    .gcodeviewer-top-bar {
+        width: 100%;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .gcodeviewer_controls {
+        width: 250px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .canvas-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #progressBar {
+        width: 0%;
+        height: 30px;
+        background-color: #4c53af;
+        text-align: center;
+        line-height: 30px;
+        color: white;
+        margin: 5px 0;
+    }
+
+
+    .loader-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        z-index: 1000;
+    }
+
+    @media (max-aspect-ratio: 1/1) {
+        .gcodeviewer_extension_container {
+            flex-direction: column;
+        }
+
+        .gcodeviewer_controls {
+            width: 100%;
+            height: auto;
+            max-height: 30%;
+        }
+    }
+
+    /* Pour les écrans où la largeur est plus grande que la hauteur */
+    @media (min-aspect-ratio: 1/1) {
+        .gcodeviewer_extension_container {
+            flex-direction: row;
+        }
+
+        .gcodeviewer_controls {
+            height: 100%;
+            max-width: 30%;
+        }
+    }
+</style>
+<div id="extensionUI-container" class="gcodeviewer_extension_container">
+    <div class="gcodeviewer_rendering">
+        <div id="loaderContainer" class="loader-container">
+            <div class="loading loading-lg"></div>
+        </div>
+        <div class="flex-row-between" style="width: 100%; padding-right: 10px">
+            <div class="dropdown">
+                <span class="dropdown-toggle btn m-1" tabindex="0" id="drop-btn" style="z-index: 10000"></span>
+                <ul class="menu">
+                    <li class="menu-item">
+                        <div class="menu-entry" onclick="document.getElementById('fileInput').click()">
+                            <div class="menu-panel-item">
+                                <span class="text-menu-item"> Upload </span>
+                                <span id="uploadButtonIcon"></span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="menu-item">
+                        <div class="menu-entry" onclick="toggleAutoRotation()">
+                            <div class="menu-panel-item">
+                                <span class="text-menu-item"> Animate </span>
+                                <span id="animateIcon"></span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="menu-item">
+                        <div class="menu-entry" onclick="settingsFn()">
+                            <div class="menu-panel-item">
+                                <span class="text-menu-item"> Settings </span>
+                                <span id="settingsIcon"></span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="menu-item">
+                        <div class="menu-entry" onclick="aboutFn()">
+                            <div class="menu-panel-item">
+                                <span class="text-menu-item"> About </span>
+                                <span id="aboutIcon"></span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="text-primary mt-2" id="fileName"></div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="glCanvas"></canvas>
+        </div>
+    </div>
+    <div id="controls" class="gcodeviewer_controls">
+        <div style="align-self: stretch">
+            <div id="progressBar">0%</div>
+        </div>
+        <div class="btn-group btn-group-block m-1" width="100%">
+            <button class="btn btn-sm" id="frontView">Front</button>
+            <button class="btn btn-sm" id="backView">Back</button>
+            <button class="btn btn-sm" id="leftView">Left</button>
+            <button class="btn btn-sm" id="rightView">Right</button>
+            <button class="btn btn-sm" id="topView">Top</button>
+            <button class="btn btn-sm" id="bottomView">Bottom</button>
+        </div>
+        <div id="layers_control" class="d-none">
+            <div>
+                <label for="startLayerSlider">Start layer: </label>
+                <input type="range" id="startLayerSlider" min="0" max="100" value="0" />
+                <span id="startLayerDisplay">0</span>
+            </div>
+
+            <div>
+                <label for="endLayerSlider">End layer: </label>
+                <input type="range" id="endLayerSlider" min="0" max="100" value="100" />
+                <span id="endLayerDisplay">100</span>
+            </div>
+        </div>
+
+        <input type="file" id="fileInput" accept=".gcode" style="display: none" />
+    </div>
+</div>

@@ -1,0 +1,25 @@
+{
+  "name": "gcodeViewer",
+  "version": "1.0.1",
+  "description": "ESP3D-WEBUI extension",
+  "main": "gcodeViewer.html",
+  "scripts": {
+    "build": "webpack --mode production"
+  },
+  "keywords": [],
+  "author": "Luc LEBOSSE",
+  "license": "LGPL",
+  "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "babel-loader": "^9.1.3",
+    "compression-webpack-plugin": "^11.1.0",
+    "css-loader": "^7.1.2",
+    "filemanager-webpack-plugin": "^8.0.0",
+    "html-loader": "^5.0.0",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.92.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

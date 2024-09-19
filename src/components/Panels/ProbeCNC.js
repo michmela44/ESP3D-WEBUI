@@ -28,7 +28,7 @@ import {
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
-import { espHttpURL, replaceVariables, settingsDepend } from "../Helpers"
+import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
 
 /*
  * Local const
@@ -84,11 +84,10 @@ const ProbeControls = () => {
 
 const ProbePanel = () => {
     const { toasts } = useUiContext()
-    const { interfaceSettings } = useSettingsContext()
+    const { interfaceSettings, connectionSettings } = useSettingsContext()
     //const { status } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const id = "ProbePanel"
-    const panelRef = useRef(null)
 
     console.log("Probe panel")
     if (typeof maxprobe.current === "undefined") {
@@ -375,7 +374,7 @@ const ProbePanel = () => {
     ]
 
     return (
-        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+        <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} />
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
@@ -385,12 +384,10 @@ const ProbePanel = () => {
                 <span class="navbar-section">
                     <span class="full-height">
                         <FullScreenButton
-                            panelRef={panelRef}
-                            hideOnFullScreen={true}
+                            elementId={id}
                         />
                         <CloseButton
-                            panelRef={panelRef}
-                            panelId={id}
+                            elementId={id}
                             hideOnFullScreen={true}
                         />
                     </span>
@@ -572,11 +569,12 @@ const ProbePanel = () => {
                                                         if (options)
                                                             return options.filter(
                                                                 (option) => {
-                                                                    return settingsDepend(
+                                                                    return checkDependencies(
                                                                         option.depend,
                                                                         interfaceSettings
                                                                             .current
-                                                                            .settings
+                                                                            .settings,
+                                                                        connectionSettings.current
                                                                     )
                                                                 }
                                                             )

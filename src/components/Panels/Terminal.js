@@ -54,12 +54,11 @@ const TerminalPanel = () => {
     )
     const [isAutoScrollPaused, setIsAutoScrollPaused] = useState(false)
     let lastPos = 0
-    const panelRef = useRef(null)
     const inputRef = useRef()
     const messagesEndRef = useRef(null)
     const terminalOutput = useRef(null)
     const id = "terminalPanel"
-    let inputHistoryIndex = terminal.inputHistory.length - 1
+    const inputHistoryIndex = useRef(terminal.inputHistory.length )
     const scrollToBottom = () => {
         if (
             terminal.isAutoScroll.current &&
@@ -70,25 +69,26 @@ const TerminalPanel = () => {
         }
     }
     const historyPrev = () => {
-        if (terminal.inputHistory.length > 0 && inputHistoryIndex >= 0) {
-            inputRef.current.value = terminal.inputHistory[inputHistoryIndex]
+        if (terminal.inputHistory.length > 0 && inputHistoryIndex.current > 0) { 
+            inputHistoryIndex.current--
+            inputRef.current.value = terminal.inputHistory[inputHistoryIndex.current]
             terminal.input.current = inputRef.current.value
-            inputHistoryIndex--
         }
     }
 
     const historyNext = () => {
         if (
             terminal.inputHistory.length > 0 &&
-            inputHistoryIndex < terminal.inputHistory.length - 1
+            inputHistoryIndex.current < terminal.inputHistory.length-1 
         ) {
-            inputHistoryIndex++
-            inputRef.current.value = terminal.inputHistory[inputHistoryIndex]
+            inputHistoryIndex.current++
+            inputRef.current.value = terminal.inputHistory[inputHistoryIndex.current]
             terminal.input.current = inputRef.current.value
         } else {
             inputRef.current.value = ""
             terminal.input.current = inputRef.current.value
-        }
+            inputHistoryIndex.current = terminal.inputHistory.length
+        } 
     }
     const onKeyUp = (e) => {
         switch (e.keyCode) {
@@ -122,8 +122,7 @@ const TerminalPanel = () => {
             ) {
                 terminal.addInputHistory(cmd)
             }
-
-            inputHistoryIndex = terminal.inputHistory.length - 1
+            inputHistoryIndex.current = terminal.inputHistory.length 
             processData(
                 "echo",
                 replaceVariables(variablesList.commands, cmd, true)
@@ -143,7 +142,8 @@ const TerminalPanel = () => {
                     },
                 }
             )
-        }
+        } 
+        inputHistoryIndex.current = terminal.inputHistory.length 
         terminal.input.current = ""
         inputRef.current.value = ""
     }
@@ -153,6 +153,13 @@ const TerminalPanel = () => {
     useEffect(() => {
         scrollToBottom()
     }, [terminal.content])
+    useEffect(() => {
+        return () => {
+            //console.log('Resetting terminal history');
+            inputHistoryIndex.current = terminal.inputHistory.length - 1;
+        };
+    }, []);
+
     console.log("Terminal panel")
 
     const toggleVerboseMode = () => {
@@ -215,7 +222,7 @@ const TerminalPanel = () => {
     ]
 
     return (
-        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+        <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id}/>
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
@@ -226,12 +233,10 @@ const TerminalPanel = () => {
                     <span class="full-height">
                         <PanelMenu items={menu} />
                         <FullScreenButton
-                            panelRef={panelRef}
-                            hideOnFullScreen={true}
+                            elementId={id}
                         />
                         <CloseButton
-                            panelRef={panelRef}
-                            panelId={id}
+                            elementId={id}
                             hideOnFullScreen={true}
                         />
                     </span>

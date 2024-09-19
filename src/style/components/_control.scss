@@ -1,5 +1,6 @@
 .image-button-bar {
     text-align: center;
+    height: 2rem;
 }
 .buttons-bar {
     display: flex;
@@ -316,11 +317,6 @@ span.input-group-addon {
     border-radius: $border-radius;
 }
 
-.image-container,
-.camera-container {
-    border: none;
-    width: 100%;
-}
 
 .m-05 {
     margin: 0.05rem !important;
@@ -333,12 +329,80 @@ span.input-group-addon {
     text-align: center;
 }
 
-.content-container,
-.extensionContainer {
+.contentContainer,
+.extensionContainer ,
+.cameraContainer,
+.imageContainer {
     border: none;
+    overflow: hidden;
+    flex: 1;
+    padding: 10px;
+}
+.cameraContainer,
+.imageContainer {
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto; /* Centers the image horizontally */
+}
+.picture-container {
+    width: 100%;
+    max-height: calc(100% - 3rem);
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    object-fit: contain;
+}
+.contentContainer,
+.extensionContainer {
     height: 100%;
     width: 100%;
+    
 }
+
+.page-container {
+    display:flex;
+    flex-direction: column;
+    height: 100% ;
+    overflow: hidden;    
+}
+.extra-content-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position:absolute;
+    z-index: 9999;
+    opacity: 1;
+    display: block;
+    pointer-events: auto!important;
+    user-select: auto!important;
+    -moz-user-select: auto!important;
+    -webkit-user-select:auto!important;
+    -ms-user-select: auto!important;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.fallback-content {
+    display: none;
+    text-align: center; font-size: 1.5rem; background-color: red; color: white; margin-top: 0.5rem;
+}
+
+.page-target-container {
+    flex:1;
+    z-index: auto;
+}
+
+.panel-target-container {
+    z-index: auto;
+    overflow: hidden;
+}
+
 
 .body-extension {
     overflow-y: auto !important;
@@ -641,5 +705,22 @@ a label {
 
 
 .modals-container {
-    z-index:20000;
+    overlay: auto!important;
+    z-index:100000 !important;
+}
+
+.toasts-container {
+    position: fixed;
+    z-index: 100000 !important;
+    right: 0.5rem;
+    top: 0.5rem;
+
+    > .toast {
+        margin: 0.2rem 0;
+    }
+}
+:fullscreen .toasts-container{
+    top: 1.2rem;
+    z-index: 100000 !important;
+    overlay: auto!important;
 }

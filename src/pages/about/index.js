@@ -184,7 +184,7 @@ const About = () => {
             interfaceSettings.current.custom &&
             interfaceSettings.current.custom.fwurl
                 ? interfaceSettings.current.custom.fwurl
-                : i
+                : i && i != "none"
                   ? fwUrl[1]
                   : fwUrl[0]
 

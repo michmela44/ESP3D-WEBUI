@@ -24,7 +24,7 @@ import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
-import { espHttpURL, replaceVariables, settingsDepend } from "../Helpers"
+import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
 
 /*
  * Local const
@@ -82,7 +82,6 @@ const LaserPanel = () => {
     const { states } = useTargetContext()
     const { createNewRequest } = useHttpFn
     const id = "laserPanel"
-    const panelRef = useRef(null)
 
     console.log("Laser panel")
     if (typeof laserPercentage.current === "undefined") {
@@ -243,7 +242,7 @@ const LaserPanel = () => {
         },
     ]
     return (
-        <div class="panel panel-dashboard" id={id} ref={panelRef}>
+        <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} /> 
             <div class="navbar">
                 <span class="navbar-section feather-icon-container">
@@ -253,12 +252,10 @@ const LaserPanel = () => {
                 <span class="navbar-section">
                     <span class="full-height">
                         <FullScreenButton
-                            panelRef={panelRef}
-                            hideOnFullScreen={true}
+                            elementId={id}
                         />
                         <CloseButton
-                            panelRef={panelRef}
-                            panelId={id}
+                            elementId={id}
                             hideOnFullScreen={true}
                         />
                     </span>
