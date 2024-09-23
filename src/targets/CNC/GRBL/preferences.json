@@ -121,7 +121,7 @@
                         "value": true
                     },
                     {
-                        "id": "sort_sd_files",
+                        "id": "sort_directsd_files",
                         "type": "boolean",
                         "label": "S224",
                         "value": true,
