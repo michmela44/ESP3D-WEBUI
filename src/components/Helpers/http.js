@@ -65,6 +65,7 @@ function isLimitedEnvironment(mode) {
         //Windows
         ".msftncsi.com",
         "microsoft.com",
+        "msftconnecttest.com",
     ]
     if (mode != "AP") return false
     for (let i = 0; i < sitesList.length; i++) {
