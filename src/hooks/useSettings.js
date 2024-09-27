@@ -261,15 +261,16 @@ const useSettings = () => {
                             id: "notification",
                             content: T("S124").replace(
                                 "%s",
+                                // change here to account for FluidNC having to have the 2nd WebSocket port
                                 connectionSettings.current.WebSocketIP +
                                     (connectionSettings.current.WebSocketPort !=
-                                    "81"
+                                    "82"
                                         ? ":" +
                                           (parseInt(
                                               connectionSettings.current
                                                   .WebSocketPort
                                           ) -
-                                              1)
+                                              2)
                                         : "")
                             ),
                             hideclose: true,
