@@ -114,6 +114,7 @@ const commands = {
     formatResult: (result) => {
         const files = formatFileSerialLine(result.content)
         const isSorted = useUiContextFn.getValue("sort_sd_files")
+        console.log("sd is sorted", isSorted)
         return {
             files: isSorted? sortedFilesList(files, false) : files,
             status: formatStatus(result.status),

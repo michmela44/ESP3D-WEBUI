@@ -120,10 +120,11 @@ const commands = {
         }
     },
     filterResult: (data, path) => {
-        //console.log(data)
-        const isSorted = useUiContextFn.getValue("sort_sd_files")
+        console.log(data)
+        const isSorted = useUiContextFn.getValue("sort_sdext_files")
+        console.log("is sorted ext", isSorted)
         const res = {}
-        res.files = isSorted? sortedFilesList(filterResultFiles(data.files, path), false) : filterResultFiles(data.files, path)
+        res.files = isSorted? sortedFilesList(filterResultFiles(data.files, path), true) : filterResultFiles(data.files, path)
         res.status = formatStatus(data.status)
         return res
     },

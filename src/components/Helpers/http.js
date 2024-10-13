@@ -50,21 +50,30 @@ const espHttpURL = (base = "", args = {}) => {
 
 function isLimitedEnvironment(mode) {
     let sitesList = [
-        "clients3.google.com", //Android Captive Portal Detection
+        //google / android Captive Portal Detection
+        "google.com",
         "connectivitycheck.",
-        //Apple iPhone, iPad with iOS 6 Captive Portal Detection
+        "googleapis.com",
+        "gstatic.com",
+        // Apple iPhone, iPad with iOS 6 Captive Portal Detection
         "apple.com",
         ".akamaitechnologies.com",
-        //Apple iPhone, iPad with iOS 7, 8, 9 and recent versions of OS X
+        // Apple iPhone, iPad with iOS 7, 8, 9 and recent versions of OS X
         "www.appleiphonecell.com",
         "www.itools.info",
         "www.ibook.info",
         "www.airport.us",
         "www.thinkdifferent.us",
         ".akamaiedge.net",
-        //Windows
+        // Windows
         ".msftncsi.com",
         "microsoft.com",
+        ".msftconnecttest.com",
+        // Firefox
+        "detectportal.firefox.com",
+        // Linux
+        "network-test.debian.org",
+        "nmcheck.gnome.org",
     ]
     if (mode != "AP") return false
     for (let i = 0; i < sitesList.length; i++) {

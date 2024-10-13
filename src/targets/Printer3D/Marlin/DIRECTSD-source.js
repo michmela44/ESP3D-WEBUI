@@ -74,7 +74,8 @@ const commands = {
     },
     formatResult: (resultTxT) => {
         const res = JSON.parse(resultTxT)
-        if (useUiContextFn.getValue("sort_sd_files")){
+        console.log("direct SD sort", useUiContextFn.getValue("sort_directsd_files"))
+        if (useUiContextFn.getValue("sort_directsd_files")){
             res.files = sortedFilesList(res.files)
         } 
         res.status = formatStatus(res.status)
