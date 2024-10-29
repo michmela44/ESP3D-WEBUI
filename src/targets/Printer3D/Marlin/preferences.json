@@ -152,7 +152,20 @@
                         "type": "boolean",
                         "label": "S224",
                         "value": true,
-                        "depend": [{ "id": "sd", "value": true }]
+                        "depend": [{ "id": "sd", "value": true },{
+                            "connection_id": "SDConnection",
+                            "value": "=='none'"
+                        } ]
+                    },
+                    {
+                        "id": "sort_directsd_files",
+                        "type": "boolean",
+                        "label": "S224",
+                        "value": true,
+                        "depend": [{ "id": "sd", "value": true },{
+                            "connection_id": "SDConnection",
+                            "value": "!='none'"
+                        } ]
                     }
                 ]
             },

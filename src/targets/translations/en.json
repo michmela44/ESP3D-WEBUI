@@ -339,6 +339,8 @@
     "passive port": "Passive port",
     "time": "Time",
     "i-time": "Internet time",
+    "ntp": "Network time provider",
+    "display": "Display",
     "tzone": "Time zone",
     "dst": "DST",
     "t-server": "Time server",
