@@ -273,9 +273,9 @@ const useSettings = () => {
                                               2)
                                         : "")
                             ),
-                            hideclose: true,
+                            hideclose: false,
                         })
-                        return
+                        
                     }
 
                     if (jsonResult.FWTarget == 0) {
