@@ -25,7 +25,7 @@ import {
     useHttpQueueContext,
 } from "../contexts"
 import { useHttpFn } from "../hooks"
-import { getCookie, splitArrayByLines } from "../components/Helpers"
+import { getCookie, splitArrayByLines, isLimitedEnvironment } from "../components/Helpers"
 import { T } from "../components/Translations"
 
 /*
@@ -210,10 +210,19 @@ const WsContextProvider = ({ children }) => {
             connectionSettings.current.WebCommunication === "Synchronous"
                 ? ""
                 : "/ws"
+
+        var address = document.location.hostname
+        if ( connectionSettings.current.WebSocketIP != "localhost" &&
+            (connectionSettings.current.WiFiMode && isLimitedEnvironment(connectionSettings.current.WiFiMode)) ||
+            (connectionSettings.current.RadioMode && isLimitedEnvironment(connectionSettings.current.RadioMode))
+        ) {
+            address = connectionSettings.current.WebSocketIP
+        }
+
         wsConnection.current = new WebSocket(
-            `ws://${document.location.hostname}:${
+            `ws://${address}:${
                 document.location.port != ""
-                    ? parseInt(document.location.port) + 1
+                    ? parseInt(document.location.port) + 2
                     : connectionSettings.current.WebSocketPort
             }${path}`,
             `webui-v3`
