@@ -54,7 +54,7 @@ const httpAdapter = (url, params = {}, setUploadProgress = () => {}) => {
     const cacheBustedUrl = (url) => {
         const parsedUrl = new URL(url)
         let params = parsedUrl.searchParams
-        params.get("t") == null && params.append("t", Date.now())
+       // params.get("t") == null && params.append("t", Date.now())
         return parsedUrl.toString()
     }
 
