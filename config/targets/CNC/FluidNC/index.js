@@ -102,7 +102,7 @@ const commandsQuery = (req, res, SendWS) => {
                 Authentication: "Disabled",
                 WebCommunication: "Synchronous",
                 WebSocketIP: "localhost",
-                WebSocketPort: "81",
+                WebSocketPort: "82",
                 Hostname: "esp3d",
                 WiFiMode: "STA",
                 wled: "Enabled",

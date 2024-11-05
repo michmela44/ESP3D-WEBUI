@@ -254,25 +254,27 @@ const useSettings = () => {
                                 connectionSettings.current.RadioMode
                             ))
                     ) {
+                        // change here to account for FluidNC having to have the 2nd WebSocket port
+                        var url =
+                            "http://" +
+                            connectionSettings.current.WebSocketIP +
+                            (connectionSettings.current.WebSocketPort != "82"
+                                ? ":" +
+                                  (parseInt(
+                                      connectionSettings.current.WebSocketPort
+                                  ) - 2)
+                                : "")
                         showModal({
                             modals,
                             title: T("S123"),
                             icon: <Info />,
                             id: "notification",
-                            content: T("S124").replace(
-                                "%s",
-                                // change here to account for FluidNC having to have the 2nd WebSocket port
-                                connectionSettings.current.WebSocketIP +
-                                    (connectionSettings.current.WebSocketPort !=
-                                    "82"
-                                        ? ":" +
-                                          (parseInt(
-                                              connectionSettings.current
-                                                  .WebSocketPort
-                                          ) -
-                                              2)
-                                        : "")
+                            content: (
+                                <div>
+                                    { T("S124").split("%s")[0] } <a href={url} target="_blank">{url}</a> { T("S124").split("%s")[1] }
+                                </div>
                             ),
+
                             hideclose: false,
                         })
                         
