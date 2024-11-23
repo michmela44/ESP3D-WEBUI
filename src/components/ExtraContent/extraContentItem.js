@@ -19,7 +19,7 @@
 */
 import { Fragment, h } from "preact"
 import { useState, useEffect, useCallback, useRef, useMemo } from "preact/hooks"
-import { espHttpURL } from "../Helpers"
+import { espHttpURL, dispatchToExtensions } from "../Helpers"
 import { useHttpFn } from "../../hooks"
 import { ButtonImg, ContainerHelper } from "../Controls"
 import { T } from "../Translations"
@@ -47,14 +47,22 @@ const ExtraContentItem = ({
     const { createNewRequest } = useHttpFn
     const element_id = id.replace("extra_content_", type)
     const refreshIntervalRef = useRef(null)
-    console.log(`Rendering ExtraContentItem ${id} at ${Date.now()}`);
+    //console.log(`Rendering ExtraContentItem ${id} at ${Date.now()}`);
     if (visibilityState[id] === undefined) {
-        visibilityState[id] = target=="panel" ? isVisibleOnStart : true;
+        visibilityState[id] = false;
+        if (type=="extension" && isLoadedState[id]){    
+            const iframeElement = element.querySelector('iframe.extensionContainer');
+            if (iframeElement){
+                iframeElement.contentWindow.postMessage(
+                    { type: "notification", content: {isVisible: msg.isVisible}, id },
+                    "*"
+                )
+            }
+        }
     }
     if (isLoadedState[id] === undefined) {
         isLoadedState[id] = false;
     }
-
 
     const handleContentSuccess = useCallback((result) => {
         let blob
@@ -133,7 +141,6 @@ const ExtraContentItem = ({
                     loadContent()
                 }
                 if ('isVisible' in msg) {
-                    
                     if (element) {
                         //console.log("Updating visibility for element " + id + " to " + msg.isVisible)
                         element.style.display = msg.isVisible ? 'block' : 'none';
@@ -220,6 +227,12 @@ const ExtraContentItem = ({
             css.forEach((csstag) => {
                 doc.head.appendChild(csstag.cloneNode(true))
             })
+            if (iframeElement){
+                iframeElement.contentWindow.postMessage(
+                    { type: "notification", content: {isConnected: true, isVisible: visibilityState[id]}, id },
+                    "*"
+                )
+            }
         }
     }
 

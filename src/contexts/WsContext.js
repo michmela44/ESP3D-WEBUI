@@ -25,8 +25,9 @@ import {
     useHttpQueueContext,
 } from "../contexts"
 import { useHttpFn } from "../hooks"
-import { getCookie, splitArrayByLines } from "../components/Helpers"
+import { getCookie, splitArrayByLines, dispatchToExtensions } from "../components/Helpers"
 import { T } from "../components/Translations"
+
 
 /*
  * Local const
@@ -160,10 +161,14 @@ const WsContextProvider = ({ children }) => {
         //Clear all opened modals
         modals.clearModals()
         //TODO: Stop polling
+        //Notify extensions
+        dispatchToExtensions("notification", { isConnected: false }, "all")
     }
 
     const onOpenCB = (e) => {
         reconnectCounter.current = 0
+        //Notify extensions
+        dispatchToExtensions("notification", { isConnected: true }, "all")
         ping(true)
     }
 
