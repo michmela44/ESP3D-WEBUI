@@ -37,13 +37,16 @@ import {
     useSettingsContextFn,
 } from "../../contexts"
 import { Esp3dVersion } from "../../components/App/version"
-import { Github, RefreshCcw, UploadCloud, LifeBuoy, Info } from "preact-feather"
+import { Github, RefreshCcw, UploadCloud, LifeBuoy, Info, BookOpen } from "preact-feather"
 import { webUiUrl, fwUrl, Name, restartdelay } from "../../targets"
 import {
     showConfirmationModal,
     showProgressModal,
 } from "../../components/Modal"
 let about = []
+
+//TODO: add link to translated documentation according language set for UI
+const defaultHelpUrl = "https://esp3d.io/ESP3D-WebUI/Version_3.X/documentation/"
 
 /*
  * Local const
@@ -96,7 +99,32 @@ const CustomEntry = () => {
                 {HelpEntry} {InfoEntry}
             </li>
         )
+    } 
+   
+    const onClickHelp = (e) => {
+        useUiContextFn.haptic()
+        window.open(defaultHelpUrl, "_blank")
+        e.target.blur()
     }
+    HelpEntry = (
+        <ButtonImg
+            mx2
+            tooltip
+            data-tooltip={T("S225")}
+            icon={<BookOpen />}
+            label="esp3d.io"
+            onClick={onClickHelp}
+        />
+    )
+    return (
+        <li class="feather-icon-container">
+            <span class="text-primary text-label">
+                {T("S225")}:
+            </span>
+             {HelpEntry}
+        </li>
+    )
+ 
 }
 
 const About = () => {

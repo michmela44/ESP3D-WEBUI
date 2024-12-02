@@ -322,6 +322,14 @@ span.input-group-addon {
     margin: 0.05rem !important;
 }
 
+.min2rem {
+    min-width: 2rem;
+}
+
+.min1rem {
+    min-width: 1rem;
+}
+
 .error-login-message {
     color: red;
     background-color: white;
