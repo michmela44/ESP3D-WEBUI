@@ -64,6 +64,7 @@ const IconSelect = ({
                             <ButtonImg
                                 m05
                                 primary
+                                min1rem
                                 btn-xs
                                 icon={displayIcon}
                                 onclick={onSelect}
@@ -73,6 +74,7 @@ const IconSelect = ({
                         return (
                             <ButtonImg
                                 m05
+                                min2rem
                                 icon={displayIcon}
                                 onclick={onSelect}
                             />
@@ -101,6 +103,7 @@ const IconSelect = ({
         <div class={`input-group  `}>
             <ButtonImg
                 m1
+                min2rem
                 icon={controlIcon}
                 onClick={showList}
             />
