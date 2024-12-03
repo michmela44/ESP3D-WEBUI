@@ -1,1 +1,25 @@
 @import "../../style/index";
+
+
+.bg-secondary {
+    background: #b1ccdc !important
+}
+
+.btn:focus,
+.btn:hover {
+    background: #b1ccdc;
+    border-color: #005287;
+    text-decoration: none
+}
+
+.btn.btn-primary.active,
+.btn.btn-primary:active {
+    background: #004572;
+    border-color: #003c63;
+    color: #fff
+}
+
+.btn.btn-primary.loading::after {
+    border-bottom-color: #fff;
+    border-left-color: #fff
+}

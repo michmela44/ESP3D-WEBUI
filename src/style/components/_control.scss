@@ -36,7 +36,7 @@ input[type="range"]::-ms-thumb {
 }
 
 .badge-container {
-    border: 0.05rem solid #5755d9;
+    border: 0.05rem solid #005b96;
     text-align: center;
     width: 1.8rem;
     height: 1.8rem;
@@ -251,7 +251,7 @@ span.input-group-addon {
 
 .comment {
     background: #f1f1fc;
-    color: #5755d9;
+    color: #005b96;
     padding-left: 0.5rem;
 }
 
@@ -264,7 +264,7 @@ span.input-group-addon {
 }
 
 .files-list-footer {
-    color: #5755d9;
+    color: #005b96;
 }
 
 .file-line-controls {
@@ -312,7 +312,7 @@ span.input-group-addon {
 }
 
 .file-line:hover {
-    color: #5755d9;
+    color: #005b96;
     background-color: #f1f1fc;
     border-radius: $border-radius;
 }
@@ -590,10 +590,10 @@ a label {
         line-height: 1.8rem;
         display: block;
         background: white;
-        border: 0.05rem solid #5755d9;
+        border: 0.05rem solid #005b96;
         border-top: 0em;
         text-align: center;
-        color: #5755d9;
+        color: #005b96;
         position: relative;
         min-width: 2rem;
     }
@@ -603,7 +603,7 @@ a label {
         color: white;
     }
     input[type="radio"]:checked + label {
-        background: #5755d9;
+        background: #005b96;
         color: white;
     }
     .last-button {
