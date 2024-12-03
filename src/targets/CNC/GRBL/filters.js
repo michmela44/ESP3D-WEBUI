@@ -216,7 +216,12 @@ const getStates = (str) => {
             } else {
                 gcode_parser_modes.forEach((mode) => {
                     if (mode.values && mode.values.includes(cur)) {
-                        acc[mode.id] = { value: cur }
+                        if (mode.multiple) {
+                            if (!acc[mode.id]) acc[mode.id] = []
+                            acc[mode.id].push ({ "value": cur })
+                        } else {
+                        acc[mode.id] = { "value": cur }
+                        }
                     }
                 })
             }

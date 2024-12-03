@@ -27,6 +27,7 @@ let lastconnection = Date.now()
 let logindone = false
 const sessiontTime = 60000
 let countStatus = 0
+let change = false
 
 function getLastconnection() {
     return lastconnection
@@ -201,7 +202,13 @@ const commandsQuery = (req, res, SendWS) => {
     }
 
     if (url.indexOf("$G") != -1) {
-        SendWS("[GC:G0 G54 G17 G21 G90 G94 M5 M9 T0 F0.0 S0]\n")
+        change = !change
+        if (change) {
+            SendWS("[GC:G0 G54 G17 G21 G90 G94 M4 M5 M6 M7 M8 T0 F0.0 S0]\n")
+        } else {
+            SendWS("[GC:G0 G54 G17 G21 G90 G94 M5 M9 T0 F0.0 S0]\n")
+        }
+        
         res.send("")
         return
     }

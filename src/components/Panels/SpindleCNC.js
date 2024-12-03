@@ -47,6 +47,7 @@ const spindleSpeedValue = {}
 
 const SpindleControls = () => {
     const { states } = useTargetContext()
+    console.log(states)
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     //Add callback to reset event
     eventsList.on("reset", onReset)
@@ -135,6 +136,12 @@ const SpindlePanel = () => {
                     label: "M5",
                     tooltip: "CN76",
                     command: "M5",
+                    mode: "spindle_mode",
+                },
+                {
+                    label: "M6",
+                    tooltip: "CN109",
+                    command: "M6",
                     mode: "spindle_mode",
                 },
             ],
@@ -311,8 +318,14 @@ const SpindlePanel = () => {
                             }
                         }
                         if (states && button.mode && states[button.mode]) {
-                            if (states[button.mode].value == button.label) {
-                                classname += " btn-primary"
+                            if (Array.isArray(states[button.mode])){
+                               if(states[button.mode].some(item => item.value==button.label)){
+                                    classname += " btn-primary"
+                               }
+                            } else {
+                                if (states[button.mode].value == button.label) {
+                                    classname += " btn-primary"
+                                }
                             }
                         }
                         return (
