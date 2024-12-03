@@ -38,6 +38,7 @@ import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
 const maxprobe = {}
 const probefeedrate = {}
 const probethickness = {}
+const proberetract = {}
 const probetype = {}
 const probeaxis = {}
 
@@ -99,6 +100,9 @@ const ProbePanel = () => {
     if (typeof probethickness.current === "undefined") {
         probethickness.current = useUiContextFn.getValue("probethickness")
     }
+    if (typeof proberetract.current === "undefined") {
+        proberetract.current = useUiContextFn.getValue("proberetract")
+    }
     if (typeof probetype.current === "undefined") {
         probetype.current = "G38.2"
     }
@@ -107,7 +111,7 @@ const ProbePanel = () => {
     }
 
     const hasError = () => {
-        return !(probefeedrate.valid && probethickness.valid && maxprobe.valid)
+        return !(probefeedrate.valid && probethickness.valid && proberetract.valid && maxprobe.valid)
     }
 
     const sendCommand = (command) => {
@@ -309,6 +313,23 @@ const ProbePanel = () => {
                             value: probethickness,
                             append: "CN96",
                             variableName: "#probe_thickness#",
+                        },
+                    ],
+                },
+                {
+                    id: "probe_retract",
+                    elements: [
+                        {
+                            id: "probe_retract",
+                            type: "number",
+                            label: "CN200",
+                            tooltip: "CN200",
+                            min: 0,
+                            step: useUiContextFn.getElement("proberetract")
+                                .step,
+                            value: proberetract,
+                            append: "CN96",
+                            variableName: "#probe_retract#",
                         },
                     ],
                 },

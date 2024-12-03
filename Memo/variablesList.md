@@ -17,7 +17,8 @@ Note: if variable is unknown, then it is set to `0`
 
     -   Probe Panel  
         Probe thickness : #probe_thickness#  
-        Selected axis : #selected_axis#
+        Selected axis : #selected_axis# 
+        Probe Retraction : #probe_retract#
 
     -   Laser CNC Panel  
         Maximum value of laser: #laser_max#
