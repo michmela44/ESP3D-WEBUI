@@ -300,6 +300,29 @@ const StatusPanel = () => {
                                 <div class="states-buttons-container">
                                     {variablesList.modes.map((element) => {
                                         if (states[element.id]) {
+                                            if (Array.isArray(states[element.id])) {
+                                                return states[element.id].map((item) => {
+                                                    return(
+                                                        <Button
+                                                            m1
+                                                            tooltip
+                                                            data-tooltip={T(
+                                                                item.value
+                                                            )}
+                                                            onClick={(e) => {
+                                                                useUiContextFn.haptic()
+                                                                e.target.blur()
+                                                                //TBD if need to change value from here
+                                                            }}
+                                                        >
+                                                            {item.pre
+                                                                ? item.pre
+                                                                : null}
+                                                            {item.value}
+                                                        </Button>
+                                                    )
+                                                })
+                                            } else
                                             return (
                                                 <Button
                                                     m1

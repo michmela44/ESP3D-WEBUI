@@ -10,7 +10,7 @@
   "showinformationpage": true,
   "showmachinesettings": true,
   "enableautorepeat": false,
-  "enableshortcuts": true,
+  "enableshortcuts": false,
   "autorepeatdelay": "500",
   "emergencystop": "#SAFETYDOOR#",
   "fixedpanels": false,
@@ -74,15 +74,15 @@
   "openterminalonstart": true,
   "verbose": true,
   "autoscroll": true,
-  "showfilespanel": true,
+  "showfilespanel": false,
   "openfilesonstart": true,
-  "filesfilter": "g;G;gco;GCO;gcode;GCODE;nc;txt",
+  "filesfilter": "g;G;gco;GCO;gcode;GCODE;nc;txt;cnc;ngc",
   "flashfs": true,
   "sort_flashfs_files": true,
   "directsd": true,
-  "sort_sd_files": true,
-  "default_filesystem": "DIRECTSD",
-  "showjogpanel": true,
+  "sort_directsd_files": true,
+  "default_filesystem": "FLASH",
+  "showjogpanel": false,
   "openjogonstart": true,
   "homesingleaxis": false,
   "homecmd": "$H#",
@@ -193,12 +193,12 @@
    {
     "id": "btnaxisSel+",
     "name": "btnaxisSel+",
-    "key": "Shift+)"
+    "key": "Control+0"
    },
    {
     "id": "btnaxisSel-",
     "name": "btnaxisSel-",
-    "key": "Shift+("
+    "key": "Control+9"
    },
    {
     "id": "btndistSel+",
@@ -221,43 +221,24 @@
     "key": "Delete"
    }
   ],
-  "shownotificationspanel": true,
+  "shownotificationspanel": false,
   "opennotificationsonstart": false,
   "notifautoscroll": true,
-  "showmacrospanel": true,
-  "openmacrosonstart": true,
+  "showmacrospanel": false,
+  "openmacrosonstart": false,
   "macros": [],
-  "showextracontents": true,
-  "openextrapanelsonstart": true,
-  "extracontents": [
-   {
-    "id": "xjxkqpm5o",
-    "name": "Panel xjxkqpm5o",
-    "icon": "Meh",
-    "target": "panel",
-    "source": "capabilities.html",
-    "type": "extension",
-    "refreshtime": "0"
-   },
-   {
-    "id": "ooyeeka4e",
-    "name": "Kiri",
-    "icon": "Box",
-    "target": "page",
-    "source": "https://grid.space/kiri/",
-    "type": "content",
-    "refreshtime": "0"
-   }
-  ],
+  "showextracontents": false,
+  "openextrapanelsonstart": false,
+  "extracontents": [],
   "showstatuspanel": true,
   "openstatusonstart": true,
-  "showprobepanel": true,
+  "showprobepanel": false,
   "openprobeonstart": true,
   "probefeedrate": 20,
   "maxprobe": 15,
   "probethickness": "1",
   "probepostcommand": "G10 L20 P1 #selected_axis##probe_thickness#",
-  "showlaserpanel": true,
+  "showlaserpanel": false,
   "openlaseronstart": true,
   "lasertest": 10,
   "lasertestprecent": 20,
@@ -268,8 +249,8 @@
   "showM4ctrls": true,
   "showCoolantctrls": true,
   "showMistctrls": true,
-  "showM7ctrls": false,
-  "showoverridespanel": true,
+  "showM7ctrls": true,
+  "showoverridespanel": false,
   "openoverridesonstart": true
  }
 }
