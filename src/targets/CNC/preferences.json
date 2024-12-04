@@ -65,7 +65,7 @@
                 "id": "probepostcommand",
                 "type": "text",
                 "label": "CN95",
-                "value": "G10 L20 P1 #selected_axis##probe_thickness#;$J=G91 G21 F1000 Z#probe_retract#",
+                "value": "G10 L20 P0 #selected_axis##probe_thickness#;$J=G91 G21 F1000 Z#probe_retract#",
                 "help": "S97"
             }
         ],
