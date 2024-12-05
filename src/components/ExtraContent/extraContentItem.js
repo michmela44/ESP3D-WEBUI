@@ -82,6 +82,7 @@ const ExtraContentItem = ({
         setContentUrl(url)
         setHasError(false)
         setIsLoading(false)
+        isLoadedState[id] = true;
     }, [type])
 
     const handleContentError = useCallback((error) => {
@@ -103,13 +104,16 @@ const ExtraContentItem = ({
             return
         }
         //console.log("Loading content for " + id)
-        setIsLoading(true)
         if (source.startsWith("http")) {
             setContentUrl(source)
             setHasError(false)
             setIsLoading(false)
-            isLoadedState[id] = true;
+            isLoadedState[id] = true
         } else {
+            if (isLoadedState[id]){
+                return
+            }
+            setIsLoading(true)
             const idquery = type === "content" ? type + id : "download" + id
             let url = source
             if (url.endsWith(".gz")) {
@@ -117,7 +121,7 @@ const ExtraContentItem = ({
             }
             createNewRequest(
                 espHttpURL(url),
-                { method: "GET", id: idquery, max: 2 },
+                { method: "GET", id: idquery, max: 1 },
                 {
                     onSuccess: handleContentSuccess,
                     onFail: handleContentError,
@@ -138,6 +142,7 @@ const ExtraContentItem = ({
                 const element = document.getElementById(id)
                 if ( 'forceRefresh' in msg && msg.forceRefresh) {
                     //console.log(`Processing forceRefresh for ${id}`);
+                    isLoadedState[id] = false;
                     loadContent()
                 }
                 if ('isVisible' in msg) {
