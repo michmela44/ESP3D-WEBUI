@@ -579,25 +579,29 @@
                 "id": "swap_x_y",
                 "type": "boolean",
                 "label": "P116",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "invert_x",
                 "type": "boolean",
                 "label": "P113",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "invert_y",
                 "type": "boolean",
                 "label": "P114",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "invert_z",
                 "type": "boolean",
                 "label": "P115",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "xyfeedrate",
@@ -605,7 +609,8 @@
                 "label": "P10",
                 "min": "1",
                 "append": "P14",
-                "value": "1000"
+                "value": "1000",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "zfeedrate",
@@ -613,39 +618,46 @@
                 "label": "P11",
                 "append": "P14",
                 "min": "1",
-                "value": "1000"
+                "value": "1000",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "xpos",
                 "type": "number",
                 "label": "P65",
-                "value": "100"
+                "value": "100",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "ypos",
                 "type": "number",
                 "label": "P66",
-                "value": "100"
+                "value": "100",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "zpos",
                 "type": "number",
                 "label": "P75",
-                "value": "100"
+                "value": "100",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "homecmd",
                 "type": "text",
                 "label": "P73",
                 "value": "G28 $",
-                "help": "P74"
+                "help": "P74",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "motoroff",
                 "type": "text",
                 "label": "P13",
-                "value": "M84"
-            },
+                "value": "M84",
+                "depend": [{ "id": "showjogpanel", "value": true }]
+            }
+     ,
             {
                 "id": "keymap",
                 "sorted": false,
@@ -654,6 +666,7 @@
                 "editable": true,
                 "label": "S212",
                 "type": "list",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "btn+X",
