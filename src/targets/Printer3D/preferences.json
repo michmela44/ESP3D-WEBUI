@@ -11,7 +11,8 @@
                 "id": "openstatusonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showstatuspanel", "value": true }]
             }
         ],
         "temperatures": [
@@ -25,19 +26,21 @@
                 "id": "opentemperaturesonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "showextruderctrls",
                 "type": "boolean",
                 "label": "P82",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "extrudercontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showextruderctrls", "value": true }],
+                "depend": [{ "id": "showextruderctrls", "value": true }, { "id": "showtemperaturespanel", "value": true }],
                 "value": [
                     {
                         "id": "extrudermax",
@@ -67,13 +70,14 @@
                 "id": "showbedctrls",
                 "type": "boolean",
                 "label": "P83",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "bedcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showbedctrls", "value": true }],
+                "depend": [{ "id": "showbedctrls", "value": true }, { "id": "showtemperaturespanel", "value": true }],
                 "value": [
                     {
                         "id": "bedmax",
@@ -104,13 +108,14 @@
                 "id": "showchamberctrls",
                 "type": "boolean",
                 "label": "P84",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "chambercontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showchamberctrls", "value": true }],
+                "depend": [{ "id": "showchamberctrls", "value": true }, { "id": "showtemperaturespanel", "value": true }],
                 "value": [
                     {
                         "id": "chambermax",
@@ -140,19 +145,22 @@
                 "id": "showprobectrls",
                 "type": "boolean",
                 "label": "P85",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "showredundantctrls",
                 "type": "boolean",
                 "label": "P86",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "showboardctrls",
                 "type": "boolean",
                 "label": "P87",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             }
         ],
         "charts": [
@@ -166,50 +174,58 @@
                 "id": "openchartsonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showextruderchart",
                 "type": "boolean",
                 "label": "P82",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showredundantchart",
                 "type": "boolean",
                 "label": "P86",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showbedchart",
                 "type": "boolean",
                 "label": "P83",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showchamberchart",
                 "type": "boolean",
                 "label": "P84",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showprobechart",
                 "type": "boolean",
                 "label": "P85",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showboardchart",
                 "type": "boolean",
                 "label": "P87",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showsensorchart",
                 "type": "boolean",
                 "label": "P88",
                 "value": true,
-                "depend": [{ "id": "showsensorctrls", "value": true }]
+                "depend": [{ "id": "showsensorctrls", "value": true } , { "id": "showchartspanel", "value": true }]
+    
             }
         ],
         "extruders": [
@@ -223,7 +239,8 @@
                 "id": "openextrudersonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             },
             {
                 "id": "efeedrate",
@@ -231,7 +248,8 @@
                 "label": "P50",
                 "append": "P14",
                 "value": "400",
-                "min": "1"
+                "min": "1",
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             },
             {
                 "id": "extruderdistance",
@@ -239,7 +257,8 @@
                 "label": "P55",
                 "value": "5;10;100",
                 "append": "P16",
-                "help": "S97"
+                "help": "S97",
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             }
         ],
 
