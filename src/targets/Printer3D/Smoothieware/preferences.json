@@ -292,7 +292,7 @@
                 "id": "fancontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showfanctrls", "value": true }],
+                "depend": [{ "id": "showfanctrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "fancmd",
@@ -307,7 +307,7 @@
                 "id": "flowcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showflowratectrls", "value": true }],
+                "depend": [{ "id": "showflowratectrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "flowratecmd",
@@ -324,7 +324,7 @@
                 "id": "sdcommands",
                 "type": "group",
                 "label": "P101",
-                "depend": [{ "id": "sd", "value": true }],
+                "depend": [{ "id": "sd", "value": true }, { "id": "showstatuspanel", "value": true }],
                 "value": [
                     {
                         "id": "sdpausecmd",
@@ -361,7 +361,8 @@
                     {
                         "id": "tftsd",
                         "value": true
-                    }
+                    },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {
@@ -393,7 +394,8 @@
                 "label": "P103",
                 "depend": [
                     { "id": "tftfs", "notvalue": "none" },
-                    { "id": "tftusb", "value": true }
+                    { "id": "tftusb", "value": true },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {

@@ -791,19 +791,21 @@
                 "id": "openextracontrolsonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "showfanctrls",
                 "type": "boolean",
                 "label": "P45",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "fancontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showfanctrls", "value": true }],
+                "depend": [{ "id": "showfanctrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "fanpresets",
@@ -829,13 +831,14 @@
                 "id": "showspeedctrls",
                 "type": "boolean",
                 "label": "P46",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "speedcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showspeedctrls", "value": true }],
+                "depend": [{ "id": "showspeedctrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "speedpresets",
@@ -860,13 +863,14 @@
                 "id": "showflowratectrls",
                 "type": "boolean",
                 "label": "P47",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "flowcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showflowratectrls", "value": true }],
+                "depend": [{ "id": "showflowratectrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "flowratepresets",
@@ -891,7 +895,8 @@
                 "id": "showsensorctrls",
                 "type": "boolean",
                 "label": "P88",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             }
         ]
     }

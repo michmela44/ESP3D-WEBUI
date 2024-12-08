@@ -161,7 +161,8 @@
                 "id": "ismixedextruder",
                 "type": "boolean",
                 "label": "P49",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             },
             {
                 "id": "enumber",
@@ -180,7 +181,8 @@
                     {
                         "id": "ismixedextruder",
                         "value": true
-                    }
+                    },
+                    { "id": "showextruderspanel", "value": true }
                 ]
             },
             {
@@ -193,7 +195,8 @@
                     {
                         "id": "ismixedextruder",
                         "value": true
-                    }
+                    },
+                    { "id": "showextruderspanel", "value": true }
                 ]
             }
         ],
@@ -206,7 +209,8 @@
                     {
                         "id": "sd",
                         "value": true
-                    }
+                    },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {
@@ -236,7 +240,7 @@
                 "id": "tftsdcommands",
                 "type": "group",
                 "label": "P102",
-                "depend": [{ "id": "tftsd", "value": true }],
+                "depend": [{ "id": "tftsd", "value": true }, { "id": "showstatuspanel", "value": true }],
                 "value": [
                     {
                         "id": "tftsdpausecmd",
@@ -265,7 +269,7 @@
                 "id": "tftusbcommands",
                 "type": "group",
                 "label": "P103",
-                "depend": [{ "id": "tftusb", "value": true }],
+                "depend": [{ "id": "tftusb", "value": true }, { "id": "showstatuspanel", "value": true }],
                 "value": [
                     {
                         "id": "tftusbpausecmd",
