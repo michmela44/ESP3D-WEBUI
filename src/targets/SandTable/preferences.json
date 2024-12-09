@@ -5,6 +5,7 @@
                 "id": "axis",
                 "type": "group",
                 "label": "CN8",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "showx",
@@ -48,6 +49,7 @@
                 "id": "feedrate",
                 "type": "group",
                 "label": "CN9",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "xyfeedrate",
@@ -117,6 +119,7 @@
                 "id": "home",
                 "type": "group",
                 "label": "CN17",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "homesingleaxis",
@@ -138,14 +141,16 @@
                 "type": "text",
                 "label": "CN19",
                 "value": "G10 L20 P0 #",
-                "help": "CN11"
+                "help": "CN11",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "jogstopcmd",
                 "type": "text",
                 "label": "CN23",
                 "value": "#SAFETYDOOR#",
-                "help": "S97"
+                "help": "S97",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             }
         ]
     }

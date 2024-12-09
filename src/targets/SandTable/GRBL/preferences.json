@@ -71,19 +71,20 @@
                 "type": "text",
                 "label": "S96",
                 "value": "g;G;gco;GCO;gcode;GCODE;nc;txt",
-                "help": "S97"
+                "help": "S97",
+                "depend": [{ "id": "showfilespanel", "value": true }]
             },
             {
                 "id": "flashfs",
                 "type": "boolean",
-                "depend": [{ "connection_id": "FlashFileSystem", "value": "!='none'" }],
+                "depend": [{ "connection_id": "FlashFileSystem", "value": "!='none'" },{ "id": "showfilespanel", "value": true }],
                 "label": "S137",
                 "value": true
             },
             {
                 "id": "directsd",
                 "type": "boolean",
-                "depend": [{ "connection_id": "SDConnection", "value": "!='none'" }],
+                "depend": [{ "connection_id": "SDConnection", "value": "!='none'" },{ "id": "showfilespanel", "value": true }],
                 "label": "S190",
                 "value": true
             }
@@ -97,6 +98,7 @@
                 "editable": true,
                 "label": "S212",
                 "type": "list",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "btn+X",
