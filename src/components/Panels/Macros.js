@@ -172,6 +172,7 @@ const MacrosPanel = () => {
                             <ButtonImg
                                 id={element.id}
                                 m1
+                                showlow
                                 label={element.name}
                                 icon={displayIcon}
                                 onclick={(e) => {
