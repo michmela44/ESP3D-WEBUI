@@ -19,14 +19,6 @@ jobs:
         id: buildall
         run: npm run buildall
         continue-on-error: true
-      - name: Failure check
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        if: steps.setuptools.outcome == 'failure' || steps.buildall.outcome == 'failure'
-        run: bash ./.github/ci/final-check.sh "$GITHUB_RUN_ID" "failure"
-      - name: Success check
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        if: steps.setuptools.outcome == 'success' && steps.buildall.outcome == 'success'
-        run: bash ./.github/ci/final-check.sh "$GITHUB_RUN_ID" "success"
+      - name: Check Failures
+        if: ${{ failure() }}
+        run: echo "Build failed"
