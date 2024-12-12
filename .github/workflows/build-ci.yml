@@ -22,3 +22,9 @@ jobs:
       - name: Check Failures
         if: ${{ failure() }}
         run: echo "Build failed"
+        continue-on-error: false
+      - name: Publish build
+        uses: actions/upload-artifact@v4
+        with:
+          name: index.html.gz
+          path: dist/CNC/FluidNC/index.html.gz
