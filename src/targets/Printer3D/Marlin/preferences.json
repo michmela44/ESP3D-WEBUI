@@ -327,7 +327,8 @@
                 "id": "ismixedextruder",
                 "type": "boolean",
                 "label": "P49",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             },
             {
                 "id": "enumber",
@@ -346,7 +347,8 @@
                     {
                         "id": "ismixedextruder",
                         "value": true
-                    }
+                    },
+                    { "id": "showextruderspanel", "value": true }
                 ]
             },
             {
@@ -359,7 +361,8 @@
                     {
                         "id": "ismixedextruder",
                         "value": true
-                    }
+                    },
+                    { "id": "showextruderspanel", "value": true }
                 ]
             }
         ],
@@ -393,7 +396,8 @@
                                         ]
                                     ]
                                     
-                    }
+                    },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {
@@ -431,7 +435,8 @@
                     {
                         "id": "tftsd",
                         "value": true
-                    }
+                    },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {
@@ -463,7 +468,8 @@
                 "label": "P103",
                 "depend": [
                     { "id": "tftfs", "notvalue": "none" },
-                    { "id": "tftusb", "value": true }
+                    { "id": "tftusb", "value": true },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {

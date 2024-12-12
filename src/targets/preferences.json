@@ -177,7 +177,8 @@
                 "id": "openjogonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             }
         ],
         "notification": [
@@ -191,13 +192,15 @@
                 "id": "opennotificationsonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "shownotificationspanel", "value": true }]
             },
             {
                 "id": "notifautoscroll",
                 "type": "boolean",
                 "label": "S77",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "shownotificationspanel", "value": true }]
             }
         ],
         "macros": [
@@ -205,19 +208,21 @@
                 "id": "showmacrospanel",
                 "type": "boolean",
                 "label": "S63",
-                "value": true
+                "value": false
             },
             {
                 "id": "openmacrosonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showmacrospanel", "value": true }]
             },
             {
                 "id": "macros",
                 "type": "list",
                 "sorted": true,
-                "value": []
+                "value": [],
+                "depend": [{ "id": "showmacrospanel", "value": true }]
             }
         ],
         "extracontents": [
@@ -231,13 +236,15 @@
                 "id": "openextrapanelsonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showextracontents", "value": true }]
             },
             {
                 "id": "extracontents",
                 "type": "list",
                 "sorted": true,
-                "value": []
+                "value": [],
+                "depend": [{ "id": "showextracontents", "value": true }]
             }
         ]
     }

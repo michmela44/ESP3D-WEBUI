@@ -185,6 +185,7 @@
                 "id": "axis",
                 "type": "group",
                 "label": "CN8",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "showx",
@@ -300,6 +301,7 @@
                 "id": "feedrate",
                 "type": "group",
                 "label": "CN9",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "xyfeedrate",
@@ -463,6 +465,7 @@
                 "editable": true,
                 "label": "S212",
                 "type": "list",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "btn+X",

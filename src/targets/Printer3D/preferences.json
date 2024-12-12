@@ -11,7 +11,8 @@
                 "id": "openstatusonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showstatuspanel", "value": true }]
             }
         ],
         "temperatures": [
@@ -25,19 +26,21 @@
                 "id": "opentemperaturesonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "showextruderctrls",
                 "type": "boolean",
                 "label": "P82",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "extrudercontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showextruderctrls", "value": true }],
+                "depend": [{ "id": "showextruderctrls", "value": true }, { "id": "showtemperaturespanel", "value": true }],
                 "value": [
                     {
                         "id": "extrudermax",
@@ -67,13 +70,14 @@
                 "id": "showbedctrls",
                 "type": "boolean",
                 "label": "P83",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "bedcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showbedctrls", "value": true }],
+                "depend": [{ "id": "showbedctrls", "value": true }, { "id": "showtemperaturespanel", "value": true }],
                 "value": [
                     {
                         "id": "bedmax",
@@ -104,13 +108,14 @@
                 "id": "showchamberctrls",
                 "type": "boolean",
                 "label": "P84",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "chambercontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showchamberctrls", "value": true }],
+                "depend": [{ "id": "showchamberctrls", "value": true }, { "id": "showtemperaturespanel", "value": true }],
                 "value": [
                     {
                         "id": "chambermax",
@@ -140,19 +145,22 @@
                 "id": "showprobectrls",
                 "type": "boolean",
                 "label": "P85",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "showredundantctrls",
                 "type": "boolean",
                 "label": "P86",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             },
             {
                 "id": "showboardctrls",
                 "type": "boolean",
                 "label": "P87",
-                "value": true
+                "value": true,
+                "depend": [ { "id": "showtemperaturespanel", "value": true }]
             }
         ],
         "charts": [
@@ -166,50 +174,58 @@
                 "id": "openchartsonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showextruderchart",
                 "type": "boolean",
                 "label": "P82",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showredundantchart",
                 "type": "boolean",
                 "label": "P86",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showbedchart",
                 "type": "boolean",
                 "label": "P83",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showchamberchart",
                 "type": "boolean",
                 "label": "P84",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showprobechart",
                 "type": "boolean",
                 "label": "P85",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showboardchart",
                 "type": "boolean",
                 "label": "P87",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showchartspanel", "value": true }]
             },
             {
                 "id": "showsensorchart",
                 "type": "boolean",
                 "label": "P88",
                 "value": true,
-                "depend": [{ "id": "showsensorctrls", "value": true }]
+                "depend": [{ "id": "showsensorctrls", "value": true } , { "id": "showchartspanel", "value": true }]
+    
             }
         ],
         "extruders": [
@@ -223,7 +239,8 @@
                 "id": "openextrudersonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             },
             {
                 "id": "efeedrate",
@@ -231,7 +248,8 @@
                 "label": "P50",
                 "append": "P14",
                 "value": "400",
-                "min": "1"
+                "min": "1",
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             },
             {
                 "id": "extruderdistance",
@@ -239,7 +257,8 @@
                 "label": "P55",
                 "value": "5;10;100",
                 "append": "P16",
-                "help": "S97"
+                "help": "S97",
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             }
         ],
 
@@ -579,25 +598,29 @@
                 "id": "swap_x_y",
                 "type": "boolean",
                 "label": "P116",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "invert_x",
                 "type": "boolean",
                 "label": "P113",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "invert_y",
                 "type": "boolean",
                 "label": "P114",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "invert_z",
                 "type": "boolean",
                 "label": "P115",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "xyfeedrate",
@@ -605,7 +628,8 @@
                 "label": "P10",
                 "min": "1",
                 "append": "P14",
-                "value": "1000"
+                "value": "1000",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "zfeedrate",
@@ -613,39 +637,46 @@
                 "label": "P11",
                 "append": "P14",
                 "min": "1",
-                "value": "1000"
+                "value": "1000",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "xpos",
                 "type": "number",
                 "label": "P65",
-                "value": "100"
+                "value": "100",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "ypos",
                 "type": "number",
                 "label": "P66",
-                "value": "100"
+                "value": "100",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "zpos",
                 "type": "number",
                 "label": "P75",
-                "value": "100"
+                "value": "100",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "homecmd",
                 "type": "text",
                 "label": "P73",
                 "value": "G28 $",
-                "help": "P74"
+                "help": "P74",
+                "depend": [{ "id": "showjogpanel", "value": true }]
             },
             {
                 "id": "motoroff",
                 "type": "text",
                 "label": "P13",
-                "value": "M84"
-            },
+                "value": "M84",
+                "depend": [{ "id": "showjogpanel", "value": true }]
+            }
+     ,
             {
                 "id": "keymap",
                 "sorted": false,
@@ -654,6 +685,7 @@
                 "editable": true,
                 "label": "S212",
                 "type": "list",
+                "depend": [{ "id": "showjogpanel", "value": true }],
                 "value": [
                     {
                         "id": "btn+X",
@@ -759,19 +791,21 @@
                 "id": "openextracontrolsonstart",
                 "type": "boolean",
                 "label": "S93",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "showfanctrls",
                 "type": "boolean",
                 "label": "P45",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "fancontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showfanctrls", "value": true }],
+                "depend": [{ "id": "showfanctrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "fanpresets",
@@ -797,13 +831,14 @@
                 "id": "showspeedctrls",
                 "type": "boolean",
                 "label": "P46",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "speedcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showspeedctrls", "value": true }],
+                "depend": [{ "id": "showspeedctrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "speedpresets",
@@ -828,13 +863,14 @@
                 "id": "showflowratectrls",
                 "type": "boolean",
                 "label": "P47",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             },
             {
                 "id": "flowcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showflowratectrls", "value": true }],
+                "depend": [{ "id": "showflowratectrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "flowratepresets",
@@ -859,7 +895,8 @@
                 "id": "showsensorctrls",
                 "type": "boolean",
                 "label": "P88",
-                "value": true
+                "value": true,
+                "depend": [{ "id": "showextracontrolspanel", "value": true }]
             }
         ]
     }

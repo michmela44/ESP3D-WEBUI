@@ -211,7 +211,8 @@
                 "id": "ismixedextruder",
                 "type": "boolean",
                 "label": "P49",
-                "value": false
+                "value": false,
+                "depend": [{ "id": "showextruderspanel", "value": true }]
             },
             {
                 "id": "enumber",
@@ -230,7 +231,8 @@
                     {
                         "id": "ismixedextruder",
                         "value": true
-                    }
+                    },
+                    { "id": "showextruderspanel", "value": true }
                 ]
             },
             {
@@ -239,7 +241,7 @@
                 "label": "P51",
                 "help": "S97",
                 "value": "blue;red;green;#FF00FF;cyan;black",
-                "depend": [{ "id": "ismixedextruder", "value": true }]
+                "depend": [{ "id": "ismixedextruder", "value": true }, { "id": "showextruderspanel", "value": true }]
             }
         ],
         "controls": [
@@ -247,7 +249,7 @@
                 "id": "flowcontrolsgroup",
                 "type": "group",
                 "label": "",
-                "depend": [{ "id": "showflowratectrls", "value": true }],
+                "depend": [{ "id": "showflowratectrls", "value": true }, { "id": "showextracontrolspanel", "value": true }],
                 "value": [
                     {
                         "id": "flowratecmd",
@@ -268,7 +270,8 @@
                     {
                         "id": "sd",
                         "value": true
-                    }
+                    },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {
@@ -306,7 +309,8 @@
                     {
                         "id": "tftsd",
                         "value": true
-                    }
+                    },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {
@@ -338,7 +342,8 @@
                 "label": "P103",
                 "depend": [
                     { "id": "tftfs", "notvalue": "none" },
-                    { "id": "tftusb", "value": true }
+                    { "id": "tftusb", "value": true },
+                    { "id": "showstatuspanel", "value": true }
                 ],
                 "value": [
                     {

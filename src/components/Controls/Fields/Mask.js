@@ -96,7 +96,7 @@ const Mask = ({
     )
 
     return (
-        <FieldGroup className="m-1 control-fieldset" id={id} label={label}>
+        <FieldGroup className="m-1" id={id} label={label}>
             {options.map((option, index) => {
                 const [validation, setvalidation] = useState()
                 const generateValidation = (fieldData) => {
