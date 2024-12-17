@@ -293,7 +293,7 @@ const ExtraInputControl = ({ element, index, size, pos }) => {
 }
 
 const ExtraControlsPanel = () => {
-    const { temperatures, fanSpeed, flowRate, feedRate } = useTargetContext()
+    const { temperatures, fanSpeed, flowRate, feedRate, sensor } = useTargetContext()
     const id = "extraControlsPanel"
     const inputList = [
         { name: "P91", list: fanSpeed },
@@ -346,7 +346,7 @@ const ExtraControlsPanel = () => {
                         })}
                     </div>
                 )}
-                {temperatures["T"].length == 0 && (
+                {temperatures["T"].length == 0 && (!sensor.S || sensor.S.length == 0) && (
                     <div class="loading-panel">
                         <div class="m-2">
                             <div class="m-1">{T("P89")}</div>
