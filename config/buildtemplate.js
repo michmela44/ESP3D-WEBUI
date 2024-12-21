@@ -46,7 +46,6 @@ const cncgrblhalpack = [
 ]
 const printerpack = [
     { id: "globals", path: "src/targets/translations/en.json" },
-
     {
         id: "printers3D",
         path: "src/targets/Printer3D/translations/en.json",
@@ -86,8 +85,13 @@ const processList = [
     { targetPath: "printerpack", files: printerpack },
     { targetPath: "sandtablepack", files: sandtablepack },
 ]
+
+// Object to store all unique translations
+let masterTranslations = {}
+
 if (readable) console.log(chalk.green("Processing in readable mode"))
 else console.log(chalk.green("Processing in production mode"))
+
 processList.map((element) => {
     let resultfile = {}
 
@@ -101,6 +105,10 @@ processList.map((element) => {
         Object.keys(currentFile).map((key) => {
             if (!resultfile[key] && typeof currentFile[key] != "undefined") {
                 resultfile[key] = currentFile[key]
+                // Add to master translations if not already present
+                if (!masterTranslations[key]) {
+                    masterTranslations[key] = currentFile[key]
+                }
             } else {
                 if (resultfile[key] != currentFile[key]) {
                     console.log(chalk.red("In " + sourcepath))
@@ -131,5 +139,13 @@ processList.map((element) => {
         "UTF-8"
     )
 })
+
+// Save master translations file
+console.log(chalk.green("Saving master translations file"))
+fs.writeFileSync(
+    path.join(path.normalize(__dirname + "/../languages/"), "master_translations.json"),
+    JSON.stringify(masterTranslations, "", readable ? " " : ""),
+    "UTF-8"
+)
 
 console.log(chalk.green("Processing done"))
