@@ -100,7 +100,7 @@ const ExtraContentItem = ({
         }
 
         if (isPaused || !visibilityState[id] ||  (target=="panel" && !useUiContextFn.panels.isVisible(elementsCache.getRootfromId(id)))) {
-           // console.log("Not loading content for " + id + " because it is paused or not visible")
+           //console.log("Not loading content for " + id + " because it is paused or not visible")
             return
         }
         //console.log("Loading content for " + id)
@@ -110,7 +110,8 @@ const ExtraContentItem = ({
             setIsLoading(false)
             isLoadedState[id] = true
         } else {
-            if (isLoadedState[id]){
+            if (isLoadedState[id] && !refreshIntervalRef.current){
+                //console.log("Already loaded")
                 return
             }
             setIsLoading(true)
@@ -192,15 +193,15 @@ const ExtraContentItem = ({
 
     useEffect(() => {
         if (refreshtime > 0 && (type === "camera" || type === "image") && visibilityState[id] && !isPaused) {
-            console.log("Updating refresh interval for " + id)
+            //console.log("Updating refresh interval for " + id)
             if (!refreshIntervalRef.current){
-                console.log("Starting refresh interval for " + id+ " with refreshtime " + refreshtime)
+                //console.log("Starting refresh interval for " + id+ " with refreshtime " + refreshtime)
                 refreshIntervalRef.current = setInterval(loadContent, refreshtime)
             }
         }
         return () => {
             if (refreshIntervalRef.current) {
-                console.log("Stopping refresh interval for " + id)
+                //console.log("Stopping refresh interval for " + id)
                 clearInterval(refreshIntervalRef.current)
                 refreshIntervalRef.current = null
             }
