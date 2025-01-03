@@ -31,6 +31,7 @@
         "buildall": "npm run buildsand && npm run buildprinter  && npm run buildcnc",
         "package": "node ./config/pack.js",
         "template": "node ./config/buildtemplate.js",
+        "buildlangpack": "node ./config/buildlangpack.js",
         "check": "node ./config/checkpack.js"
     },
     "author": "",

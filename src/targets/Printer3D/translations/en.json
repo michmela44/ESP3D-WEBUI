@@ -117,7 +117,7 @@
     "P122": "SD delete path command",
     "P123": "TFT SD delete path command",
     "P124": "TFT USB delete path command",
-    "pause": "pause",
+    "pause": "Pause",
     "processing": "Processing",
     "heating": "Heating",
     "controls": "Extra Controls panel",

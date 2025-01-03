@@ -31,6 +31,7 @@ const isVerboseOnly = (type, data) => {
         line.startsWith("M105") ||
         line.startsWith("M114") ||
         line.startsWith("FR:") ||
+        line.startsWith("SENSOR:") ||
         (line.startsWith("{") && line.endsWith("}"))
     )
         return true

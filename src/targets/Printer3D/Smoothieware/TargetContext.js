@@ -191,6 +191,13 @@ const TargetContextProvider = ({ children }) => {
                     })
                 })
                 //console.log(printerCapabilities)
+            } else if (isSensor(data)) {
+                const result = getSensor(data)
+                setSensorData({ S: result })
+                add2SensorDataList({
+                    temperatures: { S: result },
+                    time: new Date(),
+                })
             }
         } else if (type === "core") {
             if (isSensor(data)) {

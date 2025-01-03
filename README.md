@@ -3,7 +3,7 @@
 using Preact per @aganov suggestion  
 Rewrite per @alxblog suggestion to use proper Preactjs API and lighter css code: use spectre.css instead of bootstrap 4.x
 
-## In development / alpha stage / Ready to test
+## Beta stage / Ready to test
 
 Only compatible with [ESP3DLib 3.0](https://github.com/luc-github/ESP3DLib/tree/3.0) , [ESP3D 3.0](https://github.com/luc-github/ESP3D/tree/3.0), [grblHAL](https://github.com/grblHAL), [ESP3D_TFT 1.0](https://github.com/luc-github/ESP3D-TFT/tree/main)   
 
