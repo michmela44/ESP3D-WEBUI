@@ -56,7 +56,7 @@ const defaultPreferences = mergeJSON(
     defaultPreferencesSubTarget
 )
 
-const webUiUrl = "https://github.com/luc-github/ESP3D-WEBUI/tree/3.0"
+const webUiUrl = "https://github.com/michmela44/ESP3D-WEBUI/tree/3.0-FluidNCDev"
 
 export {
     MachineSettings,

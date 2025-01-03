@@ -46,7 +46,7 @@ import {
 let about = []
 
 //TODO: add link to translated documentation according language set for UI
-const defaultHelpUrl = "https://esp3d.io/ESP3D-WebUI/Version_3.X/documentation/"
+const defaultHelpUrl = "http://wiki.fluidnc.com/"
 
 /*
  * Local const
@@ -112,7 +112,7 @@ const CustomEntry = () => {
             tooltip
             data-tooltip={T("S225")}
             icon={<BookOpen />}
-            label="esp3d.io"
+            label="FluidNC Wiki"
             onClick={onClickHelp}
         />
     )

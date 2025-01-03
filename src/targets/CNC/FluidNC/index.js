@@ -41,7 +41,7 @@ import { AppLogo } from "./logo"
 import { addObjectItem, removeObjectItem } from "../../../components/Helpers"
 
 const Target = 'FluidNC'
-const webUIbuild = 'F2'
+const webUIbuild = 'FluidNC'
 const Name = 'FluidNC'
 const fwUrl = [
     'https://github.com/bdring/FluidNC',
