@@ -167,46 +167,46 @@ const StatusPanel = () => {
                 },
             ],
         },
-        {
-            name: "S204",
-            depend: () => {
-                return streamStatus.status != "no stream" || streamStatus.code
-            },
-            buttons: [
-                {
-                    cmd: "[ESP701]action=PAUSE",
-                    icon: <PauseCircle />,
-                    desc: T("S184"),
-                    depend: () => {
-                        return streamStatus.status == "processing"
-                    },
-                },
-                {
-                    cmd: "[ESP701]action=RESUME",
-                    icon: <PlayCircle />,
-                    desc: T("CN61"),
-                    depend: () => {
-                        return streamStatus.status == "pause"
-                    },
-                },
-                {
-                    cmd: "[ESP701]action=ABORT",
-                    icon: <StopCircle />,
-                    desc: T("S205"),
-                    depend: () => {
-                        return streamStatus.status != "no stream"
-                    },
-                },
-                {
-                    cmd: "[ESP701]action=CLEAR_ERROR",
-                    icon: <CheckCircle />,
-                    desc: T("S206"),
-                    depend: () => {
-                        return streamStatus.code
-                    },
-                },
-            ],
-        },
+        // {
+        //     name: "S204",
+        //     depend: () => {
+        //         return streamStatus.status != "no stream" || streamStatus.code
+        //     },
+        //     buttons: [
+        //         {
+        //             cmd: "[ESP701]action=PAUSE",
+        //             icon: <PauseCircle />,
+        //             desc: T("S184"),
+        //             depend: () => {
+        //                 return streamStatus.status == "processing"
+        //             },
+        //         },
+        //         {
+        //             cmd: "[ESP701]action=RESUME",
+        //             icon: <PlayCircle />,
+        //             desc: T("CN61"),
+        //             depend: () => {
+        //                 return streamStatus.status == "pause"
+        //             },
+        //         },
+        //         {
+        //             cmd: "[ESP701]action=ABORT",
+        //             icon: <StopCircle />,
+        //             desc: T("S205"),
+        //             depend: () => {
+        //                 return streamStatus.status != "no stream"
+        //             },
+        //         },
+        //         {
+        //             cmd: "[ESP701]action=CLEAR_ERROR",
+        //             icon: <CheckCircle />,
+        //             desc: T("S206"),
+        //             depend: () => {
+        //                 return streamStatus.code
+        //             },
+        //         },
+        //     ],
+        // },
     ]
 
     console.log("Status panel")
