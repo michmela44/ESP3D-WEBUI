@@ -27,6 +27,7 @@ const realCommandsTable = [
     { name: "#JOGCANCEL#", value: "\x85", notprintable: true },
     { name: "#COMPLETEREPORT#", value: "\x87", notprintable: true },
     { name: "#T-STOPSWITCH#", value: "\x88", notprintable: true },
+    { name: "#MPG-ENABLE-TOGGLE#", value: "\x8B", notprintable: true},
     { name: "#FO100#", value: "\x90", notprintable: true },
     { name: "#FO+10#", value: "\x91", notprintable: true },
     { name: "#FO-10#", value: "\x92", notprintable: true },

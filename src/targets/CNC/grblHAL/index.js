@@ -41,7 +41,7 @@ import { AppLogo } from "./logo"
 import { addObjectItem, removeObjectItem } from "../../../components/Helpers"
 
 const Target = "grblHAL"
-const webUIbuild = "GH2"
+const webUIbuild = "GH3"
 const Name = "grblHAL"
 const fwUrl = [
     "https://github.com/grblHAL",
