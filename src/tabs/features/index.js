@@ -371,14 +371,21 @@ const FeaturesTab = () => {
                     validation.valid = false
             }
             if (fieldData.value.trim().length == 0) validation.valid = false
-            if (fieldData.max) {
-                if (fieldData.value > fieldData.max) {
-                    validation.valid = false
-                }
+            if (fieldData.max !== undefined && fieldData.min !== undefined && fieldData.max < fieldData.min) {
+                // min is less than max, so just set the range really large to effectively disable the validation
+                fieldData.min = -2000000000;
+                fieldData.max = 2000000000;
             }
-            if (fieldData.min) {
-                if (fieldData.value < fieldData.min) {
-                    validation.valid = false
+            else {
+                if (fieldData.max !== undefined) {
+                    if (fieldData.value > fieldData.max) {
+                        validation.valid = false
+                    }
+                }
+                if (fieldData.min !== undefined) {
+                    if (fieldData.value < fieldData.min) {
+                        validation.valid = false
+                    }
                 }
             }
         } else if (fieldData.type == "select") {
