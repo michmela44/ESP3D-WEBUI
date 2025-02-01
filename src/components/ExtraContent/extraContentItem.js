@@ -223,6 +223,14 @@ const ExtraContentItem = ({
         if (type === "extension" && iframeElement) {
            
             const doc = iframeElement.contentWindow.document
+            // set the height of the iframe as 
+            // the height of the iframe content
+            iframeElement.style.height = iframeElement.contentWindow.document.body.scrollHeight + 'px';
+
+            // set the width of the iframe as the 
+            // width of the iframe content
+            iframeElement.style.width  = iframeElement.contentWindow.document.body.scrollWidth + 'px';
+
             const body = doc.querySelector("body")
             if (!body){
                 console.error("body not found")
