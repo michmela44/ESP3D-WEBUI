@@ -19,7 +19,7 @@
     display: -ms-flexbox;
     display: flex;
     flex-flow: column;
-    height: 550px;
+    height: auto;
     overflow-y: auto !important;
     overflow-x: hidden !important;
 }
@@ -27,8 +27,8 @@
 .panel {
     background-color: #fff;
     color: #000;
-    height: auto !important;
-    max-height: 650px !important;
+    max-height: 650px;
+    min-height: 300px ;
 }
 
 .panel-body-dashboard,
@@ -37,8 +37,7 @@
     display: -ms-flexbox;
     display: flex;
     flex-flow: column;
-    min-height: 500px !important;
-    overflow-y: hidden !important;
+    min-height: 300px ;
 }
 .panel .navbar,
 .panel .navbar-section {
