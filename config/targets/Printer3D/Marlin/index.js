@@ -24,6 +24,7 @@ const expresscolor = chalk.green
 const commandcolor = chalk.white
 const enableAuthentication = false
 const SERIAL_PROTOCOL = "RAW"
+const SDCONNECTION = "none"
 let lastconnection = Date.now()
 let logindone = false
 const sessiontTime = 60000
@@ -530,7 +531,7 @@ const commandsQuery = (req, res, SendWS) => {
                     FWTarget: "marlin",
                     FWTargetID: "40",
                     Setup: "Enabled",
-                    SDConnection: "direct",
+                    SDConnection: SDCONNECTION,
                     SerialProtocol: SERIAL_PROTOCOL,
                     Authentication: "Disabled",
                     WebCommunication: "Synchronous",
