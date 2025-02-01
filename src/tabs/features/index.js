@@ -431,233 +431,238 @@ const FeaturesTab = () => {
     console.log("feature")
     //console.log(featuresSettings.current)
     return (
-        <div id="features">
-            <input
-                ref={inputFile}
-                type="file"
-                class="d-none"
-                accept=".json"
-                onChange={fileSelected}
-            />
-            <h4 class="show-low title">{T("S36")}</h4>
-            <div class="m-2" />
-            {isLoading && <Loading large />}
+        <div>
+            <div id="features" style="max-height: calc(100vh - 160px); overflow-y: scroll;">
+                <input
+                    ref={inputFile}
+                    type="file"
+                    class="d-none"
+                    accept=".json"
+                    onChange={fileSelected}
+                />
+                <h4 class="show-low title">{T("S36")}</h4>
+                <div class="m-2" />
+                {isLoading && <Loading large />}
 
-            {!isLoading && (
-                <Fragment>
-                    <div class="panels-container">
-                        {Object.keys(features).length != 0 && (
-                            <Fragment>
-                                {Object.keys(features).map((sectionId) => {
-                                    const section = features[sectionId]
-                                    return (
-                                        <Fragment>
-                                            {Object.keys(section).map(
-                                                (subsectionId) => {
-                                                    const subSection =
-                                                        section[subsectionId]
-                                                    return (
-                                                        <div class="panel panel-features">
-                                                            <div class="navbar">
-                                                                <span class="navbar-section text-ellipsis">
-                                                                    <strong class="text-ellipsis">
-                                                                        {T(
-                                                                            subsectionId
-                                                                        )}
-                                                                    </strong>
-                                                                </span>
-                                                                <span class="navbar-section">
-                                                                    <span style="height: 100%;">
-                                                                        <span class="label label-primary align-top">
+                {!isLoading && (
+                    <Fragment>
+                        <div class="panels-container">
+                            {Object.keys(features).length != 0 && (
+                                <Fragment>
+                                    {Object.keys(features).map((sectionId) => {
+                                        const section = features[sectionId]
+                                        return (
+                                            <Fragment>
+                                                {Object.keys(section).map(
+                                                    (subsectionId) => {
+                                                        const subSection =
+                                                            section[subsectionId]
+                                                        return (
+                                                            <div class="panel panel-features">
+                                                                <div class="navbar">
+                                                                    <span class="navbar-section text-ellipsis">
+                                                                        <strong class="text-ellipsis">
                                                                             {T(
-                                                                                sectionId
+                                                                                subsectionId
                                                                             )}
+                                                                        </strong>
+                                                                    </span>
+                                                                    <span class="navbar-section">
+                                                                        <span style="height: 100%;">
+                                                                            <span class="label label-primary align-top">
+                                                                                {T(
+                                                                                    sectionId
+                                                                                )}
+                                                                            </span>
                                                                         </span>
                                                                     </span>
-                                                                </span>
-                                                            </div>
+                                                                </div>
 
-                                                            <div class="panel-body panel-body-features">
-                                                                {subSection.map(
-                                                                    (
-                                                                        fieldData
-                                                                    ) => {
-                                                                        const [
-                                                                            validation,
-                                                                            setvalidation,
-                                                                        ] =
-                                                                            useState()
-                                                                        const {
-                                                                            label,
-                                                                            options,
-                                                                            initial,
-                                                                            prec,
-                                                                            ...rest
-                                                                        } =
+                                                                <div class="panel-body panel-body-features">
+                                                                    {subSection.map(
+                                                                        (
                                                                             fieldData
-                                                                        const Options =
-                                                                            options
-                                                                                ? options.reduce(
-                                                                                      (
-                                                                                          acc,
-                                                                                          curval
-                                                                                      ) => {
-                                                                                          return [
-                                                                                              ...acc,
-                                                                                              {
-                                                                                                  label: T(
-                                                                                                      curval.label
-                                                                                                  ),
-                                                                                                  value: curval.value,
-                                                                                              },
-                                                                                          ]
-                                                                                      },
-                                                                                      []
-                                                                                  )
-                                                                                : null
+                                                                        ) => {
+                                                                            const [
+                                                                                validation,
+                                                                                setvalidation,
+                                                                            ] =
+                                                                                useState()
+                                                                            const {
+                                                                                label,
+                                                                                options,
+                                                                                initial,
+                                                                                prec,
+                                                                                ...rest
+                                                                            } =
+                                                                                fieldData
+                                                                            const Options =
+                                                                                options
+                                                                                    ? options.reduce(
+                                                                                        (
+                                                                                            acc,
+                                                                                            curval
+                                                                                        ) => {
+                                                                                            return [
+                                                                                                ...acc,
+                                                                                                {
+                                                                                                    label: T(
+                                                                                                        curval.label
+                                                                                                    ),
+                                                                                                    value: curval.value,
+                                                                                                },
+                                                                                            ]
+                                                                                        },
+                                                                                        []
+                                                                                    )
+                                                                                    : null
 
-                                                                        return (
-                                                                            <Field
-                                                                                label={T(
-                                                                                    label
-                                                                                )}
-                                                                                options={
-                                                                                    Options
-                                                                                }
-                                                                                extra={
-                                                                                    useTargetContextFn.isStaId(
-                                                                                        subsectionId,
-                                                                                        label,
-                                                                                        fieldData
-                                                                                    )
-                                                                                        ? "scan"
-                                                                                        : null
-                                                                                }
-                                                                                initial={
-                                                                                    initial
-                                                                                }
-                                                                                prec={
-                                                                                    prec
-                                                                                }
-                                                                                {...rest}
-                                                                                setValue={(
-                                                                                    val,
-                                                                                    update
-                                                                                ) => {
-                                                                                    if (
-                                                                                        !update
-                                                                                    )
-                                                                                        fieldData.value =
-                                                                                            val
-                                                                                    setvalidation(
-                                                                                        generateValidation(
+                                                                            return (
+                                                                                <Field
+                                                                                    label={T(
+                                                                                        label
+                                                                                    )}
+                                                                                    options={
+                                                                                        Options
+                                                                                    }
+                                                                                    extra={
+                                                                                        useTargetContextFn.isStaId(
+                                                                                            subsectionId,
+                                                                                            label,
                                                                                             fieldData
                                                                                         )
-                                                                                    )
-                                                                                }}
-                                                                                validation={
-                                                                                    validation
-                                                                                }
-                                                                            />
-                                                                        )
-                                                                    }
-                                                                )}
-                                                                <div class="m-1" />
+                                                                                            ? "scan"
+                                                                                            : null
+                                                                                    }
+                                                                                    initial={
+                                                                                        initial
+                                                                                    }
+                                                                                    prec={
+                                                                                        prec
+                                                                                    }
+                                                                                    {...rest}
+                                                                                    setValue={(
+                                                                                        val,
+                                                                                        update
+                                                                                    ) => {
+                                                                                        if (
+                                                                                            !update
+                                                                                        )
+                                                                                            fieldData.value =
+                                                                                                val
+                                                                                        setvalidation(
+                                                                                            generateValidation(
+                                                                                                fieldData
+                                                                                            )
+                                                                                        )
+                                                                                    }}
+                                                                                    validation={
+                                                                                        validation
+                                                                                    }
+                                                                                />
+                                                                            )
+                                                                        }
+                                                                    )}
+                                                                    <div class="m-1" />
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    )
-                                                }
-                                            )}
-                                        </Fragment>
-                                    )
-                                })}
-                            </Fragment>
-                        )}
-                    </div>
-                </Fragment>
-            )}
-            <center>
-                <br />
-                {!isLoading && (
-                    <ButtonImg
-                        m2
-                        label={T("S50")}
-                        tooltip
-                        data-tooltip={T("S23")}
-                        icon={<RefreshCcw />}
-                        onClick={() => {
-                            useUiContextFn.haptic()
-                            getFeatures()
-                        }}
-                    />
+                                                        )
+                                                    }
+                                                )}
+                                            </Fragment>
+                                        )
+                                    })}
+                                </Fragment>
+                            )}
+                        </div>
+                    </Fragment>
                 )}
-                {Object.keys(features).length != 0 && (
-                    <Fragment>
+
+
+            </div>
+            <div>
+                <center style="margin-top: 10px">
+
+                    {!isLoading && (
                         <ButtonImg
                             m2
-                            label={T("S54")}
+                            label={T("S50")}
                             tooltip
-                            data-tooltip={T("S55")}
-                            icon={<Download />}
-                            onClick={(e) => {
+                            data-tooltip={T("S23")}
+                            icon={<RefreshCcw />}
+                            onClick={() => {
                                 useUiContextFn.haptic()
-                                e.target.blur()
-                                inputFile.current.value = ""
-                                inputFile.current.click()
+                                getFeatures()
                             }}
                         />
-                        <ButtonImg
-                            m2
-                            label={T("S52")}
-                            tooltip
-                            data-tooltip={T("S53")}
-                            icon={<ExternalLink />}
-                            onClick={(e) => {
-                                useUiContextFn.haptic()
-                                e.target.blur()
-                                exportFeatures(featuresSettings.current)
-                            }}
-                        />
-                        {showSave && (
+                    )}
+                    {Object.keys(features).length != 0 && (
+                        <Fragment>
                             <ButtonImg
                                 m2
+                                label={T("S54")}
                                 tooltip
-                                data-tooltip={T("S62")}
-                                label={T("S61")}
-                                icon={<Save />}
+                                data-tooltip={T("S55")}
+                                icon={<Download />}
                                 onClick={(e) => {
                                     useUiContextFn.haptic()
                                     e.target.blur()
-                                    SaveSettings()
+                                    inputFile.current.value = ""
+                                    inputFile.current.click()
                                 }}
                             />
-                        )}
+                            <ButtonImg
+                                m2
+                                label={T("S52")}
+                                tooltip
+                                data-tooltip={T("S53")}
+                                icon={<ExternalLink />}
+                                onClick={(e) => {
+                                    useUiContextFn.haptic()
+                                    e.target.blur()
+                                    exportFeatures(featuresSettings.current)
+                                }}
+                            />
+                            {showSave && (
+                                <ButtonImg
+                                    m2
+                                    tooltip
+                                    data-tooltip={T("S62")}
+                                    label={T("S61")}
+                                    icon={<Save />}
+                                    onClick={(e) => {
+                                        useUiContextFn.haptic()
+                                        e.target.blur()
+                                        SaveSettings()
+                                    }}
+                                />
+                            )}
 
-                        <ButtonImg
-                            m2
-                            tooltip
-                            data-tooltip={T("S59")}
-                            label={T("S58")}
-                            icon={<RotateCcw />}
-                            onClick={(e) => {
-                                useUiContextFn.haptic()
-                                e.target.blur()
-                                showConfirmationModal({
-                                    modals,
-                                    title: T("S58"),
-                                    content: T("S59"),
-                                    button1: {
-                                        cb: reStartBoard,
-                                        text: T("S27"),
-                                    },
-                                    button2: { text: T("S28") },
-                                })
-                            }}
-                        />
-                    </Fragment>
-                )}
-            </center>
-            <br />
+                            <ButtonImg
+                                m2
+                                tooltip
+                                data-tooltip={T("S59")}
+                                label={T("S58")}
+                                icon={<RotateCcw />}
+                                onClick={(e) => {
+                                    useUiContextFn.haptic()
+                                    e.target.blur()
+                                    showConfirmationModal({
+                                        modals,
+                                        title: T("S58"),
+                                        content: T("S59"),
+                                        button1: {
+                                            cb: reStartBoard,
+                                            text: T("S27"),
+                                        },
+                                        button2: { text: T("S28") },
+                                    })
+                                }}
+                            />
+                        </Fragment>
+                    )}
+                </center>
+            </div>
         </div>
     )
 }

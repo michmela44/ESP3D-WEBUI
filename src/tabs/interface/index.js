@@ -416,261 +416,264 @@ const InterfaceTab = () => {
     }
     //console.log(JSON.stringify(interfaceSettings.current, null, 2))
     return (
-        <div id="interface">
-            <input
-                ref={inputFile}
-                type="file"
-                class="d-none"
-                accept=".json"
-                onChange={fileSelected}
-            />
-            <h4 class="show-low title">{T("S17")}</h4>
-            <div class="m-2" />
-            {isLoading && <Loading large />}
+        <div>
+            <div id="interface" style="max-height: calc(100vh - 165px); overflow-y: scroll;">
+                <input
+                    ref={inputFile}
+                    type="file"
+                    class="d-none"
+                    accept=".json"
+                    onChange={fileSelected}
+                />
+                <h4 class="show-low title">{T("S17")}</h4>
+                <div class="m-2" />
+                {isLoading && <Loading large />}
 
-            {!isLoading && (
-                <Fragment>
-                    {interfaceSettings.current.settings && (
-                        <div class="panels-container">
-                            {Object.keys(
-                                interfaceSettings.current.settings
-                            ).map((sectionId) => {
-                                const section =
-                                    interfaceSettings.current.settings[
+                {!isLoading && (
+                    <Fragment>
+                        {interfaceSettings.current.settings && (
+                            <div class="panels-container">
+                                {Object.keys(
+                                    interfaceSettings.current.settings
+                                ).map((sectionId) => {
+                                    const section =
+                                        interfaceSettings.current.settings[
                                         sectionId
-                                    ]
-                                return (
-                                    <Fragment>
-                                        <div class="panel panel-interface">
-                                            <div class="navbar">
-                                                <span class="navbar-section text-ellipsis">
-                                                    <strong class="text-ellipsis">
-                                                        {T(sectionId)}
-                                                    </strong>
-                                                </span>
-                                            </div>
-                                            <div class="panel-body panel-body-interface">
-                                                {Object.keys(section).map(
-                                                    (subsectionId) => {
-                                                        const fieldData =
-                                                            section[
+                                        ]
+                                    return (
+                                        <Fragment>
+                                            <div class="panel panel-interface">
+                                                <div class="navbar">
+                                                    <span class="navbar-section text-ellipsis">
+                                                        <strong class="text-ellipsis">
+                                                            {T(sectionId)}
+                                                        </strong>
+                                                    </span>
+                                                </div>
+                                                <div class="panel-body panel-body-interface">
+                                                    {Object.keys(section).map(
+                                                        (subsectionId) => {
+                                                            const fieldData =
+                                                                section[
                                                                 subsectionId
-                                                            ]
-                                                        if (
-                                                            fieldData.type ==
-                                                            "group"
-                                                        ) {
-                                                            //show group
+                                                                ]
                                                             if (
-                                                                fieldData.depend
+                                                                fieldData.type ==
+                                                                "group"
                                                             ) {
+                                                                //show group
                                                                 if (
-                                                                    !isDependenciesMet(
-                                                                        fieldData.depend
-                                                                    )
+                                                                    fieldData.depend
                                                                 ) {
-                                                                    return
-                                                                }
-                                                            }
-                                                            return (
-                                                                <FieldGroup
-                                                                    id={
-                                                                        fieldData.id
-                                                                    }
-                                                                    label={T(
-                                                                        fieldData.label
-                                                                    )}
-                                                                    depend={
-                                                                        fieldData.depend
-                                                                    }
-                                                                >
-                                                                    {Object.keys(
-                                                                        fieldData.value
-                                                                    ).map(
-                                                                        (
-                                                                            subData
-                                                                        ) => {
-                                                                            const subFieldData =
-                                                                                fieldData
-                                                                                    .value[
-                                                                                    subData
-                                                                                ]
-                                                                            const [
-                                                                                validation,
-                                                                                setvalidation,
-                                                                            ] =
-                                                                                useState()
-                                                                            const {
-                                                                                label,
-                                                                                initial,
-                                                                                type,
-                                                                                ...rest
-                                                                            } =
-                                                                                subFieldData
-                                                                            return (
-                                                                                <Field
-                                                                                    label={T(
-                                                                                        label
-                                                                                    )}
-                                                                                    type={
-                                                                                        type
-                                                                                    }
-                                                                                    validationfn={
-                                                                                        generateValidation
-                                                                                    }
-                                                                                    inline={
-                                                                                        type ==
-                                                                                            "boolean" ||
-                                                                                        type ==
-                                                                                            "icon"
-                                                                                            ? true
-                                                                                            : false
-                                                                                    }
-                                                                                    {...rest}
-                                                                                    setValue={(
-                                                                                        val,
-                                                                                        update = false
-                                                                                    ) => {
-                                                                                        if (
-                                                                                            !update
-                                                                                        ) {
-                                                                                            subFieldData.value =
-                                                                                                val
-                                                                                        }
-                                                                                        setvalidation(
-                                                                                            generateValidation(
-                                                                                                subFieldData
-                                                                                            )
-                                                                                        )
-                                                                                    }}
-                                                                                    validation={
-                                                                                        validation
-                                                                                    }
-                                                                                />
-                                                                            )
-                                                                        }
-                                                                    )}
-                                                                </FieldGroup>
-                                                            )
-                                                        } else if (
-                                                            !fieldData.hide
-                                                        ) {
-                                                            const [
-                                                                validation,
-                                                                setvalidation,
-                                                            ] = useState()
-                                                            const {
-                                                                label,
-                                                                initial,
-                                                                type,
-                                                                ...rest
-                                                            } = fieldData
-                                                            return (
-                                                                <Field
-                                                                    label={T(
-                                                                        label
-                                                                    )}
-                                                                    type={type}
-                                                                    validationfn={
-                                                                        type ==
-                                                                        "list"
-                                                                            ? generateValidation
-                                                                            : null
-                                                                    }
-                                                                    inline={
-                                                                        type ==
-                                                                            "boolean" ||
-                                                                        type ==
-                                                                            "icon"
-                                                                            ? true
-                                                                            : false
-                                                                    }
-                                                                    {...rest}
-                                                                    setValue={(
-                                                                        val,
-                                                                        update = false
-                                                                    ) => {
-                                                                        if (
-                                                                            !update
-                                                                        ) {
-                                                                            fieldData.value =
-                                                                                val
-                                                                        }
-                                                                        setvalidation(
-                                                                            generateValidation(
-                                                                                fieldData
-                                                                            )
+                                                                    if (
+                                                                        !isDependenciesMet(
+                                                                            fieldData.depend
                                                                         )
-                                                                    }}
-                                                                    validation={
-                                                                        validation
+                                                                    ) {
+                                                                        return
                                                                     }
-                                                                />
-                                                            )
+                                                                }
+                                                                return (
+                                                                    <FieldGroup
+                                                                        id={
+                                                                            fieldData.id
+                                                                        }
+                                                                        label={T(
+                                                                            fieldData.label
+                                                                        )}
+                                                                        depend={
+                                                                            fieldData.depend
+                                                                        }
+                                                                    >
+                                                                        {Object.keys(
+                                                                            fieldData.value
+                                                                        ).map(
+                                                                            (
+                                                                                subData
+                                                                            ) => {
+                                                                                const subFieldData =
+                                                                                    fieldData
+                                                                                        .value[
+                                                                                    subData
+                                                                                    ]
+                                                                                const [
+                                                                                    validation,
+                                                                                    setvalidation,
+                                                                                ] =
+                                                                                    useState()
+                                                                                const {
+                                                                                    label,
+                                                                                    initial,
+                                                                                    type,
+                                                                                    ...rest
+                                                                                } =
+                                                                                    subFieldData
+                                                                                return (
+                                                                                    <Field
+                                                                                        label={T(
+                                                                                            label
+                                                                                        )}
+                                                                                        type={
+                                                                                            type
+                                                                                        }
+                                                                                        validationfn={
+                                                                                            generateValidation
+                                                                                        }
+                                                                                        inline={
+                                                                                            type ==
+                                                                                                "boolean" ||
+                                                                                                type ==
+                                                                                                "icon"
+                                                                                                ? true
+                                                                                                : false
+                                                                                        }
+                                                                                        {...rest}
+                                                                                        setValue={(
+                                                                                            val,
+                                                                                            update = false
+                                                                                        ) => {
+                                                                                            if (
+                                                                                                !update
+                                                                                            ) {
+                                                                                                subFieldData.value =
+                                                                                                    val
+                                                                                            }
+                                                                                            setvalidation(
+                                                                                                generateValidation(
+                                                                                                    subFieldData
+                                                                                                )
+                                                                                            )
+                                                                                        }}
+                                                                                        validation={
+                                                                                            validation
+                                                                                        }
+                                                                                    />
+                                                                                )
+                                                                            }
+                                                                        )}
+                                                                    </FieldGroup>
+                                                                )
+                                                            } else if (
+                                                                !fieldData.hide
+                                                            ) {
+                                                                const [
+                                                                    validation,
+                                                                    setvalidation,
+                                                                ] = useState()
+                                                                const {
+                                                                    label,
+                                                                    initial,
+                                                                    type,
+                                                                    ...rest
+                                                                } = fieldData
+                                                                return (
+                                                                    <Field
+                                                                        label={T(
+                                                                            label
+                                                                        )}
+                                                                        type={type}
+                                                                        validationfn={
+                                                                            type ==
+                                                                                "list"
+                                                                                ? generateValidation
+                                                                                : null
+                                                                        }
+                                                                        inline={
+                                                                            type ==
+                                                                                "boolean" ||
+                                                                                type ==
+                                                                                "icon"
+                                                                                ? true
+                                                                                : false
+                                                                        }
+                                                                        {...rest}
+                                                                        setValue={(
+                                                                            val,
+                                                                            update = false
+                                                                        ) => {
+                                                                            if (
+                                                                                !update
+                                                                            ) {
+                                                                                fieldData.value =
+                                                                                    val
+                                                                            }
+                                                                            setvalidation(
+                                                                                generateValidation(
+                                                                                    fieldData
+                                                                                )
+                                                                            )
+                                                                        }}
+                                                                        validation={
+                                                                            validation
+                                                                        }
+                                                                    />
+                                                                )
+                                                            }
                                                         }
-                                                    }
-                                                )}
-                                                <div class="m-1" />
+                                                    )}
+                                                    <div class="m-1" />
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Fragment>
-                                )
-                            })}
-                        </div>
-                    )}
-                    <center>
-                        <br />
-                        <ButtonImg
-                            m2
-                            label={T("S50")}
-                            tooltip
-                            data-tooltip={T("S23")}
-                            icon={<RefreshCcw />}
-                            onClick={getInterface}
-                        />
-                        <ButtonImg
-                            m2
-                            label={T("S54")}
-                            tooltip
-                            data-tooltip={T("S55")}
-                            icon={<Download />}
-                            onClick={(e) => {
-                                useUiContextFn.haptic()
-                                e.target.blur()
-                                inputFile.current.value = ""
-                                inputFile.current.click()
-                            }}
-                        />
-                        <ButtonImg
-                            m2
-                            label={T("S52")}
-                            tooltip
-                            data-tooltip={T("S53")}
-                            icon={<ExternalLink />}
-                            onClick={(e) => {
-                                useUiContextFn.haptic()
-                                e.target.blur()
-                                //console.log(interfaceSettings.current)
-                                exportPreferences(interfaceSettings.current)
-                            }}
-                        />
-                        {showSave && (
-                            <ButtonImg
-                                m2
-                                tooltip
-                                data-tooltip={T("S62")}
-                                label={T("S61")}
-                                icon={<Save />}
-                                onClick={(e) => {
-                                    useUiContextFn.haptic()
-                                    e.target.blur()
-                                    SaveSettings()
-                                }}
-                            />
+                                        </Fragment>
+                                    )
+                                })}
+                            </div>
                         )}
-                    </center>
-                </Fragment>
-            )}
+
+                    </Fragment>
+                )}
+            </div>
+            <div>   <center>
+                <br />
+                <ButtonImg
+                    m2
+                    label={T("S50")}
+                    tooltip
+                    data-tooltip={T("S23")}
+                    icon={<RefreshCcw />}
+                    onClick={getInterface}
+                />
+                <ButtonImg
+                    m2
+                    label={T("S54")}
+                    tooltip
+                    data-tooltip={T("S55")}
+                    icon={<Download />}
+                    onClick={(e) => {
+                        useUiContextFn.haptic()
+                        e.target.blur()
+                        inputFile.current.value = ""
+                        inputFile.current.click()
+                    }}
+                />
+                <ButtonImg
+                    m2
+                    label={T("S52")}
+                    tooltip
+                    data-tooltip={T("S53")}
+                    icon={<ExternalLink />}
+                    onClick={(e) => {
+                        useUiContextFn.haptic()
+                        e.target.blur()
+                        //console.log(interfaceSettings.current)
+                        exportPreferences(interfaceSettings.current)
+                    }}
+                />
+                {showSave && (
+                    <ButtonImg
+                        m2
+                        tooltip
+                        data-tooltip={T("S62")}
+                        label={T("S61")}
+                        icon={<Save />}
+                        onClick={(e) => {
+                            useUiContextFn.haptic()
+                            e.target.blur()
+                            SaveSettings()
+                        }}
+                    />
+                )}
+            </center></div>
         </div>
     )
 }
