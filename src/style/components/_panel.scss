@@ -27,6 +27,8 @@
 .panel {
     background-color: #fff;
     color: #000;
+    height: auto !important;
+    max-height: 650px !important;
 }
 
 .panel-body-dashboard,
@@ -35,6 +37,8 @@
     display: -ms-flexbox;
     display: flex;
     flex-flow: column;
+    min-height: 500px !important;
+    overflow-y: hidden !important;
 }
 .panel .navbar,
 .panel .navbar-section {
