@@ -180,7 +180,7 @@ if (target === "panel") {
     const displayIcon = iconsList[icon] || ""
     return (
         <Fragment>
-            <div class="panel panel-dashboard" id={id}>
+            <div class="panel panel-dashboard panel-extra-content" id={id}>
 
                 <div class="navbar">
                     <span class="navbar-section feather-icon-container">
