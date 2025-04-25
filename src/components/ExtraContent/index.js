@@ -82,6 +82,21 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }) =>
     }, [panels.updateTrigger])
 
     useEffect(() => {
+        if (useUiContextFn.panels.isVisible(id)) {
+            const panelElements = document.querySelectorAll(".panel-dashboard");
+            const resizeObserver = new ResizeObserver((entries) => {
+                entries.forEach((entry) => {
+                    updateContentPosition();
+                });
+            });
+
+            panelElements.forEach((panelElement) => {
+                resizeObserver.observe(panelElement);
+            });
+    }
+    }, [panels.updateTrigger])
+
+    useEffect(() => {
         //console.log("Mount element " + id)
         if (!elementsCache.has(extra_content_id)) {
             console.error("Error display element " + extra_content_id, " because it doesn't exist")
