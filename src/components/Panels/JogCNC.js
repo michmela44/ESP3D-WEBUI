@@ -35,7 +35,7 @@ import { showModal } from "../Modal"
 import { useTargetContext, variablesList } from "../../targets"
 
 let currentFeedRate = []
-let currentJogDistance = 100
+let currentJogDistance = "-1"
 let currentAxis = "-1"
 
 const feedList = ["XY", "Z", "A", "B", "C", "U", "V", "W"]
@@ -310,6 +310,10 @@ const JogPanel = () => {
     }
 
     useEffect(() => {
+        if(currentJogDistance == "-1") {
+            currentJogDistance = useUiContextFn.getValue("jogdistancedefault")
+        }
+
         if (currentAxis == "-1") {
             feedList.forEach((letter) => {
                 if (!currentFeedRate[letter]) {
