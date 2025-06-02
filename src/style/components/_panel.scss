@@ -26,9 +26,11 @@
     display: -ms-flexbox;
     display: flex;
     flex-flow: column;
-    height: 600px;
+    max-height: 600px;
+    height: auto !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
+    margin: 5px;
 }
 
 .panel {
@@ -49,17 +51,15 @@
     color: #005b96;
 }
 
-
 .panel .panel-body.terminal {
     height: 300px;
     min-height: 300px !important;
 }
 
-.panel:not(.panel-extra-content) {
+.panel-extra-content {
     height: auto !important;
-    max-height: 600px !important;
+    min-height: 550px !important;
 }
-
 
 .panel-item {
     flex: 0 1 auto;
