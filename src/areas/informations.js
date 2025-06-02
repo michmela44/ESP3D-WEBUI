@@ -21,7 +21,7 @@ import { h } from "preact"
 import { InformationsControls, QuickButtonsBar } from "../targets"
 const Informations = () => {
     return (
-        <div id="infopage" class="container m-2">
+        <div id="infopage" class="container my-2">
             <InformationsControls />
             <div class="information-buttons-bar m-2">
                 <QuickButtonsBar />
