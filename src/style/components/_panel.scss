@@ -13,17 +13,24 @@
     flex-flow: row wrap;
     justify-content: space-between;
     align-content: stretch;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.macro-buttons-panel button {
+    flex: 1 1 20% !important;
+    margin: 10px !important;
 }
 
 .panel {
     display: -ms-flexbox;
     display: flex;
     flex-flow: column;
-    height: auto;
-    min-height: 550px;
-    max-height: 650px;
+    max-height: 600px;
+    height: auto !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
+    margin: 5px;
 }
 
 .panel {
@@ -42,6 +49,16 @@
 .panel .navbar-section {
     background: #f1f1fc;
     color: #005b96;
+}
+
+.panel .panel-body.terminal {
+    height: 300px;
+    min-height: 300px !important;
+}
+
+.panel-extra-content {
+    height: auto !important;
+    min-height: 550px !important;
 }
 
 .panel-item {
