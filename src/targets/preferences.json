@@ -147,6 +147,14 @@
                         "type": "boolean",
                         "label": "S77",
                         "value": true
+                    },
+                    {
+                        "id": "MaxTerminalMessages",
+                        "type": "number",
+                        "label": "Max Terminal Messages",
+                        "value": 400,
+                        "min": 1,
+                        "max": 10000
                     }
                 ]
             }

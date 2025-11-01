@@ -31,6 +31,7 @@ const DatasContextProvider = ({ children }) => {
     const isAutoScroll = useRef(true)
     const isAutoScrollPaused = useRef(undefined)
     const isVerbose = useRef(undefined)
+    const maxTerminalMessages = useRef(undefined)
     const terminalBuffer = useRef([])
     const terminalBufferQuiet = useRef([])
     const [terminalContent, setTerminalContent] = useState([])
@@ -57,7 +58,7 @@ const DatasContextProvider = ({ children }) => {
         const newData = {}
         newData.verbose = limitArr(
             [...terminalBuffer.current, element],
-            isAutoScrollPaused.current ? 600 : isAutoScroll.current ? 300 : 400
+            maxTerminalMessages.current
         )
         terminalBuffer.current = newData.verbose
         newData.quiet = terminalBufferQuiet.current
@@ -65,11 +66,7 @@ const DatasContextProvider = ({ children }) => {
             //console.log("quiet command", element)
             newData.quiet = limitArr(
                 [...terminalBufferQuiet.current, element],
-                isAutoScrollPaused.current
-                    ? 600
-                    : isAutoScroll.current
-                      ? 300
-                      : 400
+                maxTerminalMessages.current
             )
             terminalBufferQuiet.current = newData.quiet
         }
@@ -94,6 +91,7 @@ const DatasContextProvider = ({ children }) => {
             isAutoScroll,
             isVerbose,
             isAutoScrollPaused,
+            maxTerminalMessages,
         },
     }
 

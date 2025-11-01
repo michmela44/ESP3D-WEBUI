@@ -48,6 +48,8 @@ const TerminalPanel = () => {
         terminal.isVerbose.current = uisettings.getValue("verbose")
     if (terminal.isAutoScroll.current == undefined)
         terminal.isAutoScroll.current = uisettings.getValue("autoscroll")
+    if (terminal.maxTerminalMessages.current == undefined)
+        terminal.maxTerminalMessages.current = uisettings.getValue("MaxTerminalMessages") || 400
     const [isVerbose, setIsVerbose] = useState(terminal.isVerbose.current)
     const [isAutoScroll, setIsAutoScroll] = useState(
         terminal.isAutoScroll.current
