@@ -300,17 +300,7 @@ const TerminalPanel = () => {
             >
                 {terminal.content &&
                     terminal.content.map((line) => {
-                        let className = ""
-                        switch (line.type) {
-                            case "echo":
-                                className = "echo"
-                                break
-                            case "error":
-                                className = "error"
-                                break
-                            default:
-                            //do nothing
-                        }
+ 
                         if (line.isAction) {
                             return (
                                 <pre class="action" title={line.actionType}>
@@ -321,6 +311,31 @@ const TerminalPanel = () => {
                             isVerbose ||
                             isVerbose === line.isverboseOnly
                         ) {
+                            let className = ""
+                                switch (line.type) {
+                                    case "echo":
+                                        className = "echo"
+                                        break
+                                    case "error":
+                                        className = "error"
+                                        break
+                                    case "stream":
+                                       if (line.content.startsWith("ALARM:") || line.content.startsWith("Hold:") || line.content.startsWith("Door:")) {
+                                           className = "warning"
+                                       } else   if (line.content.startsWith("error:")) {
+                                           className = "error"
+                                        } else if (line.content.startsWith("[MSG:ERR")) {
+                                           return <pre><span class="error">[MSG:ERR</span>{line.content.substring(8)}</pre>
+                                        } else if (line.content.startsWith("[MSG:WARN")) {
+                                             return <pre><span class="warning">[MSG:WARN</span>{line.content.substring(9)}</pre>
+                                        } else if (line.content.startsWith("[MSG:INFO")) {
+                                            return <pre><span class="info">[MSG:INFO</span>{line.content.substring(9)}</pre>
+                                        }
+                                        break
+                                    default:
+                                    //do nothing
+                                }
+
                             return <pre class={className}>{line.content}</pre>
                         }
                     })}
