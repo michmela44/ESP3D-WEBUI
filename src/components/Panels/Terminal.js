@@ -102,8 +102,8 @@ const TerminalPanel = () => {
                         return <pre key={index}>&lt;<span class="warning">Hold</span>{line.content.substring(5)}</pre>
                     } else if (line.content.startsWith("<Door:")) {
                         return <pre key={index}>&lt;<span class="warning">Door</span>{line.content.substring(5)}</pre>
-                    } else if (line.content.startsWith("<ALARM:")) {
-                        return <pre key={index}>&lt;<span class="warning">ALARM</span>{line.content.substring(6)}</pre>
+                    } else if (line.content.startsWith("<Alarm")) {
+                        return <pre key={index}>&lt;<span class="warning">Alarm</span>{line.content.substring(6)}</pre>
                     } else if (line.content.startsWith("[MSG:ERR")) {
                         return <pre key={index}>[<span class="error">MSG:ERR</span>{line.content.substring(8)}</pre>
                     } else if (line.content.startsWith("[MSG:WARN")) {
