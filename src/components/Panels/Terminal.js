@@ -61,6 +61,7 @@ const TerminalPanel = () => {
     const inputHistoryIndex = useRef(terminal.inputHistory.length)
     const renderedMessages = useRef([])
     const lastRenderedCount = useRef(0)
+    const lastFirstMessage = useRef(null)
     const scrollToBottom = () => {
         if (
             terminal.isAutoScroll.current &&
@@ -345,19 +346,23 @@ const TerminalPanel = () => {
                     if (!terminal.content) return null
 
                     const currentCount = terminal.content.length
+                    const firstMessage = terminal.content[0]
 
-                    // If verbose mode changed or content was cleared, re-render everything
-                    if (currentCount < lastRenderedCount.current) {
-                        renderedMessages.current = []
-                        lastRenderedCount.current = 0
+                    // If verbose mode changed, content was cleared, or messages rolled off (first message changed), re-render everything
+                    if (currentCount < lastRenderedCount.current ||
+                        (currentCount > 0 && firstMessage !== lastFirstMessage.current)) {
+                        // Re-render all current messages
+                        renderedMessages.current = terminal.content.map((line, index) => renderLine(line, index))
+                        lastRenderedCount.current = currentCount
+                        lastFirstMessage.current = firstMessage
+                    } else {
+                        // Only process new messages since last render
+                        for (let i = lastRenderedCount.current; i < currentCount; i++) {
+                            renderedMessages.current.push(renderLine(terminal.content[i], i))
+                        }
+                        lastRenderedCount.current = currentCount
+                        lastFirstMessage.current = firstMessage
                     }
-
-                    // Only process new messages since last render
-                    for (let i = lastRenderedCount.current; i < currentCount; i++) {
-                        renderedMessages.current.push(renderLine(terminal.content[i], i))
-                    }
-
-                    lastRenderedCount.current = currentCount
 
                     return renderedMessages.current
                 }, [terminal.content, isVerbose])}
