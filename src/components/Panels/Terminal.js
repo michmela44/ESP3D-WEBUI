@@ -94,7 +94,7 @@ const TerminalPanel = () => {
                     className = "error"
                     break
                 case "stream":
-                    if (line.content.startsWith("ALARM:") || line.content.startsWith("Hold:") || line.content.startsWith("Door:")) {
+                    if (line.content.startsWith("ALARM:") || line.content.startsWith("Hold:") || line.content.startsWith("Door:") || line.content.startsWith("<ALARM:") || line.content.startsWith("<Hold:") || line.content.startsWith("<Door:")) {
                         className = "warning"
                     } else if (line.content.startsWith("error:")) {
                         className = "error"
