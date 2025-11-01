@@ -90,7 +90,7 @@ const ProbePanel = () => {
     const { createNewRequest } = useHttpFn
     const id = "ProbePanel"
 
-    console.log("Probe panel")
+    console.log("[Probe panel] Render")
     if (typeof maxprobe.current === "undefined") {
         maxprobe.current = useUiContextFn.getValue("maxprobe")
     }

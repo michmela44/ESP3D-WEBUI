@@ -67,6 +67,7 @@ const PositionsControls = () => {
 }
 
 const JogPanel = () => {
+    console.log(`[JOG PANEL] Render`)
     const { modals, toasts, panels, shortcuts } = useUiContext()
 
     const { createNewRequest } = useHttpFn

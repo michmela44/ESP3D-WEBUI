@@ -42,7 +42,7 @@ const MacrosPanel = () => {
     const { createNewRequest } = useHttpFn
     const iconsList = { ...iconsTarget, ...iconsFeather }
     const id = "macrosPanel"
-    console.log(id)
+    console.log("[Macros panel] Render")
     const getSDSource = () => {
         for (const source of files.supported) {
             if (source.value == "SD" || source.value == "DIRECTSD") {

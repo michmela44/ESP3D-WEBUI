@@ -40,6 +40,7 @@ import { Menu as PanelMenu } from "./"
  *
  */
 const TerminalPanel = () => {
+    console.log(`[TERMINAL PANEL] Render`)
     const { panels, uisettings } = useUiContext()
     const { terminal } = useDatasContext()
     const { processData } = useTargetContext()
@@ -211,8 +212,6 @@ const TerminalPanel = () => {
             inputHistoryIndex.current = terminal.inputHistory.length - 1;
         };
     }, []);
-
-    console.log("Terminal panel")
 
     const toggleVerboseMode = () => {
         useUiContextFn.haptic()

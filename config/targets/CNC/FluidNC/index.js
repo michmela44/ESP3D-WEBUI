@@ -103,7 +103,7 @@ const commandsQuery = (req, res, SendWS) => {
                 WebCommunication: "Synchronous",
                 WebSocketIP: "localhost",
                 WebSocketPort: "82",
-                Hostname: "esp3d",
+                HostName: "fluidnc",
                 WiFiMode: "STA",
                 wled: "Enabled",
                 FlashFileSystem: "LittleFS",

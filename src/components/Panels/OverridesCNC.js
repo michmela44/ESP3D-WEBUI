@@ -160,7 +160,7 @@ const OverridesPanel = () => {
         },
     ]
 
-    console.log("Overrides panel")
+    console.log("[OOverrides panel] Render")
     const sendCommand = (command) => {
         createNewRequest(
             espHttpURL("command", {

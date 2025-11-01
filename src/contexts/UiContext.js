@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { h, createContext } from "preact"
-import { useContext, useState, useRef, useEffect, useCallback } from "preact/hooks"
+import { useContext, useState, useRef, useEffect, useCallback, useMemo } from "preact/hooks"
 import {
     generateUID,
     removeEntriesByIDs,
@@ -95,7 +95,7 @@ const UiContextProvider = ({ children }) => {
         return visiblePanelsListRef.current.some((element) => element.id == id);
     }, []);
 
-    const addToast = (newToast) => {
+    const addToast = useCallback((newToast) => {
         const id = generateUID()
         const now = new Date()
         const time =
@@ -110,39 +110,41 @@ const UiContextProvider = ({ children }) => {
             ...notificationsRef.current,
             { ...newToast, id, time },
         ])
-    }
+    }, [])
 
-    const clearNotifications = () => {
+    const clearNotifications = useCallback(() => {
         setNotifications([])
-    }
+    }, [])
 
-    const removeToast = (uids) => {
+    const removeToast = useCallback((uids) => {
         const remainingIds = removeEntriesByIDs(toastsRef.current, uids)
         toastsRef.current = remainingIds
         setToasts([...remainingIds])
-    }
+    }, [])
 
-    const addModal = (newModal) =>
-        setModal([
-            ...modals,
+    const addModal = useCallback((newModal) =>
+        setModal((prev) => [
+            ...prev,
             { ...newModal, id: newModal.id ? newModal.id : generateUID() },
-        ])
-    const getModalIndex = (id) => {
+        ]), [])
+
+    const getModalIndex = useCallback((id) => {
         return modals.findIndex((element) => element.id == id)
-    }
-    const removeModal = (modalIndex) => {
+    }, [modals])
+
+    const removeModal = useCallback((modalIndex) => {
         const newModalList = modals.filter(
             (modal, index) => index !== modalIndex
         )
         setModal(newModalList)
         if (newModalList.length == 0) disableUI(false)
-    }
+    }, [modals])
 
-    const clearModals = () => {
+    const clearModals = useCallback(() => {
         setModal([])
-    }
+    }, [])
 
-    const getElement = (Id, base = null) => {
+    const getElement = useCallback((Id, base = null) => {
         const settingsobject = base ? base : uiSettings
         if (settingsobject) {
             for (let key in settingsobject) {
@@ -193,9 +195,9 @@ const UiContextProvider = ({ children }) => {
             }
         }
         return undefined
-    }
+    }, [uiSettings])
 
-    const getValue = (Id, base = null) => {
+    const getValue = useCallback((Id, base = null) => {
         if (!Id) return undefined
         const settingsobject = base ? base : uiSettings
         if (settingsobject) {
@@ -248,7 +250,7 @@ const UiContextProvider = ({ children }) => {
             }
         }
         return undefined
-    }
+    }, [uiSettings])
 
     useUiContextFn.getValue = getValue
     useUiContextFn.getElement = getElement
@@ -342,16 +344,18 @@ const UiContextProvider = ({ children }) => {
         initAudio()
     }, [])
 
-    const store = {
+    const setVisibles = useCallback((newList) => {
+        visiblePanelsListRef.current = newList;
+        setUpdateTrigger(prev => prev + 1);
+    }, [])
+
+    const store = useMemo(() => ({
         timerIDs: timersList,
         panels: {
             list: panelsList,
             set: setPanelsList,
             visibles: visiblePanelsListRef.current,
-            setVisibles: (newList) => {
-                visiblePanelsListRef.current = newList;
-                setUpdateTrigger(prev => prev + 1);
-            },
+            setVisibles,
             hide: removeFromVisibles,
             show: addToVisibles,
             isVisible: isPanelVisible,
@@ -399,7 +403,32 @@ const UiContextProvider = ({ children }) => {
             ready:uiSetup,
             setReady:setUiSetup,
         },
-    }
+    }), [
+        panelsList,
+        setVisibles,
+        removeFromVisibles,
+        addToVisibles,
+        isPanelVisible,
+        initPanelsVisibles,
+        updateTrigger,
+        isKeyboardEnabled,
+        uiSettings,
+        getValue,
+        toasts,
+        addToast,
+        removeToast,
+        notifications,
+        clearNotifications,
+        modals,
+        addModal,
+        removeModal,
+        getModalIndex,
+        clearModals,
+        connectionState,
+        needLogin,
+        showKeepConnected,
+        uiSetup,
+    ])
 
     return <UiContext.Provider value={store}>{children}</UiContext.Provider>
 }

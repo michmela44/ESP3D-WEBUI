@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { h, createContext } from "preact"
-import { useRef, useContext, useState } from "preact/hooks"
+import { useRef, useContext, useState, useCallback, useMemo } from "preact/hooks"
 import {
     limitArr,
     dispatchToExtensions,
@@ -359,7 +359,7 @@ const TargetContextProvider = ({ children }) => {
 
     useTargetContextFn.processData = processData
 
-    const store = {
+    const store = useMemo(() => ({
         positions,
         streamStatus,
         status,
@@ -373,7 +373,20 @@ const TargetContextProvider = ({ children }) => {
         grblVersion,
         grblSettings,
         processData,
-    }
+    }), [
+        positions,
+        streamStatus,
+        status,
+        states,
+        pinsStates,
+        message,
+        alarmCode,
+        errorCode,
+        overrides,
+        gcodeParameters,
+        grblVersion,
+        grblSettings,
+    ])
 
     return (
         <TargetContext.Provider value={store}>

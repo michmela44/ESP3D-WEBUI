@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { h, createContext } from "preact"
-import { useRef, useContext, useState } from "preact/hooks"
+import { useRef, useContext, useState, useCallback, useMemo } from "preact/hooks"
 import { limitArr, useStoredState } from "../components/Helpers"
 
 /*
@@ -41,13 +41,13 @@ const DatasContextProvider = ({ children }) => {
     )
     const terminalInput = useRef()
 
-    const clearTerminal = () => {
+    const clearTerminal = useCallback(() => {
         terminalBuffer.current = []
         terminalBufferQuiet.current = []
         setTerminalContent([])
-    }
+    }, [])
 
-    const addTerminalContent = (element) => {
+    const addTerminalContent = useCallback((element) => {
         //console.log(element)
         //console.log(
         //    'isVerbose',
@@ -77,15 +77,15 @@ const DatasContextProvider = ({ children }) => {
 
         if (isVerbose.current) setTerminalContent([...terminalBuffer.current])
         else setTerminalContent([...terminalBufferQuiet.current])
-    }
+    }, [])
 
-    const addTerminalInputHistory = (element) => {
-        setTerminalInputHistory(
-            limitArr([...terminalInputHistory, element], 50)
+    const addTerminalInputHistory = useCallback((element) => {
+        setTerminalInputHistory((prev) =>
+            limitArr([...prev, element], 50)
         )
-    }
+    }, [])
 
-    const store = {
+    const store = useMemo(() => ({
         terminal: {
             input: terminalInput,
             content: terminalContent,
@@ -98,7 +98,7 @@ const DatasContextProvider = ({ children }) => {
             isAutoScrollPaused,
             maxTerminalMessages,
         },
-    }
+    }), [terminalContent, terminalInputHistory, addTerminalContent, clearTerminal, addTerminalInputHistory])
 
     return (
         <DatasContext.Provider value={store}>{children}</DatasContext.Provider>

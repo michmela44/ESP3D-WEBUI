@@ -211,7 +211,7 @@ const SpindlePanel = () => {
         },
     ]
 
-    console.log("Spindle panel")
+    console.log("[Spindle panel] Render")
     const sendCommand = (command) => {
         createNewRequest(
             espHttpURL("command", {

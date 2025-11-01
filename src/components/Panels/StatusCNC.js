@@ -118,6 +118,7 @@ const StatusControls = () => {
 }
 
 const StatusPanel = () => {
+    console.log(`[STATUS PANEL] Render`)
     const { toasts } = useUiContext()
     const { status, states, pinsStates, streamStatus } = useTargetContext()
     const { createNewRequest } = useHttpFn
@@ -209,7 +210,6 @@ const StatusPanel = () => {
         // },
     ]
 
-    console.log("Status panel")
     const sendCommand = (command) => {
         createNewRequest(
             espHttpURL("command", {

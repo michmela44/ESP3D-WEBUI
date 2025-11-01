@@ -117,7 +117,7 @@ const JogPanel = () => {
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const { positions } = useTargetContext()
     const id = "jogPanel"
-    console.log(id)
+    console.log("[Jog panel] Render")
     function onChangeAxis(e) {
         let value = e.target ? e.target.value : e
         setCurrentSelectedAxis(value)

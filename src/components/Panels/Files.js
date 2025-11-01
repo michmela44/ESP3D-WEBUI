@@ -650,7 +650,7 @@ const FilesPanel = () => {
         setMenu(newMenu())
     }, [fileSystem])
 
-    console.log(id)
+    console.log("[Files panel] Render")
     return (
         <div class="panel panel-dashboard" id={id}>
             <input

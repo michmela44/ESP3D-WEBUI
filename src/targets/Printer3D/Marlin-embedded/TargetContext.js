@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { h, createContext } from "preact"
-import { useRef, useContext, useState } from "preact/hooks"
+import { useRef, useContext, useState, useCallback, useMemo } from "preact/hooks"
 import {
     limitArr,
     dispatchToExtensions,
@@ -115,10 +115,10 @@ const TargetContextProvider = ({ children }) => {
         setTemperaturesList(temperaturesListRef.current)
     }
 
-    const clearTemperaturesList = () => {
+    const clearTemperaturesList = useCallback(() => {
         temperaturesListRef.current = []
         setTemperaturesList([])
-    }
+    }, [])
     //Sensor
     const [sensorData, setSensorData] = useState({ S: [] })
 
@@ -150,10 +150,10 @@ const TargetContextProvider = ({ children }) => {
         }
     }
 
-    const clearSensorDataList = () => {
+    const clearSensorDataList = useCallback(() => {
         sensorDataListRef.current = []
         setSensorDataList([])
-    }
+    }, [])
 
     const { terminal } = useDatasContext()
     const dataBuffer = useRef({
@@ -338,7 +338,22 @@ const TargetContextProvider = ({ children }) => {
 
     useTargetContextFn.processData = processData
 
-    const store = {
+    const setFanSpeedValue = useCallback((index, value) => {
+        fansSpeed.current[index] = value
+        setFanSpeed([...fansSpeed.current])
+    }, [])
+
+    const setFlowRateValue = useCallback((index, value) => {
+        flowsRate.current[index] = value
+        setFlowRate([...flowsRate.current])
+    }, [])
+
+    const setFeedRateValue = useCallback((index, value) => {
+        feedsRate.current[index] = value
+        setFeedRate([...feedsRate.current])
+    }, [])
+
+    const store = useMemo(() => ({
         positions,
         temperatures,
         temperaturesList: {
@@ -347,25 +362,15 @@ const TargetContextProvider = ({ children }) => {
         },
         fanSpeed: {
             current: fanSpeed,
-            set: (index, value) => {
-                console.log("set fan speed", index, "=", value)
-                fansSpeed[index] = value
-                setFanSpeed(fanSpeed)
-            },
+            set: setFanSpeedValue,
         },
         flowRate: {
             current: flowRate,
-            set: (index, value) => {
-                flowsRate[index] = value
-                setFlowRate(fanSpeed)
-            },
+            set: setFlowRateValue,
         },
         feedRate: {
             current: feedRate,
-            set: (index, value) => {
-                feedsRate[index] = value
-                setFeedRate(fanSpeed)
-            },
+            set: setFeedRateValue,
         },
         sensor: sensorData,
         sensorList: {
@@ -374,7 +379,22 @@ const TargetContextProvider = ({ children }) => {
         },
         status: status,
         processData,
-    }
+    }), [
+        positions,
+        temperatures,
+        temperaturesList,
+        fanSpeed,
+        flowRate,
+        feedRate,
+        sensorData,
+        sensorDataList,
+        status,
+        clearTemperaturesList,
+        clearSensorDataList,
+        setFanSpeedValue,
+        setFlowRateValue,
+        setFeedRateValue,
+    ])
 
     return (
         <TargetContext.Provider value={store}>
