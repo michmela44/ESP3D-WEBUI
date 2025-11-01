@@ -55,23 +55,28 @@ const DatasContextProvider = ({ children }) => {
         //    'Quiet',
         //    terminalBufferQuiet.current.length
         //)
-        const newData = {}
-        newData.verbose = limitArr(
-            [...terminalBuffer.current, element],
-            maxTerminalMessages.current
-        )
-        terminalBuffer.current = newData.verbose
-        newData.quiet = terminalBufferQuiet.current
+        const maxMessages = maxTerminalMessages.current
+        const trimThreshold = Math.floor(maxMessages * 1.2) // Allow 20% overflow before trimming
+
+        terminalBuffer.current.push(element)
+
+        if (terminalBuffer.current.length > trimThreshold) {
+            const removeCount = terminalBuffer.current.length - maxMessages
+            terminalBuffer.current.splice(0, removeCount)
+        }
+
         if (!element.isverboseOnly) {
             //console.log("quiet command", element)
-            newData.quiet = limitArr(
-                [...terminalBufferQuiet.current, element],
-                maxTerminalMessages.current
-            )
-            terminalBufferQuiet.current = newData.quiet
+            terminalBufferQuiet.current.push(element)
+
+            if (terminalBufferQuiet.current.length > trimThreshold) {
+                const removeCount = terminalBufferQuiet.current.length - maxMessages
+                terminalBufferQuiet.current.splice(0, removeCount)
+            }
         }
-        if (isVerbose.current) setTerminalContent(terminalBuffer.current)
-        else setTerminalContent(terminalBufferQuiet.current)
+
+        if (isVerbose.current) setTerminalContent([...terminalBuffer.current])
+        else setTerminalContent([...terminalBufferQuiet.current])
     }
 
     const addTerminalInputHistory = (element) => {
