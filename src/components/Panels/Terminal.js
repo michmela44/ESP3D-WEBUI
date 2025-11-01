@@ -94,16 +94,22 @@ const TerminalPanel = () => {
                     className = "error"
                     break
                 case "stream":
-                    if (line.content.startsWith("ALARM:") || line.content.startsWith("Hold:") || line.content.startsWith("Door:") || line.content.startsWith("<ALARM:") || line.content.startsWith("<Hold:") || line.content.startsWith("<Door:")) {
+                    if (line.content.startsWith("ALARM:") || line.content.startsWith("Hold:") || line.content.startsWith("Door:") ) {
                         className = "warning"
                     } else if (line.content.startsWith("error:")) {
                         className = "error"
+                    } else if (line.content.startsWith("<Hold:")) {
+                        return <pre key={index}>&lt;<span class="warning">Hold</span>{line.content.substring(5)}</pre>
+                    } else if (line.content.startsWith("<Door:")) {
+                        return <pre key={index}>&lt;<span class="warning">Door</span>{line.content.substring(5)}</pre>
+                    } else if (line.content.startsWith("<ALARM:")) {
+                        return <pre key={index}>&lt;<span class="warning">ALARM</span>{line.content.substring(6)}</pre>
                     } else if (line.content.startsWith("[MSG:ERR")) {
-                        return <pre key={index}><span class="error">[MSG:ERR</span>{line.content.substring(8)}</pre>
+                        return <pre key={index}>[<span class="error">MSG:ERR</span>{line.content.substring(8)}</pre>
                     } else if (line.content.startsWith("[MSG:WARN")) {
-                        return <pre key={index}><span class="warning">[MSG:WARN</span>{line.content.substring(9)}</pre>
+                        return <pre key={index}>[<span class="warning">MSG:WARN</span>{line.content.substring(9)}</pre>
                     } else if (line.content.startsWith("[MSG:INFO")) {
-                        return <pre key={index}><span class="info">[MSG:INFO</span>{line.content.substring(9)}</pre>
+                        return <pre key={index}>[<span class="info">MSG:INFO</span>{line.content.substring(9)}</pre>
                     }
                     break
                 default:
