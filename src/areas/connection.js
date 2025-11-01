@@ -77,8 +77,8 @@ const ConnectionContainer = () => {
                 contentSubtitle = T("S145") //"Authentication required"
                 document.title =
                     (connectionSettings.current &&
-                    connectionSettings.current.Hostname
-                        ? connectionSettings.current.Hostname
+                    connectionSettings.current.HostName
+                        ? connectionSettings.current.HostName
                         : "ESP3D") +
                     "(" +
                     T("S145") +
@@ -100,8 +100,8 @@ const ConnectionContainer = () => {
                         ": " + connection.connectionState.extraMsg
                 document.title =
                     (connectionSettings.current &&
-                    connectionSettings.current.Hostname
-                        ? connectionSettings.current.Hostname
+                    connectionSettings.current.HostName
+                        ? connectionSettings.current.HostName
                         : "ESP3D") +
                     "(" +
                     T("S22") +
@@ -125,8 +125,8 @@ const ConnectionContainer = () => {
                         : T("S173") //"Connection with board is lost"
                 document.title =
                     (connectionSettings.current &&
-                    connectionSettings.current.Hostname
-                        ? connectionSettings.current.Hostname
+                    connectionSettings.current.HostName
+                        ? connectionSettings.current.HostName
                         : "ESP3D") +
                     "(" +
                     T("S9") +
@@ -145,8 +145,8 @@ const ConnectionContainer = () => {
                 contentSubtitle = T("S3")
                 document.title =
                     (connectionSettings.current &&
-                    connectionSettings.current.Hostname
-                        ? connectionSettings.current.Hostname
+                    connectionSettings.current.HostName
+                        ? connectionSettings.current.HostName
                         : "ESP3D") +
                     "(" +
                     T("S9") +
@@ -163,8 +163,8 @@ const ConnectionContainer = () => {
                 setTimeout(refreshTimer, 1000)
                 document.title =
                     (connectionSettings.current &&
-                    connectionSettings.current.Hostname
-                        ? connectionSettings.current.Hostname
+                    connectionSettings.current.HostName
+                        ? connectionSettings.current.HostName
                         : "ESP3D") +
                     "(" +
                     T("S35") +
@@ -196,8 +196,8 @@ const ConnectionContainer = () => {
                 } else {
                     document.title =
                         (connectionSettings.current &&
-                        connectionSettings.current.Hostname
-                            ? connectionSettings.current.Hostname
+                        connectionSettings.current.HostName
+                            ? connectionSettings.current.HostName
                             : "ESP3D") +
                         "(" +
                         T("S2") +

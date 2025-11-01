@@ -202,7 +202,7 @@ const useSettings = () => {
                     }
                     processData("core", "ESP800", true)
                     //console.log(connectionSettings.current)
-                    document.title = connectionSettings.current.Hostname
+                    document.title = connectionSettings.current.HostName
                     if (
                         !connectionSettings.current.HostPath ||
                         !connectionSettings.current.HostPath.length
@@ -313,7 +313,7 @@ const useSettings = () => {
                 authenticate: true,
                 page: "connecting",
             })
-            document.title = connectionSettings.current.Hostname
+            document.title = connectionSettings.current.HostName
             setTimeout(initPolling, 2000)
             console.log("Ui is ready")
             ui.setReady(true)
