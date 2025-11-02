@@ -19,7 +19,7 @@
 */
 import { Fragment, h } from "preact"
 import { useState, useEffect, useCallback, useRef, useMemo } from "preact/hooks"
-import { espHttpURL, dispatchToExtensions } from "../Helpers"
+import { espHttpURL, invalidateIframeCache } from "../Helpers"
 import { useHttpFn } from "../../hooks"
 import { ButtonImg, ContainerHelper } from "../Controls"
 import { T } from "../Translations"
@@ -27,6 +27,19 @@ import { Play, Pause, Aperture } from "preact-feather"
 import { eventBus } from "../../hooks/eventBus"
 import { useUiContextFn } from "../../contexts"
 import { elementsCache } from "../../areas/elementsCache"
+
+// Polyfill for requestIdleCallback for browsers that don't support it
+const requestIdleCallback = window.requestIdleCallback || function(cb) {
+    const start = Date.now()
+    return setTimeout(function() {
+        cb({
+            didTimeout: false,
+            timeRemaining: function() {
+                return Math.max(0, 50 - (Date.now() - start))
+            }
+        })
+    }, 1)
+}
 
 const visibilityState = {};
 const isLoadedState = {};
@@ -93,7 +106,7 @@ const ExtraContentItem = ({
     }, [id])
 
     const loadContent = useCallback(() => {
-        
+
         if (target=="page"){
             //console.log("Loading content for page " + id)
             //console.log(useUiContextFn.panels.isVisible(elementsCache.getRootfromId(id)))
@@ -120,14 +133,27 @@ const ExtraContentItem = ({
             if (url.endsWith(".gz")) {
                 url = url.substring(0, url.length - 3)
             }
-            createNewRequest(
-                espHttpURL(url),
-                { method: "GET", id: idquery, max: 1 },
-                {
-                    onSuccess: handleContentSuccess,
-                    onFail: handleContentError,
-                }
-            )
+
+            // For extensions, use requestIdleCallback to defer loading during busy periods
+            // This prevents extensions from blocking critical UI updates
+            const performLoad = () => {
+                createNewRequest(
+                    espHttpURL(url),
+                    { method: "GET", id: idquery, max: 1 },
+                    {
+                        onSuccess: handleContentSuccess,
+                        onFail: handleContentError,
+                    }
+                )
+            }
+
+            if (type === "extension" && !visibilityState[id]) {
+                // Defer loading of hidden extensions
+                requestIdleCallback(performLoad, { timeout: 2000 })
+            } else {
+                // Load visible content immediately
+                performLoad()
+            }
         }
     }, [id, source, type, createNewRequest, handleContentSuccess, handleContentError, isPaused])
 
@@ -153,7 +179,7 @@ const ExtraContentItem = ({
                         //is it the same as the current state?
                         if (visibilityState[id]!= msg.isVisible){
                             //if it is extension, check if the content is loaded
-                            if (type=="extension" && isLoadedState[id]){    
+                            if (type=="extension" && isLoadedState[id]){
                                 const iframeElement = element.querySelector('iframe.extensionContainer');
                                 if (iframeElement){
                                     iframeElement.contentWindow.postMessage(
@@ -161,6 +187,10 @@ const ExtraContentItem = ({
                                         "*"
                                     )
                                 }
+                            }
+                            // Invalidate cache when visibility changes for performance optimization
+                            if (type === "extension") {
+                                invalidateIframeCache()
                             }
                         }
                         visibilityState[id]= msg.isVisible;
@@ -221,19 +251,54 @@ const ExtraContentItem = ({
         isLoadedState[id] = true;
         const iframeElement = document.getElementById(element_id)
         if (type === "extension" && iframeElement) {
-           
+
             const doc = iframeElement.contentWindow.document
 
             const body = doc.querySelector("body")
             if (!body){
                 console.error("body not found")
                 return
-            } 
+            }
             body.classList.add("body-extension")
-            const css = document.querySelectorAll("style")
-            css.forEach((csstag) => {
-                doc.head.appendChild(csstag.cloneNode(true))
-            })
+
+            // Optimized CSS injection - only inject critical CSS immediately
+            // Defer non-critical CSS to avoid blocking
+            requestIdleCallback(() => {
+                const css = document.querySelectorAll("style")
+                const criticalCSS = []
+                const deferredCSS = []
+
+                // Separate critical from non-critical CSS
+                css.forEach((csstag) => {
+                    // Consider CSS critical if it's small or contains core styles
+                    const cssText = csstag.textContent || ''
+                    const isCritical = cssText.length < 5000 ||
+                                      cssText.includes('.body-extension') ||
+                                      cssText.includes('body') ||
+                                      cssText.includes(':root')
+
+                    if (isCritical) {
+                        criticalCSS.push(csstag)
+                    } else {
+                        deferredCSS.push(csstag)
+                    }
+                })
+
+                // Inject critical CSS immediately
+                criticalCSS.forEach((csstag) => {
+                    doc.head.appendChild(csstag.cloneNode(true))
+                })
+
+                // Defer non-critical CSS injection
+                if (deferredCSS.length > 0) {
+                    requestIdleCallback(() => {
+                        deferredCSS.forEach((csstag) => {
+                            doc.head.appendChild(csstag.cloneNode(true))
+                        })
+                    })
+                }
+            }, { timeout: 500 })
+
             if (iframeElement){
                 iframeElement.contentWindow.postMessage(
                     { type: "notification", content: {isConnected: true, isVisible: visibilityState[id]}, id },

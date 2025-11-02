@@ -48,7 +48,7 @@ import {
     removeObjectItem,
     BitsArray,
 } from "./arrays"
-import { dispatchToExtensions, isFullscreenActive, isFullscreenSupported, getFullscreenElement } from "./html"
+import { dispatchToExtensions, isFullscreenActive, isFullscreenSupported, getFullscreenElement, invalidateIframeCache } from "./html"
 import { sortedFilesList, filterResultFiles } from "./filters"
 import { useStoredState } from "./storedState"
 
@@ -61,6 +61,7 @@ export {
     disableNode,
     disableUI,
     dispatchToExtensions,
+    invalidateIframeCache,
     isFullscreenActive,
     isFullscreenSupported,
     getFullscreenElement,
