@@ -47,7 +47,7 @@ const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
  *
  */
 //A separate control to avoid the full panel to be updated when the positions are updated
-const PositionsControls = () => {
+const PositionsControls = ({ onWPosClick }) => {
     const { positions } = useTargetContext()
     const posLines = [
         ["x", "y", "z"],
@@ -91,7 +91,13 @@ const PositionsControls = () => {
                                                         WPos{" "}
                                                         {letter.toUpperCase()}
                                                     </div>
-                                                    <div class="m-1 jog-position-value">
+                                                    <div
+                                                        class="m-1 jog-position-value jog-position-clickable"
+                                                        onclick={() => {
+                                                            useUiContextFn.haptic()
+                                                            onWPosClick(letter, positions["w" + letter])
+                                                        }}
+                                                    >
                                                         {
                                                             positions[
                                                                 "w" + letter
@@ -181,7 +187,64 @@ const JogPanel = () => {
         SendCommand(cmd)
     }
 
-    //Send jog command
+    const sendMoveToCommand = (axis, targetPosition) => {
+       let selected_axis
+        let feedrate =
+            axis.startsWith("X") || axis.startsWith("Y")
+                ? currentFeedRate["XY"]
+                : axis.startsWith("Z")
+                  ? currentFeedRate["Z"]
+                  : currentFeedRate[currentAxis]
+        if (axis.startsWith("Axis"))
+            selected_axis = axis.replace("Axis", currentAxis)
+        else selected_axis = axis
+        let cmd =
+            "$J=G90 G21 " + selected_axis.toUpperCase() + targetPosition + " F" + feedrate
+        SendCommand(cmd)
+    }
+
+    const showMoveToDialog = (axis, currentPosition) => {
+        let targetValue = currentPosition
+        const axisUpper = axis.toUpperCase()
+        showModal({
+            modals,
+            title: `Move to ${axisUpper} position`,
+            button2: { text: T("S28") },
+            button1: {
+                cb: () => {
+                    if (targetValue.length > 0 && !isNaN(targetValue)) {
+                        sendMoveToCommand(axis, targetValue)
+                    }
+                },
+                text: T("S43"),
+                id: "applyMoveToBtn",
+            },
+            icon: <Move />,
+            id: "inputMoveTo",
+            content: (
+                <Fragment>
+                    <div>
+                        {T("CN15")?.replace("$", axisUpper) || `Enter target ${axisUpper} position:`}
+                    </div>
+                    <input
+                        class="form-input"
+                        type="number"
+                        step="0.01"
+                        value={targetValue}
+                        onInput={(e) => {
+                            targetValue = e.target.value.trim()
+                            if (document.getElementById("applyMoveToBtn")) {
+                                document.getElementById(
+                                    "applyMoveToBtn"
+                                ).disabled = targetValue.length === 0 || isNaN(targetValue)
+                            }
+                        }}
+                    />
+                </Fragment>
+            ),
+        })
+    }
+
     const sendJogCommand = (axis) => {
         let selected_axis
         let feedrate =
@@ -412,7 +475,7 @@ const JogPanel = () => {
                 </span>
             </div>
             <div class="m-1 jog-container">
-                <PositionsControls />
+                <PositionsControls onWPosClick={showMoveToDialog} />
                 <div class="m-1">
                     <div class="jog-buttons-main-container">
                         {mainAxisLettersList.map((letter) => {

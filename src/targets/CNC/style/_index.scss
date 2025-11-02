@@ -131,6 +131,19 @@
     font-size: 80%;
 }
 
+.jog-position-clickable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: rgba(0, 91, 150, 0.1);
+    }
+
+    &:active {
+        background-color: rgba(0, 91, 150, 0.2);
+    }
+}
+
 .jog-buttons-container-horizontal,
 .jog-buttons-container {
     display: flex;
