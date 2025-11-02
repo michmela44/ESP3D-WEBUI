@@ -148,17 +148,22 @@
 .jog-buttons-container {
     display: flex;
     justify-content: space-between;
-    border: 0.05rem solid #dadee4;
-    border-radius: 5px;
 }
 
 .jog-buttons-container {
     flex-direction: column;
 }
 
+.jog-axis-group {
+    display: flex;
+    border: 0.05rem solid #dadee4;
+    border-radius: 5px;
+}
+
 .jog-buttons-main-container {
     display: flex;
     justify-content: space-between;
+    gap: 0.5rem;
 }
 
 .jog-distance-selector-container {
