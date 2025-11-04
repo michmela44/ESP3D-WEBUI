@@ -22,28 +22,6 @@ const { Console } = require("console")
 const targetPath = path.normalize(__dirname + "/../languages/")
 const readable = true // process.argv.length == 3 && process.argv[2] == "readable" ? true : false
 
-const cncgrblpack = [
-    { id: "globals", path: "src/targets/translations/en.json" },
-    {
-        id: "CNC",
-        path: "src/targets/CNC/translations/en.json",
-    },
-    {
-        id: "GRBL",
-        path: "src/targets/CNC/GRBL/translations/en.json",
-    },
-]
-const cncgrblhalpack = [
-    { id: "globals", path: "src/targets/translations/en.json" },
-    {
-        id: "CNC",
-        path: "src/targets/CNC/translations/en.json",
-    },
-    {
-        id: "grblHAL",
-        path: "src/targets/CNC/grblHAL/translations/en.json",
-    },
-]
 const cncFluidNCpack = [
     { id: "globals", path: "src/targets/translations/en.json" },
     {
@@ -55,47 +33,9 @@ const cncFluidNCpack = [
         path: "src/targets/CNC/FluidNC/translations/en.json",
     },
 ]
-const printerpack = [
-    { id: "globals", path: "src/targets/translations/en.json" },
-    {
-        id: "printers3D",
-        path: "src/targets/Printer3D/translations/en.json",
-    },
-    {
-        id: "Marlin",
-        path: "src/targets/Printer3D/Marlin/translations/en.json",
-    },
-    {
-        id: "Marlin-embedded",
-        path: "src/targets/Printer3D/Marlin-embedded/translations/en.json",
-    },
-    {
-        id: "Repetier",
-        path: "src/targets/Printer3D/Repetier/translations/en.json",
-    },
-    {
-        id: "Smoothieware",
-        path: "src/targets/Printer3D/Smoothieware/translations/en.json",
-    },
-]
-const sandtablepack = [
-    { id: "globals", path: "src/targets/translations/en.json" },
-    {
-        id: "SandTable",
-        path: "src/targets/SandTable/translations/en.json",
-    },
-    {
-        id: "GRBL",
-        path: "src/targets/SandTable/GRBL/translations/en.json",
-    },
-]
 
 const processList = [
-    { targetPath: "cncgrblpack", files: cncgrblpack },
-    { targetPath: "cncgrblhalpack", files: cncgrblhalpack },
     { targetPath: "cncFluidNCpack", files: cncFluidNCpack},
-    { targetPath: "printerpack", files: printerpack },
-    { targetPath: "sandtablepack", files: sandtablepack },
 ]
 
 // Object to store all unique translations

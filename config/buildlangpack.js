@@ -30,7 +30,7 @@ const languageFile = process.argv[2]
 const languagesPath = path.normalize(__dirname + "/../languages/")
 
 // Liste des packs à traiter
-const targetPacks = ["printerpack", "cncgrblpack", "cncgrblhalpack", "sandtablepack"]
+const targetPacks = ["cncFluidNCpack"]
 
 // Lecture du fichier de traduction source
 let translations
