@@ -24,6 +24,14 @@ import {
     disableUI,
 } from "../components/Helpers"
 
+// Extend Window interface for vendor-prefixed AudioContext
+declare global {
+    interface Window {
+        webkitAudioContext?: typeof AudioContext
+        audioContext?: typeof AudioContext
+    }
+}
+
 // Type definitions
 interface Panel {
     id: string
@@ -402,10 +410,10 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     const initAudio = () => {
         if (typeof window.AudioContext !== "undefined") {
             audio.context = new window.AudioContext()
-        } else if (typeof (window as any).webkitAudioContext !== "undefined") {
-            audio.context = new (window as any).webkitAudioContext()
-        } else if (typeof (window as any).audioContext !== "undefined") {
-            audio.context = new (window as any).audioContext()
+        } else if (typeof window.webkitAudioContext !== "undefined") {
+            audio.context = new window.webkitAudioContext()
+        } else if (typeof window.audioContext !== "undefined") {
+            audio.context = new window.audioContext()
         }
     }
 

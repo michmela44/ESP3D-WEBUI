@@ -72,8 +72,8 @@ const WsContextProvider: FunctionalComponent<WsContextProviderProps> = ({ childr
     const isLogOff = useRef<boolean>(false)
     const reconnectCounter = useRef<number>(0)
     const [wsData, setWsData] = useState<any[]>([])
-    const { processData } = useTargetContext() as any
-    const { abortRequest } = useHttpFn as any
+    const { processData } = useTargetContext()
+    const { abortRequest } = useHttpFn
 
     const ping = (start: boolean = false) => {
         if (isLogOff.current) return

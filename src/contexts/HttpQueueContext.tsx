@@ -71,7 +71,7 @@ const useHttpQueueContext = (): HttpQueueContextValue => {
 }
 
 const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProps> = ({ children }) => {
-    const { processData } = useTargetContext() as any // TargetContext not fully typed
+    const { processData } = useTargetContext()
     const { Disconnect } = useWsContext()
     const requestQueue = useRef<HttpRequest[]>([]) // Http queue for every components
     const isBusy = useRef<boolean>(false)

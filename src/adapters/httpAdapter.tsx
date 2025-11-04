@@ -34,6 +34,12 @@ interface HttpAdapterReturn {
     response: Promise<any>
 }
 
+// Extended ProgressEvent for backwards compatibility with older browsers
+interface ExtendedProgressEvent extends ProgressEvent {
+    position?: number
+    totalSize?: number
+}
+
 /**
  * Execute XMLHttpRequest
  * @param url - The URL to request
@@ -51,16 +57,16 @@ const httpAdapter = (
     const xhr = new XMLHttpRequest()
     if (id && id.startsWith("download")) {
         xhr.responseType = "blob"
-        xhr.addEventListener("progress", (e: ProgressEvent) => {
-            const done = (e as any).position || e.loaded
-            const total = (e as any).totalSize || e.total
+        xhr.addEventListener("progress", (e: ExtendedProgressEvent) => {
+            const done = e.position || e.loaded
+            const total = e.totalSize || e.total
             const perc = Math.floor((done / total) * 1000) / 10
             setUploadProgress(perc)
         })
     } else {
-        xhr.upload.addEventListener("progress", (e: ProgressEvent) => {
-            const done = (e as any).position || e.loaded
-            const total = (e as any).totalSize || e.total
+        xhr.upload.addEventListener("progress", (e: ExtendedProgressEvent) => {
+            const done = e.position || e.loaded
+            const total = e.totalSize || e.total
             const perc = Math.floor((done / total) * 1000) / 10
             setUploadProgress(perc)
         })
