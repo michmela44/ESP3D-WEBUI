@@ -21,6 +21,7 @@ module.exports = {
                 subtarget
             ),
         },
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
     },
     mode: "production", // this trigger webpack out-of-box prod optimizations
     entry: path.resolve(__dirname, "../src/index.js"),
@@ -57,6 +58,15 @@ module.exports = {
                         options: {
                             presets: ["preact"],
                         },
+                    },
+                ],
+            },
+            {
+                test: /\.(ts|tsx)$/,
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: "ts-loader"
                     },
                 ],
             },

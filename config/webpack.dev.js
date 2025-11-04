@@ -15,6 +15,7 @@ module.exports = {
                 subtarget
             ),
         },
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
     },
     mode: "development", // this will trigger some webpack default stuffs for dev
     entry: path.resolve(__dirname, "../src/index.js"), // if not set, default path to './src/index.js'. Accepts an object with multiple key-value pairs, with key as your custom bundle filename(substituting the [name]), and value as the corresponding file path
@@ -60,6 +61,13 @@ module.exports = {
                     options: {
                         presets: ["preact"],
                     },
+                },
+            },
+            {
+                test: /\.(ts|tsx)$/,
+                exclude: /(node_modules)/,
+                use: {
+                    loader: "ts-loader"
                 },
             },
             {
