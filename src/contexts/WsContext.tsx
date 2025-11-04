@@ -168,7 +168,6 @@ const WsContextProvider: FunctionalComponent<WsContextProviderProps> = ({ childr
         console.log("Disconnect:", reason)
         connection.setConnectionState({
             connected: false,
-            authenticate: false,
             page: reason,
         })
         setIsPingStarted(false)

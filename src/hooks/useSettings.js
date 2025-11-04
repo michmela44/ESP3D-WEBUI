@@ -188,7 +188,6 @@ const useSettings = () => {
 
                         connection.setConnectionState({
                             connected: false,
-                            authenticate: false,
                             page: "error",
                             extraMsg: T("S194"),
                         })
@@ -293,7 +292,6 @@ const useSettings = () => {
                     if (!error.startsWith("401")) {
                         connection.setConnectionState({
                             connected: false,
-                            authenticate: false,
                             page: "error",
                         })
                         toasts.addToast({ content: error, type: "error" })
@@ -310,7 +308,6 @@ const useSettings = () => {
             //SetupWs
             connection.setConnectionState({
                 connected: true,
-                authenticate: true,
                 page: "connecting",
             })
             document.title = connectionSettings.current.HostName

@@ -55,7 +55,6 @@ interface Modal {
 
 interface ConnectionState {
     connected: boolean
-    authenticate: boolean
     page: string
 }
 
@@ -121,8 +120,6 @@ interface UiContextValue {
         setConnectionState: (state: ConnectionState) => void
     }
     dialogs: {
-        needLogin: boolean
-        setNeedLogin: (need: boolean) => void
         showKeepConnected: boolean
         setShowKeepConnected: (show: boolean) => void
     }
@@ -190,7 +187,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     const [showKeepConnected, setShowKeepConnected] = useState<boolean>(false)
     const [connectionState, setConnectionState] = useState<ConnectionState>({
         connected: false,
-        authenticate: true,
         page: "connecting",
     })
     const [uiSetup, setUiSetup] = useState<boolean>(false)

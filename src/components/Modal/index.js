@@ -21,7 +21,6 @@ import { Modal as SpectreModal } from "../Controls"
 import { disableUI, getFullscreenElement } from "../Helpers"
 import { showConfirmationModal } from "./confirmModal"
 import { showKeepConnected } from "./keepConnectedModal"
-import { showLogin } from "./logginModal"
 import { showProgressModal } from "./progressModal"
 import { showModal } from "./genericModal"
 
@@ -103,7 +102,6 @@ export {
     ModalContainer,
     showConfirmationModal,
     showKeepConnected,
-    showLogin,
     showProgressModal,
     showModal,
 }

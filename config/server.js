@@ -37,7 +37,6 @@ const {
     commandsQuery,
     configURI,
     getLastconnection,
-    hasEnabledAuthentication,
 } = require(
     path.normalize(
         __dirname + "/targets/" + target + "/" + subtarget + "/index.js"
@@ -307,18 +306,6 @@ wss.on("connection", (socket, request) => {
     currentID++
     socket.on("message", (message) => {
         console.log(wscolor("[ws] received:", message))
-        if (hasEnabledAuthentication() && message.startsWith("PING:")) {
-            wss.clients.forEach(function each(client) {
-                if (client.readyState === WebSocket.OPEN) {
-                    let t = hasEnableAuthentication()
-                        ? sessiontTime - (Date.now() - getLastconnection())
-                        : 60000
-                    let remainingtime = t < 0 ? 0 : t
-                    console.log("remain:", remainingtime, "millisec")
-                    client.send(`PING:${remainingtime}:60000`)
-                }
-            })
-        }
     })
 })
 wss.on("error", (error) => {

@@ -143,7 +143,6 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
                 is401Error = true
                 connection.setConnectionState({
                     connected: connection.connectionState.connected,
-                    authenticate: false,
                     page: "notauthenticated",
                 })
             } else if (e.code == 499) {
@@ -170,9 +169,7 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
                     isBusy.current = false
                 }
             } else {
-                removeRequests("login")
                 currentRequest.current = null
-                dialogs.setNeedLogin(true)
             }
         }
     }

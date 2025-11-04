@@ -22,9 +22,7 @@ const chalk = require("chalk")
 const wscolor = chalk.cyan
 const expresscolor = chalk.green
 const commandcolor = chalk.white
-const enableAuthentication = false
 let lastconnection = Date.now()
-let logindone = false
 const sessiontTime = 60000
 let countStatus = 0
 let change = false
@@ -32,10 +30,6 @@ const emulationESP400 = false
 
 function getLastconnection() {
     return lastconnection
-}
-
-function hasEnabledAuthentication() {
-    return enableAuthentication
 }
 
 const commandsQuery = (req, res, SendWS) => {
@@ -51,10 +45,6 @@ const commandsQuery = (req, res, SendWS) => {
         return
     }
 
-    if (!logindone && enableAuthentication) {
-        res.status(401)
-        return
-    }
     lastconnection = Date.now()
 
     if (req.query.cmd && req.query.cmd == "?") {

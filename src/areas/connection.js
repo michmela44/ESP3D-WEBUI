@@ -50,7 +50,6 @@ const ConnectionContainer = () => {
 
     if (
         !connection.connectionState.connected ||
-        !connection.connectionState.authenticate ||
         connection.connectionState.updating
     ) {
         const refreshTimer = () => {
@@ -64,31 +63,11 @@ const ConnectionContainer = () => {
             useUiContextFn.haptic()
             connection.setConnectionState({
                 connected: false,
-                authenticate: connection.connectionState.authenticate,
                 page: "connecting",
             })
             window.location.href = espHttpURL()
         }
         switch (connection.connectionState.page) {
-            case "notauthenticated":
-                useUiContextFn.beepError()
-                contentTitle = T("S1") //"Connection error"
-                contentIcon = <Lock size="50px" />
-                contentSubtitle = T("S145") //"Authentication required"
-                document.title =
-                    (connectionSettings.current &&
-                    connectionSettings.current.HostName
-                        ? connectionSettings.current.HostName
-                        : "ESP3D") +
-                    "(" +
-                    T("S145") +
-                    ")"
-                contentAction = (
-                    <button class="btn" onClick={onclick}>
-                        {T("S11")}
-                    </button>
-                )
-                break
             //No connection
             case "error":
                 useUiContextFn.beepError()
@@ -189,7 +168,6 @@ const ConnectionContainer = () => {
                     contentTitle = T("S35") //"restarting";
                     connection.setConnectionState({
                         connected: connection.connectionState.connected,
-                        authenticate: connection.connectionState.authenticate,
                         page: connection.connectionState.page,
                         updating: false,
                     })

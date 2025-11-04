@@ -36,7 +36,7 @@ import {
 import { useSettings, useHttpQueue } from "../hooks"
 import { useEffect } from "preact/hooks"
 import { Field, FieldGroup } from "../components/Controls"
-import { showLogin, showKeepConnected, showModal } from "../components/Modal"
+import { showKeepConnected, showModal } from "../components/Modal"
 import { espHttpURL, dispatchToExtensions } from "../components/Helpers"
 import { T, baseLangRessource } from "../components/Translations"
 import { HelpCircle, Layout } from "preact-feather"
@@ -48,17 +48,12 @@ import { HelpCircle, Layout } from "preact-feather"
 
 const ViewContainer = () => {
     const { connection, dialogs } = useUiContext()
-    if (dialogs.needLogin == true) {
-        dialogs.setNeedLogin(false)
-        showLogin()
-    }
     if (dialogs.showKeepConnected == true) {
         dialogs.setShowKeepConnected(false)
         showKeepConnected()
     }
     if (
         connection.connectionState.connected &&
-        connection.connectionState.authenticate &&
         !connection.connectionState.updating
     )
         return (
