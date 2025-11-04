@@ -1,4 +1,4 @@
-/*html.js - ESP3D WebUI helpers file
+/*html.ts - ESP3D WebUI helpers file
 
  Copyright (c) 2021 Luc LEBOSSE. All rights reserved.
 
@@ -15,15 +15,22 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+interface IframeCache {
+    element: HTMLIFrameElement
+    contentWindow: Window | null
+    id: string
+    isVisible: boolean
+}
+
 // Cache for iframe elements to avoid repeated DOM queries
-let iframeCache = []
+let iframeCache: IframeCache[] = []
 let cacheInvalidated = true
 
 // Debounce timer for batched cache updates
-let cacheUpdateTimer = null
+let cacheUpdateTimer: ReturnType<typeof setTimeout> | null = null
 
 // Mark cache as invalid when extensions are added/removed
-const invalidateIframeCache = () => {
+const invalidateIframeCache = (): void => {
     cacheInvalidated = true
     // Debounce cache updates to avoid thrashing during rapid changes
     if (cacheUpdateTimer) {
@@ -35,14 +42,14 @@ const invalidateIframeCache = () => {
 }
 
 // Update the iframe cache
-const updateIframeCache = () => {
-    const iframeList = document.querySelectorAll("iframe.extensionContainer")
+const updateIframeCache = (): void => {
+    const iframeList = document.querySelectorAll<HTMLIFrameElement>("iframe.extensionContainer")
     iframeCache = Array.from(iframeList).map(element => ({
         element,
         contentWindow: element.contentWindow,
         id: element.id,
         // Cache visibility state for performance
-        isVisible: element.parentElement && element.parentElement.style.display !== 'none'
+        isVisible: element.parentElement ? element.parentElement.style.display !== 'none' : false
     }))
     cacheInvalidated = false
 }
@@ -59,7 +66,7 @@ if (typeof window !== 'undefined') {
     }
 }
 
-function setupIframeObserver() {
+function setupIframeObserver(): void {
     const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
             if (mutation.type === 'childList') {
@@ -67,9 +74,10 @@ function setupIframeObserver() {
                 const hasIframeChanges = Array.from(mutation.addedNodes).concat(Array.from(mutation.removedNodes))
                     .some(node => {
                         if (node.nodeType === 1) { // Element node
-                            return node.tagName === 'IFRAME' ||
-                                   (node.classList && node.classList.contains('extensionContainer')) ||
-                                   (node.querySelector && node.querySelector('iframe.extensionContainer'))
+                            const element = node as Element
+                            return element.tagName === 'IFRAME' ||
+                                   (element.classList && element.classList.contains('extensionContainer')) ||
+                                   (element.querySelector && element.querySelector('iframe.extensionContainer') !== null)
                         }
                         return false
                     })
@@ -87,14 +95,20 @@ function setupIframeObserver() {
     })
 }
 
-const dispatchToExtensions = (type, data, targetId) => {
+interface MessageData {
+    type: string
+    content: any
+    id: string
+}
+
+const dispatchToExtensions = (type: string, data: any, targetId?: string): void => {
     // Update cache if invalidated
     if (cacheInvalidated) {
         updateIframeCache()
     }
 
     // If targetId is specified, only send to that specific extension
-    if (targetId) {
+    if (targetId && targetId !== "all") {
         const targetIframe = iframeCache.find(cache => cache.id === targetId)
         if (targetIframe && targetIframe.contentWindow) {
             try {
@@ -131,32 +145,46 @@ const dispatchToExtensions = (type, data, targetId) => {
     }
 }
 
+// Extend Document interface for vendor-prefixed fullscreen APIs
+declare global {
+    interface Document {
+        webkitFullscreenElement?: Element
+        mozFullScreenElement?: Element
+        msFullscreenElement?: Element
+        webkitFullscreenEnabled?: boolean
+        mozFullScreenEnabled?: boolean
+        msFullscreenEnabled?: boolean
+    }
+}
 
-const getFullscreenElement = () => {
+const getFullscreenElement = (): Element | null => {
     return (
         document.fullscreenElement ||
         document.webkitFullscreenElement ||
         document.mozFullScreenElement ||
-        document.msFullscreenElement
+        document.msFullscreenElement ||
+        null
     )
 }
 
-const isFullscreenSupported = () => {
+const isFullscreenSupported = (): boolean => {
     return (
         document.fullscreenEnabled ||
         document.webkitFullscreenEnabled ||
         document.mozFullScreenEnabled ||
-        document.msFullscreenEnabled
+        document.msFullscreenEnabled ||
+        false
     )
 }
 
-const isFullscreenActive = () => {
+const isFullscreenActive = (): boolean => {
     return (
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.mozFullScreenElement ||
-        document.msFullscreenElement
+        !!document.fullscreenElement ||
+        !!document.webkitFullscreenElement ||
+        !!document.mozFullScreenElement ||
+        !!document.msFullscreenElement
     )
 }
 
 export { dispatchToExtensions, getFullscreenElement, isFullscreenSupported, isFullscreenActive, invalidateIframeCache }
+export type { IframeCache, MessageData }

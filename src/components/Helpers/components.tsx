@@ -1,9 +1,9 @@
 /*
- components.js - ESP3D WebUI helpers file
+ components.tsx - ESP3D WebUI helpers file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,10 +16,15 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
+import { h, ComponentType, JSX } from "preact"
 import { useUiContextFn } from "../../contexts"
 
-const getColClasses = ({ col, ...responsive }) => {
+interface ResponsiveProps {
+    col: number
+    [key: string]: any
+}
+
+const getColClasses = ({ col, ...responsive }: ResponsiveProps): string => {
     const responsiveClasses = Object.keys(responsive).reduce(
         (acc, key, i) =>
             i == 0 ? acc : `${acc} col-${key}-${responsive[key]}`,
@@ -28,21 +33,31 @@ const getColClasses = ({ col, ...responsive }) => {
     return `col-${col} ${responsiveClasses}`
 }
 
-const generateUID = () => Math.random().toString(36).substr(2, 9)
+const generateUID = (): string => Math.random().toString(36).substr(2, 9)
+
+interface CreateComponentProps {
+    is?: keyof JSX.IntrinsicElements | ComponentType<any>
+    class?: string
+    id?: string
+    [key: string]: any
+}
+
+type ClassModifier = Record<string, string>
 
 const createComponent =
-    (is, className, classModifier = {}) =>
-    ({ is: Tag = is, class: c = "", id = "", ...props }) => {
-        const splittedArgs = Object.keys(props).reduce(
+    (is: keyof JSX.IntrinsicElements | ComponentType<any>, className: string, classModifier: ClassModifier = {}) =>
+    ({ is: Tag = is, class: c = "", id = "", ...props }: CreateComponentProps) => {
+        const splittedArgs = Object.keys(props).reduce<{ classes: string[]; props: Record<string, any> }>(
             (acc, curr) => {
-                if (Object.keys(classModifier).includes(curr))
+                if (Object.keys(classModifier).includes(curr)) {
                     return {
                         classes: [...acc.classes, classModifier[curr]],
-                        ...acc.props,
+                        props: acc.props,
                     }
+                }
                 return {
                     classes: [...acc.classes],
-                    props: { ...acc.props, [curr]: props[curr] },
+                    props: { ...acc.props, [curr]: (props as any)[curr] },
                 }
             },
             { classes: [], props: {} }
@@ -57,39 +72,48 @@ const createComponent =
  * Ugly hack to avoid unwished tab stop to reach button not supposed to be accessed
  *
  */
-function disableNode(node, state, ignore) {
+function disableNode(node: HTMLElement | null, state: boolean, ignore?: string): void {
     if (!node) return
-    if (node.id == ignore) return
+    if (ignore && node.id == ignore) return
     let nodeList = node.children
     if (nodeList) {
         for (var i = 0; i < nodeList.length; i++) {
             if (!nodeList[i].classList.contains("do-not-disable"))
-                disableNode(nodeList[i], state, ignore)
+                disableNode(nodeList[i] as HTMLElement, state, ignore)
         }
     }
     if (state) {
         node.setAttribute("disabled", "true")
         //this is a hack to avoid tab stop on dropdown-toggle when disabled
         if (node.classList.contains("dropdown-toggle")) {
-            node.tabIndex = "-1"
+            (node as any).tabIndex = "-1"
         }
     } else {
         node.removeAttribute("disabled")
         //remove the hack to avoid tab stop on dropdown-toggle when disabled
         if (node.classList.contains("dropdown-toggle")) {
-            node.tabIndex = "0"
+            (node as any).tabIndex = "0"
         }
     }
 }
 
-function disableUI(state = true, ignore) {
+function disableUI(state: boolean = true, ignore?: string): void {
     disableNode(document.getElementById("main"), state, ignore)
     disableNode(document.getElementById("info"), state, ignore)
     disableNode(document.getElementById("menu"), state, ignore)
 }
 
-const generateDependIds = (depend, settings) => {
-    const dependIds = [];
+interface DependItem {
+    id?: string
+    connection_id?: string
+    value?: any
+    notvalue?: any
+    contains?: string
+    orGroups?: DependItem[][]
+}
+
+const generateDependIds = (depend: DependItem[] | undefined, settings: any): any[] => {
+    const dependIds: any[] = [];
     if (Array.isArray(depend)) {
         depend.forEach((d) => {
             if (d.id) {
@@ -107,7 +131,7 @@ const generateDependIds = (depend, settings) => {
 }
 
 //this won't change as it is initalised with [ESP800] which is call at start
-const connectionDepend = (depend, connectionsettings) => {
+const connectionDepend = (depend: DependItem[] | undefined, connectionsettings: any): boolean => {
     if (Array.isArray(depend)) {
         return depend.every(d => {
             if (d.connection_id && connectionsettings[d.connection_id]) {
@@ -123,8 +147,9 @@ const connectionDepend = (depend, connectionsettings) => {
     }
     return true;
 }
+
 //this is dynamic as it is depending on the preferences settings
-const settingDepend = (depend, settings, connectionsettings) => {
+const settingDepend = (depend: DependItem[] | undefined, settings: any, connectionsettings: any): boolean => {
     if (Array.isArray(depend)) {
         return depend.every(d => {
             if (d.id) {
@@ -136,7 +161,7 @@ const settingDepend = (depend, settings, connectionsettings) => {
                 }
             }
             if (d.orGroups) {
-                return d.orGroups.some(group => 
+                return d.orGroups.some(group =>
                     checkDependencies(group, settings, connectionsettings)
                 );
             }
@@ -146,7 +171,7 @@ const settingDepend = (depend, settings, connectionsettings) => {
     return true;
 }
 
-const checkDependencies = (depend, settings, connectionsettings) => {
+const checkDependencies = (depend: DependItem[] | undefined, settings: any, connectionsettings: any): boolean => {
     if (Array.isArray(depend)) {
         return depend.every(d => {
             if (d.id) {
@@ -156,7 +181,7 @@ const checkDependencies = (depend, settings, connectionsettings) => {
                 return connectionDepend([d], connectionsettings);
             }
             if (d.orGroups) {
-                return d.orGroups.some(group => 
+                return d.orGroups.some(group =>
                     checkDependencies(group, settings, connectionsettings)
                 );
             }
@@ -176,3 +201,4 @@ export {
     connectionDepend,
     checkDependencies
 }
+export type { ResponsiveProps, CreateComponentProps, ClassModifier, DependItem }

@@ -68,7 +68,7 @@ const DatasContextProvider: FunctionalComponent<DatasContextProviderProps> = ({ 
     const terminalBuffer = useRef<TerminalElement[]>([])
     const terminalBufferQuiet = useRef<TerminalElement[]>([])
     const [terminalContent, setTerminalContent] = useState<TerminalElement[]>([])
-    const [terminalInputHistory, setTerminalInputHistory] = useStoredState(
+    const [terminalInputHistory, setTerminalInputHistory] = useStoredState<string[]>(
         "terminalInputHistory",
         []
     )

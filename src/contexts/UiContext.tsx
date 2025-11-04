@@ -183,7 +183,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     const isNotificationsAutoScrollPaused = useRef<boolean>(false)
     const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(false)
     const [notifications, setNotifications] = useState<Notification[]>([])
-    const [needLogin, setNeedLogin] = useState<boolean>(false)
     const [showKeepConnected, setShowKeepConnected] = useState<boolean>(false)
     const [connectionState, setConnectionState] = useState<ConnectionState>({
         connected: false,
@@ -532,8 +531,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         },
 
         dialogs: {
-            needLogin,
-            setNeedLogin,
             showKeepConnected,
             setShowKeepConnected,
         },
@@ -564,7 +561,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         getModalIndex,
         clearModals,
         connectionState,
-        needLogin,
         showKeepConnected,
         uiSetup,
     ])

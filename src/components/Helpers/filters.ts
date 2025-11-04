@@ -1,5 +1,5 @@
 /*
- filters.js - ESP3D WebUI Target file
+ filters.ts - ESP3D WebUI Target file
 
  Copyright (c) 2020 Luc Lebosse. All rights reserved.
 
@@ -17,11 +17,15 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 import { compareStrings } from "./strings"
 
+interface FileEntry {
+    name: string
+    size: number | string
+}
+
 //sort files alphabeticaly then folders alphabeticaly
-const sortedFilesList = (filesList, alphabeticaly) => {
+const sortedFilesList = (filesList: FileEntry[] | undefined, alphabeticaly?: boolean): FileEntry[] => {
     //console.log('Sorting files list', alphabeticaly)
     if (typeof filesList == "undefined") return []
     if (typeof alphabeticaly == "undefined") {
@@ -44,9 +48,9 @@ const sortedFilesList = (filesList, alphabeticaly) => {
 }
 
 //Filter array of flat FS file list based on path
-const filterResultFiles = (files, path) => {
-    const folderList = []
-    return files.reduce((acc, element) => {
+const filterResultFiles = (files: FileEntry[], path: string): FileEntry[] => {
+    const folderList: string[] = []
+    return files.reduce((acc: FileEntry[], element) => {
         if (path == "/") {
             if (element.name.indexOf("/") == -1) acc.push(element)
             else {
@@ -92,3 +96,4 @@ const filterResultFiles = (files, path) => {
 }
 
 export { sortedFilesList, filterResultFiles }
+export type { FileEntry }

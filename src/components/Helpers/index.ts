@@ -1,9 +1,9 @@
 /*
- index.js - ESP3D WebUI helpers file
+ index.ts - ESP3D WebUI helpers file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,7 +16,6 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 import { espHttpURL, getCookie, isLimitedEnvironment } from "./http"
 import { getBrowserTime, getBrowserTimeZone } from "./time"
 import {
@@ -90,3 +89,10 @@ export {
     BitsArray,
     useStoredState,
 }
+
+// Re-export types
+export type { ResponsiveProps, CreateComponentProps, ClassModifier, DependItem } from "./components"
+export type { Variable } from "./strings"
+export type { BitsArrayType, HasId } from "./arrays"
+export type { IframeCache, MessageData } from "./html"
+export type { FileEntry } from "./filters"

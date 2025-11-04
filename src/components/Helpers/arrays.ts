@@ -1,9 +1,9 @@
 /*
- arrays.js - ESP3D WebUI helpers file
+ arrays.ts - ESP3D WebUI helpers file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,20 +16,23 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 
-const removeEntriesByIDs = (src, uid) =>
+interface HasId {
+    id: string
+}
+
+const removeEntriesByIDs = <T extends HasId>(src: T[], uid: string[]): T[] =>
     src.filter(({ id }) => !uid.includes(id))
 
-const limitArr = (arr, limit) =>
+const limitArr = <T>(arr: T[], limit: number): T[] =>
     arr.slice(
         arr.length - (arr.length <= limit ? arr.length : limit),
         arr.length
     )
 
-const splitArrayByLines = (arrayBuffer) => {
+const splitArrayByLines = (arrayBuffer: ArrayBuffer): number[][] => {
     const bytes = new Uint8Array(arrayBuffer)
-    return bytes.reduce(
+    return bytes.reduce<number[][]>(
         (acc, curr) => {
             if (curr == 10 || curr == 13) return [...acc, []]
             const i = Number(acc.length - 1)
@@ -41,42 +44,42 @@ const splitArrayByLines = (arrayBuffer) => {
 
 //Merge 2 JSON in generic way
 //based on https://gist.github.com/sinemetu1/1732896#gistcomment-2571586
-function mergeJSON(o1, o2) {
-    let tempNewObj = o1
-    if (o1.length === undefined && typeof o1 !== "number") {
+function mergeJSON<T = any>(o1: T, o2: Partial<T>): T {
+    let tempNewObj: any = o1
+    if ((o1 as any).length === undefined && typeof o1 !== "number") {
         for (let key in o2) {
             let value = o2[key]
-            if (o1[key] === undefined) {
+            if ((o1 as any)[key] === undefined) {
                 tempNewObj[key] = value
             } else {
-                tempNewObj[key] = mergeJSON(o1[key], o2[key])
+                tempNewObj[key] = mergeJSON((o1 as any)[key], (o2 as any)[key])
             }
         }
-    } else if (o1.length > 0 && typeof o1 !== "string") {
+    } else if ((o1 as any).length > 0 && typeof o1 !== "string") {
         for (let index in o2) {
-            if (JSON.stringify(o1).indexOf(JSON.stringify(o2[index])) === -1) {
+            if (JSON.stringify(o1).indexOf(JSON.stringify((o2 as any)[index])) === -1) {
                 //look for existing id in same section
-                let i = tempNewObj.findIndex(
-                    (element) => element.id == o2[index].id
+                let i = (tempNewObj as any[]).findIndex(
+                    (element) => element.id == (o2 as any)[index].id
                 )
-                if (i == -1) tempNewObj.push(o2[index])
+                if (i == -1) tempNewObj.push((o2 as any)[index])
                 else {
                     if (Array.isArray(tempNewObj[i].value)) {
                         //need to check if id is already in array
-                        for (let v in o2[index].value) {
+                        for (let v in (o2 as any)[index].value) {
                             let j = tempNewObj[i].value.findIndex(
-                                (element) => element.id == o2[index].value[v].id
+                                (element: any) => element.id == (o2 as any)[index].value[v].id
                             )
                             if (j == -1) {
-                                tempNewObj[i].value.push(o2[index].value[v])
+                                tempNewObj[i].value.push((o2 as any)[index].value[v])
                             } else {
-                                tempNewObj[i].value[j] = o2[index].value[v]
+                                tempNewObj[i].value[j] = (o2 as any)[index].value[v]
                             }
                         }
                     } else {
-                        tempNewObj[i].value = o2[index].value
-                        if (typeof o2[index].hide != "undefined")
-                            tempNewObj[i].hide = o2[index].hide
+                        tempNewObj[i].value = (o2 as any)[index].value
+                        if (typeof (o2 as any)[index].hide != "undefined")
+                            tempNewObj[i].hide = (o2 as any)[index].hide
                     }
                 }
             }
@@ -87,7 +90,11 @@ function mergeJSON(o1, o2) {
     return tempNewObj
 }
 
-const addObjectItem = (src, entry, variable) => {
+const addObjectItem = <T extends Record<string, any>>(
+    src: T[],
+    entry: keyof T,
+    variable: T
+): T[] => {
     let i = src.findIndex((element) => element[entry] == variable[entry])
     if (i == -1) {
         src.push(JSON.parse(JSON.stringify(variable)))
@@ -105,7 +112,11 @@ const addObjectItem = (src, entry, variable) => {
     return src
 }
 
-const removeObjectItem = (src, entry, entryValue) => {
+const removeObjectItem = <T extends Record<string, any>>(
+    src: T[],
+    entry: keyof T,
+    entryValue: any
+): T[] => {
     let i = src.findIndex((element) => element[entry] == entryValue)
     if (i != -1) {
         src.splice(i, 1)
@@ -113,10 +124,20 @@ const removeObjectItem = (src, entry, entryValue) => {
     return src
 }
 
-const BitsArray = {
+interface BitsArrayType {
+    bits: string[]
+    size: number
+    fromInt: (intVal: number, arraySize: number) => BitsArrayType
+    fromArray: (arrayVal: any[]) => BitsArrayType
+    getBit: (index: number) => number
+    setBit: (index: number, value: number) => void
+    toInt: () => number
+}
+
+const BitsArray: BitsArrayType = {
     bits: [],
     size: 0,
-    fromInt: function (intVal, arraySize) {
+    fromInt: function (intVal: number, arraySize: number): BitsArrayType {
         this.bits = (intVal >>> 0).toString(2).split("").reverse()
         this.size = arraySize
         //Sanity check to have proper size
@@ -130,7 +151,7 @@ const BitsArray = {
         }
         return this
     },
-    fromArray: function (arrayVal) {
+    fromArray: function (arrayVal: any[]): BitsArrayType {
         this.bits = []
         this.size = arrayVal.length
         //sanity check to have proper content
@@ -149,14 +170,14 @@ const BitsArray = {
 
         return this
     },
-    getBit: function (index) {
+    getBit: function (index: number): number {
         return parseInt(this.bits[index])
     },
-    setBit: function (index, value) {
+    setBit: function (index: number, value: number): void {
         this.bits[index] = value == 0 ? "0" : "1"
     },
-    toInt: function () {
-        const bitstmp = []
+    toInt: function (): number {
+        const bitstmp: string[] = []
         for (let index = 0; index < this.size; index++) {
             if (typeof this.bits[index] == "undefined") {
                 bitstmp[index] = "0"
@@ -177,3 +198,4 @@ export {
     removeObjectItem,
     BitsArray,
 }
+export type { BitsArrayType, HasId }

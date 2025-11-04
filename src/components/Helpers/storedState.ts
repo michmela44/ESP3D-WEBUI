@@ -1,8 +1,8 @@
 /*
- time.js - ESP3D WebUI helpers file
+ storedState.ts - ESP3D WebUI helpers file
 
  Copyright (c) 2021 Luc LEBOSSE. All rights reserved.
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -15,19 +15,30 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 import { useState, useMemo } from "preact/hooks"
 
-export const useStoredState = (key, defaultValue) => {
+export const useStoredState = <T>(
+    key: string,
+    defaultValue: T
+): [T, (newState: T | ((prev: T) => T)) => void] => {
     const stored = useMemo(() => {
         try {
-            return JSON.parse(localStorage.getItem(key))
-        } catch (e) {}
-    })
-    const [state, setInternalState] = useState(stored ?? defaultValue)
-    const setState = (newState) => {
-        setInternalState(newState)
-        localStorage.setItem(key, JSON.stringify(newState))
+            const item = localStorage.getItem(key)
+            return item ? JSON.parse(item) : null
+        } catch (e) {
+            return null
+        }
+    }, [key])
+
+    const [state, setInternalState] = useState<T>(stored ?? defaultValue)
+
+    const setState = (newState: T | ((prev: T) => T)): void => {
+        setInternalState(prev => {
+            const value = typeof newState === "function" ? (newState as (p: T) => T)(prev) : newState
+            localStorage.setItem(key, JSON.stringify(value))
+            return value
+        })
     }
+
     return [state, setState]
 }

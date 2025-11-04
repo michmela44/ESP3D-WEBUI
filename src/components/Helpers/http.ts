@@ -1,7 +1,7 @@
-/*http.js - ESP3D WebUI helpers file
+/*http.ts - ESP3D WebUI helpers file
 
  Copyright (c) 2021 Luc LEBOSSE. All rights reserved.
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -14,9 +14,8 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 
-function getCookie(cname) {
+function getCookie(cname: string): string {
     let name = cname + "="
     let decodedCookie = decodeURIComponent(document.cookie)
     let ca = decodedCookie.split(";")
@@ -34,7 +33,7 @@ function getCookie(cname) {
 
 //generate an URL with server host and base address
 //args is array of arguments: [{'cmd':'[ESP800]},...]
-const espHttpURL = (base = "", args = {}) => {
+const espHttpURL = (base: string = "", args: Record<string, string> = {}): string => {
     const url = (() => {
         try {
             return new URL(base)
@@ -48,7 +47,7 @@ const espHttpURL = (base = "", args = {}) => {
     return url.toString()
 }
 
-function isLimitedEnvironment(mode) {
+function isLimitedEnvironment(mode: string): boolean {
     let sitesList = [
         //google / android Captive Portal Detection
         "google.com",

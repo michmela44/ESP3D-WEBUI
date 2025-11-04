@@ -1,8 +1,8 @@
 /*
- time.js - ESP3D WebUI helpers file
+ time.ts - ESP3D WebUI helpers file
 
  Copyright (c) 2021 Luc LEBOSSE. All rights reserved.
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -15,9 +15,8 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 
-function getBrowserTimeZone() {
+function getBrowserTimeZone(): string {
     const d = new Date()
     const offset = d.getTimezoneOffset()
     const sign = offset < 0 ? "+" : "-"
@@ -28,9 +27,9 @@ function getBrowserTimeZone() {
         .padStart(2, "0")}`
 }
 
-function getBrowserTime(time) {
+function getBrowserTime(time?: number | Date): string {
     //ISO 8601 format string
-    function padNumber(num, size) {
+    function padNumber(num: number, size: number): string {
         const s = num.toString().padStart(size, "0")
         return s
     }

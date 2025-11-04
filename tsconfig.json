@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2021",
     "module": "ESNext",
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "moduleResolution": "Node",
+    "lib": ["ES2021", "DOM"],
     "allowJs": true,
     "checkJs": false,
     "esModuleInterop": true,
