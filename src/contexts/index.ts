@@ -1,5 +1,5 @@
 /*
- index.js - ESP3D WebUI context file
+ index.ts - ESP3D WebUI context file
 
  Copyright (c) 2020 Luc Lebosse. All rights reserved.
 
@@ -17,7 +17,6 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 import { RouterContextProvider, useRouterContext } from "./RouterContext"
 import {
     HttpQueueContextProvider,
@@ -48,3 +47,11 @@ export {
     useWsContext,
     useSettingsContextFn,
 }
+
+// Re-export types
+export type { RouterContextValue } from "./RouterContext"
+export type { HttpQueueContextValue, HttpRequest } from "./HttpQueueContext"
+export type { UiContextValue, UiContextFn, UiSettings, Panel, Toast, Notification, Modal, ConnectionState, SoundNote } from "./UiContext"
+export type { SettingsContextValue, SettingsContextFn } from "./SettingsContext"
+export type { DatasContextValue, Terminal, TerminalElement } from "./DatasContext"
+export type { WsContextValue } from "./WsContext"

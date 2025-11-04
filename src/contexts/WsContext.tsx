@@ -1,9 +1,9 @@
 /*
- WsContext.js - ESP3D WebUI context file
+ WsContext.tsx - ESP3D WebUI context file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,7 +16,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, createContext } from "preact"
+import { createContext, FunctionalComponent } from "preact"
 import { useState, useEffect, useRef, useContext } from "preact/hooks"
 import { useTargetContext } from "../targets"
 import {
@@ -28,31 +28,54 @@ import { useHttpFn } from "../hooks"
 import { getCookie, splitArrayByLines, isLimitedEnvironment, dispatchToExtensions } from "../components/Helpers"
 import { T } from "../components/Translations"
 
+// Type definitions
+interface WsContextValue {
+    ws: WebSocket | undefined
+    setIsPingPaused: (paused: boolean) => void
+    Disconnect: (reason: string) => void
+}
+
+interface WsContextProviderProps {
+    children: any
+}
 
 /*
  * Local const
  *
  */
-const WsContext = createContext("wsContext")
-const useWsContext = () => useContext(WsContext)
+const WsContext = createContext<WsContextValue | undefined>(undefined)
+const useWsContext = (): WsContextValue => {
+    const context = useContext(WsContext)
+    // Allow usage before provider is mounted (for circular dependencies with HttpQueueContext)
+    // Return a no-op Disconnect function if context not available
+    if (!context) {
+        return {
+            ws: undefined,
+            setIsPingPaused: () => {},
+            Disconnect: () => {}
+        }
+    }
+    return context
+}
+
 const pingDelay = 5000
 const maxReconnections = 4
 
-const WsContextProvider = ({ children }) => {
+const WsContextProvider: FunctionalComponent<WsContextProviderProps> = ({ children }) => {
     const { toasts, connection, dialogs, modals } = useUiContext()
     const { removeAllRequests } = useHttpQueueContext()
-    const dataBuffer = useRef([])
+    const dataBuffer = useRef<any[]>([])
     const { connectionSettings, activity } = useSettingsContext()
-    const wsConnection = useRef()
-    const [isPingPaused, setIsPingPaused] = useState(false)
-    const [isPingStarted, setIsPingStarted] = useState(false)
-    const isLogOff = useRef(false)
-    const reconnectCounter = useRef(0)
-    const [wsData, setWsData] = useState([])
-    const { processData } = useTargetContext()
-    const { abortRequest } = useHttpFn
+    const wsConnection = useRef<WebSocket>()
+    const [isPingPaused, setIsPingPaused] = useState<boolean>(false)
+    const [isPingStarted, setIsPingStarted] = useState<boolean>(false)
+    const isLogOff = useRef<boolean>(false)
+    const reconnectCounter = useRef<number>(0)
+    const [wsData, setWsData] = useState<any[]>([])
+    const { processData } = useTargetContext() as any
+    const { abortRequest } = useHttpFn as any
 
-    const ping = (start = false) => {
+    const ping = (start: boolean = false) => {
         if (isLogOff.current) return
         if (!isPingStarted) {
             setIsPingStarted(true)
@@ -70,7 +93,7 @@ const WsContextProvider = ({ children }) => {
         }
     }
 
-    const onMessageCB = (e) => {
+    const onMessageCB = (e: MessageEvent) => {
         if (isLogOff.current) return
         //for binary messages used for terminal
         const stdOutData = e.data
@@ -141,7 +164,7 @@ const WsContextProvider = ({ children }) => {
         }
     }
 
-    const Disconnect = (reason) => {
+    const Disconnect = (reason: string) => {
         console.log("Disconnect:", reason)
         connection.setConnectionState({
             connected: false,
@@ -165,14 +188,14 @@ const WsContextProvider = ({ children }) => {
         dispatchToExtensions("notification", { isConnected: false }, "all")
     }
 
-    const onOpenCB = (e) => {
+    const onOpenCB = (e: Event) => {
         reconnectCounter.current = 0
         //Notify extensions
         dispatchToExtensions("notification", { isConnected: true }, "all")
         ping(true)
     }
 
-    const onCloseCB = (e) => {
+    const onCloseCB = (e: CloseEvent) => {
         //seems sometimes it disconnect so wait 3s and reconnect
         //if it is not a log off
         if (!isLogOff.current) {
@@ -190,11 +213,12 @@ const WsContextProvider = ({ children }) => {
         }
     }
 
-    const onErrorCB = (e) => {
+    const onErrorCB = (e: Event) => {
         reconnectCounter.current++
         toasts.addToast({ content: T("S6"), type: "error" })
         console.log("Error")
     }
+
     const setupWS = () => {
         if (!connectionSettings.current.WebCommunication) {
             if (reconnectCounter.current < maxReconnections) {
@@ -247,9 +271,8 @@ const WsContextProvider = ({ children }) => {
         }
     }, [connectionSettings.current])
 
-    const store = {
+    const store: WsContextValue = {
         ws: wsConnection.current,
-
         setIsPingPaused, //to be used in HTTP queries
         Disconnect,
     }
@@ -258,3 +281,4 @@ const WsContextProvider = ({ children }) => {
 }
 
 export { WsContextProvider, useWsContext }
+export type { WsContextValue }

@@ -1,5 +1,5 @@
 /*
- httpAdapter.js - ESP3D WebUI adapter file
+ httpAdapter.tsx - ESP3D WebUI adapter file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
@@ -19,39 +19,54 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+// Type definitions
+interface HttpAdapterParams {
+    method?: string
+    headers?: Headers | Record<string, string>
+    body?: any
+    id?: string | null
+    [key: string]: any
+}
+
+interface HttpAdapterReturn {
+    abort: (cb?: () => void) => void
+    xhr: XMLHttpRequest
+    response: Promise<any>
+}
+
 /**
  * Execute XMLHttpRequest
- * @param {string} url
- * @param {Object} params
- * @returns {Object}
- * @return {{a: number, b: string, c}} myObj
- * @return {Object} return
- * @returns {Promise} return.response
- * @returns {Function} return.abort
- * @returns {XHR} return.xhr
+ * @param url - The URL to request
+ * @param params - Request parameters
+ * @param setUploadProgress - Progress callback that receives percentage (0-100)
+ * @returns Object containing abort function, xhr instance, and response promise
  */
-const httpAdapter = (url, params = {}, setUploadProgress = () => {}) => {
+const httpAdapter = (
+    url: string,
+    params: HttpAdapterParams = {},
+    setUploadProgress: (percent: number) => void = () => {}
+): HttpAdapterReturn => {
     const { method = "GET", headers = {}, body = null, id = null } = params
     const sanitizedMethod = method.trim().toUpperCase()
     const xhr = new XMLHttpRequest()
     if (id && id.startsWith("download")) {
         xhr.responseType = "blob"
-        xhr.addEventListener("progress", (e) => {
-            const done = e.position || e.loaded
-            const total = e.totalSize || e.total
+        xhr.addEventListener("progress", (e: ProgressEvent) => {
+            const done = (e as any).position || e.loaded
+            const total = (e as any).totalSize || e.total
             const perc = Math.floor((done / total) * 1000) / 10
             setUploadProgress(perc)
         })
     } else {
-        xhr.upload.addEventListener("progress", (e) => {
-            const done = e.position || e.loaded
-            const total = e.totalSize || e.total
+        xhr.upload.addEventListener("progress", (e: ProgressEvent) => {
+            const done = (e as any).position || e.loaded
+            const total = (e as any).totalSize || e.total
             const perc = Math.floor((done / total) * 1000) / 10
             setUploadProgress(perc)
         })
     }
 
-    const cacheBustedUrl = (url) => {
+    const cacheBustedUrl = (url: string): string => {
         const parsedUrl = new URL(url)
         let params = parsedUrl.searchParams
        // params.get("t") == null && params.append("t", Date.now())
@@ -67,15 +82,15 @@ const httpAdapter = (url, params = {}, setUploadProgress = () => {}) => {
         headers.forEach((value, header) => xhr.setRequestHeader(header, value))
     //handle Headers()
     else
-        Object.entries(headers).forEach((header, value) =>
+        Object.entries(headers).forEach(([header, value]) =>
             xhr.setRequestHeader(header, value)
         ) //handle Object headers
 
-    const response = new Promise((resolve, reject) => {
+    const response = new Promise<any>((resolve, reject) => {
         xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response)
             else {
-                const e = new Error(
+                const e: any = new Error(
                     `${xhr.status ? xhr.status : ""}${
                         xhr.statusText ? ` - ${xhr.statusText}` : ""
                     }`
@@ -85,7 +100,7 @@ const httpAdapter = (url, params = {}, setUploadProgress = () => {}) => {
             }
         }
         xhr.onerror = () => {
-            const e = new Error(
+            const e: any = new Error(
                 `${xhr.status ? xhr.status : "Connection time out"}${
                     xhr.status && xhr.statusText ? ` - ${xhr.statusText}` : ""
                 }`
@@ -95,22 +110,22 @@ const httpAdapter = (url, params = {}, setUploadProgress = () => {}) => {
         }
 
         xhr.onabort = () => {
-            const e = new Error("Request aborted")
+            const e: any = new Error("Request aborted")
             e.code = 499
             reject(e)
         }
     })
 
-    const sendBody = ["POST", "PUT", "CONNECT", "PATCH"].toLocaleString(method)
+    const sendBody = ["POST", "PUT", "CONNECT", "PATCH"].includes(sanitizedMethod)
         ? body
         : null
 
     xhr.send(sendBody)
 
     return {
-        abort: (cb) => {
+        abort: (cb?: () => void) => {
             xhr.abort()
-            if (typeof callback == "function") return cb()
+            if (typeof cb == "function") return cb()
         },
         xhr,
         response,
@@ -118,3 +133,4 @@ const httpAdapter = (url, params = {}, setUploadProgress = () => {}) => {
 }
 
 export { httpAdapter }
+export type { HttpAdapterParams, HttpAdapterReturn }

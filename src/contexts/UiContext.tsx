@@ -1,9 +1,9 @@
 /*
- UiContext.js - ESP3D WebUI context file
+ UiContext.tsx - ESP3D WebUI context file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,7 +16,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, createContext } from "preact"
+import { createContext, FunctionalComponent } from "preact"
 import { useContext, useState, useRef, useEffect, useCallback, useMemo } from "preact/hooks"
 import {
     generateUID,
@@ -24,78 +24,209 @@ import {
     disableUI,
 } from "../components/Helpers"
 
-const useUiContextFn = {}
-const audio = {}
+// Type definitions
+interface Panel {
+    id: string
+    settingid?: string
+    [key: string]: any
+}
+
+interface Toast {
+    id: string
+    [key: string]: any
+}
+
+interface Notification extends Toast {
+    time: string
+}
+
+interface Modal {
+    id?: string
+    [key: string]: any
+}
+
+interface ConnectionState {
+    connected: boolean
+    authenticate: boolean
+    page: string
+}
+
+interface SoundNote {
+    f: number // frequency
+    d?: number // duration
+}
+
+interface AudioContext {
+    context?: any
+    oscillator?: any
+    list: SoundNote[]
+}
+
+interface UiSettings {
+    getValue: (id: string, base?: any) => any
+    getElement: (id: string, base?: any) => any
+    current: any
+    set: (settings: any) => void
+    refreshPaused: any
+}
+
+interface UiContextValue {
+    timerIDs: { current: any }
+    panels: {
+        list: Panel[]
+        set: (panels: Panel[]) => void
+        visibles: Panel[]
+        setVisibles: (panels: Panel[]) => void
+        hide: (id: string) => void
+        show: (id: string, fixed: boolean) => void
+        isVisible: (id: string) => boolean
+        initDone: boolean
+        setInitDone: (done: boolean) => void
+        setPanelsOrder: (order: any[]) => void
+        updateTrigger: number
+    }
+    shortcuts: {
+        enabled: boolean
+        enable: (enabled: boolean) => void
+    }
+    uisettings: UiSettings
+    toasts: {
+        toastList: Toast[]
+        addToast: (toast: Omit<Toast, "id">) => void
+        removeToast: (ids: string[]) => void
+    }
+    notifications: {
+        list: Notification[]
+        clear: () => void
+        isAutoScroll: { current: boolean }
+        isAutoScrollPaused: { current: boolean }
+    }
+    modals: {
+        modalList: Modal[]
+        addModal: (modal: Modal) => void
+        removeModal: (index: number) => void
+        getModalIndex: (id: string) => number
+        clearModals: () => void
+    }
+    connection: {
+        connectionState: ConnectionState
+        setConnectionState: (state: ConnectionState) => void
+    }
+    dialogs: {
+        needLogin: boolean
+        setNeedLogin: (need: boolean) => void
+        showKeepConnected: boolean
+        setShowKeepConnected: (show: boolean) => void
+    }
+    ui: {
+        ready: boolean
+        setReady: (ready: boolean) => void
+    }
+}
+
+interface UiContextFn {
+    getValue: (id: string, base?: any) => any
+    getElement: (id: string, base?: any) => any
+    haptic: () => void
+    playSound: (sequence: SoundNote[]) => void
+    beep: () => void
+    beepError: () => void
+    beepSeq: (seq: SoundNote[] | undefined) => void
+    toasts: {
+        addToast: (toast: Omit<Toast, "id">) => void
+        removeToast: (ids: string[]) => void
+        toastList: Toast[]
+    }
+    panels: {
+        hide: (id: string) => void
+        isVisible: (id: string) => boolean
+    }
+}
+
+const useUiContextFn: UiContextFn = {} as UiContextFn
+const audio: AudioContext = { list: [] }
+
 /*
  * Local const
  *
  */
-const UiContext = createContext("uiContext")
-const useUiContext = () => useContext(UiContext)
-const UiContextProvider = ({ children }) => {
-    const [panelsList, setPanelsList] = useState([])
-    const [panelsOrder, setPanelsOrder] = useState([])
-    const visiblePanelsListRef = useRef([]);
-    const [updateTrigger, setUpdateTrigger] = useState(0);
-    const uiRefreshPaused = useRef({})
-    const timersList = useRef({})
-    const [initPanelsVisibles, setInitPanelsVisibles] = useState(false)
-    const [uiSettings, setUISettings] = useState()
-    const [modals, setModal] = useState([])
-    const [toasts, setToasts] = useState([])
-    const isNotificationsAutoScroll = useRef(true)
-    const isNotificationsAutoScrollPaused = useRef(false)
-    const [isKeyboardEnabled, setIsKeyboardEnabled] = useState(false)
-    const [notifications, setNotifications] = useState([])
-    const [needLogin, setNeedLogin] = useState(false)
-    const [showKeepConnected, setShowKeepConnected] = useState(false)
-    const [connectionState, setConnectionState] = useState({
+const UiContext = createContext<UiContextValue | undefined>(undefined)
+const useUiContext = () => {
+    const context = useContext(UiContext)
+    if (!context) {
+        throw new Error("useUiContext must be used within a UiContextProvider")
+    }
+    return context
+}
+
+interface UiContextProviderProps {
+    children: any
+}
+
+const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ children }) => {
+    const [panelsList, setPanelsList] = useState<Panel[]>([])
+    const [panelsOrder, setPanelsOrder] = useState<any[]>([])
+    const visiblePanelsListRef = useRef<Panel[]>([])
+    const [updateTrigger, setUpdateTrigger] = useState<number>(0)
+    const uiRefreshPaused = useRef<any>({})
+    const timersList = useRef<any>({})
+    const [initPanelsVisibles, setInitPanelsVisibles] = useState<boolean>(false)
+    const [uiSettings, setUISettings] = useState<any>()
+    const [modals, setModal] = useState<Modal[]>([])
+    const [toasts, setToasts] = useState<Toast[]>([])
+    const isNotificationsAutoScroll = useRef<boolean>(true)
+    const isNotificationsAutoScrollPaused = useRef<boolean>(false)
+    const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(false)
+    const [notifications, setNotifications] = useState<Notification[]>([])
+    const [needLogin, setNeedLogin] = useState<boolean>(false)
+    const [showKeepConnected, setShowKeepConnected] = useState<boolean>(false)
+    const [connectionState, setConnectionState] = useState<ConnectionState>({
         connected: false,
         authenticate: true,
         page: "connecting",
     })
-    const [uiSetup, setUiSetup] = useState(false)
-    const toastsRef = useRef(toasts)
+    const [uiSetup, setUiSetup] = useState<boolean>(false)
+    const toastsRef = useRef<Toast[]>(toasts)
     toastsRef.current = toasts
-    const notificationsRef = useRef(notifications)
+    const notificationsRef = useRef<Notification[]>(notifications)
     notificationsRef.current = notifications
 
-    const removeFromVisibles = useCallback((id) => {
+    const removeFromVisibles = useCallback((id: string) => {
         visiblePanelsListRef.current = visiblePanelsListRef.current.filter(
             (element) => element.id != id
-        );
-        setUpdateTrigger(prev => prev + 1);
-    }, []);
+        )
+        setUpdateTrigger(prev => prev + 1)
+    }, [])
 
-    const addToVisibles = useCallback((id, fixed) => {
+    const addToVisibles = useCallback((id: string, fixed: boolean) => {
         if (fixed && panelsOrder.length > 0) {
             const unSortedVisiblePanelsList = [
                 ...visiblePanelsListRef.current.filter((element) => element.id != id),
                 ...panelsList.filter((element) => element.id == id),
-            ];
-            visiblePanelsListRef.current = panelsOrder.reduce((acc, panel) => {
+            ]
+            visiblePanelsListRef.current = panelsOrder.reduce((acc: Panel[], panel) => {
                 const paneldesc = unSortedVisiblePanelsList.filter(
                     (p) => p.settingid == panel.id
-                );
-                if (paneldesc.length > 0) acc.push(...paneldesc);
-                return acc;
-            }, []);
+                )
+                if (paneldesc.length > 0) acc.push(...paneldesc)
+                return acc
+            }, [])
         } else {
             visiblePanelsListRef.current = [
                 ...panelsList.filter((element) => element.id == id),
                 ...visiblePanelsListRef.current.filter((element) => element.id != id),
-            ];
+            ]
         }
-        setUpdateTrigger(prev => prev + 1);
-    }, [panelsList, panelsOrder]);
+        setUpdateTrigger(prev => prev + 1)
+    }, [panelsList, panelsOrder])
 
-    const isPanelVisible = useCallback((id) => {
+    const isPanelVisible = useCallback((id: string): boolean => {
         //console.log("Checking visibility for panel " + id)
         //console.log(visiblePanelsListRef.current)
-        return visiblePanelsListRef.current.some((element) => element.id == id);
-    }, []);
+        return visiblePanelsListRef.current.some((element) => element.id == id)
+    }, [])
 
-    const addToast = useCallback((newToast) => {
+    const addToast = useCallback((newToast: Omit<Toast, "id">) => {
         const id = generateUID()
         const now = new Date()
         const time =
@@ -116,23 +247,23 @@ const UiContextProvider = ({ children }) => {
         setNotifications([])
     }, [])
 
-    const removeToast = useCallback((uids) => {
+    const removeToast = useCallback((uids: string[]) => {
         const remainingIds = removeEntriesByIDs(toastsRef.current, uids)
         toastsRef.current = remainingIds
         setToasts([...remainingIds])
     }, [])
 
-    const addModal = useCallback((newModal) =>
+    const addModal = useCallback((newModal: Modal) =>
         setModal((prev) => [
             ...prev,
             { ...newModal, id: newModal.id ? newModal.id : generateUID() },
         ]), [])
 
-    const getModalIndex = useCallback((id) => {
+    const getModalIndex = useCallback((id: string): number => {
         return modals.findIndex((element) => element.id == id)
     }, [modals])
 
-    const removeModal = useCallback((modalIndex) => {
+    const removeModal = useCallback((modalIndex: number) => {
         const newModalList = modals.filter(
             (modal, index) => index !== modalIndex
         )
@@ -144,7 +275,7 @@ const UiContextProvider = ({ children }) => {
         setModal([])
     }, [])
 
-    const getElement = useCallback((Id, base = null) => {
+    const getElement = useCallback((Id: string, base: any = null): any => {
         const settingsobject = base ? base : uiSettings
         if (settingsobject) {
             for (let key in settingsobject) {
@@ -197,7 +328,7 @@ const UiContextProvider = ({ children }) => {
         return undefined
     }, [uiSettings])
 
-    const getValue = useCallback((Id, base = null) => {
+    const getValue = useCallback((Id: string, base: any = null): any => {
         if (!Id) return undefined
         const settingsobject = base ? base : uiSettings
         if (settingsobject) {
@@ -271,14 +402,14 @@ const UiContextProvider = ({ children }) => {
     const initAudio = () => {
         if (typeof window.AudioContext !== "undefined") {
             audio.context = new window.AudioContext()
-        } else if (typeof window.webkitAudioContext() !== "undefined") {
-            audio.context = new window.webkitAudioContext()
-        } else if (typeof window.audioContext !== "undefined") {
-            audio.context = new window.audioContext()
+        } else if (typeof (window as any).webkitAudioContext !== "undefined") {
+            audio.context = new (window as any).webkitAudioContext()
+        } else if (typeof (window as any).audioContext !== "undefined") {
+            audio.context = new (window as any).audioContext()
         }
     }
-    audio.list = []
-    const play = (sequence) => {
+
+    const play = (sequence?: SoundNote[]) => {
         if (sequence && audio.list.length > 0) {
             return
         }
@@ -296,16 +427,18 @@ const UiContextProvider = ({ children }) => {
                 audio.oscillator.type = "square"
                 audio.oscillator.connect(audio.context.destination)
                 const current = audio.list.shift()
-                audio.oscillator.frequency.value = current.f
-                audio.oscillator.start()
-                if (current.d) {
-                    setTimeout(() => {
+                if (current) {
+                    audio.oscillator.frequency.value = current.f
+                    audio.oscillator.start()
+                    if (current.d) {
+                        setTimeout(() => {
+                            audio.oscillator.stop()
+                            play()
+                        }, current.d)
+                    } else {
                         audio.oscillator.stop()
                         play()
-                    }, current.d)
-                } else {
-                    audio.oscillator.stop()
-                    play()
+                    }
                 }
             }
         }
@@ -330,26 +463,26 @@ const UiContextProvider = ({ children }) => {
         ])
     }
     //sequence
-    useUiContextFn.beepSeq = (seq) => {
+    useUiContextFn.beepSeq = (seq: SoundNote[] | undefined) => {
         if (!seq) return
         play(seq)
     }
 
 
     useUiContextFn.toasts = { addToast, removeToast, toastList: toasts }
-    useUiContextFn.panels = { hide: removeFromVisibles,isVisible: isPanelVisible }
+    useUiContextFn.panels = { hide: removeFromVisibles, isVisible: isPanelVisible }
 
 
     useEffect(() => {
         initAudio()
     }, [])
 
-    const setVisibles = useCallback((newList) => {
-        visiblePanelsListRef.current = newList;
-        setUpdateTrigger(prev => prev + 1);
+    const setVisibles = useCallback((newList: Panel[]) => {
+        visiblePanelsListRef.current = newList
+        setUpdateTrigger(prev => prev + 1)
     }, [])
 
-    const store = useMemo(() => ({
+    const store: UiContextValue = useMemo(() => ({
         timerIDs: timersList,
         panels: {
             list: panelsList,
@@ -372,6 +505,7 @@ const UiContextProvider = ({ children }) => {
             current: uiSettings,
             set: setUISettings,
             getValue,
+            getElement,
             refreshPaused: uiRefreshPaused.current,
         },
         toasts: { toastList: toasts, addToast, removeToast },
@@ -400,8 +534,8 @@ const UiContextProvider = ({ children }) => {
             setShowKeepConnected,
         },
         ui: {
-            ready:uiSetup,
-            setReady:setUiSetup,
+            ready: uiSetup,
+            setReady: setUiSetup,
         },
     }), [
         panelsList,
@@ -414,6 +548,7 @@ const UiContextProvider = ({ children }) => {
         isKeyboardEnabled,
         uiSettings,
         getValue,
+        getElement,
         toasts,
         addToast,
         removeToast,
@@ -434,3 +569,4 @@ const UiContextProvider = ({ children }) => {
 }
 
 export { UiContextProvider, useUiContext, useUiContextFn }
+export type { UiContextValue, UiContextFn, UiSettings, Panel, Toast, Notification, Modal, ConnectionState, SoundNote }

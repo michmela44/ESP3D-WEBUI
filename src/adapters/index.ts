@@ -1,5 +1,5 @@
 /*
- index.js - ESP3D WebUI adapter file
+ index.ts - ESP3D WebUI adapter file
 
  Copyright (c) 2020 Luc Lebosse. All rights reserved.
 
@@ -17,8 +17,10 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 
 import { httpAdapter } from "./httpAdapter"
 
 export { httpAdapter }
+
+// Re-export types
+export type { HttpAdapterParams, HttpAdapterReturn } from "./httpAdapter"

@@ -1,9 +1,9 @@
 /*
- useHttpQueue.js - ESP3D WebUI hooks file
+ useHttpQueue.tsx - ESP3D WebUI hooks file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,18 +16,54 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 import { useState, useRef } from "preact/hooks"
 import { useHttpQueueContext } from "../contexts"
 import { generateUID } from "../components/Helpers"
 
-const useHttpFn = {}
+// Type definitions
+interface HttpRequestParams {
+    id?: string
+    method?: string
+    echo?: string
+    max?: number
+    [key: string]: any
+}
+
+interface HttpCallbacks {
+    onSuccess?: (result: any) => void
+    onFail?: (error: any) => void
+    onProgress?: (percent: number) => void
+}
+
+interface HttpRequest {
+    id: string
+    url: string
+    params: HttpRequestParams
+    onSuccess: (result: any) => void
+    onProgress: (e: ProgressEvent) => void
+    onFail: ((error: any) => void) | null
+}
+
+interface HttpQueueReturn {
+    createNewRequest: (url: string, params: HttpRequestParams, callbacks?: HttpCallbacks) => void
+    processRequestsNow: () => void
+    createNewTopRequest: (url: string, params: HttpRequestParams, callbacks?: HttpCallbacks) => void
+    abortRequest: (id?: string) => void
+    setKillOnUnmount: (kill: boolean) => void
+}
+
+interface UseHttpFn {
+    createNewRequest: (url: string, params: HttpRequestParams, callbacks?: HttpCallbacks) => void
+    abortRequest: (id?: string) => void
+}
+
+const useHttpFn: UseHttpFn = {} as UseHttpFn
 
 /*
  * Local const
  *
  */
-const useHttpQueue = () => {
+const useHttpQueue = (): HttpQueueReturn => {
     const {
         addInQueue,
         addInTopQueue,
@@ -35,10 +71,10 @@ const useHttpQueue = () => {
         getCurrentRequest,
         processRequests,
     } = useHttpQueueContext()
-    const [killOnUnmount, setKillOnUnmount] = useState(true)
-    const localRequests = useRef([])
+    const [killOnUnmount, setKillOnUnmount] = useState<boolean>(true)
+    const localRequests = useRef<string[]>([])
 
-    const createNewTopRequest = (url, params, callbacks = {}) => {
+    const createNewTopRequest = (url: string, params: HttpRequestParams, callbacks: HttpCallbacks = {}): void => {
         const {
             onSuccess: onSuccessCb,
             onFail: onFailCb,
@@ -50,21 +86,21 @@ const useHttpQueue = () => {
             id,
             url,
             params,
-            onSuccess: (result) => {
+            onSuccess: (result: any) => {
                 if (onSuccessCb) onSuccessCb(result)
             },
-            onProgress: (e) => {
-                if (onProgressCb) onProgressCb(e)
+            onProgress: (percent: number) => {
+                if (onProgressCb) onProgressCb(percent)
             },
             onFail: onFailCb
-                ? (error) => {
+                ? (error: any) => {
                       if (onFailCb) onFailCb(error)
                   }
                 : null,
         })
     }
 
-    const createNewRequest = (url, params, callbacks = {}) => {
+    const createNewRequest = (url: string, params: HttpRequestParams, callbacks: HttpCallbacks = {}): void => {
         const {
             onSuccess: onSuccessCb,
             onFail: onFailCb,
@@ -87,17 +123,17 @@ const useHttpQueue = () => {
             id,
             url,
             params,
-            onSuccess: (result) => {
+            onSuccess: (result: any) => {
                 if (onSuccessCb) onSuccessCb(result)
                 localRequests.current.splice(
                     localRequests.current.indexOf(id),
                     1
                 )
             },
-            onProgress: (e) => {
-                if (onProgressCb) onProgressCb(e)
+            onProgress: (percent: number) => {
+                if (onProgressCb) onProgressCb(percent)
             },
-            onFail: (error) => {
+            onFail: (error: any) => {
                 localRequests.current.splice(
                     localRequests.current.indexOf(id),
                     1
@@ -107,7 +143,7 @@ const useHttpQueue = () => {
         })
     }
 
-    const abortRequest = (id) => {
+    const abortRequest = (id?: string): void => {
         if (id) {
             removeRequests(id)
         }
@@ -119,7 +155,7 @@ const useHttpQueue = () => {
         }
     }
 
-    const processRequestsNow = () => {
+    const processRequestsNow = (): void => {
         processRequests()
     }
 
@@ -136,3 +172,4 @@ const useHttpQueue = () => {
 }
 
 export { useHttpQueue, useHttpFn }
+export type { HttpRequestParams, HttpCallbacks, HttpRequest, HttpQueueReturn, UseHttpFn }

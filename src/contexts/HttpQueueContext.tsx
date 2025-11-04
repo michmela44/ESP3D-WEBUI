@@ -1,9 +1,9 @@
 /*
- HttpQueueContext.js - ESP3D WebUI context file
+ HttpQueueContext.tsx - ESP3D WebUI context file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,12 +16,35 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, createContext } from "preact"
+import { createContext, FunctionalComponent } from "preact"
 import { useContext, useRef } from "preact/hooks"
 import { httpAdapter } from "../adapters"
 import { useUiContext } from "./UiContext"
 import { useWsContext } from "./WsContext"
 import { useTargetContext } from "../targets"
+
+// Type definitions
+interface HttpRequest {
+    id: string
+    url: string
+    params: any
+    onSuccess: (response: any) => void
+    onFail?: ((error: string) => void) | null
+    onProgress?: (percent: number) => void
+}
+
+interface HttpQueueContextValue {
+    addInQueue: (request: HttpRequest) => void
+    addInTopQueue: (request: HttpRequest) => void
+    removeRequests: (requestIds: string | string[]) => void
+    getCurrentRequest: () => any
+    removeAllRequests: () => void
+    processRequests: () => void
+}
+
+interface HttpQueueContextProviderProps {
+    children: any
+}
 
 let counterNoAnswer = 0
 const MaxNoAnswerNb = 4
@@ -30,40 +53,60 @@ const MaxNoAnswerNb = 4
  * Local const
  *
  */
-const HttpQueueContext = createContext("HttpQueueContext")
-const useHttpQueueContext = () => useContext(HttpQueueContext)
+const HttpQueueContext = createContext<HttpQueueContextValue | undefined>(undefined)
+const useHttpQueueContext = (): HttpQueueContextValue => {
+    const context = useContext(HttpQueueContext)
+    // Allow usage before provider is mounted (for circular dependencies with WsContext)
+    if (!context) {
+        return {
+            addInQueue: () => {},
+            addInTopQueue: () => {},
+            removeRequests: () => {},
+            getCurrentRequest: () => null,
+            removeAllRequests: () => {},
+            processRequests: () => {}
+        }
+    }
+    return context
+}
 
-const HttpQueueContextProvider = ({ children }) => {
-    const { processData } = useTargetContext()
+const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProps> = ({ children }) => {
+    const { processData } = useTargetContext() as any // TargetContext not fully typed
     const { Disconnect } = useWsContext()
-    const requestQueue = useRef([]) // Http queue for every components
-    const isBusy = useRef(false)
-    const currentRequest = useRef()
+    const requestQueue = useRef<HttpRequest[]>([]) // Http queue for every components
+    const isBusy = useRef<boolean>(false)
+    const currentRequest = useRef<any>()
     const { dialogs, connection } = useUiContext()
+
     //Add new Request to queue
-    const addInQueue = (newRequest) => {
+    const addInQueue = (newRequest: HttpRequest) => {
         requestQueue.current = [...requestQueue.current, newRequest]
         if (!isBusy.current) executeHttpCall()
     }
+
     //Add new Request to top of queue
-    const addInTopQueue = (newRequest) => {
+    const addInTopQueue = (newRequest: HttpRequest) => {
         requestQueue.current = [newRequest, ...requestQueue.current]
         if (!isBusy.current) executeHttpCall()
     }
+
     //Remove finished request from queue
     const removeRequestDone = () => {
         requestQueue.current = [...requestQueue.current].slice(1)
         currentRequest.current = null
     }
+
     //Remove finished request from queue
-    const removeRequests = (requestIds) => {
+    const removeRequests = (requestIds: string | string[]) => {
+        const idsArray = Array.isArray(requestIds) ? requestIds : [requestIds]
         const updatedRequestQueue = [...requestQueue.current].filter(
             ({ id }) => {
-                return !requestIds.includes(id)
+                return !idsArray.includes(id)
             }
         )
         requestQueue.current = updatedRequestQueue
     }
+
     //Get current active request in queue
     const getCurrentRequest = () => {
         return currentRequest.current
@@ -75,6 +118,7 @@ const HttpQueueContextProvider = ({ children }) => {
         requestQueue.current = []
         currentRequest.current = null
     }
+
     //Process requests from queue
     const processRequests = () => {
         executeHttpCall()
@@ -87,14 +131,14 @@ const HttpQueueContextProvider = ({ children }) => {
             requestQueue.current[0]
         let is401Error = false
         try {
-            currentRequest.current = httpAdapter(url, params, onProgress)
+            currentRequest.current = httpAdapter(url, params, onProgress || ((percent: number) => {     }))
             if (params.echo) {
                 processData("echo", params.echo)
             }
             const response = await currentRequest.current.response
             onSuccess(response)
             counterNoAnswer = 0
-        } catch (e) {
+        } catch (e: any) {
             if (e.code == 401) {
                 is401Error = true
                 connection.setConnectionState({
@@ -150,3 +194,4 @@ const HttpQueueContextProvider = ({ children }) => {
 }
 
 export { HttpQueueContextProvider, useHttpQueueContext }
+export type { HttpQueueContextValue, HttpRequest }

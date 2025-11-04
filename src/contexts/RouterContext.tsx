@@ -1,9 +1,9 @@
 /*
- RouterContext.js - ESP3D WebUI context file
+ RouterContext.tsx - ESP3D WebUI context file
 
  Copyright (c) 2021 Alexandre Aussourd. All rights reserved.
  Modified by Luc LEBOSSE 2021
- 
+
  This code is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -16,26 +16,48 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, createContext } from "preact"
+import { createContext, FunctionalComponent } from "preact"
 import { useContext, useState, useRef } from "preact/hooks"
 import { variablesList } from "../targets"
+
+// Type definitions
+interface RouterContextValue {
+    activeRoute: string
+    setActiveRoute: (route: string) => void
+    routes: Record<string, any>
+    setRoutes: (routes: Record<string, any>) => void
+    defaultRoute: { current: string }
+    activeTab: { current: string }
+}
+
+interface RouterContextProviderProps {
+    children: any
+}
 
 /*
  * Local const
  *
  */
-const RouterContext = createContext("RouterContext")
-const useRouterContext = () => useContext(RouterContext)
-const RouterContextProvider = ({ children }) => {
-    const defaultRoute = useRef("/about")
-    const activeTab = useRef(
+const RouterContext = createContext<RouterContextValue | undefined>(undefined)
+const useRouterContext = () => {
+    const context = useContext(RouterContext)
+    if (!context) {
+        throw new Error("useRouterContext must be used within a RouterContextProvider")
+    }
+    return context
+}
+
+const RouterContextProvider: FunctionalComponent<RouterContextProviderProps> = ({ children }) => {
+    const defaultRoute = useRef<string>("/about")
+    const activeTab = useRef<string>(
         variablesList.hideFeatures
             ? "/settings/interface"
             : "/settings/features"
     )
-    const [activeRoute, setActiveRoute] = useState(defaultRoute.current)
-    const [routes, setRoutes] = useState({})
-    const store = {
+    const [activeRoute, setActiveRoute] = useState<string>(defaultRoute.current)
+    const [routes, setRoutes] = useState<Record<string, any>>({})
+
+    const store: RouterContextValue = {
         activeRoute,
         setActiveRoute,
         routes,
@@ -43,6 +65,7 @@ const RouterContextProvider = ({ children }) => {
         defaultRoute,
         activeTab,
     }
+
     return (
         <RouterContext.Provider value={store}>
             {children}
@@ -51,3 +74,4 @@ const RouterContextProvider = ({ children }) => {
 }
 
 export { RouterContextProvider, useRouterContext }
+export type { RouterContextValue }
