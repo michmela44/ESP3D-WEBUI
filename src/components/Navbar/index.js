@@ -54,7 +54,6 @@ const defaultLinks = [
         icon: null,
         href: "/about",
     },
-    { label: "S123", icon: <Activity />, href: "/informations" },
     {
         label: "S13",
         icon: <Server />,
