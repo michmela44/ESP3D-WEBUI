@@ -181,11 +181,12 @@ const JogPanel = () => {
     }
 
     const sendMoveToCommand = (axis, targetPosition) => {
+        let upperAxis = axis.toUpperCase()
        let selected_axis
         let feedrate =
-            axis.startsWith("X") || axis.startsWith("Y")
+            upperAxis.startsWith("X") || upperAxis.startsWith("Y")
                 ? currentFeedRate["XY"]
-                : axis.startsWith("Z")
+                : upperAxis.startsWith("Z")
                   ? currentFeedRate["Z"]
                   : currentFeedRate[currentAxis]
         if (axis.startsWith("Axis"))
@@ -206,7 +207,7 @@ const JogPanel = () => {
             button1: {
                 cb: () => {
                     if (targetValue.length > 0 && !isNaN(targetValue)) {
-                        sendMoveToCommand(axis, targetValue)
+                        sendMoveToCommand(axisUpper, targetValue)
                     }
                 },
                 text: T("S43"),
