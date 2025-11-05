@@ -167,7 +167,7 @@ const commandsQuery = (req, res, SendWS) => {
                 { id: "mac", value: "24:6F:28:4C:89:49" },
                 { id: "notification", value: "ON(line)" },
                 { id: "targetfw", value: "grbl" },
-                { id: "FW ver", value: "3.0.0.a111" },
+                { id: "FWVersion", value: "3.0.0.a111" },
                 { id: "FW arch", value: "ESP32" },
             ],
         })
