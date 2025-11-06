@@ -410,10 +410,10 @@ const About = () => {
                                 </span>
                                 <span class="text-dark">
                                     {props.find(
-                                        (element) => element.id == "FW ver"
+                                        (element) => element.id == "FWVersion"
                                     ) &&
                                         props.find(
-                                            (element) => element.id == "FW ver"
+                                            (element) => element.id == "FWVersion"
                                         ).value}
                                 </span>
                                 <ButtonImg

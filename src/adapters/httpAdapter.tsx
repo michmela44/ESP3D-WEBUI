@@ -23,15 +23,19 @@
 interface HttpAdapterParams {
     method?: string
     headers?: Headers | Record<string, string>
-    body?: any
+    body?: string | FormData | null
     id?: string | null
     [key: string]: any
+}
+
+interface HttpError extends Error {
+    code?: number
 }
 
 interface HttpAdapterReturn {
     abort: (cb?: () => void) => void
     xhr: XMLHttpRequest
-    response: Promise<any>
+    response: Promise<string | Blob>
 }
 
 // Extended ProgressEvent for backwards compatibility with older browsers
@@ -92,11 +96,11 @@ const httpAdapter = (
             xhr.setRequestHeader(header, value)
         ) //handle Object headers
 
-    const response = new Promise<any>((resolve, reject) => {
+    const response = new Promise<string | Blob>((resolve, reject) => {
         xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response)
             else {
-                const e: any = new Error(
+                const e: HttpError = new Error(
                     `${xhr.status ? xhr.status : ""}${
                         xhr.statusText ? ` - ${xhr.statusText}` : ""
                     }`
@@ -106,7 +110,7 @@ const httpAdapter = (
             }
         }
         xhr.onerror = () => {
-            const e: any = new Error(
+            const e: HttpError = new Error(
                 `${xhr.status ? xhr.status : "Connection time out"}${
                     xhr.status && xhr.statusText ? ` - ${xhr.statusText}` : ""
                 }`
@@ -116,7 +120,7 @@ const httpAdapter = (
         }
 
         xhr.onabort = () => {
-            const e: any = new Error("Request aborted")
+            const e: HttpError = new Error("Request aborted")
             e.code = 499
             reject(e)
         }
@@ -139,4 +143,4 @@ const httpAdapter = (
 }
 
 export { httpAdapter }
-export type { HttpAdapterParams, HttpAdapterReturn }
+export type { HttpAdapterParams, HttpAdapterReturn, HttpError }

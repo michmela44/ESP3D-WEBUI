@@ -30,8 +30,8 @@ interface HttpRequestParams {
 }
 
 interface HttpCallbacks {
-    onSuccess?: (result: any) => void
-    onFail?: (error: any) => void
+    onSuccess?: (result: string) => void
+    onFail?: (error: string) => void
     onProgress?: (percent: number) => void
 }
 
@@ -39,9 +39,9 @@ interface HttpRequest {
     id: string
     url: string
     params: HttpRequestParams
-    onSuccess: (result: any) => void
+    onSuccess: (result: string | Blob) => void
     onProgress: (e: ProgressEvent) => void
-    onFail: ((error: any) => void) | null
+    onFail: ((error: string) => void) | null
 }
 
 interface HttpQueueReturn {
@@ -86,14 +86,14 @@ const useHttpQueue = (): HttpQueueReturn => {
             id,
             url,
             params,
-            onSuccess: (result: any) => {
-                if (onSuccessCb) onSuccessCb(result)
+            onSuccess: (result: string | Blob) => {
+                if (onSuccessCb) onSuccessCb(result as string)
             },
             onProgress: (percent: number) => {
                 if (onProgressCb) onProgressCb(percent)
             },
             onFail: onFailCb
-                ? (error: any) => {
+                ? (error: string) => {
                       if (onFailCb) onFailCb(error)
                   }
                 : null,
@@ -123,8 +123,8 @@ const useHttpQueue = (): HttpQueueReturn => {
             id,
             url,
             params,
-            onSuccess: (result: any) => {
-                if (onSuccessCb) onSuccessCb(result)
+            onSuccess: (result: string | Blob) => {
+                if (onSuccessCb) onSuccessCb(result as string)
                 localRequests.current.splice(
                     localRequests.current.indexOf(id),
                     1
@@ -133,7 +133,7 @@ const useHttpQueue = (): HttpQueueReturn => {
             onProgress: (percent: number) => {
                 if (onProgressCb) onProgressCb(percent)
             },
-            onFail: (error: any) => {
+            onFail: (error: string) => {
                 localRequests.current.splice(
                     localRequests.current.indexOf(id),
                     1

@@ -16,7 +16,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { createContext, FunctionalComponent } from "preact"
+import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useRef, useContext } from "preact/hooks"
 import { useUiContext } from "./UiContext"
 
@@ -26,12 +26,38 @@ interface PollingItem {
     interval: NodeJS.Timeout
 }
 
+// Settings object types
+interface SettingsObject {
+    [key: string]: any
+}
+
+interface InterfaceSettings extends SettingsObject {
+    settings?: any
+}
+
+interface ConnectionSettings extends SettingsObject {
+    HostName?: string
+    CameraName?: string
+    HostPath?: string
+    Screen?: string
+    FlashFileSystem?: string
+    HostTarget?: string
+    HostUploadPath?: string
+    HostDownloadPath?: string
+}
+
+interface FeaturesSettings extends SettingsObject {
+    [subsection: string]: any
+}
+
+type PollingCallback = () => void | Promise<void>
+
 interface SettingsContextValue {
-    interfaceSettings: { current: Record<string, any> }
-    connectionSettings: { current: Record<string, any> }
-    featuresSettings: { current: Record<string, any> }
+    interfaceSettings: { current: InterfaceSettings }
+    connectionSettings: { current: ConnectionSettings }
+    featuresSettings: { current: FeaturesSettings }
     activity: {
-        startPolling: (id: string, interval: number, fn: () => void) => void
+        startPolling: (id: string, interval: number, fn: PollingCallback) => void
         stopPolling: (id?: string) => void
     }
 }
@@ -41,7 +67,7 @@ interface SettingsContextFn {
 }
 
 interface SettingsContextProviderProps {
-    children: any
+    children: ComponentChildren
 }
 
 /*
@@ -61,14 +87,14 @@ const useSettingsContextFn: SettingsContextFn = {} as SettingsContextFn
 
 const SettingsContextProvider: FunctionalComponent<SettingsContextProviderProps> = ({ children }) => {
     const { uisettings } = useUiContext()
-    const interfaceValues = useRef<Record<string, any>>({})
-    const connectionValues = useRef<Record<string, any>>({})
-    const featuresValues = useRef<Record<string, any>>({})
+    const interfaceValues = useRef<InterfaceSettings>({})
+    const connectionValues = useRef<ConnectionSettings>({})
+    const featuresValues = useRef<FeaturesSettings>({})
     const pollingInterval = useRef<PollingItem[]>([])
 
-    useSettingsContextFn.getValue = (val: string) => connectionValues.current[val]
+    useSettingsContextFn.getValue = (val: string): any => connectionValues.current[val]
 
-    function startPolling(id: string, interval: number, fn: () => void): void {
+    function startPolling(id: string, interval: number, fn: PollingCallback): void {
         stopPolling(id)
         if (interval > 0 && fn) {
             const newInterval = setInterval(() => {

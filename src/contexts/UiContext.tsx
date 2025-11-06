@@ -16,7 +16,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { createContext, FunctionalComponent } from "preact"
+import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useContext, useState, useRef, useEffect, useCallback, useMemo } from "preact/hooks"
 import {
     generateUID,
@@ -36,12 +36,16 @@ declare global {
 interface Panel {
     id: string
     settingid?: string
-    [key: string]: any
+    [key: string]: unknown
 }
 
-interface Toast {
+interface ToastContent {
+    id?: string
+    [key: string]: unknown
+}
+
+interface Toast extends ToastContent {
     id: string
-    [key: string]: any
 }
 
 interface Notification extends Toast {
@@ -56,6 +60,8 @@ interface Modal {
 interface ConnectionState {
     connected: boolean
     page: string
+    extraMsg?: string
+    updating?: boolean
 }
 
 interface SoundNote {
@@ -63,18 +69,22 @@ interface SoundNote {
     d?: number // duration
 }
 
-interface AudioContext {
-    context?: any
-    oscillator?: any
+interface AudioContextManager {
+    context?: AudioContext | null
+    oscillator?: OscillatorNode | null
     list: SoundNote[]
 }
 
+interface UiSettingsObject {
+    [key: string]: any
+}
+
 interface UiSettings {
-    getValue: (id: string, base?: any) => any
-    getElement: (id: string, base?: any) => any
+    getValue: (id: string, base?: UiSettingsObject) => any
+    getElement: (id: string, base?: UiSettingsObject) => any
     current: any
     set: (settings: any) => void
-    refreshPaused: any
+    refreshPaused: Record<string, boolean>
 }
 
 interface UiContextValue {
@@ -149,7 +159,7 @@ interface UiContextFn {
 }
 
 const useUiContextFn: UiContextFn = {} as UiContextFn
-const audio: AudioContext = { list: [] }
+const audio: AudioContextManager = { list: [] }
 
 /*
  * Local const
@@ -165,7 +175,7 @@ const useUiContext = () => {
 }
 
 interface UiContextProviderProps {
-    children: any
+    children: ComponentChildren
 }
 
 const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ children }) => {
@@ -435,7 +445,7 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
                     audio.oscillator.start()
                     if (current.d) {
                         setTimeout(() => {
-                            audio.oscillator.stop()
+                            audio.oscillator?.stop()
                             play()
                         }, current.d)
                     } else {

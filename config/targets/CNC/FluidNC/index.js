@@ -157,7 +157,7 @@ const commandsQuery = (req, res, SendWS) => {
                 { id: "mac", value: "24:6F:28:4C:89:49" },
                 { id: "notification", value: "ON(line)" },
                 { id: "targetfw", value: "grbl" },
-                { id: "FW ver", value: "3.0.0.a111" },
+                { id: "FWVersion", value: "3.0.0.a111" },
                 { id: "FW arch", value: "ESP32" },
             ],
         })
@@ -304,1127 +304,1008 @@ const commandsQuery = (req, res, SendWS) => {
 
     /* grblHAL without emulation*/
     if (url.indexOf("ESP400") != -1 && !emulationESP400) {
-        res.json({
-            cmd: "400",
-            status: "ok",
-            data: [
-                {
-                    F: "General/General",
-                    P: "10",
-                    T: "M",
-                    V: "511",
-                    H: "Status report options",
-                    O: [
-                        {
-                            "Position in machine coordinate": "0",
-                        },
-                        {
-                            "Buffer state": "1",
-                        },
-                        {
-                            "Line numbers": "2",
-                        },
-                        {
-                            "Feed & speed": "3",
-                        },
-                        {
-                            "Pin state": "4",
-                        },
-                        {
-                            "Work coordinate offset": "5",
-                        },
-                        {
-                            Overrides: "6",
-                        },
-                        {
-                            "Probe coordinates": "7",
-                        },
-                        {
-                            "Buffer sync on WCO change": "8",
-                        },
-                        {
-                            "Parser state": "9",
-                        },
-                        {
-                            "Alarm substatus": "10",
-                        },
-                        {
-                            "Run substatus": "11",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "11",
-                    T: "F",
-                    V: "0.010",
-                    H: "Junction deviation",
-                    U: "mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "General/General",
-                    P: "12",
-                    T: "F",
-                    V: "0.002",
-                    H: "Arc tolerance",
-                    U: "mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "General/General",
-                    P: "13#0",
-                    T: "B",
-                    V: "0",
-                    H: "Report in inches",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "28",
-                    T: "F",
-                    V: "0.100",
-                    H: "G73 Retract distance",
-                    U: "mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "General/General",
-                    P: "32",
-                    T: "B",
-                    V: "0",
-                    H: "Mode of operation",
-                    O: [
-                        {
-                            Normal: "0",
-                        },
-                        {
-                            "Laser mode": "1",
-                        },
-                        {
-                            "Lathe mode": "2",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "39#0",
-                    T: "B",
-                    V: "1",
-                    H: "Enable legacy RT commands",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "62#0",
-                    T: "B",
-                    V: "0",
-                    H: "Sleep enable",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "63",
-                    T: "M",
-                    V: "2",
-                    H: "Feed hold actions",
-                    O: [
-                        {
-                            "Disable laser during hold": "0",
-                        },
-                        {
-                            "Restore spindle and coolant state on resume": "1",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "64#0",
-                    T: "B",
-                    V: "0",
-                    H: "Force init alarm",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "384#0",
-                    T: "B",
-                    V: "0",
-                    H: "Disable G92 persistence",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "General/General",
-                    P: "396",
-                    T: "I",
-                    V: "30",
-                    H: "WebUI timeout",
-                    U: "minutes",
-                    M: "0",
-                    S: "999",
-                },
-                {
-                    F: "General/General",
-                    P: "397",
-                    T: "I",
-                    V: "3000",
-                    H: "WebUI auto report interval",
-                    U: "milliseconds",
-                    R: "1",
-                    M: "0",
-                    S: "9999",
-                },
-                {
-                    F: "Control signals/Control signals",
-                    P: "14",
-                    T: "M",
-                    V: "0",
-                    H: "Invert control pins",
-                    O: [
-                        {
-                            Reset: "0",
-                        },
-                        {
-                            "Feed hold": "1",
-                        },
-                        {
-                            "Cycle start": "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Control signals/Control signals",
-                    P: "17",
-                    T: "M",
-                    V: "0",
-                    H: "Pullup disable control pins",
-                    O: [
-                        {
-                            Reset: "0",
-                        },
-                        {
-                            "Feed hold": "1",
-                        },
-                        {
-                            "Cycle start": "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Limits/Limits",
-                    P: "5",
-                    T: "M",
-                    V: "0",
-                    H: "Invert limit pins",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Limits/Limits",
-                    P: "18",
-                    T: "M",
-                    V: "0",
-                    H: "Pullup disable limit pins",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Limits/Limits",
-                    P: "20#0",
-                    T: "B",
-                    V: "0",
-                    H: "Soft limits enable",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "Limits/Limits",
-                    P: "21",
-                    T: "X",
-                    V: "0",
-                    H: "Hard limits enable",
-                    O: [
-                        {
-                            Enable: "0",
-                        },
-                        {
-                            "Strict mode": "1",
-                        },
-                    ],
-                },
-                {
-                    F: "Coolant/Coolant",
-                    P: "15",
-                    T: "M",
-                    V: "0",
-                    H: "Invert coolant pins",
-                    O: [
-                        {
-                            Flood: "0",
-                        },
-                        {
-                            Mist: "1",
-                        },
-                    ],
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "9",
-                    T: "X",
-                    V: "1",
-                    H: "PWM Spindle",
-                    O: [
-                        {
-                            Enable: "0",
-                        },
-                        {
-                            "RPM controls spindle enable signal": "1",
-                        },
-                    ],
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "16",
-                    T: "M",
-                    V: "0",
-                    H: "Invert spindle signals",
-                    O: [
-                        {
-                            "Spindle enable": "0",
-                        },
-                        {
-                            PWM: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "30",
-                    T: "F",
-                    V: "1000.000",
-                    H: "Maximum spindle speed",
-                    U: "RPM",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "31",
-                    T: "F",
-                    V: "0.000",
-                    H: "Minimum spindle speed",
-                    U: "RPM",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "33",
-                    T: "F",
-                    V: "5000.0",
-                    H: "Spindle PWM frequency",
-                    U: "Hz",
-                    E: "0",
-                    M: "0",
-                    S: "999999",
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "34",
-                    T: "F",
-                    V: "0.0",
-                    H: "Spindle PWM off value",
-                    U: "percent",
-                    E: "1",
-                    M: "0",
-                    S: "100",
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "35",
-                    T: "F",
-                    V: "0.0",
-                    H: "Spindle PWM min value",
-                    U: "percent",
-                    E: "1",
-                    M: "0",
-                    S: "100",
-                },
-                {
-                    F: "Spindle/Spindle",
-                    P: "36",
-                    T: "F",
-                    V: "100.0",
-                    H: "Spindle PWM max value",
-                    U: "percent",
-                    E: "1",
-                    M: "0",
-                    S: "100",
-                },
-                {
-                    F: "Tool change/Tool change",
-                    P: "341",
-                    T: "B",
-                    V: "0",
-                    H: "Tool change mode",
-                    O: [
-                        {
-                            Normal: "0",
-                        },
-                        {
-                            "Manual touch off": "1",
-                        },
-                        {
-                            "Manual touch off @ G59.3": "2",
-                        },
-                        {
-                            "Automatic touch off @ G59.3": "3",
-                        },
-                        {
-                            "Ignore M6": "4",
-                        },
-                    ],
-                },
-                {
-                    F: "Tool change/Tool change",
-                    P: "342",
-                    T: "F",
-                    V: "30.0",
-                    H: "Tool change probing distance",
-                    U: "mm",
-                    E: "1",
-                    M: "0",
-                    S: "999999.9",
-                },
-                {
-                    F: "Tool change/Tool change",
-                    P: "343",
-                    T: "F",
-                    V: "25.0",
-                    H: "Tool change locate feed rate",
-                    U: "mm/min",
-                    E: "1",
-                    M: "0",
-                    S: "999999.9",
-                },
-                {
-                    F: "Tool change/Tool change",
-                    P: "344",
-                    T: "F",
-                    V: "200.0",
-                    H: "Tool change search seek rate",
-                    U: "mm/min",
-                    E: "1",
-                    M: "0",
-                    S: "999999.9",
-                },
-                {
-                    F: "Tool change/Tool change",
-                    P: "345",
-                    T: "F",
-                    V: "100.0",
-                    H: "Tool change probe pull-off rate",
-                    U: "mm/min",
-                    E: "1",
-                    M: "0",
-                    S: "999999.9",
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "22",
-                    T: "X",
-                    V: "0",
-                    H: "Homing cycle",
-                    O: [
-                        {
-                            Enable: "0",
-                        },
-                        {
-                            "Enable single axis commands": "1",
-                        },
-                        {
-                            "Homing on startup required": "2",
-                        },
-                        {
-                            "Set machine origin to 0": "3",
-                        },
-                        {
-                            "Two switches shares one input pin": "4",
-                        },
-                        {
-                            "Allow manual": "5",
-                        },
-                        {
-                            "Override locks": "6",
-                        },
-                        {
-                            "Keep homed status on reset": "7",
-                        },
-                    ],
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "23",
-                    T: "M",
-                    V: "0",
-                    H: "Homing direction invert",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "24",
-                    T: "F",
-                    V: "25.0",
-                    H: "Homing locate feed rate",
-                    U: "mm/min",
-                    E: "1",
-                    M: "0",
-                    S: "999999.9",
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "25",
-                    T: "F",
-                    V: "500.0",
-                    H: "Homing search seek rate",
-                    U: "mm/min",
-                    E: "1",
-                    M: "0",
-                    S: "999999.9",
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "26",
-                    T: "I",
-                    V: "250",
-                    H: "Homing switch debounce delay",
-                    U: "milliseconds",
-                    M: "0",
-                    S: "999",
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "27",
-                    T: "F",
-                    V: "1.000",
-                    H: "Homing switch pull-off distance",
-                    U: "mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "43",
-                    T: "I",
-                    V: "1",
-                    H: "Homing passes",
-                    M: "1",
-                    S: "128",
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "44",
-                    T: "M",
-                    V: "4",
-                    H: "Axes homing, first pass",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "45",
-                    T: "M",
-                    V: "3",
-                    H: "Axes homing, second pass",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Homing/Homing",
-                    P: "46",
-                    T: "M",
-                    V: "0",
-                    H: "Axes homing, third pass",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Probing/Probing",
-                    P: "6#0",
-                    T: "B",
-                    V: "0",
-                    H: "Invert probe pin",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "Probing/Probing",
-                    P: "19#0",
-                    T: "B",
-                    V: "0",
-                    H: "Pullup disable probe pin",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "Probing/Probing",
-                    P: "65#0",
-                    T: "B",
-                    V: "0",
-                    H: "Probing feed override",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "Jogging/Jogging",
-                    P: "40#0",
-                    T: "B",
-                    V: "0",
-                    H: "Limit jog commands",
-                    O: [
-                        {
-                            Enabled: "1",
-                        },
-                        {
-                            Disabled: "0",
-                        },
-                    ],
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "70",
-                    T: "M",
-                    V: "7",
-                    H: "Network Services",
-                    R: "1",
-                    O: [
-                        {
-                            Telnet: "0",
-                        },
-                        {
-                            Websocket: "1",
-                        },
-                        {
-                            HTTP: "2",
-                        },
-                        {
-                            FTP: "3",
-                        },
-                        {
-                            WebDAV: "7",
-                        },
-                    ],
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "300",
-                    T: "S",
-                    V: "Grbl",
-                    H: "Hostname",
-                    R: "1",
-                    S: "64",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "302",
-                    T: "A",
-                    V: "192.168.5.1",
-                    H: "IP Address",
-                    R: "1",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "303",
-                    T: "A",
-                    V: "192.168.5.1",
-                    H: "Gateway",
-                    R: "1",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "304",
-                    T: "A",
-                    V: "255.255.255.0",
-                    H: "Netmask",
-                    R: "1",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "305",
-                    T: "I",
-                    V: "23",
-                    H: "Telnet port",
-                    R: "1",
-                    M: "1",
-                    S: "65535",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "306",
-                    T: "I",
-                    V: "80",
-                    H: "HTTP port",
-                    R: "1",
-                    M: "1",
-                    S: "65535",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "307",
-                    T: "I",
-                    V: "81",
-                    H: "Websocket port",
-                    R: "1",
-                    M: "1",
-                    S: "65535",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "310",
-                    T: "S",
-                    V: "GrblAP",
-                    H: "Hostname (AP)",
-                    R: "1",
-                    S: "64",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "312",
-                    T: "A",
-                    V: "192.168.5.1",
-                    H: "IP Address (AP)",
-                    R: "1",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "313",
-                    T: "A",
-                    V: "192.168.5.1",
-                    H: "Gateway (AP)",
-                    R: "1",
-                },
-                {
-                    F: "Networking/Networking",
-                    P: "314",
-                    T: "A",
-                    V: "255.255.255.0",
-                    H: "Netmask (AP)",
-                    R: "1",
-                },
-                {
-                    F: "WiFi/WiFi",
-                    P: "73",
-                    T: "B",
-                    V: "1",
-                    H: "WiFi Mode",
-                    O: [
-                        {
-                            Off: "0",
-                        },
-                        {
-                            Station: "1",
-                        },
-                        {
-                            "Access Point": "2",
-                        },
-                        {
-                            "Access Point/Station": "3",
-                        },
-                    ],
-                },
-                {
-                    F: "WiFi/WiFi",
-                    P: "74",
-                    T: "S",
-                    V: "luc-ext1",
-                    H: "WiFi Station (STA) SSID",
-                    S: "64",
-                },
-                {
-                    F: "WiFi/WiFi",
-                    P: "75",
-                    T: "S",
-                    V: "********",
-                    H: "WiFi Station (STA) Password",
-                    S: "32",
-                },
-                {
-                    F: "WiFi/WiFi",
-                    P: "76",
-                    T: "S",
-                    V: "GRBL",
-                    H: "WiFi Access Point (AP) SSID",
-                    S: "64",
-                },
-                {
-                    F: "WiFi/WiFi",
-                    P: "77",
-                    T: "S",
-                    V: "********",
-                    H: "WiFi Access Point (AP) Password",
-                    S: "32",
-                },
-                {
-                    F: "Stepper/Stepper",
-                    P: "0",
-                    T: "F",
-                    V: "10.0",
-                    H: "Step pulse time",
-                    U: "microseconds",
-                    E: "1",
-                    M: "2.0",
-                    S: "99.9",
-                },
-                {
-                    F: "Stepper/Stepper",
-                    P: "1",
-                    T: "I",
-                    V: "25",
-                    H: "Step idle delay",
-                    U: "milliseconds",
-                    M: "0",
-                    S: "65535",
-                },
-                {
-                    F: "Stepper/Stepper",
-                    P: "2",
-                    T: "M",
-                    V: "0",
-                    H: "Step pulse invert",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Stepper/Stepper",
-                    P: "3",
-                    T: "M",
-                    V: "0",
-                    H: "Step direction invert",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Stepper/Stepper",
-                    P: "4",
-                    T: "M",
-                    V: "7",
-                    H: "Invert stepper enable pin(s)",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "Stepper/Stepper",
-                    P: "29",
-                    T: "F",
-                    V: "0.0",
-                    H: "Pulse delay",
-                    U: "microseconds",
-                    E: "1",
-                    M: "0",
-                    S: "10",
-                },
-                {
-                    F: "Stepper/Stepper",
-                    P: "37",
-                    T: "M",
-                    V: "0",
-                    H: "Steppers deenergize",
-                    O: [
-                        {
-                            X: "0",
-                        },
-                        {
-                            Y: "1",
-                        },
-                        {
-                            Z: "2",
-                        },
-                    ],
-                },
-                {
-                    F: "X-axis/X-axis",
-                    P: "100",
-                    T: "F",
-                    V: "250.000",
-                    H: "axis travel resolution",
-                    U: "step/mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Y-axis/Y-axis",
-                    P: "100",
-                    T: "F",
-                    V: "250.000",
-                    H: "axis travel resolution",
-                    U: "step/mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Z-axis/Z-axis",
-                    P: "100",
-                    T: "F",
-                    V: "250.000",
-                    H: "axis travel resolution",
-                    U: "step/mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "X-axis/X-axis",
-                    P: "110",
-                    T: "F",
-                    V: "500.000",
-                    H: "axis maximum rate",
-                    U: "mm/min",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Y-axis/Y-axis",
-                    P: "110",
-                    T: "F",
-                    V: "500.000",
-                    H: "axis maximum rate",
-                    U: "mm/min",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Z-axis/Z-axis",
-                    P: "110",
-                    T: "F",
-                    V: "500.000",
-                    H: "axis maximum rate",
-                    U: "mm/min",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "X-axis/X-axis",
-                    P: "120",
-                    T: "F",
-                    V: "10.000",
-                    H: "axis acceleration",
-                    U: "mm/sec^2",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Y-axis/Y-axis",
-                    P: "120",
-                    T: "F",
-                    V: "10.000",
-                    H: "axis acceleration",
-                    U: "mm/sec^2",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Z-axis/Z-axis",
-                    P: "120",
-                    T: "F",
-                    V: "10.000",
-                    H: "axis acceleration",
-                    U: "mm/sec^2",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "X-axis/X-axis",
-                    P: "130",
-                    T: "F",
-                    V: "200.000",
-                    H: "axis maximum travel",
-                    U: "mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Y-axis/Y-axis",
-                    P: "130",
-                    T: "F",
-                    V: "200.000",
-                    H: "axis maximum travel",
-                    U: "mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-                {
-                    F: "Z-axis/Z-axis",
-                    P: "130",
-                    T: "F",
-                    V: "200.000",
-                    H: "axis maximum travel",
-                    U: "mm",
-                    E: "3",
-                    M: "0",
-                    S: "999999.999",
-                },
-            ],
+        res.json({cmd:"400",
+  status:"ok",
+  data:[
+    {F:"Flash/Settings",
+      P:"Notification/Type",
+      H:"Notification/Type",
+      T:"B",
+      "V":"0",
+      "O":[
+        {"EMAIL":"2"
+        },
+        {"LINE":"3"
+        },
+        {"NONE":"0"
+        },
+        {"PUSHOVER":"1"
+        },
+        {"TG":"4"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"Notification/T1",
+      "H":"Notification/T1",
+      "T":"S",
+      "V":"",
+      "S":"63",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"Notification/T2",
+      "H":"Notification/T2",
+      "T":"S",
+      "V":"",
+      "S":"63",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"Notification/TS",
+      "H":"Notification/TS",
+      "T":"S",
+      "V":"",
+      "S":"127",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"Telnet/Enable",
+      "H":"Telnet/Enable",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"OFF":"0"
+        },
+        {"ON":"1"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"Telnet/Port",
+      "H":"Telnet/Port",
+      "T":"I",
+      "V":"23",
+      "S":"65001",
+      "M":"1"
+    },
+    {"F":"Flash/Settings",
+      "P":"HTTP/BlockDuringMotion",
+      "H":"HTTP/BlockDuringMotion",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"OFF":"0"
+        },
+        {"ON":"1"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"HTTP/Enable",
+      "H":"HTTP/Enable",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"OFF":"0"
+        },
+        {"ON":"1"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"HTTP/Port",
+      "H":"HTTP/Port",
+      "T":"I",
+      "V":"80",
+      "S":"65001",
+      "M":"1"
+    },
+    {"F":"Flash/Settings",
+      "P":"MDNS/Enable",
+      "H":"MDNS/Enable",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"OFF":"0"
+        },
+        {"ON":"1"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"WiFi/PsMode",
+      "H":"WiFi/PsMode",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"Max":"2"
+        },
+        {"Min":"1"
+        },
+        {"None":"0"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"WiFi/Mode",
+      "H":"WiFi/Mode",
+      "T":"B",
+      "V":"3",
+      "O":[
+        {"AP":"2"
+        },
+        {"Off":"0"
+        },
+        {"STA":"1"
+        },
+        {"STA>AP":"3"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"Sta/Password",
+      "H":"Sta/Password",
+      "T":"S",
+      "V":"********",
+      "S":"64",
+      "M":"8"
+    },
+    {"F":"Flash/Settings",
+      "P":"Sta/MinSecurity",
+      "H":"Sta/MinSecurity",
+      "T":"B",
+      "V":"3",
+      "O":[
+        {"OPEN":"0"
+        },
+        {"WAPI-PSK":"8"
+        },
+        {"WEP":"1"
+        },
+        {"WPA-PSK":"2"
+        },
+        {"WPA-WPA2-PSK":"4"
+        },
+        {"WPA2-ENTERPRISE":"5"
+        },
+        {"WPA2-PSK":"3"
+        },
+        {"WPA2-WPA3-PSK":"7"
+        },
+        {"WPA3-ENT-192":"9"
+        },
+        {"WPA3-PSK":"6"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"WiFi/FastScan",
+      "H":"WiFi/FastScan",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"OFF":"0"
+        },
+        {"ON":"1"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"Sta/IPMode",
+      "H":"Sta/IPMode",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"DHCP":"0"
+        },
+        {"Static":"1"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"Sta/IP",
+      "H":"Sta/IP",
+      "T":"A",
+      "V":"0.0.0.0"
+    },
+    {"F":"Flash/Settings",
+      "P":"Sta/Gateway",
+      "H":"Sta/Gateway",
+      "T":"A",
+      "V":"0.0.0.0"
+    },
+    {"F":"Flash/Settings",
+      "P":"Sta/Netmask",
+      "H":"Sta/Netmask",
+      "T":"A",
+      "V":"0.0.0.0"
+    },
+    {"F":"Flash/Settings",
+      "P":"AP/Country",
+      "H":"AP/Country",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"01":"0"
+        },
+        {"AT":"1"
+        },
+        {"AU":"2"
+        },
+        {"BE":"3"
+        },
+        {"BG":"4"
+        },
+        {"BR":"5"
+        },
+        {"CA":"6"
+        },
+        {"CH":"7"
+        },
+        {"CN":"8"
+        },
+        {"CY":"9"
+        },
+        {"CZ":"10"
+        },
+        {"DE":"11"
+        },
+        {"DK":"12"
+        },
+        {"EE":"13"
+        },
+        {"ES":"14"
+        },
+        {"FI":"15"
+        },
+        {"FR":"16"
+        },
+        {"GB":"17"
+        },
+        {"GR":"18"
+        },
+        {"HK":"19"
+        },
+        {"HR":"20"
+        },
+        {"HU":"21"
+        },
+        {"IE":"22"
+        },
+        {"IN":"23"
+        },
+        {"IS":"24"
+        },
+        {"IT":"25"
+        },
+        {"JP":"26"
+        },
+        {"KR":"27"
+        },
+        {"LI":"28"
+        },
+        {"LT":"29"
+        },
+        {"LU":"30"
+        },
+        {"LV":"31"
+        },
+        {"MT":"32"
+        },
+        {"MX":"33"
+        },
+        {"NL":"34"
+        },
+        {"NO":"35"
+        },
+        {"NZ":"36"
+        },
+        {"PL":"37"
+        },
+        {"PT":"38"
+        },
+        {"RO":"39"
+        },
+        {"SE":"40"
+        },
+        {"SI":"41"
+        },
+        {"SK":"42"
+        },
+        {"TW":"43"
+        },
+        {"US":"44"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"AP/SSID",
+      "H":"AP/SSID",
+      "T":"S",
+      "V":"FluidNC",
+      "S":"32",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"AP/Password",
+      "H":"AP/Password",
+      "T":"S",
+      "V":"********",
+      "S":"64",
+      "M":"8"
+    },
+    {"F":"Flash/Settings",
+      "P":"AP/IP",
+      "H":"AP/IP",
+      "T":"A",
+      "V":"192.168.0.1"
+    },
+    {"F":"Flash/Settings",
+      "P":"AP/Channel",
+      "H":"AP/Channel",
+      "T":"I",
+      "V":"1",
+      "S":"14",
+      "M":"1"
+    },
+    {"F":"Flash/Settings",
+      "P":"Hostname",
+      "H":"Hostname",
+      "T":"S",
+      "V":"fluidnc",
+      "S":"32",
+      "M":"1"
+    },
+    {"F":"Flash/Settings",
+      "P":"Sta/SSID",
+      "H":"Sta/SSID",
+      "T":"S",
+      "V":"BlackWidow",
+      "S":"32",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"GCode/Echo",
+      "H":"GCode/Echo",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"OFF":"0"
+        },
+        {"ON":"1"
+        }
+      ]
+    },
+    {"F":"Flash/Settings",
+      "P":"Start/Message",
+      "H":"Start/Message",
+      "T":"S",
+      "V":"Grbl \\V [FluidNC \\B (\\R) \\H]",
+      "S":"40",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"Firmware/Build",
+      "H":"Firmware/Build",
+      "T":"S",
+      "V":"",
+      "S":"20",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"SD/FallbackCS",
+      "H":"SD/FallbackCS",
+      "T":"I",
+      "V":"-1",
+      "S":"40",
+      "M":"-1"
+    },
+    {"F":"Flash/Settings",
+      "P":"Report/Status",
+      "H":"Report/Status",
+      "T":"I",
+      "V":"1",
+      "S":"3",
+      "M":"0"
+    },
+    {"F":"Flash/Settings",
+      "P":"Config/Filename",
+      "H":"Config/Filename",
+      "T":"S",
+      "V":"config.yaml",
+      "S":"50",
+      "M":"1"
+    },
+    {"F":"Flash/Settings",
+      "P":"Message/Level",
+      "H":"Message/Level",
+      "T":"B",
+      "V":"4",
+      "O":[
+        {"Debug":"4"
+        },
+        {"Error":"1"
+        },
+        {"Info":"3"
+        },
+        {"None":"0"
+        },
+        {"Verbose":"5"
+        },
+        {"Warning":"2"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/board",
+      "H":"/board",
+      "T":"S",
+      "V":"None",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/name",
+      "H":"/name",
+      "T":"S",
+      "V":"Default (Test Drive no I/O)",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/meta",
+      "H":"/meta",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/stepping/engine",
+      "H":"/stepping/engine",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"Timed":"0"
+        },
+        {"RMT":"1"
+        },
+        {"I2S_STATIC":"2"
+        },
+        {"I2S_STREAM":"3"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/stepping/idle_ms",
+      "H":"/stepping/idle_ms",
+      "T":"I",
+      "V":"255",
+      "S":"10000000",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/stepping/pulse_us",
+      "H":"/stepping/pulse_us",
+      "T":"I",
+      "V":"4",
+      "S":"30",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/stepping/dir_delay_us",
+      "H":"/stepping/dir_delay_us",
+      "T":"I",
+      "V":"0",
+      "S":"10",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/stepping/disable_delay_us",
+      "H":"/stepping/disable_delay_us",
+      "T":"I",
+      "V":"0",
+      "S":"1000000",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/stepping/segments",
+      "H":"/stepping/segments",
+      "T":"I",
+      "V":"12",
+      "S":"20",
+      "M":"6"
+    },
+    {"F":"Running/Config",
+      "P":"/sdcard/frequency_hz",
+      "H":"/sdcard/frequency_hz",
+      "T":"I",
+      "V":"8000000",
+      "S":"20000000",
+      "M":"400000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/homing_runs",
+      "H":"/axes/homing_runs",
+      "T":"I",
+      "V":"2",
+      "S":"5",
+      "M":"1"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/x/steps_per_mm",
+      "H":"/axes/x/steps_per_mm",
+      "T":"R",
+      "V":"80.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/x/max_rate_mm_per_min",
+      "H":"/axes/x/max_rate_mm_per_min",
+      "T":"R",
+      "V":"1000.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/x/acceleration_mm_per_sec2",
+      "H":"/axes/x/acceleration_mm_per_sec2",
+      "T":"R",
+      "V":"25.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/x/max_travel_mm",
+      "H":"/axes/x/max_travel_mm",
+      "T":"R",
+      "V":"1000.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/x/soft_limits",
+      "H":"/axes/x/soft_limits",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/axes/x/motor0/hard_limits",
+      "H":"/axes/x/motor0/hard_limits",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/axes/x/motor0/pulloff_mm",
+      "H":"/axes/x/motor0/pulloff_mm",
+      "T":"R",
+      "V":"1.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/y/steps_per_mm",
+      "H":"/axes/y/steps_per_mm",
+      "T":"R",
+      "V":"80.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/y/max_rate_mm_per_min",
+      "H":"/axes/y/max_rate_mm_per_min",
+      "T":"R",
+      "V":"1000.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/y/acceleration_mm_per_sec2",
+      "H":"/axes/y/acceleration_mm_per_sec2",
+      "T":"R",
+      "V":"25.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/y/max_travel_mm",
+      "H":"/axes/y/max_travel_mm",
+      "T":"R",
+      "V":"1000.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/y/soft_limits",
+      "H":"/axes/y/soft_limits",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/axes/y/motor0/hard_limits",
+      "H":"/axes/y/motor0/hard_limits",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/axes/y/motor0/pulloff_mm",
+      "H":"/axes/y/motor0/pulloff_mm",
+      "T":"R",
+      "V":"1.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/z/steps_per_mm",
+      "H":"/axes/z/steps_per_mm",
+      "T":"R",
+      "V":"80.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/z/max_rate_mm_per_min",
+      "H":"/axes/z/max_rate_mm_per_min",
+      "T":"R",
+      "V":"1000.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/z/acceleration_mm_per_sec2",
+      "H":"/axes/z/acceleration_mm_per_sec2",
+      "T":"R",
+      "V":"25.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/z/max_travel_mm",
+      "H":"/axes/z/max_travel_mm",
+      "T":"R",
+      "V":"1000.000"
+    },
+    {"F":"Running/Config",
+      "P":"/axes/z/soft_limits",
+      "H":"/axes/z/soft_limits",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/axes/z/motor0/hard_limits",
+      "H":"/axes/z/motor0/hard_limits",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/axes/z/motor0/pulloff_mm",
+      "H":"/axes/z/motor0/pulloff_mm",
+      "T":"R",
+      "V":"1.000"
+    },
+    {"F":"Running/Config",
+      "P":"/coolant/delay_ms",
+      "H":"/coolant/delay_ms",
+      "T":"I",
+      "V":"0",
+      "S":"10000",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/probe/check_mode_start",
+      "H":"/probe/check_mode_start",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/probe/hard_stop",
+      "H":"/probe/hard_stop",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/probe/probe_hard_limit",
+      "H":"/probe/probe_hard_limit",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/macros/startup_line0",
+      "H":"/macros/startup_line0",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/startup_line1",
+      "H":"/macros/startup_line1",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/Macro0",
+      "H":"/macros/Macro0",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/Macro1",
+      "H":"/macros/Macro1",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/Macro2",
+      "H":"/macros/Macro2",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/Macro3",
+      "H":"/macros/Macro3",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/after_homing",
+      "H":"/macros/after_homing",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/after_reset",
+      "H":"/macros/after_reset",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/macros/after_unlock",
+      "H":"/macros/after_unlock",
+      "T":"S",
+      "V":"",
+      "S":"255",
+      "M":"0"
+    },
+    {"F":"Running/Config",
+      "P":"/start/must_home",
+      "H":"/start/must_home",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/start/deactivate_parking",
+      "H":"/start/deactivate_parking",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/start/check_limits",
+      "H":"/start/check_limits",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/parking/enable",
+      "H":"/parking/enable",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/parking/axis",
+      "H":"/parking/axis",
+      "T":"B",
+      "V":"2",
+      "O":[
+        {"X":"0"
+        },
+        {"Y":"1"
+        },
+        {"Z":"2"
+        },
+        {"A":"3"
+        },
+        {"B":"4"
+        },
+        {"C":"5"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/parking/target_mpos_mm",
+      "H":"/parking/target_mpos_mm",
+      "T":"R",
+      "V":"-5.000"
+    },
+    {"F":"Running/Config",
+      "P":"/parking/rate_mm_per_min",
+      "H":"/parking/rate_mm_per_min",
+      "T":"R",
+      "V":"800.000"
+    },
+    {"F":"Running/Config",
+      "P":"/parking/pullout_distance_mm",
+      "H":"/parking/pullout_distance_mm",
+      "T":"R",
+      "V":"5.000"
+    },
+    {"F":"Running/Config",
+      "P":"/parking/pullout_rate_mm_per_min",
+      "H":"/parking/pullout_rate_mm_per_min",
+      "T":"R",
+      "V":"250.000"
+    },
+    {"F":"Running/Config",
+      "P":"/user_outputs/analog0_hz",
+      "H":"/user_outputs/analog0_hz",
+      "T":"I",
+      "V":"5000",
+      "S":"20000000",
+      "M":"1"
+    },
+    {"F":"Running/Config",
+      "P":"/user_outputs/analog1_hz",
+      "H":"/user_outputs/analog1_hz",
+      "T":"I",
+      "V":"5000",
+      "S":"20000000",
+      "M":"1"
+    },
+    {"F":"Running/Config",
+      "P":"/user_outputs/analog2_hz",
+      "H":"/user_outputs/analog2_hz",
+      "T":"I",
+      "V":"5000",
+      "S":"20000000",
+      "M":"1"
+    },
+    {"F":"Running/Config",
+      "P":"/user_outputs/analog3_hz",
+      "H":"/user_outputs/analog3_hz",
+      "T":"I",
+      "V":"5000",
+      "S":"20000000",
+      "M":"1"
+    },
+    {"F":"Running/Config",
+      "P":"/arc_tolerance_mm",
+      "H":"/arc_tolerance_mm",
+      "T":"R",
+      "V":"0.002"
+    },
+    {"F":"Running/Config",
+      "P":"/junction_deviation_mm",
+      "H":"/junction_deviation_mm",
+      "T":"R",
+      "V":"0.010"
+    },
+    {"F":"Running/Config",
+      "P":"/verbose_errors",
+      "H":"/verbose_errors",
+      "T":"B",
+      "V":"1",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/report_inches",
+      "H":"/report_inches",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/enable_parking_override_control",
+      "H":"/enable_parking_override_control",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/use_line_numbers",
+      "H":"/use_line_numbers",
+      "T":"B",
+      "V":"0",
+      "O":[
+        {"False":"0"
+        },
+        {"True":"1"
+        }
+      ]
+    },
+    {"F":"Running/Config",
+      "P":"/planner_blocks",
+      "H":"/planner_blocks",
+      "T":"I",
+      "V":"16",
+      "S":"120",
+      "M":"10"
+    }
+  ]
         })
+
         return
     }
 
@@ -2929,25 +2810,7 @@ const commandsQuery = (req, res, SendWS) => {
     res.send("")
 }
 
-const loginURI = (req, res) => {
-    if (req.body.DISCONNECT == "YES") {
-        res.status(401)
-        logindone = false
-    } else if (req.body.USER == "admin" && req.body.PASSWORD == "admin") {
-        logindone = true
-        lastconnection = Date.now()
-    } else {
-        res.status(401)
-        logindone = false
-    }
-    res.send("")
-}
-
 const configURI = (req, res) => {
-    if (!logindone && enableAuthentication) {
-        res.status(401)
-        return
-    }
     lastconnection = Date.now()
     res.send(
         "chip id: 56398\nCPU Freq: 240 Mhz<br/>" +
@@ -2989,7 +2852,5 @@ const configURI = (req, res) => {
 module.exports = {
     commandsQuery,
     configURI,
-    loginURI,
     getLastconnection,
-    hasEnabledAuthentication,
 }

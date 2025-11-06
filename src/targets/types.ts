@@ -45,7 +45,7 @@ export interface StreamStatus {
 export interface TargetContextValue {
     positions: Positions
     status: Status
-    message?: string
+    message?: string | null
     alarmCode: number
     errorCode: number
     streamStatus: StreamStatus

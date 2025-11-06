@@ -1,8 +1,8 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-let target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "Printer3D"
-let subtarget = process.env.SUBTARGET_ENV ? process.env.SUBTARGET_ENV : "Marlin"
+let target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "CNC"
+let subtarget = process.env.SUBTARGET_ENV ? process.env.SUBTARGET_ENV : "FluidNC"
 console.log("Target:", target, " Subtarget:", subtarget)
 module.exports = {
     resolve: {
