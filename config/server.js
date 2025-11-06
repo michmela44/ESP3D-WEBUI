@@ -100,6 +100,7 @@ app.get("/command", function (req, res) {
 });*/
 
 function fileSizeString(size) {
+    if (typeof size === "string") return size;
     if (size === -1) return ""
     const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
     let i = 0
@@ -109,6 +110,7 @@ function fileSizeString(size) {
     }
     return `${size.toFixed(2)} ${units[i]}`
 }
+
 
 function filesList(mypath, destination) {
     const currentPath = path.normalize(serverpath + destination + mypath)
@@ -120,8 +122,8 @@ function filesList(mypath, destination) {
     const files = fs.readdirSync(currentPath).map((file) => {
         const fullpath = path.normalize(currentPath + "/" + file)
         const fst = fs.statSync(fullpath)
-        const fsize = fst.isFile() ? fileSizeString(fst.size) : "-1"
-        return { name: file, size: fsize }
+        const fsize = fst.isFile() ? fst.size : -1
+        return { name: file, size: fsize, "datetime": fst.mtime.toISOString() }
     })
 
     const response = {
@@ -234,7 +236,7 @@ app.all("/files", function (req, res) {
     }
 })
 
-app.all("/sdfiles", function (req, res) {
+app.all("/upload", function (req, res) {
     let mypath = req.query.path
     let url = req.originalUrl
     let filepath = path.normalize(

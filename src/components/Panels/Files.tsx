@@ -48,7 +48,13 @@ import { Folder, File, Trash2, Play } from "preact-feather"
 import { Menu as PanelMenu } from "./"
 
 // Local helper types to tighten any without changing behavior
-type FileEntry = { name: string; size: number; [key: string]: any }
+type FileEntry = {
+    name: string;
+    shortname: string;
+    size: number;
+    datetime: string;
+    [key: string]: any;
+}
 type UrlCommand = { type: "url"; url: string; args: Record<string, any> }
 type CmdCommand = { type: "cmd"; cmd: string }
 type SupportedFS = { value: string; name: string; depend?: () => boolean }
@@ -60,10 +66,33 @@ interface PanelMenuItem {
     displayToggle?: () => ComponentChildren
 }
 
+// Strongly-typed FilesList interface
+interface FilesList {
+    files: FileEntry[];
+    path: string;
+    total: string;
+    used: string;
+    occupation: string;
+    status: string;
+}
+
+
 let currentFS: string = ""
 const currentPath: Record<string, string> = {}
-const filesListCache: Record<string, any> = {}
+const filesListCache: Record<string, FilesList> = {}
 let currentFSNeedInit = true
+
+function fileSizeString(size : number | string) {
+    if (typeof size === "string") return size;
+    if (size === -1) return ""
+    const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+    let i = 0
+    while (size >= 1024) {
+        size /= 1024
+        ++i
+    }
+    return `${size.toFixed(2)} ${units[i]}`
+}
 
 /*
  * Local const
@@ -87,7 +116,7 @@ const FilesPanel: FunctionalComponent = () => {
     const [filePath, setFilePath] = useState<string>(currentPath[currentFS])
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [fileSystem, setFileSystem] = useState<string>(currentFS)
-    const [filesList, setFilesList] = useState<any>(filesListCache[currentFS])
+    const [filesList, setFilesList] = useState<FilesList | undefined>(filesListCache[currentFS])
     const [menu, setMenu] = useState<PanelMenuItem[] | null>(null)
     const { createNewRequest, abortRequest } = useHttpFn as UseHttpFn
     const { processData } = useTargetContextFn
@@ -102,7 +131,14 @@ const FilesPanel: FunctionalComponent = () => {
         processor.stopCatchResponse()
         setIsLoading(false)
         toasts.addToast({ content: T("S175"), type: "error" })
-        filesListCache[currentFS] = { files: [], status: "S22" }
+        filesListCache[currentFS] = {
+            files: [],
+            path: "",
+            total: "0",
+            used: "0",
+            occupation: "0",
+            status: "S22"
+        }
         setFilesList(filesListCache[currentFS])
     }
 
@@ -159,7 +195,14 @@ const FilesPanel: FunctionalComponent = () => {
                         content: T("S4"),
                         type: "error",
                     })
-                    filesListCache[currentFS] = { files: [], status: "S22" }
+                    filesListCache[currentFS] = {
+                        files: [],
+                        path: "",
+                        total: "0",
+                        used: "0",
+                        occupation: "0",
+                        status: "S22"
+                    }
                     setFilesList(filesListCache[currentFS])
                 } else {
                     filesListCache[currentFS] = files.command(
@@ -824,7 +867,7 @@ const FilesPanel: FunctionalComponent = () => {
                                 </div>
                             </div>
                         )}
-                        {filesList.files.map((line: any) => {
+                        {filesList.files.map((line: FileEntry) => {
                             return (
                                 <div class="file-line form-control">
                                     <div
@@ -851,7 +894,7 @@ const FilesPanel: FunctionalComponent = () => {
                                     <div class="file-line-controls">
                                         {line.size != -1 && (
                                             <Fragment>
-                                                <div>{line.size}</div>
+                                                <div>{fileSizeString(line.size)}</div>
                                                 {files.capability(
                                                     currentFS,
                                                     "Process",
