@@ -18,16 +18,24 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
+import { FunctionalComponent, JSX } from "preact"
 import { Router } from "../../components/Router"
 import { FeaturesTab } from "../../tabs/features"
 import { InterfaceTab } from "../../tabs/interface"
 import { MachineTab } from "../../tabs/machine"
 import { TabBar } from "../../components/TabBar"
-import { T } from "../../components/Translations"
 import { mainRoutes } from "../../areas/main"
 
-const routes = {
+interface Route {
+    component: JSX.Element
+    path: string
+}
+
+interface Routes {
+    [key: string]: Route
+}
+
+const routes: Routes = {
     FEATURES: {
         component: <FeaturesTab />,
         path: "/settings/features",
@@ -42,7 +50,7 @@ const routes = {
     },
 }
 
-const Settings = () => {
+const Settings: FunctionalComponent = (): JSX.Element => {
     return (
         <div id="settings" class="container">
             <TabBar />

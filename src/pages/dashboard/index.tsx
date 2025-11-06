@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, h } from "preact"
+import { Fragment, FunctionalComponent, JSX } from "preact"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { T } from "../../components/Translations"
@@ -27,8 +27,20 @@ import { defaultPanelsList, iconsTarget, QuickButtonsBar } from "../../targets"
 import { ExtraPanelElement } from "../../components/Panels/ExtraPanel"
 import { showModal } from "../../components/Modal"
 
-const fixedPanels = []
-const keyTracker = {
+interface KeyTracker {
+    keybListenerCounter: number
+    keyState: number
+    lastcall: Date
+    lastkey: string
+}
+
+interface FixedPanel {
+    index: number
+    id: string
+}
+
+const fixedPanels: FixedPanel[] = []
+const keyTracker: KeyTracker = {
     keybListenerCounter: 0,
     keyState: 0,
     lastcall: new Date(),
@@ -36,17 +48,17 @@ const keyTracker = {
 }
 
 //Need to put outside of Dashboard object to be sure add/remove alsways use same address
-const keyboardEventHandlerUp = (e) => {
+const keyboardEventHandlerUp = (e: KeyboardEvent): void => {
     keyTracker.keyState = 0
 }
 
-const keyboardEventHandlerDown = (e) => {
+const keyboardEventHandlerDown = (e: KeyboardEvent): void => {
     // Bail if User is actively typing text.  We don't want to disrupt them entering gcode.
     if (
         document.activeElement &&
         document.activeElement.tagName == "INPUT" &&
-        (document.activeElement.type == "text" ||
-            document.activeElement.type == "number")
+        ((document.activeElement as HTMLInputElement).type == "text" ||
+            (document.activeElement as HTMLInputElement).type == "number")
     ) {
         return
     }
@@ -65,13 +77,13 @@ const keyboardEventHandlerDown = (e) => {
         )
     )
         keyval += e.key.toUpperCase()
-    let cmdMatch = null
-    const keysRefs = ["keymap", "macros"]
-    keysRefs.forEach((list) => {
+    let cmdMatch: string | null = null
+    const keysRefs: string[] = ["keymap", "macros"]
+    keysRefs.forEach((list: string) => {
         const keyMapObj = useUiContextFn.getValue(list)
         if (keyMapObj) {
-            keyMapObj.forEach((element) => {
-                element.value.forEach((sub) => {
+            keyMapObj.forEach((element: any) => {
+                element.value.forEach((sub: any) => {
                     if (
                         sub.name == "key" &&
                         sub.value &&
@@ -105,33 +117,36 @@ const keyboardEventHandlerDown = (e) => {
         }
         keyTracker.lastkey = keyval
 
-        document.getElementById(cmdMatch).click()
+        const element = document.getElementById(cmdMatch)
+        if (element) {
+            element.click()
+        }
     }
 }
 let intialisationDone = false
 
-const Dashboard = () => {
+const Dashboard: FunctionalComponent = (): JSX.Element => {
     console.log("Dashboard")
     const iconsList = { ...iconsTarget, ...iconsFeather }
     const { modals, panels, uisettings, shortcuts } = useUiContext()
-    const menuPanelsList = useRef()
+    const menuPanelsList = useRef<HTMLUListElement>(null)
     const isfixed = uisettings.getValue("fixedpanels")
-    const [isKeyboardEnabled, setIsKeyboardEnabled] = useState(
+    const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(
         shortcuts.enabled
     )
 
     //Show keyboard mapped keys
-    const showKeyboarHelp = () => {
+    const showKeyboarHelp = (): void => {
         useUiContextFn.haptic()
-        const keysRefs = ["keymap", "macros"]
-        const helpKeyboardJog = []
-        keysRefs.forEach((list) => {
+        const keysRefs: string[] = ["keymap", "macros"]
+        const helpKeyboardJog: JSX.Element[] = []
+        keysRefs.forEach((list: string) => {
             const keyMapObj = useUiContextFn.getValue(list)
 
             if (keyMapObj) {
-                keyMapObj.forEach((element) => {
-                    const help = {}
-                    element.value.forEach((sub) => {
+                keyMapObj.forEach((element: any) => {
+                    const help: any = {}
+                    element.value.forEach((sub: any) => {
                         if (sub.name == "key") {
                             help.key = sub.value
                         }
@@ -142,7 +157,7 @@ const Dashboard = () => {
 
                     if (document.getElementById(element.id))
                         helpKeyboardJog.push(
-                            <tr>
+                            <tr key={element.id}>
                                 <td> {T(help.name)}</td>
                                 <td> [{T(help.key)}]</td>
                             </tr>
@@ -153,6 +168,7 @@ const Dashboard = () => {
 
         showModal({
             modals,
+            id: "keyboardhelp",
             title: T("S216"),
             button1: {
                 text: T("S24"),
@@ -163,23 +179,23 @@ const Dashboard = () => {
     }
 
     //Add keyboard listener
-    const AddKeyboardListener = () => {
+    const AddKeyboardListener = (): void => {
         if (keyTracker.keybListenerCounter == 0) {
-            window.addEventListener("keydown", keyboardEventHandlerDown, true)
-            window.addEventListener("keyup", keyboardEventHandlerUp, true)
+            window.addEventListener("keydown", keyboardEventHandlerDown as EventListener, true)
+            window.addEventListener("keyup", keyboardEventHandlerUp as EventListener, true)
             keyTracker.keybListenerCounter++
         }
     }
 
     //Remove keyboard listener
-    const RemoveKeyboardListener = () => {
+    const RemoveKeyboardListener = (): void => {
         if (keyTracker.keybListenerCounter != 0) {
             window.removeEventListener(
                 "keydown",
-                keyboardEventHandlerDown,
+                keyboardEventHandlerDown as EventListener,
                 true
             )
-            window.removeEventListener("keyup", keyboardEventHandlerUp, true)
+            window.removeEventListener("keyup", keyboardEventHandlerUp as EventListener, true)
             keyTracker.keybListenerCounter--
         }
     }
@@ -214,23 +230,23 @@ const Dashboard = () => {
         if (!panels.initDone && panels.list.length != 0) {
             if (isfixed && fixedPanels.length == 0) {
                 const panelOrder = uisettings.getValue("panelsorder")
-                panelOrder.forEach((panel) => {
+                panelOrder.forEach((panel: any) => {
                     fixedPanels.push({
                         index: panel.index,
                         id: panel.value[0].value,
                     })
                 })
                 panels.setPanelsOrder(fixedPanels)
-                const newList = fixedPanels.reduce((acc, panel) => {
+                const newList = fixedPanels.reduce((acc: any[], panel) => {
                     const paneldesc = panels.list.filter(
-                        (p) => p.settingid == panel.id
+                        (p: any) => p.settingid == panel.id
                     )
                     if (paneldesc.length > 0) acc.push(...paneldesc)
                     return acc
                 }, [])
                 panels.set([...newList])
                 panels.setVisibles(
-                    newList.reduce((acc, curr) => {
+                    newList.reduce((acc: any[], curr: any) => {
                         if (
                             uisettings.getValue(curr.onstart) &&
                             uisettings.getValue(curr.show)
@@ -241,7 +257,7 @@ const Dashboard = () => {
                 )
             } else {
                 panels.setVisibles(
-                    panels.list.reduce((acc, curr) => {
+                    panels.list.reduce((acc: any[], curr: any) => {
                         if (
                             uisettings.getValue(curr.onstart) &&
                             uisettings.getValue(curr.show)
@@ -265,8 +281,8 @@ const Dashboard = () => {
     useEffect(() => {
         if (uisettings.getValue("showextracontents")) {
             const extraContents = uisettings.getValue("extracontents")
-            const extraPanelsList = extraContents.reduce((acc, curr) => {
-                const item = curr.value.reduce((accumulator, current) => {
+            const extraPanelsList = extraContents.reduce((acc: any[], curr: any) => {
+                const item = curr.value.reduce((accumulator: any, current: any) => {
                     accumulator[current.name] = current.initial
                     return accumulator
                 }, {})
@@ -283,7 +299,7 @@ const Dashboard = () => {
 
         /* */
         //now remove if any visible that is not in list
-        panels.visibles.forEach((element) => {
+        panels.visibles.forEach((element: any) => {
             if (!uisettings.getValue(element.show)) panels.hide(element.id)
         })
     }, [])
@@ -295,10 +311,10 @@ const Dashboard = () => {
                     <div class="dropdown">
                         <span
                             class="dropdown-toggle btn tooltip tooltip-right m-1"
-                            tabindex="0"
+                            tabIndex={0}
                             style="z-index: 1000"
                             data-tooltip={T("S187")}
-                            onclick={() => {
+                            onClick={() => {
                                 useUiContextFn.haptic()
                             }}
                         >
@@ -308,7 +324,7 @@ const Dashboard = () => {
                             <li class="menu-item">
                                 <div
                                     class="menu-entry"
-                                    onclick={(e) => {
+                                    onClick={(_e: MouseEvent) => {
                                         useUiContextFn.haptic()
                                         let state = !shortcuts.enabled
                                         shortcuts.enable(state)
@@ -326,9 +342,9 @@ const Dashboard = () => {
                                         </span>
                                         <span class="feather-icon-container">
                                             {isKeyboardEnabled ? (
-                                                <CheckCircle size="0.8rem" />
+                                                <CheckCircle size={13} />
                                             ) : (
-                                                <Circle size="0.8rem" />
+                                                <Circle size={13} />
                                             )}
                                         </span>
                                     </div>
@@ -337,14 +353,14 @@ const Dashboard = () => {
                             <li class="menu-item">
                                 <div
                                     class="menu-entry"
-                                    onclick={showKeyboarHelp}
+                                    onClick={showKeyboarHelp}
                                 >
                                     <div class="menu-panel-item">
                                         <span class="text-menu-item">
                                             {T("S216")}
                                         </span>
                                         <span class="feather-icon-container">
-                                            <HelpCircle size="0.8rem" />
+                                            <HelpCircle size={13} />
                                         </span>
                                     </div>
                                 </div>
@@ -353,7 +369,7 @@ const Dashboard = () => {
                             <li class="menu-item">
                                 <div
                                     class="menu-entry"
-                                    onclick={(e) => {
+                                    onClick={(_e: MouseEvent) => {
                                         useUiContextFn.haptic()
                                         panels.setVisibles([])
                                     }}
@@ -369,28 +385,28 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                             </li>
-                            {panels.list.map((panel) => {
+                            {panels.list.map((panel: any) => {
                                 if (!uisettings.getValue(panel.show)) return
                                 const displayIcon = iconsList[panel.icon]
                                     ? iconsList[panel.icon]
                                     : ""
                                 const isvisible = panels.visibles.find(
-                                    (element) => element.id == panel.id
+                                    (element: any) => element.id == panel.id
                                 )
                                 const [isVisible, setVisible] =
-                                    useState(isvisible)
+                                    useState<any>(isvisible)
                                 useEffect(() => {
                                     setVisible(
                                         panels.visibles.find(
-                                            (element) => element.id == panel.id
+                                            (element: any) => element.id == panel.id
                                         )
                                     )
                                 }, [panels.visibles])
                                 return (
-                                    <li class="menu-item">
+                                    <li key={panel.id} class="menu-item">
                                         <div
                                             class="menu-entry"
-                                            onclick={(e) => {
+                                            onClick={(_e: MouseEvent) => {
                                                 useUiContextFn.haptic()
                                                 if (isVisible) {
                                                     panels.hide(panel.id)
@@ -427,8 +443,8 @@ const Dashboard = () => {
                 <QuickButtonsBar />
             </div>
             <div class="panels-container m-2">
-                {panels.visibles.map((panel) => {
-                    return <Fragment>{panel.content}</Fragment>
+                {panels.visibles.map((panel: any) => {
+                    return <Fragment key={panel.id}>{panel.content as any}</Fragment>
                 })}
             </div>
         </div>

@@ -18,7 +18,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
+import { FunctionalComponent, JSX } from "preact"
 import { useEffect, useState, useRef } from "preact/hooks"
 import {
     ButtonImg,
@@ -43,7 +43,17 @@ import {
     showConfirmationModal,
     showProgressModal,
 } from "../../components/Modal"
-let about = []
+
+interface AboutData {
+    id: string
+    value: string
+}
+
+interface ProgressBar {
+    update?: (value: number) => void
+}
+
+let about: AboutData[] = []
 
 //TODO: add link to translated documentation according language set for UI
 const defaultHelpUrl = "http://wiki.fluidnc.com/"
@@ -52,20 +62,21 @@ const defaultHelpUrl = "http://wiki.fluidnc.com/"
  * Local const
  *
  */
-const CustomEntry = () => {
+const CustomEntry: FunctionalComponent = (): JSX.Element => {
     const { interfaceSettings } = useSettingsContext()
-    let HelpEntry
-    let InfoEntry
+    let HelpEntry: JSX.Element | null = null
+    let InfoEntry: JSX.Element | null = null
     if (
         interfaceSettings.current.custom &&
         (interfaceSettings.current.custom.help ||
             interfaceSettings.current.custom.information)
     ) {
-        if (interfaceSettings.current.custom.help) {
-            const onClickHelp = (e) => {
-                useUiContextFn.haptic()
-                window.open(interfaceSettings.current.custom.help, "_blank")
-                e.target.blur()
+        if (interfaceSettings.current?.custom?.help) {
+            const helpUrl = interfaceSettings.current.custom.help
+            const onClickHelp = (e: MouseEvent) => {
+                useUiContextFn.haptic();
+                if (helpUrl) (window as any).open(helpUrl, "_blank");
+                (e.target as HTMLElement).blur()
             }
             HelpEntry = (
                 <ButtonImg
@@ -76,14 +87,12 @@ const CustomEntry = () => {
                 />
             )
         }
-        if (interfaceSettings.current.custom.information) {
-            const onClickInfo = (e) => {
-                useUiContextFn.haptic()
-                window.open(
-                    sinterfaceSettings.current.custom.information,
-                    "_blank"
-                )
-                e.target.blur()
+        if (interfaceSettings.current?.custom?.information) {
+            const infoUrl = interfaceSettings.current.custom.information
+            const onClickInfo = (e: MouseEvent) => {
+                useUiContextFn.haptic();
+                if (infoUrl) (window as any).open(infoUrl, "_blank");
+                (e.target as HTMLElement).blur()
             }
             InfoEntry = (
                 <ButtonImg
@@ -99,12 +108,12 @@ const CustomEntry = () => {
                 {HelpEntry} {InfoEntry}
             </li>
         )
-    } 
-   
-    const onClickHelp = (e) => {
-        useUiContextFn.haptic()
-        window.open(defaultHelpUrl, "_blank")
-        e.target.blur()
+    }
+
+    const onClickHelp = (e: MouseEvent) => {
+        useUiContextFn.haptic();
+        (window as any).open(defaultHelpUrl, "_blank");
+        (e.target as HTMLElement).blur()
     }
     HelpEntry = (
         <ButtonImg
@@ -124,32 +133,32 @@ const CustomEntry = () => {
              {HelpEntry}
         </li>
     )
- 
+
 }
 
-const About = () => {
+const About: FunctionalComponent = (): JSX.Element => {
     console.log("about")
     const { toasts, modals, uisettings } = useUiContext()
     const { Disconnect } = useWsContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
-    const [isLoading, setIsLoading] = useState(true)
-    const progressBar = {}
-    const [props, setProps] = useState([...about])
-    const [isFwUpdate, setIsFwUpdate] = useState(false)
-    const inputFilesRef = useRef(0)
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const progressBar: ProgressBar = {}
+    const [props, setProps] = useState<AboutData[]>([...about])
+    const [isFwUpdate, setIsFwUpdate] = useState<boolean>(false)
+    const inputFilesRef = useRef<HTMLInputElement>(null)
     const isFlashFS =
         connectionSettings.current.FlashFileSystem == "none" ? false : true
     const isSDFS =
         connectionSettings.current.SDConnection == "none" ? false : true
 
-    const getProps = () => {
+    const getProps = (): void => {
         setIsLoading(true)
         createNewRequest(
             espHttpURL("command", { cmd: "[ESP420]json=yes" }),
             { method: "GET" },
             {
-                onSuccess: (result) => {
+                onSuccess: (result: any) => {
                     const jsonResult = JSON.parse(result)
                     if (
                         jsonResult.cmd != 420 ||
@@ -164,7 +173,7 @@ const About = () => {
                     about = [...jsonResult.data]
                     setIsLoading(false)
                 },
-                onFail: (error) => {
+                onFail: (error: any) => {
                     setIsLoading(false)
                     toasts.addToast({ content: error, type: "error" })
                     console.log(error)
@@ -173,10 +182,10 @@ const About = () => {
         )
     }
     //from https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
-    function getBrowserInformation() {
+    function getBrowserInformation(): string {
         var ua = navigator.userAgent,
-            tem,
-            M =
+            tem: any,
+            M: any =
                 ua.match(
                     /(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i
                 ) || []
@@ -196,46 +205,52 @@ const About = () => {
         return M.join(" ")
     }
 
-    const onFWUpdate = (e) => {
-        useUiContextFn.haptic()
-        e.target.blur()
+    const onFWUpdate = (e: MouseEvent) => {
+        useUiContextFn.haptic();
+        (e.target as HTMLElement).blur()
         setIsFwUpdate(true)
-        inputFilesRef.current.value = ""
-        inputFilesRef.current.accept = ".bin, .bin.gz"
-        inputFilesRef.current.multiple = false
-        inputFilesRef.current.click()
+        if (inputFilesRef.current) {
+            inputFilesRef.current.value = ""
+            inputFilesRef.current.accept = ".bin, .bin.gz"
+            inputFilesRef.current.multiple = false
+            inputFilesRef.current.click()
+        }
     }
-    const onFWGit = (e) => {
+    const onFWGit = (e: MouseEvent) => {
         useUiContextFn.haptic()
         const i = useSettingsContextFn.getValue("Screen")
-        const url =
-            interfaceSettings.current.custom &&
-            interfaceSettings.current.custom.fwurl
-                ? interfaceSettings.current.custom.fwurl
-                : i && i != "none"
-                  ? fwUrl[1]
-                  : fwUrl[0]
+        let url = ""
+        if (interfaceSettings.current.custom && interfaceSettings.current.custom.fwurl) {
+            url = interfaceSettings.current.custom.fwurl
+        } else if (i && i != "none") {
+            url = fwUrl[1]
+        } else {
+            url = fwUrl[0]
+        }
 
-        window.open(url, "_blank")
-        e.target.blur()
+        (window as any).open(url, "_blank")
+        (e.target as HTMLElement).blur()
     }
-    const onWebUiUpdate = (e) => {
-        useUiContextFn.haptic()
-        e.target.blur()
+    const onWebUiUpdate = (e: MouseEvent) => {
+        useUiContextFn.haptic();
+        (e.target as HTMLElement).blur()
         setIsFwUpdate(false)
-        inputFilesRef.current.value = ""
-        inputFilesRef.current.accept = "*"
-        inputFilesRef.current.multiple = true
-        inputFilesRef.current.click()
+        if (inputFilesRef.current) {
+            inputFilesRef.current.value = ""
+            inputFilesRef.current.accept = "*"
+            inputFilesRef.current.multiple = true
+            inputFilesRef.current.click()
+        }
     }
-    const onWebUiGit = (e) => {
-        useUiContextFn.haptic()
-        window.open(webUiUrl, "_blank")
-        e.target.blur()
+    const onWebUiGit = (e: MouseEvent) => {
+        useUiContextFn.haptic();
+        (window as any).open(webUiUrl, "_blank")
+        (e.target as HTMLElement).blur()
     }
 
-    const uploadFiles = (e) => {
-        const list = inputFilesRef.current.files
+    const uploadFiles = (): void => {
+        const list = inputFilesRef.current?.files
+        if (!list) return
         const formData = new FormData()
         formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
         formData.append("createPath", "true")
@@ -247,7 +262,7 @@ const About = () => {
                     file.name +
                     "S"
                 //append file size first to check updload is complete
-                formData.append(arg, file.size)
+                formData.append(arg, String(file.size))
                 formData.append(
                     "myfiles",
                     file,
@@ -259,7 +274,7 @@ const About = () => {
             modals,
             title: T("S32"),
             button1: { cb: abortRequest, text: T("S28") },
-            content: <Progress progressBar={progressBar} max="100" />,
+            content: <Progress progressBar={progressBar} max={100} />,
         })
         const base = isFwUpdate
             ? "updatefw"
@@ -269,7 +284,7 @@ const About = () => {
             espHttpURL(base),
             { method: "POST", id: "upload", body: formData },
             {
-                onSuccess: (result) => {
+                onSuccess: (result: any) => {
                     if (
                         progressBar.update &&
                         typeof progressBar.update === "function"
@@ -283,11 +298,11 @@ const About = () => {
                         }, restartdelay * 1000)
                     } else window.location.reload()
                 },
-                onFail: (error) => {
+                onFail: (error: any) => {
                     modals.removeModal(modals.getModalIndex("upload"))
                     toasts.addToast({ content: error, type: "error" })
                 },
-                onProgress: (e) => {
+                onProgress: (e: number) => {
                     if (
                         progressBar.update &&
                         typeof progressBar.update === "function"
@@ -298,7 +313,7 @@ const About = () => {
         )
     }
 
-    const valueTranslated = (value) => {
+    const valueTranslated = (value: string): string => {
         if (
             value.startsWith("ON (") ||
             value.startsWith("OFF (") ||
@@ -306,7 +321,7 @@ const About = () => {
         ) {
             const reg_search = /(?<label>[^\(]*)\s\((?<content>[^\)]*)/
             let res = reg_search.exec(value)
-            if (res) {
+            if (res && res.groups) {
                 return T(res.groups.label) + " (" + T(res.groups.content) + ")"
             }
         }
@@ -314,37 +329,37 @@ const About = () => {
         return T(value)
     }
 
-    const filesSelected = (e) => {
-        if (inputFilesRef.current.files.length > 0) {
-            const titleConfirmation = isFwUpdate ? T("S30") : T("S31")
-            const list = [...inputFilesRef.current.files]
-            const content = (
-                <CenterLeft>
-                    <ul>
-                        {list.reduce((accumulator, currentElement) => {
-                            return [
-                                ...accumulator,
-                                <li>{currentElement.name}</li>,
-                            ]
-                        }, [])}
-                    </ul>
-                </CenterLeft>
-            )
-            showConfirmationModal({
-                modals,
-                title: titleConfirmation,
-                content,
-                button1: {
-                    cb: () => {
-                        uploadFiles()
-                    },
-                    text: T("S27"),
+    const filesSelected = (e: Event) => {
+        const list = inputFilesRef.current?.files
+        if (!list || list.length === 0) return
+        const titleConfirmation = isFwUpdate ? T("S30") : T("S31")
+        const fileList = Array.from(list)
+        const content = (
+            <CenterLeft>
+                <ul>
+                    {fileList.reduce((accumulator: JSX.Element[], currentElement: File) => {
+                        return [
+                            ...accumulator,
+                            <li key={currentElement.name}>{currentElement.name}</li>,
+                        ]
+                    }, [])}
+                </ul>
+            </CenterLeft>
+        )
+        showConfirmationModal({
+            modals,
+            title: titleConfirmation,
+            content,
+            button1: {
+                cb: () => {
+                    uploadFiles()
                 },
-                button2: {
-                    text: T("S28"),
-                },
-            })
-        }
+                text: T("S27"),
+            },
+            button2: {
+                text: T("S28"),
+            },
+        })
     }
 
     useEffect(() => {
@@ -414,7 +429,7 @@ const About = () => {
                                     ) &&
                                         props.find(
                                             (element) => element.id == "FWVersion"
-                                        ).value}
+                                        )?.value}
                                 </span>
                                 <ButtonImg
                                     sm
@@ -446,10 +461,10 @@ const About = () => {
                                     {getBrowserInformation()}
                                 </span>
                             </li>
-                            {props.map(({ id, value }) => {
+                            {props.map(({ id, value }: AboutData) => {
                                 if (id != "FW ver")
                                     return (
-                                        <li>
+                                        <li key={id}>
                                             <span class="text-primary text-label">
                                                 {T(id)}:
                                             </span>
@@ -462,7 +477,7 @@ const About = () => {
                         </ul>
                     </CenterLeft>
                     <hr />
-                    <center>
+                    <div style="text-align: center;">
                         <ButtonImg
                             icon={<RefreshCcw />}
                             label={T("S50")}
@@ -473,7 +488,7 @@ const About = () => {
                                 getProps()
                             }}
                         />
-                    </center>
+                    </div>
                 </div>
             )}
             <br />

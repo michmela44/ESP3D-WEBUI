@@ -17,10 +17,18 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
-import {ExtraContent} from "../../components/ExtraContent"
+import { FunctionalComponent, JSX } from "preact"
+import { ExtraContent } from "../../components/ExtraContent"
 
-const ExtraPage = ({ id, source, refreshtime, label, type }) => {
+interface ExtraPageProps {
+    id: string
+    source: string
+    refreshtime: number
+    label: string
+    type: "content" | "image" | "camera" | "extension"
+}
+
+const ExtraPage: FunctionalComponent<ExtraPageProps> = ({ id, source, refreshtime, label, type }): JSX.Element => {
     return (
         <ExtraContent
             key={id}
