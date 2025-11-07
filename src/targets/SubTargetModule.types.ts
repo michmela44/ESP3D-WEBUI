@@ -138,9 +138,6 @@ export interface SubTargetModuleExports {
     /** Web UI build version */
     webUIbuild: string
 
-    /** Information display controls component */
-    InformationsControls: FunctionalComponent<any>
-
     /** Variables and commands list */
     variablesList: VariablesListModule
 

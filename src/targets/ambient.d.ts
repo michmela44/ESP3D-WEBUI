@@ -18,7 +18,6 @@ declare module "SubTargetDir" {
   export const useTargetContext: SubTargetModuleExports["useTargetContext"]
   export const useTargetContextFn: SubTargetModuleExports["useTargetContextFn"]
   export const webUIbuild: SubTargetModuleExports["webUIbuild"]
-  export const InformationsControls: SubTargetModuleExports["InformationsControls"]
   export const variablesList: SubTargetModuleExports["variablesList"]
   export const eventsList: SubTargetModuleExports["eventsList"]
   export const AppLogo: SubTargetModuleExports["AppLogo"]

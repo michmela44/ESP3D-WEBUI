@@ -33,7 +33,6 @@ import {
     useTargetContext,
     useTargetContextFn,
     webUIbuild,
-    InformationsControls,
     variablesList,
     eventsList,
     AppLogo,
