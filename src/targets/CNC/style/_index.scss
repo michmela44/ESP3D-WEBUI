@@ -160,6 +160,18 @@
     border-radius: 5px;
 }
 
+@media screen and (max-width: 400px) {
+   .jog-buttons-container .m-2 {
+       margin: 0.4rem 0.2rem !important;
+   }
+}
+
+@media screen and (max-width: 400px) {
+   .panels-container.m-2 {
+       margin: 0.4rem 0.1rem !important;
+   }
+}
+
 .jog-buttons-main-container {
     display: flex;
     justify-content: space-between;
