@@ -21,8 +21,8 @@ let sensorInterval = -1
 
 const subtarget = process.env.SUBTARGET_ENV
     ? process.env.SUBTARGET_ENV
-    : "Marlin"
-const target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "Printer3D"
+    : "FluidNC"
+const target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "CNC"
 
 const serverpath =
     path.normalize(__dirname + "/../server/" + target + "/" + subtarget) + "/"
@@ -77,10 +77,6 @@ function SendWS(text, isbinary = true, isNotification = true) {
         })
     }
 }
-
-app.post("/login", function (req, res) {
-    loginURI(req, res)
-})
 
 app.get("/config", function (req, res) {
     configURI(req, res)
