@@ -93,7 +93,6 @@ const LaserPanel: FunctionalComponent = () => {
     const { createNewRequest } = useHttpFn as UseHttpFn
     const id = "laserPanel"
 
-    console.log("[Laser panel] Render")
     if (typeof laserPercentage.current === "undefined") {
         laserPercentage.current = useUiContextFn.getValue("lasertestprecent")
     }

@@ -50,7 +50,6 @@ type TerminalLine = TerminalElement & {
 }
 
 const TerminalPanel: FunctionalComponent = () => {
-    console.log(`[TERMINAL PANEL] Render`)
     const { panels, uisettings } = useUiContext()
     const { terminal } = useDatasContext()
     const { processData } = useTargetContext()

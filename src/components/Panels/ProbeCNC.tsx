@@ -94,7 +94,6 @@ const ProbePanel: FunctionalComponent = () => {
     const { createNewRequest } = useHttpFn as UseHttpFn
     const id = "ProbePanel"
 
-    console.log("[Probe panel] Render")
     if (typeof maxprobe.current === "undefined") {
         maxprobe.current = useUiContextFn.getValue("maxprobe")
     }

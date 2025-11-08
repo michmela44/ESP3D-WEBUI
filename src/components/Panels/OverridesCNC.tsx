@@ -168,7 +168,6 @@ const OverridesPanel: FunctionalComponent = () => {
         },
     ]
 
-    console.log("[OOverrides panel] Render")
     const sendCommand = (command: string): void => {
         createNewRequest(
             espHttpURL("command", {

@@ -240,7 +240,6 @@ const SpindlePanel: FunctionalComponent = () => {
         },
     ]
 
-    console.log("[Spindle panel] Render")
     const sendCommand = (command: string): void => {
         createNewRequest(
             espHttpURL("command", {

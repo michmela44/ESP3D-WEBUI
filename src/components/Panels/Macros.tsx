@@ -68,7 +68,6 @@ const MacrosPanel: FunctionalComponent = () => {
     const { createNewRequest } = useHttpFn as UseHttpFn
     const iconsList: Record<string, ComponentChildren> = { ...iconsTarget, ...iconsFeather }
     const id = "macrosPanel"
-    console.log("[Macros panel] Render")
     const getSDSource = (): string => {
         for (const source of files.supported) {
             if (source.value == "SD" || source.value == "DIRECTSD") {

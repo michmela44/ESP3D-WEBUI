@@ -49,7 +49,6 @@ const ElementsCache: FunctionalComponent = () => {
         return result
     }
 
-    //console.log("ElementsCache is rendering")
     useEffect(() => {
         if (ui.ready && interfaceSettings.current?.settings?.extracontents) {
             //console.log("ElementsCache can now be created")
