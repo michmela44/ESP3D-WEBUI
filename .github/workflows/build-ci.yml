@@ -28,3 +28,4 @@ jobs:
         with:
           name: index.html.gz
           path: dist/CNC/FluidNC/index.html.gz
+          compression-level: 0
