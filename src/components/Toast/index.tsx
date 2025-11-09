@@ -17,7 +17,7 @@
 */
 import { ComponentChildren } from "preact"
 import { useEffect } from "preact/hooks"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContextFn, useToastsContext } from "../../contexts"
 import { Toast as SpectreToast } from "../Controls"
 import { T } from "../Translations"
 
@@ -54,7 +54,7 @@ const Toast = ({ index, type = "", children, timeout = 2000, remove }: ToastProp
 }
 
 const ToastsContainer = () => {
-  const { toasts } = useUiContext()
+  const { toasts } = useToastsContext()
   return (
     toasts.toastList && (
       <div class="toasts-container">

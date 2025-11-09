@@ -19,7 +19,7 @@
 */
 import { useEffect } from "preact/hooks"
 import { useTargetContext } from "../../.."
-import { useUiContext } from "../../../../contexts"
+import { useUiContext, useToastsContext } from "../../../../contexts"
 import { T } from "../../../../components/Translations"
 import { variablesList } from "../"
 import { useHttpFn } from "../../../../hooks"
@@ -30,7 +30,7 @@ const last: { status: { state: string } } = { status: { state: "?" } }
 
 const BackgroundContainer = () => {
     const { alarmCode, errorCode, status } = useTargetContext()
-    const { toasts } = useUiContext()
+    const { toasts } = useToastsContext()
     const { createNewRequest } = useHttpFn as UseHttpFn
     const sendCommand = (command: string) => {
         createNewRequest(

@@ -29,7 +29,9 @@ import {
     useUiContext,
     useRouterContext,
     useSettingsContextFn,
-    useSettingsContext
+    useSettingsContext,
+    useToastsContext,
+    useModalsContext
 } from "../contexts"
 import {
     baseLangRessource,
@@ -59,7 +61,9 @@ interface UseSettingsReturn {
 
 const useSettings = (): UseSettingsReturn => {
     const { createNewRequest } = useHttpQueue()
-    const { ui, toasts, modals, connection, uisettings } = useUiContext()
+    const { ui, connection, uisettings } = useUiContext()
+    const { toasts } = useToastsContext()
+    const { modals } = useModalsContext()
     const { processData } = useTargetContextFn
     const { interfaceSettings, connectionSettings, activity } =
         useSettingsContext()

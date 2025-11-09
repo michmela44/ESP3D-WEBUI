@@ -29,7 +29,7 @@ import {
     CloseButton,
     ContainerHelper,
 } from "../Controls"
-import { useUiContextFn } from "../../contexts"
+import { useUiContextFn, useModalsContext } from "../../contexts"
 import { showConfirmationModal } from "../Modal"
 import {
     HardDrive,
@@ -50,6 +50,7 @@ const FilesPanel: FunctionalComponent = () => {
     const [menu, setMenu] = useState<PanelMenuItem[] | null>(null)
     const fileref = useRef<HTMLInputElement | null>(null)
     const dropRef = useRef<HTMLDivElement | null>(null)
+    const { modals } = useModalsContext()
 
     // Register the file input ref with the hook
     useEffect(() => {
@@ -338,7 +339,7 @@ const FilesPanel: FunctionalComponent = () => {
                                                             </Fragment>
                                                         )
                                                         showConfirmationModal({
-                                                            modals: (useUiContextFn as any).modals,
+                                                            modals,
                                                             title: T("S26"),
                                                             content,
                                                             button1: {

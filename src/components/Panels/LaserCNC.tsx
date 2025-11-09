@@ -21,7 +21,7 @@ import type { FunctionalComponent, JSX } from "preact"
 import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Loader, Sun, Power } from "preact-feather"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
@@ -88,7 +88,8 @@ const LaserControls: FunctionalComponent = () => {
 }
 
 const LaserPanel: FunctionalComponent = () => {
-    const { toasts, panels } = useUiContext()
+    const { panels } = useUiContext()
+    const { toasts } = useToastsContext()
     const { states } = useTargetContext() as { states: StatesMap }
     const { createNewRequest } = useHttpFn as UseHttpFn
     const id = "laserPanel"

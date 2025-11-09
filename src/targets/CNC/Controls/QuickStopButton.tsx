@@ -21,13 +21,13 @@ import { AlertCircle } from "preact-feather"
 import { useHttpFn } from "../../../hooks"
 import type { UseHttpFn } from "../../../hooks/useHttpQueue"
 import { espHttpURL, replaceVariables } from "../../../components/Helpers"
-import { useUiContext, useUiContextFn } from "../../../contexts"
+import { useToastsContext, useUiContextFn } from "../../../contexts"
 import { T } from "../../../components/Translations"
 import { ButtonImg } from "../../../components/Controls"
 import { variablesList } from "../../../targets"
 
 const QuickStopButton = () => {
-    const { toasts } = useUiContext()
+    const { toasts } = useToastsContext()
 
     const { createNewRequest } = useHttpFn as UseHttpFn
     const SendCommand = (command: string) => {

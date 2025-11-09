@@ -18,11 +18,6 @@
 */
 import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useContext, useState, useRef, useEffect, useCallback, useMemo } from "preact/hooks"
-import {
-    generateUID,
-    removeEntriesByIDs,
-    disableUI,
-} from "../components/Helpers"
 
 // Extend Window interface for vendor-prefixed AudioContext
 declare global {
@@ -37,24 +32,6 @@ interface Panel {
     id: string
     settingid?: string
     [key: string]: unknown
-}
-
-interface ToastContent {
-    id?: string
-    [key: string]: unknown
-}
-
-interface Toast extends ToastContent {
-    id: string
-}
-
-interface Notification extends Toast {
-    time: string
-}
-
-interface Modal {
-    id?: string
-    [key: string]: any
 }
 
 interface ConnectionState {
@@ -107,24 +84,6 @@ interface UiContextValue {
         enable: (enabled: boolean) => void
     }
     uisettings: UiSettings
-    toasts: {
-        toastList: Toast[]
-        addToast: (toast: Omit<Toast, "id">) => void
-        removeToast: (ids: string[]) => void
-    }
-    notifications: {
-        list: Notification[]
-        clear: () => void
-        isAutoScroll: { current: boolean }
-        isAutoScrollPaused: { current: boolean }
-    }
-    modals: {
-        modalList: Modal[]
-        addModal: (modal: Modal) => void
-        removeModal: (index: number) => void
-        getModalIndex: (id: string) => number
-        clearModals: () => void
-    }
     connection: {
         connectionState: ConnectionState
         setConnectionState: (state: ConnectionState) => void
@@ -147,11 +106,6 @@ interface UiContextFn {
     beep: () => void
     beepError: () => void
     beepSeq: (seq: SoundNote[] | undefined) => void
-    toasts: {
-        addToast: (toast: Omit<Toast, "id">) => void
-        removeToast: (ids: string[]) => void
-        toastList: Toast[]
-    }
     panels: {
         hide: (id: string) => void
         isVisible: (id: string) => boolean
@@ -187,22 +141,13 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     const timersList = useRef<any>({})
     const [initPanelsVisibles, setInitPanelsVisibles] = useState<boolean>(false)
     const [uiSettings, setUISettings] = useState<any>()
-    const [modals, setModal] = useState<Modal[]>([])
-    const [toasts, setToasts] = useState<Toast[]>([])
-    const isNotificationsAutoScroll = useRef<boolean>(true)
-    const isNotificationsAutoScrollPaused = useRef<boolean>(false)
     const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(false)
-    const [notifications, setNotifications] = useState<Notification[]>([])
     const [showKeepConnected, setShowKeepConnected] = useState<boolean>(false)
     const [connectionState, setConnectionState] = useState<ConnectionState>({
         connected: false,
         page: "connecting",
     })
     const [uiSetup, setUiSetup] = useState<boolean>(false)
-    const toastsRef = useRef<Toast[]>(toasts)
-    toastsRef.current = toasts
-    const notificationsRef = useRef<Notification[]>(notifications)
-    notificationsRef.current = notifications
 
     const removeFromVisibles = useCallback((id: string) => {
         visiblePanelsListRef.current = visiblePanelsListRef.current.filter(
@@ -237,55 +182,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         //console.log("Checking visibility for panel " + id)
         //console.log(visiblePanelsListRef.current)
         return visiblePanelsListRef.current.some((element) => element.id == id)
-    }, [])
-
-    const addToast = useCallback((newToast: Omit<Toast, "id">) => {
-        const id = generateUID()
-        const now = new Date()
-        const time =
-            now.getHours().toString().padStart(2, "0") +
-            ":" +
-            now.getMinutes().toString().padStart(2, "0") +
-            ":" +
-            now.getSeconds().toString().padStart(2, "0")
-
-        setToasts([...toastsRef.current, { ...newToast, id }])
-        setNotifications([
-            ...notificationsRef.current,
-            { ...newToast, id, time },
-        ])
-    }, [])
-
-    const clearNotifications = useCallback(() => {
-        setNotifications([])
-    }, [])
-
-    const removeToast = useCallback((uids: string[]) => {
-        const remainingIds = removeEntriesByIDs(toastsRef.current, uids)
-        toastsRef.current = remainingIds
-        setToasts([...remainingIds])
-    }, [])
-
-    const addModal = useCallback((newModal: Modal) =>
-        setModal((prev) => [
-            ...prev,
-            { ...newModal, id: newModal.id ? newModal.id : generateUID() },
-        ]), [])
-
-    const getModalIndex = useCallback((id: string): number => {
-        return modals.findIndex((element) => element.id == id)
-    }, [modals])
-
-    const removeModal = useCallback((modalIndex: number) => {
-        const newModalList = modals.filter(
-            (modal, index) => index !== modalIndex
-        )
-        setModal(newModalList)
-        if (newModalList.length == 0) disableUI(false)
-    }, [modals])
-
-    const clearModals = useCallback(() => {
-        setModal([])
     }, [])
 
     const getElement = useCallback((Id: string, base: any = null): any => {
@@ -482,7 +378,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
     }
 
 
-    useUiContextFn.toasts = { addToast, removeToast, toastList: toasts }
     useUiContextFn.panels = { hide: removeFromVisibles, isVisible: isPanelVisible }
 
 
@@ -521,20 +416,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
             getElement,
             refreshPaused: uiRefreshPaused.current,
         },
-        toasts: { toastList: toasts, addToast, removeToast },
-        notifications: {
-            list: notifications,
-            clear: clearNotifications,
-            isAutoScroll: isNotificationsAutoScroll,
-            isAutoScrollPaused: isNotificationsAutoScrollPaused,
-        },
-        modals: {
-            modalList: modals,
-            addModal,
-            removeModal,
-            getModalIndex,
-            clearModals,
-        },
         connection: {
             connectionState,
             setConnectionState,
@@ -560,16 +441,6 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
         uiSettings,
         getValue,
         getElement,
-        toasts,
-        addToast,
-        removeToast,
-        notifications,
-        clearNotifications,
-        modals,
-        addModal,
-        removeModal,
-        getModalIndex,
-        clearModals,
         connectionState,
         showKeepConnected,
         uiSetup,
@@ -579,4 +450,4 @@ const UiContextProvider: FunctionalComponent<UiContextProviderProps> = ({ childr
 }
 
 export { UiContextProvider, useUiContext, useUiContextFn }
-export type { UiContextValue, UiContextFn, UiSettings, Panel, Toast, Notification, Modal, ConnectionState, SoundNote }
+export type { UiContextValue, UiContextFn, UiSettings, Panel, ConnectionState, SoundNote }

@@ -18,7 +18,7 @@
 
 import { FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
 import { useEffect } from "preact/hooks"
-import { useUiContext, useUiContextFn } from "../../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext } from "../../../contexts"
 import { ButtonImg } from "../../Controls"
 import { iconsFeather } from "../../Images"
 import { iconsTarget } from "../../../targets"
@@ -55,7 +55,7 @@ const IconSelect: FunctionalComponent<IconSelectProps> = ({
     const onChange = (e: any) => {
         //if (setValue) setValue(e.target.checked);
     }
-    const { modals } = useUiContext()
+    const { modals } = useModalsContext()
     const iconsList: Record<string, JSX.Element> = { ...iconsTarget, ...iconsFeather }
     const showList = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()

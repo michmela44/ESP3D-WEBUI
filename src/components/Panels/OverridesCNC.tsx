@@ -21,7 +21,7 @@ import type { FunctionalComponent, JSX } from "preact"
 import { useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Repeat } from "preact-feather"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
@@ -77,7 +77,8 @@ type ButtonConfig = { label: string; tooltip: string; command: string; iconRight
 type ButtonsGroup = { label: string; buttons: ButtonConfig[] }
 
 const OverridesPanel: FunctionalComponent = () => {
-    const { toasts, panels } = useUiContext()
+    const { panels } = useUiContext()
+    const { toasts } = useToastsContext()
     const { createNewRequest } = useHttpFn as UseHttpFn
     const id = "OverridesPanel"
 

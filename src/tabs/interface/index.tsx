@@ -20,10 +20,10 @@
 import { Fragment,  TargetedMouseEvent, JSX } from "preact"
 import { useState, useRef } from "preact/hooks"
 import {
-    useUiContext,
     useSettingsContext,
     useSettingsContextFn,
     useUiContextFn,
+    useToastsContext,
 } from "../../contexts"
 import { ButtonImg, Loading } from "../../components/Controls"
 import { useHttpQueue, useSettings } from "../../hooks"
@@ -328,7 +328,7 @@ const generateValidationGlobal = (
 }
 
 const InterfaceTab = () => {
-    const { toasts, modals, connection } = useUiContext()
+    const { toasts } = useToastsContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { getInterfaceSettings } = useSettings()
     const { interfaceSettings, connectionSettings } = useSettingsContext()

@@ -29,7 +29,7 @@ import {
     Eye,
 } from "preact-feather"
 import { FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
 import { Menu as PanelMenu } from "./"
 
 /*
@@ -37,7 +37,8 @@ import { Menu as PanelMenu } from "./"
  *
  */
 const NotificationsPanel: FunctionalComponent = () => {
-    const { uisettings, notifications } = useUiContext()
+    const { uisettings } = useUiContext()
+    const { notifications } = useToastsContext()
     if (notifications.isAutoScroll.current == undefined)
         notifications.isAutoScroll.current =
             uisettings.getValue("notifautoscroll")

@@ -17,7 +17,7 @@
 */
 import { TargetedMouseEvent } from "preact"
 import { HelpCircle } from "preact-feather"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
 import { useHttpQueue } from "../../hooks"
 import { T } from "../../components/Translations"
 import { espHttpURL } from "../../components/Helpers"
@@ -27,7 +27,7 @@ import { espHttpURL } from "../../components/Helpers"
  *
  */
 const showKeepConnected = (): void => {
-    const { modals } = useUiContext()
+    const { modals } = useModalsContext()
     const { createNewRequest } = useHttpQueue()
     const id = "keepconnected"
     const clickKeepConnected = (e: TargetedMouseEvent<HTMLButtonElement>): void => {

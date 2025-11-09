@@ -27,7 +27,7 @@ import {
 } from "preact-feather"
 import { useHttpFn } from "../../hooks"
 import { espHttpURL, replaceVariables } from "../Helpers"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useState, useRef } from "preact/hooks"
@@ -124,7 +124,9 @@ const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
 }
 
 const JogPanel = () => {
-    const { modals, toasts, panels } = useUiContext()
+    const { panels } = useUiContext()
+    const { modals } = useModalsContext()
+    const { toasts } = useToastsContext()
     const { createNewRequest } = useHttpFn
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const { positions } = useTargetContext()

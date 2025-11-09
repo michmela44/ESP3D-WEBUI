@@ -25,6 +25,7 @@ import {
     useUiContext,
     useUiContextFn,
     useSettingsContext,
+    useToastsContext,
 } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
@@ -88,7 +89,7 @@ const ProbeControls: FunctionalComponent = () => {
 }
 
 const ProbePanel: FunctionalComponent = () => {
-    const { toasts } = useUiContext()
+    const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     //const { status } = useTargetContext()
     const { createNewRequest } = useHttpFn as UseHttpFn

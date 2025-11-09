@@ -23,6 +23,8 @@ import {
     useUiContext,
     useSettingsContext,
     useHttpQueueContext,
+    useToastsContext,
+    useModalsContext,
 } from "../contexts"
 import { useHttpFn } from "../hooks"
 import { getCookie, splitArrayByLines, isLimitedEnvironment, dispatchToExtensions } from "../components/Helpers"
@@ -62,7 +64,9 @@ const pingDelay = 5000
 const maxReconnections = 4
 
 const WsContextProvider: FunctionalComponent<WsContextProviderProps> = ({ children }) => {
-    const { toasts, connection, dialogs, modals } = useUiContext()
+    const { connection, dialogs } = useUiContext()
+    const { toasts } = useToastsContext()
+    const { modals } = useModalsContext()
     const { removeAllRequests } = useHttpQueueContext()
     const dataBuffer = useRef<any[]>([])
     const { connectionSettings, activity } = useSettingsContext()

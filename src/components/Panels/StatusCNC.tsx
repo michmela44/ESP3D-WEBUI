@@ -19,7 +19,7 @@
 import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, VNode } from "preact"
 import { T } from "../Translations"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContextFn, useToastsContext } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
@@ -138,7 +138,7 @@ type PinsStates = Record<string, boolean>
 type StatesMap = Record<string, { value: string; pre?: string } | Array<{ value: string; pre?: string }> | unknown>
 
 const StatusPanel: FunctionalComponent = () => {
-    const { toasts } = useUiContext()
+    const { toasts } = useToastsContext()
     const { status, states, pinsStates, streamStatus } = useTargetContext() as unknown as {
         status: { state?: string }
         states: StatesMap

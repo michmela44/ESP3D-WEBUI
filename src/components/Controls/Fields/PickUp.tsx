@@ -21,7 +21,7 @@ import { useEffect, useState } from "preact/hooks"
 import { Search } from "preact-feather"
 import { showModal } from "../../Modal"
 import { ScanPacksList } from "../ScanPacksList"
-import { useUiContext, useUiContextFn } from "../../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext } from "../../../contexts"
 import { T, getLanguageName } from "../../Translations"
 
 interface PickUpProps {
@@ -48,7 +48,7 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
     const [displayValue, setDisplayValue] = useState(
         id == "language" ? T("lang") : T("none")
     )
-    const { modals } = useUiContext()
+    const { modals } = useModalsContext()
     const defaultDisplayValue = id == "language" ? T("lang", true) : T("none")
     const onChange = (value: string) => {
         if (setValue) setValue(value)

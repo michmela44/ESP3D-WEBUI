@@ -24,6 +24,8 @@ import { machineSettings, iconsTarget } from "../targets"
 import { ConnectionContainer } from "./connection"
 import { MainContainer } from "./main"
 import { useUiContext, useUiContextFn } from "../contexts/UiContext"
+import { useModalsContext } from "../contexts/ModalsContext"
+import { useToastsContext } from "../contexts/ToastsContext"
 import {
     generateValidationGlobal as generateValidation,
     exportPreferences,
@@ -73,7 +75,8 @@ const ContentContainer: FunctionalComponent = () => {
     const { connectionSettings, interfaceSettings, featuresSettings } =
         useSettingsContext()
     const { createNewRequest } = useHttpQueue()
-    const { toasts, modals } = useUiContext()
+    const { toasts } = useToastsContext()
+    const { modals } = useModalsContext()
     const iconsList = { ...iconsTarget, ...iconsFeather }
 
     const processExtensionMessage = (eventMsg: any) => {

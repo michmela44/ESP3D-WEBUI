@@ -19,7 +19,7 @@
 */
 import { Fragment, FunctionalComponent, JSX } from "preact"
 import { useEffect, useState, useRef } from "preact/hooks"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../../components/Translations"
 import { List, CheckCircle, Circle, HelpCircle } from "preact-feather"
 import { iconsFeather } from "../../components/Images"
@@ -128,7 +128,8 @@ let intialisationDone = false
 const Dashboard: FunctionalComponent = (): JSX.Element => {
     console.log("Dashboard")
     const iconsList = { ...iconsTarget, ...iconsFeather }
-    const { modals, panels, uisettings, shortcuts } = useUiContext()
+    const { panels, uisettings, shortcuts } = useUiContext()
+    const { modals } = useModalsContext()
     const menuPanelsList = useRef<HTMLUListElement>(null)
     const isfixed = uisettings.getValue("fixedpanels")
     const [isKeyboardEnabled, setIsKeyboardEnabled] = useState<boolean>(

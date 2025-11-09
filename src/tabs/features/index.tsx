@@ -25,6 +25,8 @@ import { espHttpURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
 import {
     useUiContext,
+    useModalsContext,
+    useToastsContext,
     useSettingsContext,
     useWsContext,
     useUiContextFn,
@@ -95,7 +97,9 @@ interface ProgressBarRef {
 }
 
 const FeaturesTab = () => {
-    const { toasts, modals, uisettings } = useUiContext()
+    const { uisettings } = useUiContext()
+    const { toasts } = useToastsContext()
+    const { modals } = useModalsContext()
     const { Disconnect } = useWsContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { featuresSettings } = useSettingsContext()

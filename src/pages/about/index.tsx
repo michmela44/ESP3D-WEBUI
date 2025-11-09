@@ -31,6 +31,8 @@ import { espHttpURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
 import {
     useUiContext,
+    useModalsContext,
+    useToastsContext,
     useUiContextFn,
     useWsContext,
     useSettingsContext,
@@ -138,7 +140,9 @@ const CustomEntry: FunctionalComponent = (): JSX.Element => {
 
 const About: FunctionalComponent = (): JSX.Element => {
     console.log("about")
-    const { toasts, modals, uisettings } = useUiContext()
+    const { uisettings } = useUiContext()
+    const { toasts } = useToastsContext()
+    const { modals } = useModalsContext()
     const { Disconnect } = useWsContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { interfaceSettings, connectionSettings } = useSettingsContext()

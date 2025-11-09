@@ -22,9 +22,9 @@ import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Target, Zap, Wind, CloudDrizzle } from "preact-feather"
 import {
-    useUiContext,
     useUiContextFn,
     useSettingsContext,
+    useToastsContext,
 } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
@@ -133,7 +133,7 @@ type ButtonsGroup = {
 }
 
 const SpindlePanel: FunctionalComponent = () => {
-    const { toasts } = useUiContext()
+    const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const { status, states } = useTargetContext() as { status: { state?: string }; states: StatesMap }
     const { createNewRequest } = useHttpFn as UseHttpFn

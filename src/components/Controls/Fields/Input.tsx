@@ -35,6 +35,7 @@ import {
     useUiContext,
     useUiContextFn,
     useSettingsContext,
+    useModalsContext,
 } from "../../../contexts"
 import {
     generateDependIds,
@@ -187,7 +188,7 @@ const Input: FunctionalComponent<InputProps> = ({
             setValue(e.currentTarget.value)
         }
     }
-    const { modals } = useUiContext()
+    const { modals } = useModalsContext()
     const props = {
         type,
         id,

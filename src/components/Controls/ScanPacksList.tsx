@@ -25,6 +25,8 @@ import {
     useUiContext,
     useUiContextFn,
     useSettingsContextFn,
+    useModalsContext,
+    useToastsContext,
 } from "../../contexts"
 import { T, getLanguageName } from "./../Translations"
 import { CheckCircle } from "preact-feather"
@@ -38,7 +40,8 @@ interface ScanPacksListProps {
 interface PackFileEntry { name: string }
 
 const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
-    const { modals, toasts } = useUiContext()
+    const { modals } = useModalsContext()
+    const { toasts } = useToastsContext()
     const [isLoading, setIsLoading] = useState(true)
 
     const [packsList, setPacksList] = useState<PackFileEntry[]>([])

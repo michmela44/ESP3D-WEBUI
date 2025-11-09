@@ -25,6 +25,8 @@ import {
     SettingsContextProvider,
     DatasContextProvider,
     WsContextProvider,
+    ToastsContextProvider,
+    ModalsContextProvider,
 } from "../../contexts"
 import { TargetContextProvider } from "../../targets"
 import { ContainerHelper } from "../Controls"
@@ -34,18 +36,21 @@ import { ElementsCache } from "../../areas/elementsCache"
 const App = () => {
     return (
         <div id="app">
-            
             <DatasContextProvider>
                 <TargetContextProvider>
                     <RouterContextProvider>
                         <UiContextProvider>
                             <HttpQueueContextProvider>
                                 <SettingsContextProvider>
-                                    <WsContextProvider>
-                                        <ContainerHelper id="top_container" active={true}/>
-                                        <ElementsCache />
-                                        <ContentContainer />
-                                    </WsContextProvider>
+                                    <ToastsContextProvider>
+                                        <ModalsContextProvider>
+                                            <WsContextProvider>
+                                                <ContainerHelper id="top_container" active={true} />
+                                                <ElementsCache />
+                                                <ContentContainer />
+                                            </WsContextProvider>
+                                        </ModalsContextProvider>
+                                    </ToastsContextProvider>
                                 </SettingsContextProvider>
                             </HttpQueueContextProvider>
                         </UiContextProvider>
@@ -57,4 +62,3 @@ const App = () => {
 }
 
 export { App }
-

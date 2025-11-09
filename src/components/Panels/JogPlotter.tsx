@@ -56,7 +56,7 @@ import {
 import { useHttpFn } from "../../hooks"
 import type { UseHttpFn } from "../../hooks/useHttpQueue"
 import { espHttpURL, replaceVariables } from "../Helpers"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useRef } from "preact/hooks"
@@ -133,7 +133,8 @@ const PositionsControls: FunctionalComponent = () => {
 }
 
 const JogPanel: FunctionalComponent = () => {
-    const { modals, toasts } = useUiContext()
+    const { modals } = useModalsContext()
+    const { toasts } = useToastsContext()
 
     const { createNewRequest } = useHttpFn as UseHttpFn
     const { positions } = useTargetContext()

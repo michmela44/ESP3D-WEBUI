@@ -22,7 +22,7 @@ import { useEffect, useState } from "preact/hooks"
 import { T } from "../../../components/Translations"
 import { processor } from "./processor"
 import { useHttpFn } from "../../../hooks"
-import { useUiContext, useUiContextFn } from "../../../contexts"
+import { useToastsContext, useUiContext, useUiContextFn } from "../../../contexts"
 import { Target } from "./index"
 import {
     espHttpURL,
@@ -53,7 +53,8 @@ const MachineSettings = () => {
     const [settings, setSettings] = useState(machineSettings.cache)
     const [collected, setCollected] = useState("0 B")
     const { createNewRequest, abortRequest } = useHttpFn as any
-    const { modals, toasts, uisettings } = useUiContext()
+    const { uisettings } = useUiContext()
+    const { toasts } = useToastsContext()
     const id = "Machine Tab"
     const sendSerialCmd = (cmd: string, updateUI?: (res: any) => void) => {
         createNewRequest(

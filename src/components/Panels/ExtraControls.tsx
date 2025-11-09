@@ -21,7 +21,7 @@ import type { FunctionalComponent, JSX } from "preact"
 import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Sliders, Send } from "preact-feather"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
 import { useTargetContext } from "../../targets"
 import {
     ButtonImg,
@@ -179,7 +179,7 @@ const ExtraControls: FunctionalComponent = () => {
 
 const ExtraInputControl = ({ element, index, size, pos }: { element: any; index: number; size: number; pos: number }) => {
     if (!isVisible(pos)) return null
-    const { toasts } = useUiContext()
+    const { toasts } = useToastsContext()
     const { createNewRequest } = useHttpFn as UseHttpFn
     const sendCommand = (command: string): void => {
         createNewRequest(

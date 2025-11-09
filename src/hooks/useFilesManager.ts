@@ -24,7 +24,7 @@ import { T } from "../components/Translations"
 import { useHttpFn } from "./useHttpQueue"
 import type { UseHttpFn } from "./useHttpQueue"
 import { espHttpURL, getBrowserTime } from "../components/Helpers"
-import { useUiContext, useUiContextFn } from "../contexts"
+import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../contexts"
 import { showModal, showConfirmationModal, showProgressModal } from "../components/Modal"
 import { files, processor, useTargetContextFn } from "../targets"
 import type {
@@ -97,7 +97,8 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
     )
     const { createNewRequest, abortRequest } = useHttpFn as UseHttpFn
     const { processData } = useTargetContextFn
-    const { modals, toasts } = useUiContext()
+    const { modals } = useModalsContext()
+    const { toasts } = useToastsContext()
 
     // Use a ref wrapper that works with module-level refs
     const fileref = {
