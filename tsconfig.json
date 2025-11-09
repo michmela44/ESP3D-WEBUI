@@ -14,7 +14,9 @@
     "noEmit": false,
     "strict": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "inlineSources": true
   },
   "include": [
     "src",
