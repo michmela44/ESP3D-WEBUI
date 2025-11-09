@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, TargetedMouseEvent } from "preact"
+import { FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import { Search } from "preact-feather"
 import { showModal } from "../../Modal"

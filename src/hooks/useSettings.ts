@@ -339,7 +339,6 @@ const useSettings = (): UseSettingsReturn => {
                     {
                         onSuccess: (result: string) => {
                             const styleItem = document.createElement("style")
-                            styleItem.type = "text/css"
                             styleItem.id = "themestyle"
                             styleItem.innerHTML = result
                             document.head.appendChild(styleItem)

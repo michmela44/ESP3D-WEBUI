@@ -66,7 +66,12 @@ module.exports = {
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: "ts-loader"
+                        loader: "ts-loader",
+                        options: {
+                            transpileOnly: false,
+                            configFile: path.resolve(__dirname, "../tsconfig.json"),
+                            logLevel: "info"
+                        }
                     },
                 ],
             },
@@ -117,4 +122,5 @@ module.exports = {
         ],
     },
     devtool: "source-map", // supposedly the ideal type without bloating bundle size
+    stats: "normal", // show warnings and deprecation notices
 }

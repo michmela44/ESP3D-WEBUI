@@ -20,7 +20,7 @@
 if (process.env.NODE_ENV === "development") {
     require("preact/debug")
 }
-import { h, render } from "preact"
+import { render } from "preact"
 import { App } from "./components/App"
 import "./style/index.scss"
 import "SubTargetDir/style/index.scss"

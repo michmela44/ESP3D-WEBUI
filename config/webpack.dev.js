@@ -35,7 +35,7 @@ module.exports = {
             target: "http://localhost:8080",
         },
     },
-    stats: "minimal", // default behaviour spit out way too much info. adjust to your need.
+    stats: "normal", // default behaviour spit out way too much info. adjust to your need.
     devtool: "source-map", // a sourcemap type. map to original source with line number
     plugins: [
         new MiniCssExtractPlugin({
@@ -70,7 +70,8 @@ module.exports = {
                     loader: "ts-loader",
                     options: {
                         transpileOnly: false,
-                        configFile: path.resolve(__dirname, "../tsconfig.json")
+                        configFile: path.resolve(__dirname, "../tsconfig.json"),
+                        logLevel: "info"
                     }
                 },
             },

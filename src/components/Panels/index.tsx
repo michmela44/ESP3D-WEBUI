@@ -1,4 +1,4 @@
-import { h, ComponentChildren, TargetedMouseEvent } from "preact"
+import { ComponentChildren, TargetedMouseEvent } from "preact"
 import { ChevronDown } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 

@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, TargetedKeyboardEvent, TargetedEvent } from "preact"
+import { TargetedKeyboardEvent, TargetedEvent } from "preact"
 import type { FunctionalComponent, VNode, JSX } from "preact"
 import { useEffect, useRef, useState, useMemo } from "preact/hooks"
 import { T } from "../Translations"

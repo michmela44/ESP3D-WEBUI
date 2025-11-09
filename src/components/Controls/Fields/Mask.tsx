@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, JSX } from "preact"
+import { FunctionalComponent, JSX } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import { Flag } from "preact-feather"
 import {

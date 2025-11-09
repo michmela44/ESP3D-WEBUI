@@ -18,7 +18,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, FunctionalComponent } from "preact"
+import { FunctionalComponent } from "preact"
 import { useState, useEffect, useMemo } from "preact/hooks"
 import { ExtraContentItem } from "../components/ExtraContent"
 import { useUiContext, useUiContextFn, useSettingsContext } from "../contexts"

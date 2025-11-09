@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, ComponentChildren } from "preact"
+import { FunctionalComponent, ComponentChildren } from "preact"
 import {
     useUiContext,
     useUiContextFn,

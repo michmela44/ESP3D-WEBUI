@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
+import { FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
 import { useEffect } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../../contexts"
 import { ButtonImg } from "../../Controls"

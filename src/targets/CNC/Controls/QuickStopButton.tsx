@@ -16,7 +16,7 @@ QuickStopButton.tsx - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, TargetedMouseEvent } from "preact"
+import { TargetedMouseEvent } from "preact"
 import { AlertCircle } from "preact-feather"
 import { useHttpFn } from "../../../hooks"
 import type { UseHttpFn } from "../../../hooks/useHttpQueue"

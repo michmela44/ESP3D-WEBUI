@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, h, JSX } from "preact"
+import { Fragment,  JSX } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import { T } from "../../../components/Translations"
 import { processor } from "./processor"

@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h, FunctionalComponent, TargetedEvent, JSX } from "preact"
+import { Fragment,  FunctionalComponent, TargetedEvent, JSX } from "preact"
 import { useEffect } from "preact/hooks"
 import { useSettingsContext, useUiContextFn } from "../../../contexts"
 import { T } from "../../Translations"

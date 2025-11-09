@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, Fragment, FunctionalComponent, render, TargetedEvent } from "preact"
+import { Fragment, FunctionalComponent, render, TargetedEvent } from "preact"
 import { Menu } from "./menu"
 import { iconsFeather } from "../components/Images"
 import { machineSettings, iconsTarget } from "../targets"
@@ -118,7 +118,7 @@ const ContentContainer: FunctionalComponent = () => {
                         }
                     )
                     break
-                case "query":
+                case "query": {
                     let cmd: string | undefined = undefined
                     if (eventMsg.data.url == "command") {
                         console.log("Command")
@@ -157,6 +157,7 @@ const ContentContainer: FunctionalComponent = () => {
                         }
                     )
                     break
+                }
                 case "upload":
                     const formData = new FormData()
                     const file = new File(

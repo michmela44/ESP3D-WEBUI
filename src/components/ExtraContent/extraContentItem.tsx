@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, h } from "preact"
+import { Fragment } from "preact"
 import { useState, useEffect, useCallback, useRef, useMemo } from "preact/hooks"
 import { espHttpURL, invalidateIframeCache } from "../Helpers"
 import { useHttpFn } from "../../hooks"

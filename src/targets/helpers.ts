@@ -17,7 +17,6 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 import { useUiContextFn } from "../contexts"
 
 // Check if filename is a file to be processed based on extension

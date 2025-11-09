@@ -15,7 +15,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, FunctionalComponent } from "preact"
+import { FunctionalComponent } from "preact"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { Modal as SpectreModal } from "../Controls"
 import { disableUI, getFullscreenElement } from "../Helpers"

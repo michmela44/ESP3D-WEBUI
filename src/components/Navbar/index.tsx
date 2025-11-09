@@ -19,7 +19,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, h, ComponentChildren, TargetedMouseEvent } from "preact"
+import { Fragment,  ComponentChildren, TargetedMouseEvent } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { iconsFeather } from "../Images"
 import { iconsTarget, AppLogo } from "../../targets"

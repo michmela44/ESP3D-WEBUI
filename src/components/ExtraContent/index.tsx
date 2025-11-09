@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, Fragment } from "preact"
+import { Fragment } from "preact"
 import { useEffect, useCallback, useState } from "preact/hooks"
 import { elementsCache } from "../../areas/elementsCache"
 import { ExtraContentItem } from "./extraContentItem"

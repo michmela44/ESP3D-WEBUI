@@ -16,7 +16,7 @@ ScanAp.tsx - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h, FunctionalComponent } from "preact"
+import { Fragment,  FunctionalComponent } from "preact"
 import { useState, useEffect } from "preact/hooks"
 import { ButtonImg, Loading } from "./../Controls"
 import { useHttpQueue } from "../../hooks"

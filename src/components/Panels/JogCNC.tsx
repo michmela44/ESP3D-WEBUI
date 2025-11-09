@@ -16,7 +16,7 @@ Jog.tsx - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h, VNode } from "preact"
+import { Fragment,  VNode } from "preact"
 import {
     Move,
     Home,
@@ -40,7 +40,6 @@ let currentJogDistanceZ: any = "-1"
 let currentAxis: string = "-1"
 
 const feedList = ["XY", "Z", "A", "B", "C", "U", "V", "W"]
-const mainAxisLettersList = ["X", "Y", "Z"]
 const selectableAxisLettersList = ["A", "B", "C", "U", "V", "W"]
 
 /*

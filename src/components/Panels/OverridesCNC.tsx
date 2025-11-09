@@ -16,7 +16,7 @@ SpindleCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h, TargetedMouseEvent } from "preact"
+import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useRef } from "preact/hooks"
 import { T } from "../Translations"

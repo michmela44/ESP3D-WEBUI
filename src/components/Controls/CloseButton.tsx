@@ -15,7 +15,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, FunctionalComponent, TargetedMouseEvent } from "preact"
+import { FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useState, useEffect } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { eventBus } from "../../hooks/eventBus"

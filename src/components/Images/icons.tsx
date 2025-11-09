@@ -18,7 +18,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, VNode } from "preact"
+import { VNode } from "preact"
 import {
     Activity,
     AlertCircle,

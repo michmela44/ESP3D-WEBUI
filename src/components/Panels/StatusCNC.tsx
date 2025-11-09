@@ -16,10 +16,9 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h, TargetedMouseEvent } from "preact"
-import type { FunctionalComponent, VNode, JSX } from "preact"
+import { Fragment,  TargetedMouseEvent } from "preact"
+import type { FunctionalComponent, VNode } from "preact"
 import { T } from "../Translations"
-import { useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
