@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h, FunctionalComponent, JSX } from "preact"
+import { Fragment, h, FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
 import { useState, useEffect } from "preact/hooks"
 import { ButtonImg } from "../../Controls"
 import { T } from "../../Translations"
@@ -126,7 +126,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
         completeList[index].editionMode = state
         setValue([...completeList])
     }
-    const downItem = (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+    const downItem = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         e.currentTarget.blur()
         useUiContextFn.haptic()
         const item = completeList[index]
@@ -134,7 +134,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
         completeList.splice(index + 1, 0, item)
         setValue(completeList)
     }
-    const upItem = (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+    const upItem = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         e.currentTarget.blur()
         useUiContextFn.haptic()
         const item = completeList[index]
@@ -142,7 +142,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
         completeList.splice(index - 1, 0, item)
         setValue(completeList)
     }
-    const removeItem = (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+    const removeItem = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
         e.currentTarget.blur()
         completeList.splice(index, 1)
@@ -217,7 +217,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
                                 label={labelBtn}
                                 icon={controlIcon}
                                 width="100px"
-                                onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
                                     onEdit(true)
@@ -248,7 +248,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
                             tooltip
                             data-tooltip={T("S95")}
                             icon={<Minimize2 />}
-                            onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                 useUiContextFn.haptic()
                                 e.currentTarget.blur()
                                 onEdit(false)
@@ -370,7 +370,7 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
         interfaceSettings.current.settings
     )
     console.log(id)
-    const addItem = (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+    const addItem = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
         e.currentTarget.blur()
         const newItem: any = JSON.parse(

@@ -15,7 +15,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, JSX } from "preact"
+import { h, TargetedMouseEvent } from "preact"
 import { HelpCircle } from "preact-feather"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useHttpQueue } from "../../hooks"
@@ -30,7 +30,7 @@ const showKeepConnected = (): void => {
     const { modals } = useUiContext()
     const { createNewRequest } = useHttpQueue()
     const id = "keepconnected"
-    const clickKeepConnected = (e: JSX.TargetedMouseEvent<HTMLButtonElement>): void => {
+    const clickKeepConnected = (e: TargetedMouseEvent<HTMLButtonElement>): void => {
         useUiContextFn.haptic()
         createNewRequest(
             espHttpURL("command", { PING: "Yes" }),
@@ -46,7 +46,7 @@ const showKeepConnected = (): void => {
         )
         modals.removeModal(modals.getModalIndex(id))
     }
-    const clickCancel = (e: JSX.TargetedMouseEvent<HTMLButtonElement>): void => {
+    const clickCancel = (e: TargetedMouseEvent<HTMLButtonElement>): void => {
         useUiContextFn.haptic()
         modals.removeModal(modals.getModalIndex(id))
     }

@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, JSX } from "preact"
+import { h, FunctionalComponent, TargetedEvent } from "preact"
 import { useEffect } from "preact/hooks"
 import {
     useUiContext,
@@ -76,7 +76,7 @@ const Boolean: FunctionalComponent<BooleanProps> = ({
         ...rest,
     }
 
-    const onChange = (e: JSX.TargetedEvent<HTMLInputElement, Event>): void => {
+    const onChange = (e: TargetedEvent<HTMLInputElement, Event>): void => {
         useUiContextFn.haptic()
         if (setValue) setValue(e.currentTarget.checked)
     }

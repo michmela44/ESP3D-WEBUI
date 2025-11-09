@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h } from "preact"
+import { Fragment, h, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, VNode, JSX } from "preact"
 import { T } from "../Translations"
 import { useRef } from "preact/hooks"
@@ -305,7 +305,7 @@ const StatusPanel: FunctionalComponent = () => {
                                                             data-tooltip={T(
                                                                 item.value
                                                             )}
-                                                            onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                                            onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                                 useUiContextFn.haptic()
                                                                 e.currentTarget.blur()
                                                                 //TBD if need to change value from here
@@ -326,7 +326,7 @@ const StatusPanel: FunctionalComponent = () => {
                                                     data-tooltip={T(
                                                         element.label
                                                     )}
-                                                    onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                         useUiContextFn.haptic()
                                                         e.currentTarget.blur()
                                                         //TBD if need to change value from here
@@ -385,7 +385,7 @@ const StatusPanel: FunctionalComponent = () => {
                                                 icon={button.icon}
                                                 tooltip
                                                 data-tooltip={T(button.desc)}
-                                                onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                     useUiContextFn.haptic()
                                                     e.currentTarget.blur()
                                                     sendCommand(button.cmd)

@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, h, JSX } from "preact"
+import { Fragment, h, TargetedMouseEvent, JSX } from "preact"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { ButtonImg, Loading, Progress } from "../../components/Controls"
 import { useHttpQueue } from "../../hooks"
@@ -672,7 +672,7 @@ const FeaturesTab = () => {
                                 tooltip
                                 data-tooltip={T("S55")}
                                 icon={<Download />}
-                                onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
                                     if (inputFile.current) {
@@ -687,7 +687,7 @@ const FeaturesTab = () => {
                                 tooltip
                                 data-tooltip={T("S53")}
                                 icon={<ExternalLink />}
-                                onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
                                     exportFeatures(featuresSettings.current)
@@ -700,7 +700,7 @@ const FeaturesTab = () => {
                                     data-tooltip={T("S62")}
                                     label={T("S61")}
                                     icon={<Save />}
-                                    onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                         useUiContextFn.haptic()
                                         e.currentTarget.blur()
                                         SaveSettings()
@@ -714,7 +714,7 @@ const FeaturesTab = () => {
                                 data-tooltip={T("S59")}
                                 label={T("S58")}
                                 icon={<RotateCcw />}
-                                onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
                                     showConfirmationModal({

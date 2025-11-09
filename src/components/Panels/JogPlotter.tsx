@@ -43,8 +43,8 @@ JogPlotter.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h } from "preact"
-import type { FunctionalComponent, JSX } from "preact"
+import { Fragment, h, TargetedMouseEvent } from "preact"
+import type { FunctionalComponent } from "preact"
 import {
     Edit2,
     Home,
@@ -277,7 +277,7 @@ const JogPanel: FunctionalComponent = () => {
     }
 
     //click distance button
-    const onCheck = (e: JSX.TargetedMouseEvent<HTMLInputElement>, distance: number) => {
+    const onCheck = (e: TargetedMouseEvent<HTMLInputElement>, distance: number) => {
         e.currentTarget.blur()
         currentJogDistance = distance
     }
@@ -391,7 +391,7 @@ const JogPanel: FunctionalComponent = () => {
                                 <li class="menu-item">
                                     <div
                                         class="menu-entry"
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLDivElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
                                             useUiContextFn.haptic()
                                             setVelocity()
                                         }}
@@ -406,7 +406,7 @@ const JogPanel: FunctionalComponent = () => {
                                 <li class="menu-item">
                                     <div
                                         class="menu-entry"
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLDivElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
                                             useUiContextFn.haptic()
                                             setSteps()
                                         }}
@@ -450,7 +450,7 @@ const JogPanel: FunctionalComponent = () => {
                                         nomin
                                         data-tooltip={T(buttonsInfos.T.tooltip)}
                                         id="btnjogup"
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                             useUiContextFn.haptic()
                                             e.currentTarget.blur()
                                             sendJogCommand(buttonsInfos.T.cmd)
@@ -476,7 +476,7 @@ const JogPanel: FunctionalComponent = () => {
                                         data-tooltip={T(buttonsInfos.L.tooltip)}
                                         id="btnjogleft"
                                         label={buttonsInfos.L.label}
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                             useUiContextFn.haptic()
                                             e.currentTarget.blur()
                                             sendJogCommand(buttonsInfos.L.cmd)
@@ -490,7 +490,7 @@ const JogPanel: FunctionalComponent = () => {
                                     icon={<Home />}
                                     data-tooltip={T("HP19")}
                                     id={"btnpark"}
-                                    onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                         useUiContextFn.haptic()
                                         e.currentTarget.blur()
                                         sendParkCommand()
@@ -512,7 +512,7 @@ const JogPanel: FunctionalComponent = () => {
                                         tooltip
                                         data-tooltip={T(buttonsInfos.R.tooltip)}
                                         id="btnjogright"
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                             useUiContextFn.haptic()
                                             e.currentTarget.blur()
                                             sendJogCommand(buttonsInfos.R.cmd)
@@ -536,7 +536,7 @@ const JogPanel: FunctionalComponent = () => {
                                         data-tooltip={T(buttonsInfos.B.tooltip)}
                                         id="btnjogdown"
                                         label={buttonsInfos.B.label}
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                             useUiContextFn.haptic()
                                             e.currentTarget.blur()
                                             sendJogCommand(buttonsInfos.B.cmd)
@@ -575,7 +575,7 @@ const JogPanel: FunctionalComponent = () => {
                                         name="select_distance"
                                         value="100"
                                         checked={currentJogDistance == 100}
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLInputElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLInputElement>) => {
                                             useUiContextFn.haptic()
                                             onCheck(e, 100)
                                         }}
@@ -592,7 +592,7 @@ const JogPanel: FunctionalComponent = () => {
                                         name="select_distance"
                                         value="50"
                                         checked={currentJogDistance == 50}
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLInputElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLInputElement>) => {
                                             useUiContextFn.haptic()
                                             onCheck(e, 50)
                                         }}
@@ -609,7 +609,7 @@ const JogPanel: FunctionalComponent = () => {
                                         name="select_distance"
                                         value="10"
                                         checked={currentJogDistance == 10}
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLInputElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLInputElement>) => {
                                             useUiContextFn.haptic()
                                             onCheck(e, 10)
                                         }}
@@ -626,7 +626,7 @@ const JogPanel: FunctionalComponent = () => {
                                         name="select_distance"
                                         value="1"
                                         checked={currentJogDistance == 1}
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLInputElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLInputElement>) => {
                                             useUiContextFn.haptic()
                                             onCheck(e, 1)
                                         }}
@@ -643,7 +643,7 @@ const JogPanel: FunctionalComponent = () => {
                                         name="select_distance"
                                         value="0.1"
                                         checked={currentJogDistance == 0.1}
-                                        onClick={(e: JSX.TargetedMouseEvent<HTMLInputElement>) => {
+                                        onClick={(e: TargetedMouseEvent<HTMLInputElement>) => {
                                             useUiContextFn.haptic()
                                             onCheck(e, 0.1)
                                         }}
@@ -694,7 +694,7 @@ const JogPanel: FunctionalComponent = () => {
                             </span>
                         }
                         data-tooltip={T("HP11")}
-                        onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                             useUiContextFn.haptic()
                             e.currentTarget.blur()
                             const cmds = useUiContextFn

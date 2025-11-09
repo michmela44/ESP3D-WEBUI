@@ -18,7 +18,6 @@
 */
 import { createContext, FunctionalComponent, ComponentChildren } from "preact"
 import { useRef, useContext } from "preact/hooks"
-import { useUiContext } from "./UiContext"
 
 // Type definitions
 interface PollingItem {
@@ -86,7 +85,6 @@ const useSettingsContext = () => {
 const useSettingsContextFn: SettingsContextFn = {} as SettingsContextFn
 
 const SettingsContextProvider: FunctionalComponent<SettingsContextProviderProps> = ({ children }) => {
-    const { uisettings } = useUiContext()
     const interfaceValues = useRef<InterfaceSettings>({})
     const connectionValues = useRef<ConnectionSettings>({})
     const featuresValues = useRef<FeaturesSettings>({})

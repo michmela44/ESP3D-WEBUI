@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, Fragment, FunctionalComponent, render, JSX } from "preact"
+import { h, Fragment, FunctionalComponent, render, TargetedEvent } from "preact"
 import { Menu } from "./menu"
 import { iconsFeather } from "../components/Images"
 import { machineSettings, iconsTarget } from "../targets"
@@ -574,7 +574,7 @@ const ContentContainer: FunctionalComponent = () => {
                                 {content.style == "input" && (
                                     <input
                                         class="form-input"
-                                        onInput={(e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
+                                        onInput={(e: TargetedEvent<HTMLInputElement, Event>) => {
                                             inputData = e.currentTarget.value.trim()
                                         }}
                                         value={content.value}

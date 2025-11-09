@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h } from "preact"
+import { h, TargetedEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../Translations"
@@ -132,7 +132,7 @@ const NotificationsPanel: FunctionalComponent = () => {
             <div
                 ref={notificationsOutput}
                 class="panel-body panel-body-dashboard terminal m-1"
-                onScroll={(e: JSX.TargetedEvent<HTMLDivElement, UIEvent>) => {
+                onScroll={(e: TargetedEvent<HTMLDivElement, UIEvent>) => {
                     const el = e.currentTarget
                     if (
                         lastPos > el.scrollTop &&

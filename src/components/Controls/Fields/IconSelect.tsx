@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, JSX } from "preact"
+import { h, FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
 import { useEffect } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../../contexts"
 import { ButtonImg } from "../../Controls"
@@ -57,7 +57,7 @@ const IconSelect: FunctionalComponent<IconSelectProps> = ({
     }
     const { modals } = useUiContext()
     const iconsList: Record<string, JSX.Element> = { ...iconsTarget, ...iconsFeather }
-    const showList = (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+    const showList = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
         const content = (
             <div>
@@ -65,7 +65,7 @@ const IconSelect: FunctionalComponent<IconSelectProps> = ({
                     const displayIcon = iconsList[element]
                         ? iconsList[element]
                         : ""
-                    const onSelect = (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                    const onSelect = (e: TargetedMouseEvent<HTMLButtonElement>) => {
                         useUiContextFn.haptic()
                         setValue && setValue(element)
                         modals.removeModal(modals.getModalIndex(modalId))

@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, JSX, ComponentChildren } from "preact"
+import { h, FunctionalComponent, ComponentChildren, TargetedMouseEvent, TargetedKeyboardEvent, TargetedEvent, JSX } from "preact"
 import { useRef, useState, useEffect } from "preact/hooks"
 import {
     Eye,
@@ -157,7 +157,7 @@ const Input: FunctionalComponent<InputProps> = ({
     const appendtooltip = prec ? "tooltip tooltip-left" : ""
     const appendtooltipdata = prec ? T("S208").replace("$", prec.toString()) : ""
 
-    const onKeyPress = (e: JSX.TargetedKeyboardEvent<HTMLInputElement>) => {
+    const onKeyPress = (e: TargetedKeyboardEvent<HTMLInputElement>) => {
         if (!shortkey) return
         e.preventDefault()
         let v = ""
@@ -181,7 +181,7 @@ const Input: FunctionalComponent<InputProps> = ({
             setValue(e.currentTarget.value)
         }
     }
-    const onInput = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
+    const onInput = (e: TargetedEvent<HTMLInputElement, Event>) => {
         if (shortkey) return
         if (setValue) {
             setValue(e.currentTarget.value)
@@ -282,7 +282,7 @@ const Input: FunctionalComponent<InputProps> = ({
                         class="input-group-btn"
                         icon={<ChevronDown color="blue" />}
                         data-tooltip={T(help)}
-                        onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                        onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                             useUiContextFn.haptic()
                             e.currentTarget.blur()
                             const modalId = "list" + id
@@ -298,7 +298,7 @@ const Input: FunctionalComponent<InputProps> = ({
                                             return (
                                                 <li
                                                     class="item-selection-list"
-                                                    onClick={(e: JSX.TargetedMouseEvent<HTMLLIElement>) => {
+                                                    onClick={(e: TargetedMouseEvent<HTMLLIElement>) => {
                                                         useUiContextFn.haptic()
                                                         setValue && setValue(option.value)
                                                         modals.removeModal(
@@ -341,7 +341,7 @@ const Input: FunctionalComponent<InputProps> = ({
                     ltooltip
                     data-tooltip={T("S40")}
                     icon={<Search />}
-                    onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                    onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                         useUiContextFn.haptic()
                         e.currentTarget.blur()
                         const modalId = "scan"

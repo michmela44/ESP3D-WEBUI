@@ -1,5 +1,4 @@
-import { h, ComponentChildren } from "preact"
-import type { JSX } from "preact"
+import { h, ComponentChildren, TargetedMouseEvent } from "preact"
 import { ChevronDown } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
 
@@ -7,7 +6,7 @@ interface MenuItem {
     divider?: boolean
     label?: ComponentChildren
     icon?: ComponentChildren
-    onClick?: (e: JSX.TargetedMouseEvent<HTMLElement>) => void
+    onClick?: (e: TargetedMouseEvent<HTMLElement>) => void
     displayToggle?: () => ComponentChildren
 }
 

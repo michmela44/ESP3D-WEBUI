@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h } from "preact"
+import { h, TargetedKeyboardEvent, TargetedEvent } from "preact"
 import type { FunctionalComponent, VNode, JSX } from "preact"
 import { useEffect, useRef, useState, useMemo } from "preact/hooks"
 import { T } from "../Translations"
@@ -152,7 +152,7 @@ const TerminalPanel: FunctionalComponent = () => {
             inputHistoryIndex.current = terminal.inputHistory.length
         } 
     }
-    const onKeyUp = (e: JSX.TargetedKeyboardEvent<HTMLInputElement>) => {
+    const onKeyUp = (e: TargetedKeyboardEvent<HTMLInputElement>) => {
         switch (e.keyCode) {
             case 13:
                 onSend(e)
@@ -209,7 +209,7 @@ const TerminalPanel: FunctionalComponent = () => {
         terminal.input.current = ""
         if (inputRef.current) inputRef.current.value = ""
     }
-    const onInput = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
+    const onInput = (e: TargetedEvent<HTMLInputElement, Event>) => {
         terminal.input.current = e.currentTarget.value
     }
     useEffect(() => {
@@ -336,7 +336,7 @@ const TerminalPanel: FunctionalComponent = () => {
             <div
                 ref={terminalOutput}
                 class="panel-body panel-body-dashboard terminal m-1"
-                onScroll={(e: JSX.TargetedEvent<HTMLDivElement, UIEvent>) => {
+                onScroll={(e: TargetedEvent<HTMLDivElement, UIEvent>) => {
                     const el = e.currentTarget
                     if (
                         lastPos > el.scrollTop &&

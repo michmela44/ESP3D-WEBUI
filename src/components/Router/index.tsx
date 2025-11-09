@@ -16,7 +16,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, Fragment, FunctionalComponent, VNode, ComponentChildren, JSX } from "preact"
+import { h, Fragment, FunctionalComponent, VNode, ComponentChildren, HTMLAttributes } from "preact"
 import { useState, useEffect, useCallback } from "preact/hooks"
 import { Loading } from "../Controls"
 import { useRouterContext } from "../../contexts"
@@ -159,7 +159,7 @@ const Router: FunctionalComponent<RouterProps> = ({ children, routesList, parent
   )
 }
 
-interface LinkProps extends Omit<JSX.HTMLAttributes<HTMLAnchorElement>, "href" | "className"> {
+interface LinkProps extends Omit<HTMLAttributes<HTMLAnchorElement>, "href" | "className"> {
   activeClassName?: string
   className?: string
   href: string

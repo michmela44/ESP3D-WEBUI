@@ -16,7 +16,7 @@ LaserCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h } from "preact"
+import { Fragment, h, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
@@ -192,7 +192,7 @@ const LaserPanel: FunctionalComponent = () => {
                             command: "M3 S#",
                             desc: "M3",
                             mode: "spindle_mode",
-                            onclick: (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                            onclick: (e: TargetedMouseEvent<HTMLButtonElement>) => {
                                 const commands = [
                                     "G1 F1",
                                     () => {

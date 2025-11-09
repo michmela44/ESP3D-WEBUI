@@ -19,7 +19,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { Fragment, h, ComponentChildren, JSX } from "preact"
+import { Fragment, h, ComponentChildren, TargetedMouseEvent } from "preact"
 import { useState, useEffect, useRef } from "preact/hooks"
 import { iconsFeather } from "../Images"
 import { iconsTarget, AppLogo } from "../../targets"
@@ -198,7 +198,7 @@ const Navbar = () => {
                                 return
                             return (
                                 <Link
-                                    onClick={(e: JSX.TargetedMouseEvent<HTMLAnchorElement>) => {
+                                    onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                         useUiContextFn.haptic()
                                         if (buttonExtraPage.current)
                                             buttonExtraPage.current.classList.remove(
@@ -246,7 +246,7 @@ const Navbar = () => {
                                 <a
                                     class="btn btn-link no-box dropdown-toggle feather-icon-container"
                                     ref={buttonExtraPage}
-                                    onClick={(e: JSX.TargetedMouseEvent<HTMLAnchorElement>) => {
+                                    onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                         useUiContextFn.haptic()
                                         if (menuExtraPage.current)
                                             menuExtraPage.current.classList.remove(
@@ -272,7 +272,7 @@ const Navbar = () => {
                                                             id={id}
                                                             class="feather-icon-container"
                                                             href={href}
-                                                            onClick={(e: JSX.TargetedMouseEvent<HTMLAnchorElement>) => {
+                                                            onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                                                 useUiContextFn.haptic()
                                                                 if (
                                                                     menuExtraPage.current

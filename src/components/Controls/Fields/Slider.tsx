@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, Fragment, FunctionalComponent, JSX } from "preact"
+import { h, Fragment, FunctionalComponent, TargetedEvent } from "preact"
 import { useEffect } from "preact/hooks"
 import {
     useUiContext,
@@ -67,7 +67,7 @@ const Slider: FunctionalComponent<SliderProps> = ({
     disabled,
     ...rest
 }) => {
-    const onInput = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
+    const onInput = (e: TargetedEvent<HTMLInputElement, Event>) => {
         if (e) useUiContextFn.haptic()
         if (setValue) {
             setValue(parseFloat(e.currentTarget.value))
@@ -109,7 +109,7 @@ const Slider: FunctionalComponent<SliderProps> = ({
                     min="0"
                     max="100"
                     disabled={disabled}
-                    onClick={(e: JSX.TargetedEvent<HTMLInputElement, MouseEvent>) => {
+                    onClick={(e: TargetedEvent<HTMLInputElement, MouseEvent>) => {
                         //to workaround the slider bug not updating the value if overboundary
                         if (adjustValue) {
                             const adjustedValue = adjustValue(id)

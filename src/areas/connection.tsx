@@ -17,7 +17,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, FunctionalComponent, JSX } from "preact"
+import { h, FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useRef } from "preact/hooks"
 import { useUiContext, useSettingsContext, useUiContextFn } from "../contexts"
 import { Loading } from "../components/Controls"
@@ -58,7 +58,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                 setTimeout(refreshTimer, 1000)
             }
         }
-        const onclick = (e: JSX.TargetedMouseEvent<HTMLButtonElement>): void => {
+        const onclick = (e: TargetedMouseEvent<HTMLButtonElement>): void => {
             useUiContextFn.haptic()
             connection.setConnectionState({
                 connected: false,

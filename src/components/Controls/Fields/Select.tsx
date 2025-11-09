@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h, FunctionalComponent, JSX } from "preact"
+import { Fragment, h, FunctionalComponent, TargetedEvent, JSX } from "preact"
 import { useEffect } from "preact/hooks"
 import { useSettingsContext, useUiContextFn } from "../../../contexts"
 import { T } from "../../Translations"
@@ -101,7 +101,7 @@ const Select: FunctionalComponent<SelectProps> = ({
         id,
         name: id,
     }
-    const onChange = (e: JSX.TargetedEvent<HTMLSelectElement, Event>): void => {
+    const onChange = (e: TargetedEvent<HTMLSelectElement, Event>): void => {
         useUiContextFn.haptic()
         if (setValue) setValue(e.currentTarget.value)
     }

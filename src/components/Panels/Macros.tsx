@@ -16,7 +16,7 @@ Macros.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h } from "preact"
+import { h, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX, ComponentChildren } from "preact"
 import { T } from "../Translations"
 import { Cast } from "preact-feather"
@@ -200,7 +200,7 @@ const MacrosPanel: FunctionalComponent = () => {
                                 showlow
                                 label={element.name}
                                 icon={displayIcon}
-                                onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
                                     processMacro(element.action, element.type)

@@ -18,7 +18,7 @@ TabNar.tsx - ESP3D WebUI Tabs bar file
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h, VNode, JSX } from "preact"
+import { h, VNode, TargetedMouseEvent } from "preact"
 import { Link } from "../Router"
 import { T } from "../Translations"
 import { AppLogo, WebUILogo, variablesList, Target } from "../../targets"
@@ -27,7 +27,7 @@ import {
     useUiContext,
     useUiContextFn,
 } from "../../contexts"
-import { Tool } from "preact-feather"
+import { Tool, Wifi } from "preact-feather"
 
 interface NavItem {
     label: string
@@ -78,7 +78,7 @@ const TabBar = () => {
                                 }
                                 activeClassName="active"
                                 href={href}
-                                onClick={(e: JSX.TargetedMouseEvent<HTMLAnchorElement>) => {
+                                onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                     useUiContextFn.haptic()
                                 }}
                             >

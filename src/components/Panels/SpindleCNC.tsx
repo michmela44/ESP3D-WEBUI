@@ -16,7 +16,7 @@ SpindleCNC.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, h } from "preact"
+import { Fragment, h, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
 import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
@@ -367,7 +367,7 @@ const SpindlePanel: FunctionalComponent = () => {
                                 className={classname}
                                 iconRight={button.iconRight}
                                 data-tooltip={T(button.tooltip)}
-                                onClick={(e: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
+                                onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
                                     if (button.useinput) {

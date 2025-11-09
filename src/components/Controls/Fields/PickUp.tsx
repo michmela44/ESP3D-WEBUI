@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, FunctionalComponent, JSX } from "preact"
+import { h, FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import { Search } from "preact-feather"
 import { showModal } from "../../Modal"
@@ -83,9 +83,7 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
             <span
                 class="form-input"
                 style="cursor: pointer;"
-                readonly
-                value={id == "language" ? T("lang") : T("none")}
-                onClick={(e: JSX.TargetedMouseEvent<HTMLSpanElement>) => {
+                onClick={(e: TargetedMouseEvent<HTMLSpanElement>) => {
                     useUiContextFn.haptic()
                     e.currentTarget.blur()
                     const modalId = `${id}Pickup`
