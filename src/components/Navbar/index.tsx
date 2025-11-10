@@ -28,6 +28,7 @@ import { T } from "../Translations"
 import {
     useSettingsContext,
     useUiContext,
+    useModalsContext,
     useWsContext,
     useRouterContext,
     useUiContextFn,
@@ -87,7 +88,8 @@ function isIOS(): boolean {
 const Navbar = () => {
     const { connectionSettings } = useSettingsContext()
     const { defaultRoute, activeRoute } = useRouterContext()
-    const { modals, uisettings } = useUiContext()
+    const { uisettings } = useUiContext()
+    const { modals } = useModalsContext()
     const { createNewRequest } = useHttpQueue()
     const { Disconnect } = useWsContext()
     const buttonExtraPage = useRef<HTMLAnchorElement | null>(null)
