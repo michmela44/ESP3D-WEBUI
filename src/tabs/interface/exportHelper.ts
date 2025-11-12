@@ -27,6 +27,7 @@ interface NavigatorWithMsSave extends Navigator {
 // Interface setting value type
 interface SettingValue {
     id: string;
+    name: string;
     initial: any;
     value: any;
 }
@@ -86,7 +87,7 @@ function exportPreferencesSection(
                             const item: any = {}
                             item.id = element.id
                             element.value.forEach((setting: SettingValue) => {
-                                item[setting.id || ''] = asFile
+                                item[setting.name] = asFile
                                     ? setting.initial
                                     : setting.value
                             })
