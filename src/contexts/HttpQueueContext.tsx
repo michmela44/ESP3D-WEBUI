@@ -20,7 +20,7 @@ import { createContext, FunctionalComponent } from "preact"
 import { useContext, useRef } from "preact/hooks"
 import { httpAdapter } from "../adapters"
 import { useUiContext } from "./UiContext"
-import { useWsContext } from "./WsContext"
+import { getWebSocketService } from "../hooks/useWebSocketService";
 import { useTargetContext } from "../targets"
 
 // Type definitions
@@ -72,7 +72,6 @@ const useHttpQueueContext = (): HttpQueueContextValue => {
 
 const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProps> = ({ children }) => {
     const { processData } = useTargetContext()
-    const { Disconnect } = useWsContext()
     const requestQueue = useRef<HttpRequest[]>([]) // Http queue for every components
     const isBusy = useRef<boolean>(false)
     const currentRequest = useRef<any>()
@@ -152,7 +151,10 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
                     counterNoAnswer++
                     console.log("Connection lost ?", counterNoAnswer)
                     if (counterNoAnswer > MaxNoAnswerNb) {
-                        Disconnect("connectionlost")
+                        const ws = getWebSocketService()
+                        if (ws) {
+                            ws.disconnect("connectionlost")
+                        }
                     }
                 }
             }

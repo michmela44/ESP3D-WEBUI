@@ -27,6 +27,7 @@ import {
     Progress,
 } from "../../components/Controls"
 import { useHttpQueue } from "../../hooks"
+import { useWebSocketService } from "../../hooks/useWebSocketService"
 import { espHttpURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
 import {
@@ -34,7 +35,6 @@ import {
     useModalsContext,
     useToastsContext,
     useUiContextFn,
-    useWsContext,
     useSettingsContext,
     useSettingsContextFn,
 } from "../../contexts"
@@ -143,7 +143,7 @@ const About: FunctionalComponent = (): JSX.Element => {
     const { uisettings } = useUiContext()
     const { toasts } = useToastsContext()
     const { modals } = useModalsContext()
-    const { Disconnect } = useWsContext()
+    const webSocketService = useWebSocketService();
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -295,7 +295,8 @@ const About: FunctionalComponent = (): JSX.Element => {
                     )
                         progressBar.update(100)
                     modals.removeModal(modals.getModalIndex("upload"))
-                    Disconnect(isFwUpdate ? "restart" : "connecting")
+                    webSocketService.disconnect(isFwUpdate ? "restart" : "connecting")
+
                     if (isFwUpdate) {
                         setTimeout(() => {
                             window.location.reload()

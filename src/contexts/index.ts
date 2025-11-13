@@ -29,7 +29,6 @@ import {
     useSettingsContextFn,
 } from "./SettingsContext"
 import { DatasContextProvider, useDatasContext } from "./DatasContext"
-import { WsContextProvider, useWsContext } from "./WsContext"
 import { ToastsContextProvider, useToastsContext, useToastsContextFn } from "./ToastsContext"
 import { ModalsContextProvider, useModalsContext } from "./ModalsContext"
 
@@ -45,8 +44,6 @@ export {
     useSettingsContext,
     DatasContextProvider,
     useDatasContext,
-    WsContextProvider,
-    useWsContext,
     useSettingsContextFn,
     ToastsContextProvider,
     useToastsContext,
@@ -61,6 +58,5 @@ export type { HttpQueueContextValue, HttpRequest } from "./HttpQueueContext"
 export type { UiContextValue, UiContextFn, UiSettings, Panel, ConnectionState, SoundNote } from "./UiContext"
 export type { SettingsContextValue, SettingsContextFn } from "./SettingsContext"
 export type { DatasContextValue, Terminal, TerminalElement } from "./DatasContext"
-export type { WsContextValue } from "./WsContext"
 export type { ToastsContextValue, ToastsContextFn, Toast, Notification, ToastContent } from "./ToastsContext"
 export type { ModalsContextValue, Modal } from "./ModalsContext"

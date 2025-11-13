@@ -258,7 +258,7 @@ function formatPreferences(section: PreferencesSection): PreferencesSection {
  * Imports preferences into the current preferences data.
  * @param {Object} currentPreferencesData - The current preferences data section.
  * @param {Object} importedPreferences - The preferences to be imported section.
- * @returns Object containing updated preferences and error status
+ * @returns {Array} An array containing a copy of preferences data section with imported data and a flag indicating if there were any errors during the import.
  */
 function importPreferencesSection(
     currentPreferencesData: PreferencesSection,

@@ -1,11 +1,14 @@
-import { createContext, FunctionalComponent, ComponentChildren } from "preact"
+import { createContext, FunctionalComponent, ComponentChildren, JSX } from "preact"
 import { useContext, useState, useRef, useCallback, useMemo } from "preact/hooks"
 import { generateUID, removeEntriesByIDs } from "../components/Helpers"
+
+export type ToastType = "error" | "warning" | "success" | "notification";
 
 // Type definitions
 interface ToastContent {
 	id?: string
-	[key: string]: unknown
+    type: ToastType
+    content: string | JSX.Element
 }
 
 interface Toast extends ToastContent {

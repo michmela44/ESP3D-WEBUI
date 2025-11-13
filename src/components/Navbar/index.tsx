@@ -29,10 +29,10 @@ import {
     useSettingsContext,
     useUiContext,
     useModalsContext,
-    useWsContext,
     useRouterContext,
     useUiContextFn,
 } from "../../contexts"
+import { useWebSocketService } from "../../hooks/useWebSocketService";
 import { useHttpQueue } from "../../hooks"
 import { espHttpURL } from "../Helpers"
 import { showConfirmationModal } from "../Modal"
@@ -91,7 +91,7 @@ const Navbar = () => {
     const { uisettings } = useUiContext()
     const { modals } = useModalsContext()
     const { createNewRequest } = useHttpQueue()
-    const { Disconnect } = useWsContext()
+    const webSocketService = useWebSocketService();
     const buttonExtraPage = useRef<HTMLAnchorElement | null>(null)
     const menuExtraPage = useRef<HTMLUListElement | null>(null)
     const iconsList = { ...iconsTarget, ...iconsFeather }
@@ -112,10 +112,10 @@ const Navbar = () => {
             { method: "POST", id: "login", body: formData },
             {
                 onSuccess: (result: any) => {
-                    Disconnect("sessiontimeout")
+                    webSocketService.disconnect("sessiontimeout")
                 },
                 onFail: (error: any) => {
-                    Disconnect("sessiontimeout")
+                    webSocketService.disconnect("sessiontimeout")
                 },
             }
         )

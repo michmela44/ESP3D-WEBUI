@@ -125,42 +125,111 @@ const commandsQuery = (req, res, SendWS) => {
 
     if (url.indexOf("ESP420") != -1) {
         res.json({
-            cmd: "420",
-            status: "ok",
-            data: [
-                { id: "chip id", value: "18569" },
-                { id: "CPU Freq", value: "240Mhz" },
-                { id: "CPU Temp", value: "54.4C" },
-                { id: "free mem", value: "201.86 KB" },
-                { id: "SDK", value: "v4.4-beta1-308-gf3e0c8bc41" },
-                { id: "flash size", value: "4.00 MB" },
-                { id: "size for update", value: "1.25 MB" },
-                { id: "FS type", value: "LittleFS" },
-                { id: "FS usage", value: "64.00 KB/1.44 MB" },
-                { id: "sleep mode", value: "none" },
-                { id: "wifi", value: "ON" },
-                { id: "hostname", value: "esp3d" },
-                { id: "HTTP port", value: "80" },
-                { id: "Telnet port", value: "23" },
-                { id: "sta", value: "ON" },
-                { id: "mac", value: "24:6F:28:4C:89:48" },
-                { id: "SSID", value: "luc-ext1" },
-                { id: "signal", value: "60%" },
-                { id: "phy mode", value: "11n" },
-                { id: "channel", value: "3" },
-                { id: "ip mode", value: "dhcp" },
-                { id: "ip", value: "192.168.2.215" },
-                { id: "gw", value: "192.168.2.1" },
-                { id: "msk", value: "255.255.255.0" },
-                { id: "DNS", value: "192.168.2.1" },
-                { id: "ap", value: "OFF" },
-                { id: "mac", value: "24:6F:28:4C:89:49" },
-                { id: "notification", value: "ON(line)" },
-                { id: "targetfw", value: "grbl" },
-                { id: "FWVersion", value: "3.0.0.a111" },
-                { id: "FW arch", value: "ESP32" },
-            ],
-        })
+ "cmd": "420",
+ "status": "ok",
+ "data": [
+  {
+   "id": "Chip ID",
+   "value": "33806"
+  },
+  {
+   "id": "CPU Cores",
+   "value": "2"
+  },
+  {
+   "id": "CPU Frequency",
+   "value": "240Mhz"
+  },
+  {
+   "id": "CPU Temperature",
+   "value": "53.3°C"
+  },
+  {
+   "id": "Free memory",
+   "value": "120.74 KB"
+  },
+  {
+   "id": "SDK",
+   "value": "v4.4.7-dirty"
+  },
+  {
+   "id": "Flash Size",
+   "value": "4.00 MB"
+  },
+  {
+   "id": "Sleep mode",
+   "value": "Modem"
+  },
+  {
+   "id": "Available Size for update",
+   "value": "1.88 MB"
+  },
+  {
+   "id": "Available Size for LocalFS",
+   "value": "192.00 KB"
+  },
+  {
+   "id": "Web port",
+   "value": "80"
+  },
+  {
+   "id": "Data port",
+   "value": "23"
+  },
+  {
+   "id": "Hostname",
+   "value": "fluidnc"
+  },
+  {
+   "id": "Current WiFi Mode",
+   "value": "STA (E0:5A:1B:E4:0E:84)"
+  },
+  {
+   "id": "Connected to",
+   "value": "BlackWidow"
+  },
+  {
+   "id": "Signal",
+   "value": "100%"
+  },
+  {
+   "id": "Phy Mode",
+   "value": "11n"
+  },
+  {
+   "id": "Channel",
+   "value": "2"
+  },
+  {
+   "id": "IP Mode",
+   "value": "DHCP"
+  },
+  {
+   "id": "IP",
+   "value": "192.168.100.98"
+  },
+  {
+   "id": "Gateway",
+   "value": "192.168.100.1"
+  },
+  {
+   "id": "Mask",
+   "value": "255.255.252.0"
+  },
+  {
+   "id": "DNS",
+   "value": "192.168.100.89"
+  },
+  {
+   "id": "Disabled Mode",
+   "value": "AP (E0:5A:1B:E4:0E:85)"
+  },
+  {
+   "id": "FW version",
+   "value": "FluidNC v3.9.9"
+  }
+ ]
+})
         return
     }
     if (url.indexOf("701") != -1) {

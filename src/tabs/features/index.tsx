@@ -23,12 +23,12 @@ import { ButtonImg, Loading, Progress } from "../../components/Controls"
 import { useHttpQueue } from "../../hooks"
 import { espHttpURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
+import { useWebSocketService } from "../../hooks/useWebSocketService";
 import {
     useUiContext,
     useModalsContext,
     useToastsContext,
     useSettingsContext,
-    useWsContext,
     useUiContextFn,
 } from "../../contexts"
 import {
@@ -100,7 +100,6 @@ const FeaturesTab = () => {
     const { uisettings } = useUiContext()
     const { toasts } = useToastsContext()
     const { modals } = useModalsContext()
-    const { Disconnect } = useWsContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
     const { featuresSettings } = useSettingsContext()
     const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -108,6 +107,7 @@ const FeaturesTab = () => {
     const progressBar: ProgressBarRef = {}
     const [features, setFeatures] = useState<FeaturesStructure>(featuresSettings.current)
     const inputFile = useRef<HTMLInputElement>(null)
+    const webSocketService = useWebSocketService();
 
     const getFeatures = () => {
         setIsLoading(true)
@@ -326,7 +326,7 @@ const FeaturesTab = () => {
             { method: "GET" },
             {
                 onSuccess: (result: string) => {
-                    Disconnect("restart")
+                    webSocketService.disconnect("restart")
                     setTimeout(() => {
                         window.location.reload()
                     }, restartdelay * 1000)

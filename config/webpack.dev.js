@@ -60,6 +60,7 @@ module.exports = {
                     loader: "babel-loader",
                     options: {
                         presets: ["preact"],
+                        plugins: ["@babel/plugin-transform-react-jsx-source"],
                     },
                 },
             },

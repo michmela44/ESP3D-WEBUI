@@ -66,6 +66,7 @@ const ConnectionContainer: FunctionalComponent = () => {
             })
             window.location.href = espHttpURL().toString()
         }
+        console.log("Rendering connection state:", connection.connectionState.page)
         switch (connection.connectionState.page) {
             //No connection
             case "error":

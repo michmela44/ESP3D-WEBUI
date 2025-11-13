@@ -24,7 +24,6 @@ import {
     UiContextProvider,
     SettingsContextProvider,
     DatasContextProvider,
-    WsContextProvider,
     ToastsContextProvider,
     ModalsContextProvider,
 } from "../../contexts"
@@ -32,6 +31,7 @@ import { TargetContextProvider } from "../../targets"
 import { ContainerHelper } from "../Controls"
 import { ContentContainer } from "../../areas"
 import { ElementsCache } from "../../areas/elementsCache"
+import { ConnectionManager } from "../ConnectionManager"
 
 const App = () => {
     return (
@@ -44,11 +44,10 @@ const App = () => {
                                 <SettingsContextProvider>
                                     <ToastsContextProvider>
                                         <ModalsContextProvider>
-                                            <WsContextProvider>
-                                                <ContainerHelper id="top_container" active={true} />
-                                                <ElementsCache />
-                                                <ContentContainer />
-                                            </WsContextProvider>
+                                            <ConnectionManager />
+                                            <ContainerHelper id="top_container" active={true} />
+                                            <ElementsCache />
+                                            <ContentContainer />
                                         </ModalsContextProvider>
                                     </ToastsContextProvider>
                                 </SettingsContextProvider>
