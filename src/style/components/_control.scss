@@ -725,3 +725,11 @@ a label {
     z-index: 100000 !important;
     overlay: auto!important;
 }
+
+@media (max-width: $size-xs) {
+  [class~="col-"],
+  .column {
+    flex-basis: 100% ;
+    width: 100%;
+  }
+}

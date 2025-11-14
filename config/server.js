@@ -64,7 +64,7 @@ function SendWS(text, isbinary = true, isNotification = true) {
         }
         wss.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(array)
+                client.send(array)  
             }
         })
     } else {
@@ -304,8 +304,72 @@ wss.on("connection", (socket, request) => {
     currentID++
     socket.on("message", (message) => {
         console.log(wscolor("[ws] received:", message))
+        HandleWSMessage(message, socket)
     })
 })
 wss.on("error", (error) => {
     console.log(wscolor("[ws] Error:", error))
 })
+
+function HandleWSMessage(message, socket) {
+    // Echo the message back
+
+    if (message.startsWith("$Settings/List")) {
+        HandleGetSettings(message, socket)
+    }
+}
+
+function HandleGetSettings(message, socket) {
+SendWS("$Grbl/SoftLimitsEnable=0\n", true, false)
+SendWS("$Grbl/HardLimitsEnable=0\n", true, false)
+SendWS("$Grbl/HomingCycleEnable=0\n", true, false)
+SendWS("$Grbl/HomingDirections=0\n", true, false)
+SendWS("$Grbl/MaxSpindleSpeed=0\n", true, false)
+SendWS("$Grbl/LaserMode=0\n", true, false)
+SendWS("$Grbl/Resolution/X=80.000\n", true, false)
+SendWS("$Grbl/Resolution/Y=80.000\n", true, false)
+SendWS("$Grbl/Resolution/Z=80.000\n", true, false)
+SendWS("$Grbl/MaxRate/X=1000.000\n", true, false)
+SendWS("$Grbl/MaxRate/Y=1000.000\n", true, false)
+SendWS("$Grbl/MaxRate/Z=1000.000\n", true, false)
+SendWS("$Grbl/Acceleration/X=25.000\n", true, false)
+SendWS("$Grbl/Acceleration/Y=25.000\n", true, false)
+SendWS("$Grbl/Acceleration/Z=25.000\n", true, false)
+SendWS("$Grbl/MaxTravel/X=1000.000\n", true, false)
+SendWS("$Grbl/MaxTravel/Y=1000.000\n", true, false)
+SendWS("$Grbl/MaxTravel/Z=1000.000\n", true, false)
+SendWS("$Notification/Type=NONE\n", true, false)
+SendWS("$Notification/T1=\n", true, false)
+SendWS("$Notification/T2=\n", true, false)
+SendWS("$Notification/TS=\n", true, false)
+SendWS("$Telnet/Enable=ON\n", true, false)
+SendWS("$Telnet/Port=23\n", true, false)
+SendWS("$HTTP/BlockDuringMotion=ON\n", true, false)
+SendWS("$HTTP/Enable=ON\n", true, false)
+SendWS("$HTTP/Port=80\n", true, false)
+SendWS("$MDNS/Enable=ON\n", true, false)
+SendWS("$WiFi/PsMode=None\n", true, false)
+SendWS("$WiFi/Mode=STA>AP\n", true, false)
+SendWS("$Sta/Password=********\n", true, false)
+SendWS("$Sta/MinSecurity=WPA2-PSK\n", true, false)
+SendWS("$WiFi/FastScan=OFF\n", true, false)
+SendWS("$Sta/IPMode=DHCP\n", true, false)
+SendWS("$Sta/IP=0.0.0.0\n", true, false)
+SendWS("$Sta/Gateway=0.0.0.0\n", true, false)
+SendWS("$Sta/Netmask=0.0.0.0\n", true, false)
+SendWS("$AP/Country=01\n", true, false)
+SendWS("$AP/SSID=FluidNCfghj\n", true, false)
+SendWS("$AP/Password=********\n", true, false)
+SendWS("$AP/IP=192.168.0.1\n", true, false)
+SendWS("$AP/Channel=1\n", true, false)
+SendWS("$Hostname=fluidnc\n", true, false)
+SendWS("$Sta/SSID=BlackWidow\n", true, false)
+SendWS("$GCode/Echo=OFF\n", true, false)
+SendWS("$Start/Message=Grbl \V [FluidNC \B (\R) \H]\n", true, false)
+SendWS("$Firmware/Build=\n", true, false)
+SendWS("$SD/FallbackCS=-1\n", true, false)
+SendWS("$Report/Status=1\n", true, false)
+SendWS("$Config/Filename=config.yaml\n", true, false)
+SendWS("$Message/Level=Info\n", true, false)
+SendWS("ok\n", true, false)
+}

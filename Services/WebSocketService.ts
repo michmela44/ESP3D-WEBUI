@@ -1,6 +1,6 @@
 import { WebSocketAdapter, WebSocketBufferedReader } from "./WebSocketAdapter"
 import { sleep } from "../src/utils"
-import { Command, CommandState } from "./Command"
+import { Command, CommandState } from "./Commands/Command"
 import type { Toast } from "../src/contexts/ToastsContext"
 
 import {
@@ -114,17 +114,6 @@ export class WebSocketService {
             if (!this.wsAdapter.isOpen()) {
                 await this.wsAdapter.open()
             }
-
-            // const bufferedReader = new WebSocketBufferedReader()
-            // const unregister = this.wsAdapter.addReader(bufferedReader.getReader())
-
-            // try {
-            //     // Wait for WebSocket connection to stabilize
-            //     await this.wsAdapter.waitForConnection(5000)
-            //     await this._initializeController(bufferedReader)
-            // } finally {
-            //     unregister()
-            // }
 
             this.status = ControllerStatus.CONNECTED
             this.reconnectAttempts = 0
@@ -435,7 +424,7 @@ export class WebSocketService {
      * Sends a command and waits for response
      */
     async send<T extends Command>(command: T, timeoutMs: number = 0): Promise<T> {
-        if (this.status !== ControllerStatus.CONNECTED) {
+        if (!this.wsAdapter.isOpen()) {
             return command
         }
 
@@ -465,6 +454,7 @@ export class WebSocketService {
             }
         })
 
+        this.buffer = ""
         await this.wsAdapter.write(command.getCommand() + "\n")
         return result
     }
@@ -689,6 +679,7 @@ export class WebSocketService {
             const decodedString = new TextDecoder("utf-8").decode(data)
             // Route binary data to listeners as stream type
             this._notifyDataListeners("stream", decodedString)
+            this.onData(decodedString)
         } catch (error) {
             console.error("Error decoding binary data:", error)
         }

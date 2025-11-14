@@ -37,6 +37,11 @@ interface NavItem {
 
 const defaultLinks: NavItem[] = [
     {
+        label: "Wifi",
+        icon: <Wifi height="24px" />,
+        href: "/settings/wifi",
+    },
+    {
         label: "S36",
         icon: <AppLogo height="24px" />,
         href: "/settings/features",

@@ -33,9 +33,11 @@ function getLastconnection() {
 }
 
 const commandsQuery = (req, res, SendWS) => {
-    let url = req.query.cmd ? req.query.cmd : req.originalUrl
+    let url = req.query.cmd ? req.query.cmd : (req.query.plain ? req.query.plain : req.originalUrl)
     if (req.query.cmd)
-        console.log(commandcolor(`[server]/command params: ${req.query.cmd}`))
+        console.log(commandcolor(`[server]/command params: ${req.query.cmd}`))  
+    else  if (req.query.plain)
+        console.log(commandcolor(`[server]/command params: ${req.query.plain}`))
     else console.log(commandcolor(`[server]/command : ${url}`))
     if (url.indexOf("PING") != -1) {
         lastconnection = Date.now()
@@ -69,6 +71,18 @@ const commandsQuery = (req, res, SendWS) => {
 
         res.send("")
         return
+    }
+
+    if (req.query.plain)
+    {
+        url = req.query.plain.toLowerCase()
+        switch (url) {
+            // Add cases here if needed
+            case "$settings/list":
+                res.status(200)
+                res.send("$Grbl/SoftLimitsEnable=0\n$Grbl/HardLimitsEnable=0\n$Grbl/HomingCycleEnable=0\n$Grbl/HomingDirections=0\n$Grbl/MaxSpindleSpeed=0\n$Grbl/LaserMode=0\n$Grbl/Resolution/X=80.000\n$Grbl/Resolution/Y=80.000\n$Grbl/Resolution/Z=80.000\n$Grbl/MaxRate/X=1000.000\n$Grbl/MaxRate/Y=1000.000\n$Grbl/MaxRate/Z=1000.000\n$Grbl/Acceleration/X=25.000\n$Grbl/Acceleration/Y=25.000\n$Grbl/Acceleration/Z=25.000\n$Grbl/MaxTravel/X=1000.000\n$Grbl/MaxTravel/Y=1000.000\n$Grbl/MaxTravel/Z=1000.000\n$Notification/Type=NONE\n$Notification/T1=\n$Notification/T2=\n$Notification/TS=\n$Telnet/Enable=ON\n$Telnet/Port=23\n$HTTP/BlockDuringMotion=ON\n$HTTP/Enable=ON\n$HTTP/Port=80\n$MDNS/Enable=ON\n$WiFi/PsMode=None\n$WiFi/Mode=STA>AP\n$Sta/Password=********\n$Sta/MinSecurity=WPA2-PSK\n$WiFi/FastScan=OFF\n$Sta/IPMode=DHCP\n$Sta/IP=\n$Sta/Gateway=0.0.0.0\n$Sta/Netmask=0.0.0.0\n$AP/Country=01\n$AP/SSID=FluidNCfghj\n$AP/Password=********\n$AP/IP=192.168.0.1\n$AP/Channel=1\n$Hostname=fluidnc\n$Sta/SSID=BlackWidow\n$GCode/Echo=OFF\n$Start/Message=Grbl \V [FluidNC \B (\R) \H]\n$Firmware/Build=\n$SD/FallbackCS=-1\n$Report/Status=1\n$Config/Filename=config.yaml\n$Message/Level=Info\n")
+                return
+        }
     }
 
     if (url.indexOf("SIM:") != -1) {

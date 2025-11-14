@@ -20,6 +20,7 @@
 */
 import { FunctionalComponent, JSX } from "preact"
 import { Router } from "../../components/Router"
+import { WifiTab } from "../../tabs/wifi"
 import { FeaturesTab } from "../../tabs/features"
 import { InterfaceTab } from "../../tabs/interface"
 import { MachineTab } from "../../tabs/machine"
@@ -36,13 +37,17 @@ interface Routes {
 }
 
 const routes: Routes = {
-    FEATURES: {
-        component: <FeaturesTab />,
-        path: "/settings/features",
-    },
     INTERFACE: {
         component: <InterfaceTab />,
         path: "/settings/interface",
+    },
+    WIFI: {
+        component: <WifiTab />,
+        path: "/settings/wifi",
+    },
+    FEATURES: {
+        component: <FeaturesTab />,
+        path: "/settings/features",
     },
     MACHINE: {
         component: <MachineTab />,
