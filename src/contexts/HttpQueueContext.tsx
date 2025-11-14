@@ -75,7 +75,7 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
     const requestQueue = useRef<HttpRequest[]>([]) // Http queue for every components
     const isBusy = useRef<boolean>(false)
     const currentRequest = useRef<any>()
-    const { dialogs, connection } = useUiContext()
+    const { connection } = useUiContext()
 
     //Add new Request to queue
     const addInQueue = (newRequest: HttpRequest) => {

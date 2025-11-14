@@ -22,7 +22,7 @@ import { FunctionalComponent } from "preact"
 
 import { useState, useEffect } from "preact/hooks"
 import { Router } from "../components/Router"
-import { useUiContext, useSettingsContext } from "../contexts"
+import { useUiContext } from "../contexts"
 import About from "../pages/about"
 import Dashboard from "../pages/dashboard"
 import Settings from "../pages/settings"

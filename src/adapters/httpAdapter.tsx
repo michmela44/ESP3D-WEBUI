@@ -78,7 +78,7 @@ const httpAdapter = (
 
     const cacheBustedUrl = (url: string): string => {
         const parsedUrl = new URL(url)
-        let params = parsedUrl.searchParams
+        // let params = parsedUrl.searchParams
        // params.get("t") == null && params.append("t", Date.now())
         return parsedUrl.toString()
     }

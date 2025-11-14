@@ -19,7 +19,7 @@
 */
 import { useEffect } from "preact/hooks"
 import { useTargetContext } from "../../.."
-import { useUiContext, useToastsContext } from "../../../../contexts"
+import { useToastsContext } from "../../../../contexts"
 import { T } from "../../../../components/Translations"
 import { variablesList } from "../"
 import { useHttpFn } from "../../../../hooks"

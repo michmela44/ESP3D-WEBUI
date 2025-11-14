@@ -77,7 +77,6 @@ const ContentContainer: FunctionalComponent = () => {
     const { createNewRequest } = useHttpQueue()
     const { toasts } = useToastsContext()
     const { modals } = useModalsContext()
-    const iconsList = { ...iconsTarget, ...iconsFeather }
 
     const processExtensionMessage = (eventMsg: any) => {
         if (eventMsg.data.type && eventMsg.data.target == "webui") {

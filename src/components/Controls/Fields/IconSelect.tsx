@@ -18,7 +18,7 @@
 
 import { FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
 import { useEffect } from "preact/hooks"
-import { useUiContext, useUiContextFn, useModalsContext } from "../../../contexts"
+import { useUiContextFn, useModalsContext } from "../../../contexts"
 import { ButtonImg } from "../../Controls"
 import { iconsFeather } from "../../Images"
 import { iconsTarget } from "../../../targets"

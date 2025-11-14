@@ -20,15 +20,6 @@
 
 type Accumulator = any[]
 
-const formatCapabilityLine = (acc: Accumulator, line: string): Accumulator => {
-    //TODO:
-    //isolate description
-    //sort enabled
-    //sort disabled
-    acc.push({ data: line })
-    return acc
-}
-
 const formatEepromLine = (acc: Accumulator, line: string): Accumulator => {
     //format G20 / G21
     //it is comment

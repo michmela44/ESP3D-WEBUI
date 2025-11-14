@@ -18,7 +18,7 @@ SpindleCNC.js - ESP3D WebUI component file
 
 import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, JSX } from "preact"
-import { useState, useRef } from "preact/hooks"
+import { useState } from "preact/hooks"
 import { T } from "../Translations"
 import { Target, Zap, Wind, CloudDrizzle } from "preact-feather"
 import {

@@ -22,7 +22,6 @@ import { useState } from "preact/hooks"
 import { T } from "../Translations"
 import { Underline } from "preact-feather"
 import {
-    useUiContext,
     useUiContextFn,
     useSettingsContext,
     useToastsContext,
@@ -164,7 +163,7 @@ const ProbePanel: FunctionalComponent = () => {
                                             connection_id: "Axisletters",
                                             contains: "X",
                                         },
-                                    ],
+                                    ]
                                 },
                                 {
                                     label: "Y",
@@ -452,7 +451,6 @@ const ProbePanel: FunctionalComponent = () => {
                                                 } else if (
                                                     element.type === "button"
                                                 ) {
-                                                    let classname = "tooltip"
                                                     return (
                                                         <ButtonImg
                                                             label={T(

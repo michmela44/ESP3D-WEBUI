@@ -21,7 +21,7 @@ import { useEffect, useState } from "preact/hooks"
 import { Search } from "preact-feather"
 import { showModal } from "../../Modal"
 import { ScanPacksList } from "../ScanPacksList"
-import { useUiContext, useUiContextFn, useModalsContext } from "../../../contexts"
+import {  useUiContextFn, useModalsContext } from "../../../contexts"
 import { T, getLanguageName } from "../../Translations"
 
 interface PickUpProps {

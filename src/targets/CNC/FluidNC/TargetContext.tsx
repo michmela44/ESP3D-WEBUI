@@ -17,9 +17,8 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { createContext, VNode } from "preact"
-import { useRef, useContext, useState, useCallback, useMemo } from "preact/hooks"
+import { useRef, useContext, useState, useMemo } from "preact/hooks"
 import {
-    limitArr,
     dispatchToExtensions,
     beautifyJSONString,
 } from "../../../components/Helpers"

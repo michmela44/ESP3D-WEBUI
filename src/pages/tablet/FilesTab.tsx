@@ -65,7 +65,7 @@ const FilesTab: FunctionalComponent = () => {
     }, [])
 
     // Sort files
-    const sortFiles = (filesList: any) => {
+    const sortFiles = (filesList: FilesList) => {
         if (!filesList || !filesList.files) return filesList
 
         const sorted = { ...filesList }
@@ -84,7 +84,7 @@ const FilesTab: FunctionalComponent = () => {
                     if (a.size === -1 && b.size === -1) {
                         comparison = a.name.localeCompare(b.name)
                     } else {
-                        comparison = (parseInt(a.size) || 0) - (parseInt(b.size) || 0)
+                        comparison = ((a.size) || 0) - ((b.size) || 0)
                     }
                     break
                 case "date":

@@ -17,10 +17,9 @@ Macros.js - ESP3D WebUI component file
 */
 
 import { TargetedMouseEvent } from "preact"
-import type { FunctionalComponent, JSX, ComponentChildren } from "preact"
+import type { FunctionalComponent, ComponentChildren } from "preact"
 import { T } from "../Translations"
 import { Cast } from "preact-feather"
-import { useRef } from "preact/hooks"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useHttpFn } from "../../hooks"
