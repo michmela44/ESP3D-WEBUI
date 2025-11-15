@@ -28,9 +28,8 @@ import {
 } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
+import { checkDependencies } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 
 /*
  * Local const
@@ -136,8 +135,9 @@ const SpindlePanel: FunctionalComponent = () => {
     const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const { status, states } = useTargetContext() as { status: { state?: string }; states: StatesMap }
-    const { createNewRequest } = useHttpFn as UseHttpFn
+    const { targetCommands } = useTargetCommands()
     const id = "SpindlePanel"
+
     if (typeof spindleSpeedValue.current === "undefined") {
         spindleSpeedValue.current = useUiContextFn.getValue("spindlespeed")
     }
@@ -240,24 +240,6 @@ const SpindlePanel: FunctionalComponent = () => {
         },
     ]
 
-    const sendCommand = (command: string): void => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true),
-            },
-            {
-                onSuccess: (_result) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
     //we won't handle modified state just handle error
     //too many user cases where changing value to show button is not suitable
     const [validation, setvalidation] = useState<{ message: string | null; valid: boolean; modified: boolean }>({
@@ -371,13 +353,13 @@ const SpindlePanel: FunctionalComponent = () => {
                                     useUiContextFn.haptic()
                                     e.currentTarget.blur()
                                     if (button.useinput) {
-                                        sendCommand(
+                                        targetCommands(
                                             button.command.replace(
                                                 "S#",
                                                 "S" + spindleSpeedValue.current
                                             )
                                         )
-                                    } else sendCommand(button.command)
+                                    } else targetCommands(button.command)
                                 }}
                             />
                         )

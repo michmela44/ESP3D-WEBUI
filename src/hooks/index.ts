@@ -19,3 +19,4 @@
 */
 export { useHttpQueue, useHttpFn } from "./useHttpQueue"
 export { useSettings } from "./useSettings"
+export { useTargetCommands } from "./useTargetCommands"

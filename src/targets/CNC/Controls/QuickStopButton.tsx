@@ -18,36 +18,14 @@ QuickStopButton.tsx - ESP3D WebUI component file
 
 import { TargetedMouseEvent } from "preact"
 import { AlertCircle } from "preact-feather"
-import { useHttpFn } from "../../../hooks"
-import type { UseHttpFn } from "../../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables } from "../../../components/Helpers"
-import { useToastsContext, useUiContextFn } from "../../../contexts"
+import { useTargetCommands } from "../../../hooks"
+import { useUiContext, useUiContextFn } from "../../../contexts"
 import { T } from "../../../components/Translations"
 import { ButtonImg } from "../../../components/Controls"
 import { variablesList } from "../../../targets"
 
 const QuickStopButton = () => {
-    const { toasts } = useToastsContext()
-
-    const { createNewRequest } = useHttpFn as UseHttpFn
-    const SendCommand = (command: string) => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands as any[], command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands as any[], command, true),
-            }, //need to see real command as it is not printable
-            {
-                onSuccess: (_result: any) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
+    const { targetCommands } = useTargetCommands()
 
     return (
         <ButtonImg
@@ -60,11 +38,8 @@ const QuickStopButton = () => {
             id="btnEStop"
             onclick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                 useUiContextFn.haptic()
-                e.currentTarget.blur()
-                const cmds = String(useUiContextFn.getValue("emergencystop")).split(";")
-                cmds.forEach((cmd: string) => {
-                    SendCommand(cmd)
-                })
+                const cmds = useUiContextFn.getValue("emergencystop")
+                targetCommands(cmds, ';')
             }}
         />
     )

@@ -25,14 +25,13 @@ import {
     StopCircle,
     MoreHorizontal,
 } from "preact-feather"
-import { useHttpFn } from "../../hooks"
-import { espHttpURL, replaceVariables } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { showModal } from "../Modal"
-import { useTargetContext, variablesList } from "../../targets"
+import { useTargetContext } from "../../targets"
 
 let currentFeedRate: Record<string, any> = {}
 let currentJogDistanceXY: any = "-1"
@@ -126,8 +125,6 @@ const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
 const JogPanel = () => {
     const { panels } = useUiContext()
     const { modals } = useModalsContext()
-    const { toasts } = useToastsContext()
-    const { createNewRequest } = useHttpFn
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const { positions } = useTargetContext()
     const id = "jogPanel"
@@ -138,25 +135,7 @@ const JogPanel = () => {
         currentAxis = value
     }
 
-    //Send a request to the ESP
-    const SendCommand = (command: string) => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true), //need to see the command sent but keep the not printable command as variable
-            },
-            {
-                onSuccess: (result: any) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
+    const { targetCommands } = useTargetCommands()
 
     //Send Home command
     const sendHomeCommand = (axis: string) => {
@@ -166,7 +145,7 @@ const JogPanel = () => {
         const cmd = useUiContextFn
             .getValue("homecmd")
             .replace("#", selected_axis)
-        SendCommand(cmd)
+        targetCommands(cmd)
     }
 
     //Send Zero command
@@ -185,7 +164,7 @@ const JogPanel = () => {
         const cmd = useUiContextFn
             .getValue("zerocmd")
             .replace("#", selected_axis.trim())
-        SendCommand(cmd)
+        targetCommands(cmd)
     }
 
     const sendMoveToCommand = (axis: string, targetPosition: string) => {
@@ -202,7 +181,7 @@ const JogPanel = () => {
         else selected_axis = axis
         let cmd =
             "$J=G90 G21 " + selected_axis.toUpperCase() + targetPosition + " F" + feedrate
-        SendCommand(cmd)
+        targetCommands(cmd)
     }
 
     const showMoveToDialog = (axis: string, currentPosition: string) => {
@@ -270,7 +249,7 @@ const JogPanel = () => {
         else selected_axis = axis
         let cmd =
             "$J=G91 G21 " + selected_axis + distance + " F" + feedrate
-        SendCommand(cmd)
+        targetCommands(cmd)
     }
 
     //click distance button
@@ -996,10 +975,7 @@ const JogPanel = () => {
                                 (e.target as HTMLElement).blur();
                                 const cmds = useUiContextFn
                                     .getValue("jogstopcmd")
-                                    .split(";")
-                                cmds.forEach((cmd: string) => {
-                                    SendCommand(cmd)
-                                })
+                                targetCommands(cmds, ";")
                             }}
                         />
                     </div>

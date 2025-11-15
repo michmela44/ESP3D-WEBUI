@@ -36,7 +36,7 @@ import {
     useSettingsContext,
     useSettingsContextFn,
 } from "../contexts/SettingsContext"
-import { useSettings, useHttpQueue } from "../hooks"
+import { useSettings, useHttpQueue, useTargetCommands } from "../hooks"
 import { useEffect } from "preact/hooks"
 import { Field, FieldGroup } from "../components/Controls"
 import { showKeepConnected, showModal } from "../components/Modal"
@@ -75,6 +75,7 @@ const ContentContainer: FunctionalComponent = () => {
     const { connectionSettings, interfaceSettings, featuresSettings } =
         useSettingsContext()
     const { createNewRequest } = useHttpQueue()
+    const { targetCommands } = useTargetCommands()
     const { toasts } = useToastsContext()
     const { modals } = useModalsContext()
 
@@ -86,46 +87,77 @@ const ContentContainer: FunctionalComponent = () => {
                     //between iFrame and Main UI
                     break
                 case "cmd":
-                    createNewRequest(
-                        espHttpURL("command", {
-                            cmd: eventMsg.data.content,
-                        }),
-                        { method: "GET" },
-                        {
-                            onSuccess: (result: string) => {
-                                if (!eventMsg.data.noDispatch)
-                                    dispatchToExtensions(
-                                        "cmd",
-                                        {
-                                            status: "success",
-                                            response: result,
-                                            initiator: eventMsg.data,
-                                        },
-                                        eventMsg.data.id
-                                    )
-                            },
-                            onFail: (error: string) => {
-                                console.log(error)
-                                if (!eventMsg.data.noDispatch)
-                                    dispatchToExtensions(
-                                        "cmd",
-                                        {
-                                            status: "error",
-                                            error: error,
-                                            initiator: eventMsg.data,
-                                        },
-                                        eventMsg.data.id
-                                    )
-                            },
-                        }
-                    )
+                    const cmdCallbacks = {
+                        onSuccess: (result: string) => {
+                            if (!eventMsg.data.noDispatch)
+                                dispatchToExtensions(
+                                    "cmd",
+                                    {
+                                        status: "success",
+                                        response: result,
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                        },
+                        onFail: (error: string) => {
+                            console.log(error)
+                            if (!eventMsg.data.noDispatch)
+                                dispatchToExtensions(
+                                    "cmd",
+                                    {
+                                        status: "error",
+                                        error: error,
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                        },
+                    }
                     break
                 case "query": {
                     let cmd: string | undefined = undefined
-                    if (eventMsg.data.url == "command") {
+                    const queryCallbacks = {
+                        onSuccess: (result: string) => {
+                            if (!eventMsg.data.noDispatch)
+                                dispatchToExtensions(
+                                    "query",
+                                    {
+                                        status: "success",
+                                        response: result,
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                        },
+                        onFail: (error: string) => {
+                            console.log(error)
+                            if (!eventMsg.data.noDispatch)
+                                dispatchToExtensions(
+                                    "query",
+                                    {
+                                        status: "error",
+                                        error: error,
+                                        initiator: eventMsg.data,
+                                    },
+                                    eventMsg.data.id
+                                )
+                         },
+                    }
+
+                    if (eventMsg.data.url=="command" && !eventMsg.data.arg) {
                         console.log("Command")
                         console.log(eventMsg.data)
-                        cmd = eventMsg.data.args.cmd
+                        targetCommands(eventMsg.data.args.cmd, undefined, undefined, queryCallbacks)
+                    } else {
+                        // This does not fit into the targetCommands paradigm because
+                        // either eventMsg.data.url is not "command" or eventMsg.data.args
+                        // is not empty
+                        createNewRequest(
+                            espHttpURL(eventMsg.data.url, eventMsg.data.args),
+                            { method: "GET" },
+                            queryCallbacks
+                        )
                     }
                     createNewRequest(
                         espHttpURL(eventMsg.data.url, eventMsg.data.args),

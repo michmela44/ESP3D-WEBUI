@@ -22,9 +22,7 @@ import { T } from "../Translations"
 import { useUiContextFn, useToastsContext } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 import {
     Layers,
     Unlock,
@@ -138,14 +136,13 @@ type PinsStates = Record<string, boolean>
 type StatesMap = Record<string, { value: string; pre?: string } | Array<{ value: string; pre?: string }> | unknown>
 
 const StatusPanel: FunctionalComponent = () => {
-    const { toasts } = useToastsContext()
     const { status, states, pinsStates, streamStatus } = useTargetContext() as unknown as {
         status: { state?: string }
         states: StatesMap
         pinsStates: PinsStates
         streamStatus: StreamStatus
     }
-    const { createNewRequest } = useHttpFn as UseHttpFn
+    const { targetCommands } = useTargetCommands()
     const id = "statusPanel"
     const buttonsList: Array<{
         name: string
@@ -203,25 +200,6 @@ const StatusPanel: FunctionalComponent = () => {
         },
         
     ]
-
-    const sendCommand = (command: string): void => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true),
-            },
-            {
-                onSuccess: (_result) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
 
     return (
         <div class="panel panel-dashboard" id={id}>
@@ -387,7 +365,7 @@ const StatusPanel: FunctionalComponent = () => {
                                                 onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                     useUiContextFn.haptic()
                                                     e.currentTarget.blur()
-                                                    sendCommand(button.cmd)
+                                                    targetCommands(button.cmd)
                                                 }}
                                             />
                                         )

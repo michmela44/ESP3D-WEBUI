@@ -21,7 +21,7 @@ import type { FunctionalComponent, JSX } from "preact"
 import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Sliders, Send } from "preact-feather"
-import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
+import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 import {
     ButtonImg,
@@ -30,9 +30,7 @@ import {
     FullScreenButton,
     CloseButton,
 } from "../Controls"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
-import { espHttpURL } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 import { ContainerHelper } from "../Controls"
 
 /*
@@ -179,22 +177,8 @@ const ExtraControls: FunctionalComponent = () => {
 
 const ExtraInputControl = ({ element, index, size, pos }: { element: any; index: number; size: number; pos: number }) => {
     if (!isVisible(pos)) return null
-    const { toasts } = useToastsContext()
-    const { createNewRequest } = useHttpFn as UseHttpFn
-    const sendCommand = (command: string): void => {
-        createNewRequest(
-            espHttpURL("command", { cmd: command }),
-            { method: "GET", echo: command },
-            {
-                onSuccess: (_result) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
-    const [validation, setvalidation] = useState<{ message: string | null; valid: boolean; modified: boolean }>({
+    const { targetCommands } = useTargetCommands()
+    const [validation, setvalidation] = useState({
         message: null,
         valid: true,
         modified: false,
@@ -286,10 +270,8 @@ const ExtraInputControl = ({ element, index, size, pos }: { element: any; index:
                             pos,
                             index,
                             target_values[pos][index].current
-                        ).split(";")
-                        cmds.forEach((cmd) => {
-                            sendCommand(cmd)
-                        })
+                        )
+                        targetCommands(cmds, ';')
                         element.list.current[index] =
                             target_values[pos][index].current
                     }}
