@@ -7,6 +7,7 @@ const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin")
 const HTMLInlineCSSWebpackPlugin =
     require("html-inline-css-webpack-plugin").default
 const Compression = require("compression-webpack-plugin")
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 let target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "Printer3D"
 let subtarget = process.env.SUBTARGET_ENV ? process.env.SUBTARGET_ENV : "Marlin"
 
@@ -102,6 +103,13 @@ module.exports = {
             algorithm: "gzip",
             exclude: /.map$/,
             deleteOriginalAssets: "keep-source-map",
+        }),
+        new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            openAnalyzer: false,
+            reportFilename: path.resolve(__dirname, `../bundle-report-${target}-${subtarget}.html`),
+            generateStatsFile: true,
+            statsFilename: path.resolve(__dirname, `../bundle-stats-${target}-${subtarget}.json`),
         }),
     ],
     optimization: {
