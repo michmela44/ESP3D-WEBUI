@@ -434,6 +434,25 @@ const isReset = (str: string): boolean => {
     return reg_search.test(str)
 }
 
+////////////////////////////////////////////////////////
+//
+// Streaming status
+const isStreamingStatus = (str: string): boolean => {
+    try {
+        const res = JSON.parse(str)
+        if (res.cmd == "701" && typeof res.data != "undefined") return true
+        return false
+    } catch (e) {
+        return false
+    }
+}
+
+const getStreamingStatus = (str: string): Record<string, any> => {
+    const res = JSON.parse(str)
+    if (res.data.status) return res.data
+    return { status: res.data }
+}
+
 export {
     isOk,
     isStatus,
@@ -455,4 +474,6 @@ export {
     isOptions,
     getOptions,
     isReset,
+    isStreamingStatus,
+    getStreamingStatus,
 }
