@@ -45,8 +45,6 @@ import {
     isOptions,
     getOptions,
     isReset,
-    isStreamingStatus,
-    getStreamingStatus,
 } from "./filters"
 
 const lastStatus: Record<string, any> = {}
@@ -81,7 +79,6 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
     const [overrides, setOverrides] = useState({})
     const [pinsStates, setPinStates] = useState(lastPins)
     const [states, setStates] = useState({})
-    const [streamStatus, setStreamStatus] = useState({})
     const [message, setMessage] = useState<string | undefined>()
     const [alarmCode, setAlarmCode] = useState(0)
     const [errorCode, setErrorCode] = useState(0)
@@ -207,9 +204,7 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
                         }
                     setStates((lastStates as any).current)
                 }
-                if (response.sd) {
-                    setStreamStatus(response.sd)
-                }
+   
                 //more to set+
                 //....
             }
@@ -292,10 +287,7 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
         if (type === "response") {
             //check if the response is a command answer
             if (data[0] === "{") {
-                if (isStreamingStatus(data)) {
-                    const status = getStreamingStatus(data)
-                    setStreamStatus(status)
-                }
+           
             }
         }
         //etc...
@@ -394,7 +386,6 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
     const store = useMemo(
         () => ({
             positions,
-            streamStatus,
             status,
             states,
             pinsStates,
@@ -409,7 +400,6 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
         }),
         [
             positions,
-            streamStatus,
             status,
             states,
             pinsStates,

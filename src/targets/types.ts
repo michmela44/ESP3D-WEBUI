@@ -38,17 +38,12 @@ export interface Status {
     [key: string]: any
 }
 
-export interface StreamStatus {
-    [key: string]: any
-}
-
 export interface TargetContextValue {
     positions: Positions
     status: Status
     message?: string | null
     alarmCode: number
     errorCode: number
-    streamStatus: StreamStatus
     [key: string]: any
 }
 

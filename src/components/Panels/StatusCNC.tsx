@@ -43,23 +43,14 @@ import {
  *
  */
 
-type StreamStatus = {
-    status?: string
-    name?: string
-    type?: string
-    processed?: number
-    total?: number
-    code?: number
-}
 
 const StatusControls: FunctionalComponent = () => {
-    const { status, message, alarmCode, errorCode, streamStatus } =
+    const { status, message, alarmCode, errorCode } =
         useTargetContext() as unknown as {
             status: { state?: string; code?: number }
             message?: string
             alarmCode: number
             errorCode: number
-            streamStatus: StreamStatus
         }
     if (!useUiContextFn.getValue("showstatuspanel")) return null
     return (
@@ -85,30 +76,6 @@ const StatusControls: FunctionalComponent = () => {
                         >
                             {T(status.state)}
                         </div>
-                        {streamStatus.status && (
-                            <div class="extra-control-value">
-                                {T(streamStatus.status)}
-                                {streamStatus.name
-                                    ? ` (${streamStatus.type}) ${
-                                          streamStatus.name
-                                      } ${
-                                          streamStatus.total
-                                              ? (
-                                                    (Number(streamStatus.processed) /
-                                                        Number(streamStatus.total)) *
-                                                    100
-                                                ).toFixed(0)
-                                              : streamStatus.processed
-                                      }%`
-                                    : ""}
-                            </div>
-                        )}
-                        {streamStatus.code && (
-                            <div class="extra-control-value text-error">
-                                {T("S22")}
-                                {": " + streamStatus.code}
-                            </div>
-                        )}
                         {status.code && (
                             <div class="extra-control-value">
                                 {T(status.state + ":" + status.code)}
@@ -139,11 +106,10 @@ type StatesMap = Record<string, { value: string; pre?: string } | Array<{ value:
 
 const StatusPanel: FunctionalComponent = () => {
     const { toasts } = useToastsContext()
-    const { status, states, pinsStates, streamStatus } = useTargetContext() as unknown as {
+    const { status, states, pinsStates } = useTargetContext() as unknown as {
         status: { state?: string }
         states: StatesMap
         pinsStates: PinsStates
-        streamStatus: StreamStatus
     }
     const { createNewRequest } = useHttpFn as UseHttpFn
     const id = "statusPanel"
