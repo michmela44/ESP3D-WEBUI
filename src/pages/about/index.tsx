@@ -43,6 +43,7 @@ import { Github, RefreshCcw, UploadCloud, LifeBuoy, Info, BookOpen } from "preac
 import { webUiUrl, fwUrl, Name, restartdelay } from "../../targets"
 import {
     showConfirmationModal,
+    showModal,
     showProgressModal,
 } from "../../components/Modal"
 
@@ -235,16 +236,132 @@ const About: FunctionalComponent = (): JSX.Element => {
         (window as any).open(url, "_blank")
         (e.target as HTMLElement).blur()
     }
+
+    const downloadFromGithub = (): void => {
+        // Use jsDelivr CDN which provides CORS-enabled access to GitHub releases
+        const cdnUrl = "https://cdn.jsdelivr.net/gh/michmela44/ESP3D-WEBUI@latest/index.html.gz"
+
+        showProgressModal({
+            modals,
+            title: T("S32"),
+            button1: { cb: abortRequest, text: T("S28") },
+            content: <Progress progressBar={progressBar} max={100} />,
+        })
+
+        fetch(cdnUrl)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+                const contentLength = response.headers.get("content-length")
+                const total = parseInt(contentLength || "0", 10)
+                const reader = response.body?.getReader()
+
+                if (!reader) {
+                    throw new Error("Unable to read response body")
+                }
+
+                let loaded = 0
+                const chunks: BlobPart[] = []
+
+                const readChunk = (): Promise<Blob> => {
+                    return reader.read().then((result) => {
+                        if (result.done) {
+                            return new Blob(chunks, { type: "application/gzip" })
+                        }
+                        const chunk = result.value
+                        chunks.push(chunk)
+                        loaded += chunk.byteLength
+                        if (total > 0) {
+                            const percentComplete = (loaded / total) * 100
+                            if (progressBar.update && typeof progressBar.update === "function") {
+                                progressBar.update(percentComplete)
+                            }
+                        }
+                        return readChunk()
+                    })
+                }
+
+                return readChunk()
+            })
+            .then((blob) => {
+                const formData = new FormData()
+                formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
+                formData.append("createPath", "true")
+
+                const filename = "index.html.gz"
+                const arg = useSettingsContextFn.getValue("HostUploadPath") + filename + "S"
+                formData.append(arg, String(blob.size))
+                formData.append(
+                    "myfiles",
+                    blob,
+                    useSettingsContextFn.getValue("HostUploadPath") + filename
+                )
+
+                setIsFwUpdate(false)
+                createNewRequest(
+                    espHttpURL(useSettingsContextFn.getValue("HostTarget")),
+                    { method: "POST", id: "upload", body: formData },
+                    {
+                        onSuccess: () => {
+                            if (
+                                progressBar.update &&
+                                typeof progressBar.update === "function"
+                            )
+                                progressBar.update(100)
+                            modals.removeModal(modals.getModalIndex("upload"))
+                            webSocketService.disconnect("connecting")
+                            window.location.reload()
+                        },
+                        onFail: (error: any) => {
+                            modals.removeModal(modals.getModalIndex("upload"))
+                            toasts.addToast({ content: error, type: "error" })
+                        },
+                        onProgress: (e: number) => {
+                            if (
+                                progressBar.update &&
+                                typeof progressBar.update === "function"
+                            )
+                                progressBar.update(50 + e / 2) // Scale to 50-100 for upload portion
+                        },
+                    }
+                )
+            })
+            .catch((error) => {
+                modals.removeModal(modals.getModalIndex("upload"))
+                toasts.addToast({
+                    content: `Failed to download from GitHub: ${error.message}`,
+                    type: "error"
+                })
+            })
+    }
     const onWebUiUpdate = (e: MouseEvent) => {
         useUiContextFn.haptic();
         (e.target as HTMLElement).blur()
-        setIsFwUpdate(false)
-        if (inputFilesRef.current) {
-            inputFilesRef.current.value = ""
-            inputFilesRef.current.accept = "*"
-            inputFilesRef.current.multiple = true
-            inputFilesRef.current.click()
-        }
+
+        showModal({
+            modals,
+            title: "Web UI Update",
+            content: <CenterLeft><p>Choose how to update the Web UI:</p></CenterLeft>,
+            button1: {
+                text: "Upload from Disk",
+                cb: () => {
+                    setIsFwUpdate(false)
+                    if (inputFilesRef.current) {
+                        inputFilesRef.current.value = ""
+                        inputFilesRef.current.accept = "*"
+                        inputFilesRef.current.multiple = true
+                        inputFilesRef.current.click()
+                    }
+                },
+            },
+            button2: {
+                text: "Download from GitHub",
+                cb: downloadFromGithub,
+            },
+            id: "webui-update",
+            hideclose: false,
+        })
     }
     const onWebUiGit = (e: MouseEvent) => {
         useUiContextFn.haptic();
