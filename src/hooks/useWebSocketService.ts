@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "preact/hooks";
-import { WebSocketService } from "../../Services/WebSocketService";
-import { WebSocketAdapter } from "../../Services/WebSocketAdapter";
+import { WebSocketService } from "../Services/WebSocketService";
+import { WebSocketAdapter } from "../Services/WebSocketAdapter";
 import { useUiContext } from "../contexts";
 import { useToastsContext } from "../contexts";
 import { useModalsContext } from "../contexts";
