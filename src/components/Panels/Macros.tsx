@@ -22,9 +22,7 @@ import { T } from "../Translations"
 import { Cast } from "preact-feather"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 import { iconsFeather } from "../Images"
 import {
     iconsTarget,
@@ -64,7 +62,7 @@ interface MacroButton {
 const MacrosPanel: FunctionalComponent = () => {
     const { panels, uisettings } = useUiContext()
     const { processData } = useTargetContextFn as TargetContextFn
-    const { createNewRequest } = useHttpFn as UseHttpFn
+    const { targetCommands, failToast } = useTargetCommands()
     const iconsList: Record<string, ComponentChildren> = { ...iconsTarget, ...iconsFeather }
     const id = "macrosPanel"
     const getSDSource = (): string => {
@@ -76,24 +74,13 @@ const MacrosPanel: FunctionalComponent = () => {
         return "NONE"
     }
     const sendCommand = (command: string): void => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true),
+        const callbacks = {
+            onSuccess: (result: string) => {
+                processData("response", result)
             },
-            {
-                onSuccess: (result: any) => {
-                    processData("response", result)
-                },
-                onFail: (error: any) => {
-                    console.log(error)
-                    processData("error", error)
-                },
-            }
-        )
+            onFail: failToast,
+        }
+        targetCommands(command, undefined, undefined, callbacks)
     }
 
     const macroList: MacroItem[] = uisettings.getValue("macros")

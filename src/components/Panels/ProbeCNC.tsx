@@ -28,9 +28,8 @@ import {
 } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
+import { checkDependencies } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 
 /*
  * Local const
@@ -88,10 +87,9 @@ const ProbeControls: FunctionalComponent = () => {
 }
 
 const ProbePanel: FunctionalComponent = () => {
-    const { toasts } = useToastsContext()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     //const { status } = useTargetContext()
-    const { createNewRequest } = useHttpFn as UseHttpFn
+    const { targetCommands } = useTargetCommands()
     const id = "ProbePanel"
 
     if (typeof maxprobe.current === "undefined") {
@@ -122,24 +120,6 @@ const ProbePanel: FunctionalComponent = () => {
         )
     }
 
-    const sendCommand = (command: string): void => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true),
-            },
-            {
-                onSuccess: (_result) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
     const probe_controls = [
         {
             label: "",
@@ -387,13 +367,7 @@ const ProbePanel: FunctionalComponent = () => {
                                 ]
                                 e.currentTarget.blur()
                                 useUiContextFn.haptic()
-                                commands.forEach((command) => {
-                                    if (typeof command === "function") {
-                                        sendCommand(command())
-                                    } else {
-                                        sendCommand(command)
-                                    }
-                                })
+                                targetCommands(commands)
                             },
                         },
                     ],

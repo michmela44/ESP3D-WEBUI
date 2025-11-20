@@ -19,8 +19,7 @@ ScanAp.tsx - ESP3D WebUI component file
 import { Fragment,  FunctionalComponent } from "preact"
 import { useState, useEffect } from "preact/hooks"
 import { ButtonImg, Loading } from "./../Controls"
-import { useHttpQueue } from "../../hooks"
-import { espHttpURL } from "../../components/Helpers"
+import { useTargetCommands } from "../../hooks"
 import { useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
 import { T } from "./../Translations"
 import { Lock, CheckCircle } from "preact-feather"
@@ -43,33 +42,30 @@ const ScanApList: FunctionalComponent<ScanApListProps> = ({ id, setValue, refres
     const [isLoading, setIsLoading] = useState(true)
 
     const [APList, setApList] = useState<AccessPoint[]>([])
-    const { createNewRequest } = useHttpQueue()
+    const { targetCommands } = useTargetCommands()
     const ScanNetworks = () => {
         setIsLoading(true)
-        createNewRequest(
-            espHttpURL("command", { cmd: "[ESP410]json=yes" }),
-            { method: "GET" },
-            {
-                onSuccess: (result) => {
-                    setIsLoading(false)
-                    const jsonResult = JSON.parse(result)
-                    if (
-                        jsonResult.cmd != 410 ||
-                        jsonResult.status == "error" ||
-                        !jsonResult.data
-                    ) {
-                        toasts.addToast({ content: T("S194"), type: "error" })
-                        return
-                    }
-                    setApList(jsonResult.data)
-                },
-                onFail: (error) => {
-                    setIsLoading(false)
-                    toasts.addToast({ content: error, type: "error" })
-                    setApList([])
-                },
-            }
-        )
+        const callbacks = {
+            onSuccess: (result: string) => {
+                setIsLoading(false)
+                const jsonResult = JSON.parse(result)
+                if (
+                    jsonResult.cmd != 410 ||
+                    jsonResult.status == "error" ||
+                    !jsonResult.data
+                ) {
+                    toasts.addToast({ content: T("S194"), type: "error" })
+                } else {
+                setApList(jsonResult.data)
+}
+            },
+            onFail: (error: string) => {
+                setIsLoading(false)
+                toasts.addToast({ content: error, type: "error" })
+                setApList([])
+            },
+        }
+        targetCommands("[ESP410]json=yes", undefined, { echo: false }, callbacks)
     }
     useEffect(() => {
         ScanNetworks()

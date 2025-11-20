@@ -53,9 +53,7 @@ import {
     Edit3,
     StopCircle,
 } from "preact-feather"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
@@ -136,29 +134,10 @@ const JogPanel: FunctionalComponent = () => {
     const { modals } = useModalsContext()
     const { toasts } = useToastsContext()
 
-    const { createNewRequest } = useHttpFn as UseHttpFn
+    const { targetCommands } = useTargetCommands()
     const { positions } = useTargetContext()
     const id = "jogPanel"
     console.log(id)
-    //Send a request to the ESP
-    const SendCommand = (command: string) => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true), //need to see the command sent but keep the not printable command as variable
-            },
-            {
-                onSuccess: (result) => {},
-                onFail: (error) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
 
     function clickBtn(id: string) {
         const el = document.getElementById(id) as HTMLInputElement | null
@@ -189,7 +168,7 @@ const JogPanel: FunctionalComponent = () => {
         const cmds = command.split(";")
         cmds.forEach((cmd: any) => {
             if (cmd.trim().length > 0) {
-                SendCommand(variablesList.formatCommand(cmd))
+                targetCommands(variablesList.formatCommand(cmd))
             }
         })
     }
@@ -272,9 +251,9 @@ const JogPanel: FunctionalComponent = () => {
                 return
         }
         if (velocitycmd.length != 0) {
-            SendCommand(velocitycmd)
+            targetCommands(velocitycmd)
         }
-        SendCommand(jogcmd)
+        targetCommands(jogcmd)
     }
 
     //click distance button
@@ -672,10 +651,10 @@ const JogPanel: FunctionalComponent = () => {
                             setValue={(val: any, update?: boolean) => {
                                 if (!update) {
                                     if (val) {
-                                        SendCommand("PD;")
+                                        targetCommands("PD;")
                                         positions.pen = true
                                     } else {
-                                        SendCommand("PU;")
+                                        targetCommands("PU;")
                                         positions.pen = false
                                     }
                                 }
@@ -703,7 +682,7 @@ const JogPanel: FunctionalComponent = () => {
                                 .split(";")
                             cmds.forEach((cmd: any) => {
                                 if (cmd.trim().length > 0) {
-                                    SendCommand(
+                                    targetCommands(
                                         variablesList.formatCommand(cmd)
                                     )
                                 }

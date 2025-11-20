@@ -26,7 +26,7 @@ import {
     CenterLeft,
     Progress,
 } from "../../components/Controls"
-import { useHttpQueue } from "../../hooks"
+import { useHttpQueue, useTargetCommands } from "../../hooks"
 import { useWebSocketService } from "../../hooks/useWebSocketService"
 import { espHttpURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
@@ -146,6 +146,7 @@ const About: FunctionalComponent = (): JSX.Element => {
     const { modals } = useModalsContext()
     const webSocketService = useWebSocketService();
     const { createNewRequest, abortRequest } = useHttpQueue()
+    const { targetCommands } = useTargetCommands()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const progressBar: ProgressBar = {}
@@ -159,10 +160,7 @@ const About: FunctionalComponent = (): JSX.Element => {
 
     const getProps = (): void => {
         setIsLoading(true)
-        createNewRequest(
-            espHttpURL("command", { cmd: "[ESP420]json=yes" }),
-            { method: "GET" },
-            {
+        const callbacks = {
                 onSuccess: (result: any) => {
                     const jsonResult = JSON.parse(result)
                     if (
@@ -183,9 +181,10 @@ const About: FunctionalComponent = (): JSX.Element => {
                     toasts.addToast({ content: error, type: "error" })
                     console.log(error)
                 },
-            }
-        )
+        }
+        targetCommands("[ESP420]json=yes", undefined, undefined, callbacks)
     }
+
     //from https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
     function getBrowserInformation(): string {
         var ua = navigator.userAgent,

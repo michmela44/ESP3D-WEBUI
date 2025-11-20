@@ -21,7 +21,7 @@ import { Fragment } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import { T } from "../../../components/Translations"
 import { processor } from "./processor"
-import { useHttpFn } from "../../../hooks"
+import { useTargetCommands } from "../../../hooks"
 import { useToastsContext, useUiContext, useUiContextFn } from "../../../contexts"
 import { Target } from "./index"
 import {
@@ -52,28 +52,10 @@ const MachineSettings = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [settings, setSettings] = useState(machineSettings.cache)
     const [collected, setCollected] = useState("0 B")
-    const { createNewRequest, abortRequest } = useHttpFn as any
+    const { sendSerialCmd } = useTargetCommands()
     const { uisettings } = useUiContext()
     const { toasts } = useToastsContext()
     const id = "Machine Tab"
-    const sendSerialCmd = (cmd: string, updateUI?: (res: any) => void) => {
-        createNewRequest(
-            espHttpURL("command", { cmd }),
-            { method: "GET", echo: cmd },
-            {
-                onSuccess: (result: any) => {
-                    //Result is handled on ws so just do nothing
-                    if (updateUI) updateUI(result)
-                },
-                onFail: (error: string) => {
-                    console.log("Error:", error)
-                    setIsLoading(false)
-                    toasts.addToast({ content: error, type: "error" })
-                    processor.stopCatchResponse()
-                },
-            }
-        )
-    }
 
     const processCallBack = (_data: string, total: number) => {
         setCollected(formatFileSizeToString(total))
@@ -123,7 +105,7 @@ const MachineSettings = () => {
         ) {
             setCollected("0 B")
             setIsLoading(true)
-            sendSerialCmd(response.cmd)
+            sendSerialCmd(response.cmd, () => {})
         }
     }
 

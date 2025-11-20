@@ -23,6 +23,7 @@ import { useEffect, useState, useRef } from "preact/hooks"
 import { T } from "../components/Translations"
 import { useHttpFn } from "./useHttpQueue"
 import type { UseHttpFn } from "./useHttpQueue"
+import { useTargetCommands  } from "./useTargetCommands"
 import { espHttpURL, getBrowserTime } from "../components/Helpers"
 import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../contexts"
 import { showModal, showConfirmationModal, showProgressModal } from "../components/Modal"
@@ -96,6 +97,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
         filesListCache[currentFS]
     )
     const { createNewRequest, abortRequest } = useHttpFn as UseHttpFn
+    const { targetCommands } = useTargetCommands()
     const { processData } = useTargetContextFn
     const { modals } = useModalsContext()
     const { toasts } = useToastsContext()
@@ -138,24 +140,18 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
     }
 
     const sendSerialCmd = (command: string): void => {
-        const cmds = command.split(";")
-        cmds.forEach((cmd: string) => {
-            createNewRequest(
-                espHttpURL("command", { cmd: cmd }),
-                { method: "GET", echo: cmd },
-                {
-                    onSuccess: (_result: unknown) => {
-                        //Result is handled on ws so just do nothing
-                    },
-                    onFail: (error: string) => {
-                        console.log(error)
-                        processor.stopCatchResponse()
-                        setIsLoading(false)
-                        toasts.addToast({ content: error, type: "error" })
-                    },
-                }
-            )
-        })
+        const callbacks = {
+            onSuccess: (result: unknown) => {
+                //Result is handled on ws so just do nothing
+            },
+            onfail: (error: string) => {
+                console.log(error)
+                processor.stopCatchResponse()
+                setIsLoading(false)
+                toasts.addToast({ content: error, type: "error" })
+            },
+        }
+        targetCommands(command, ";", undefined, callbacks)
     }
 
     const sendURLCmd = (cmd: UrlCommand): void => {

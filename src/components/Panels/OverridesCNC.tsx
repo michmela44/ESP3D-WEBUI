@@ -24,9 +24,7 @@ import { Repeat } from "preact-feather"
 import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 
 /*
  * Local const
@@ -79,7 +77,7 @@ type ButtonsGroup = { label: string; buttons: ButtonConfig[] }
 const OverridesPanel: FunctionalComponent = () => {
     const { panels } = useUiContext()
     const { toasts } = useToastsContext()
-    const { createNewRequest } = useHttpFn as UseHttpFn
+    const { targetCommands } = useTargetCommands()
     const id = "OverridesPanel"
 
     const buttons_list: ButtonsGroup[] = [
@@ -169,24 +167,6 @@ const OverridesPanel: FunctionalComponent = () => {
         },
     ]
 
-    const sendCommand = (command: string): void => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true),
-            },
-            {
-                onSuccess: (_result) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
     return (
         <div class="panel panel-dashboard" id={id}>
             <ContainerHelper id={id} /> 
@@ -234,7 +214,7 @@ const OverridesPanel: FunctionalComponent = () => {
                                                 onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                     useUiContextFn.haptic()
                                                     e.currentTarget.blur()
-                                                    sendCommand(button.command)
+                                                    targetCommands(button.command)
                                                 }}
                                             />
                                         )

@@ -20,7 +20,7 @@
 import { Fragment,  TargetedMouseEvent, JSX } from "preact"
 import { useEffect, useState, useRef } from "preact/hooks"
 import { ButtonImg, Loading, Progress } from "../../components/Controls"
-import { useHttpQueue } from "../../hooks"
+import { useHttpQueue, useTargetCommands } from "../../hooks"
 import { espHttpURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
 import { useWebSocketService } from "../../hooks/useWebSocketService";
@@ -100,7 +100,8 @@ const FeaturesTab = () => {
     const { uisettings } = useUiContext()
     const { toasts } = useToastsContext()
     const { modals } = useModalsContext()
-    const { createNewRequest, abortRequest } = useHttpQueue()
+    const { abortRequest } = useHttpQueue()
+    const { targetCommands } = useTargetCommands()
     const { featuresSettings } = useSettingsContext()
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [showSave, setShowSave] = useState<boolean>(true)
@@ -111,42 +112,39 @@ const FeaturesTab = () => {
 
     const getFeatures = () => {
         setIsLoading(true)
-        createNewRequest(
-            espHttpURL("command", { cmd: "[ESP400]json=yes" }),
-            { method: "GET" },
-            {
-                onSuccess: (result: string) => {
-                    try {
-                        const jsonResult: ESP400Response = JSON.parse(result)
-                        if (
-                            !jsonResult ||
-                            jsonResult.cmd != 400 ||
-                            jsonResult.status == "error" ||
-                            !jsonResult.data
-                        ) {
-                            toasts.addToast({
-                                content: T("S194"),
-                                type: "error",
-                            })
-                            return
-                        }
-                        const feat = formatStructure(jsonResult.data)
-                        featuresSettings.current = { ...feat }
-                        setFeatures(featuresSettings.current)
-                    } catch (e) {
-                        console.log(e, T("S21"))
-                        toasts.addToast({ content: T("S21"), type: "error" })
-                    } finally {
-                        setIsLoading(false)
+        const callbacks = {
+            onSuccess: (result: string) => {
+                try {
+                    const jsonResult: ESP400Response = JSON.parse(result)
+                    if (
+                        !jsonResult ||
+                        jsonResult.cmd != 400 ||
+                        jsonResult.status == "error" ||
+                        !jsonResult.data
+                    ) {
+                        toasts.addToast({
+                            content: T("S194"),
+                            type: "error",
+                        })
+                        return
                     }
-                },
-                onFail: (error: string) => {
+                    const feat = formatStructure(jsonResult.data)
+                    featuresSettings.current = { ...feat }
+                    setFeatures(featuresSettings.current)
+                } catch (e) {
+                    console.log(e, T("S21"))
+                    toasts.addToast({ content: T("S21"), type: "error" })
+                } finally {
                     setIsLoading(false)
-                    console.log(error)
-                    toasts.addToast({ content: error, type: "error" })
-                },
-            }
-        )
+                }
+            },
+            onFail: (error: string) => {
+                setIsLoading(false)
+                console.log(error)
+                toasts.addToast({ content: error, type: "error" })
+            },
+        }
+        targetCommands("[ESP400]json=yes", undefined, undefined, callbacks)
     }
 
     /**
@@ -187,6 +185,61 @@ const FeaturesTab = () => {
      * @param needrestart - If true, the ESP will be restarted after the save.
      */
     function saveEntry(entry: SettingFieldProps, index: number, total: number, needrestart: boolean) {
+        const callbacks = {
+            onSuccess: (result: string) => {
+                try {
+                    if (
+                        progressBar.update &&
+                        typeof progressBar.update === "function"
+                    )
+                        progressBar.update(index + 1)
+                    const jsonResult: ESP401Response = JSON.parse(result)
+                    if (
+                        !jsonResult ||
+                        jsonResult.cmd != 401 ||
+                        jsonResult.status == "error" ||
+                        !jsonResult.data
+                    ) {
+                        if (jsonResult.cmd != 401)
+                            toasts.addToast({
+                                content: T("S194"),
+                                type: "error",
+                            })
+                        else if (jsonResult.status == "error") {
+                            let content = T("S195")
+                            if (typeof jsonResult.data === "string") {
+                                content += ": " + T(jsonResult.data)
+                            }
+                            toasts.addToast({
+                                content: content,
+                                type: "error",
+                            })
+                        }
+                        return
+                    }
+                    entry.initial = entry.value
+                } catch (e) {
+                    console.log(e)
+                    toasts.addToast({ content: String(e), type: "error" })
+                } finally {
+                    if (index == total - 1) {
+                        endProgression(needrestart)
+                    }
+                }
+            },
+            onFail: (error: string) => {
+                if (
+                    progressBar.update &&
+                    typeof progressBar.update === "function"
+                )
+                    progressBar.update(index + 1)
+                console.log(error)
+                toasts.addToast({ content: error, type: "error" })
+                if (index == total - 1) {
+                    endProgression(needrestart)
+                }
+            },
+        }
         let cmd =
             "[ESP401]P=" +
             entry.id +
@@ -195,65 +248,7 @@ const FeaturesTab = () => {
             " V=" +
             entry.value.toString().replaceAll(" ", "\\ ") +
             " json=yes"
-        createNewRequest(
-            espHttpURL("command", { cmd }),
-            { method: "GET", id: "ESP401" },
-            {
-                onSuccess: (result: string) => {
-                    try {
-                        if (
-                            progressBar.update &&
-                            typeof progressBar.update === "function"
-                        )
-                            progressBar.update(index + 1)
-                        const jsonResult: ESP401Response = JSON.parse(result)
-                        if (
-                            !jsonResult ||
-                            jsonResult.cmd != 401 ||
-                            jsonResult.status == "error" ||
-                            !jsonResult.data
-                        ) {
-                            if (jsonResult.cmd != 401)
-                                toasts.addToast({
-                                    content: T("S194"),
-                                    type: "error",
-                                })
-                            else if (jsonResult.status == "error") {
-                                let content = T("S195")
-                                if (typeof jsonResult.data === "string") {
-                                    content += ": " + T(jsonResult.data)
-                                }
-                                toasts.addToast({
-                                    content: content,
-                                    type: "error",
-                                })
-                            }
-                            return
-                        }
-                        entry.initial = entry.value
-                    } catch (e) {
-                        console.log(e)
-                        toasts.addToast({ content: String(e), type: "error" })
-                    } finally {
-                        if (index == total - 1) {
-                            endProgression(needrestart)
-                        }
-                    }
-                },
-                onFail: (error: string) => {
-                    if (
-                        progressBar.update &&
-                        typeof progressBar.update === "function"
-                    )
-                        progressBar.update(index + 1)
-                    console.log(error)
-                    toasts.addToast({ content: error, type: "error" })
-                    if (index == total - 1) {
-                        endProgression(needrestart)
-                    }
-                },
-            }
-        )
+       targetCommands(cmd, undefined, {id: "ESP401" }, callbacks)
     }
 
     /**
@@ -321,22 +316,19 @@ const FeaturesTab = () => {
      * * Send the request
      */
     function reStartBoard() {
-        createNewRequest(
-            espHttpURL("command", { cmd: "[ESP444]RESTART" }),
-            { method: "GET" },
-            {
-                onSuccess: (result: string) => {
-                    webSocketService.disconnect("restart")
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, restartdelay * 1000)
-                },
-                onFail: (error: string) => {
-                    console.log(error)
-                    toasts.addToast({ content: error, type: "error" })
-                },
-            }
-        )
+        const callbacks = {
+            onSuccess: (result: string) => {
+                webSocketService.disconnect("restart")
+                setTimeout(() => {
+                    window.location.reload()
+                }, restartdelay * 1000)
+            },
+            onFail: (error: string) => {
+                console.log(error)
+                toasts.addToast({ content: error, type: "error" })
+            },
+        }
+        targetCommands("[ESP444]RESTART", undefined, undefined, callbacks)
         console.log("restart")
     }
 

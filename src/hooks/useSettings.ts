@@ -24,7 +24,7 @@ import {
     getBrowserTimeZone,
     isLimitedEnvironment,
 } from "../components/Helpers"
-import { useHttpQueue } from "../hooks/"
+import { useHttpQueue, useTargetCommands } from "../hooks/"
 import {
     useUiContext,
     useRouterContext,
@@ -61,6 +61,7 @@ interface UseSettingsReturn {
 
 const useSettings = (): UseSettingsReturn => {
     const { createNewRequest } = useHttpQueue()
+    const { targetCommands, failToast } = useTargetCommands()
     const { ui, connection, uisettings } = useUiContext()
     const { toasts } = useToastsContext()
     const { modals } = useModalsContext()
@@ -68,33 +69,18 @@ const useSettings = (): UseSettingsReturn => {
     const { interfaceSettings, connectionSettings, activity } =
         useSettingsContext()
     const { defaultRoute, setActiveRoute } = useRouterContext()
+
     const sendCommand = (cmd: string, id: string) => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd,
-            }).toString(),
-            {
-                method: "GET",
-                id: id,
-                max: 1,
+        const callbacks = {
+            onSuccess: (result: string) => {
+                if ( cmd.startsWith("[ESP") && !result.startsWith("ESP3D says:") ) {
+                    processData("response", result, result.startsWith("{"))
+                }
             },
-            {
-                onSuccess: (result: string) => {
-                    if (
-                        cmd.startsWith("[ESP") &&
-                        !result.startsWith("ESP3D says:")
-                    ) {
-                        processData("response", result, result.startsWith("{"))
-                    }
-                },
-                onFail: (error: string) => {
-                    toasts.addToast({
-                        content: error,
-                        type: "error",
-                    })
-                },
-            }
-        )
+            onFail: failToast,
+        }
+
+        targetCommands(cmd, undefined, { id: id, max: 1, }, callbacks)
     }
 
     const initPolling = () => {
@@ -179,131 +165,126 @@ const useSettings = (): UseSettingsReturn => {
     }
 
     const getConnectionSettings = (next?: () => void) => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: `[ESP800]json=yes time=${getBrowserTime()} tz=${getBrowserTimeZone()} version=${webUIversion}`,
-            }),
-            { method: "GET", id: "connection" },
-            {
-                onSuccess: (result: string) => {
-                    const jsonResult = JSON.parse(result)
+        const callbacks = {
+            onSuccess: (result: string) => {
+                const jsonResult = JSON.parse(result)
+                if (
+                    jsonResult.cmd != 800 ||
+                    jsonResult.status == "error" ||
+                    !jsonResult.data
+                ) {
+                    toasts.addToast({ content: T("S194"), type: "error" })
+                     connection.setConnectionState({
+                        connected: false,
+                        page: "error",
+                        extraMsg: T("S194"),
+                    })
+                    return
+                }
+                connectionSettings.current = jsonResult.data
+                if (
+                    typeof connectionSettings.current.Screen == "undefined"
+                ) {
+                    connectionSettings.current.Screen = "none"
+                }
+                processData("core", "ESP800", true)
+                //console.log(connectionSettings.current)
+                document.title = connectionSettings.current.HostName || "ESP3D"
+                if (
+                    !connectionSettings.current.HostPath ||
+                    !connectionSettings.current.HostPath.length
+                ) {
+                    connectionSettings.current.HostPath = "/"
+                }
+                 if (!connectionSettings.current.HostPath.endsWith("/")) {
+                    connectionSettings.current.HostPath =
+                        connectionSettings.current.HostPath.concat("/")
+                }
+                if (connectionSettings.current.FlashFileSystem == "none") {
+                    // no flash filesystem so host path is on SD card
+                    connectionSettings.current.HostTarget = "sdfiles"
+                    connectionSettings.current.HostUploadPath =
+                        connectionSettings.current.HostPath
+                    connectionSettings.current.HostDownloadPath =
+                        connectionSettings.current.HostPath
+                } else {
+                    //Flashs is supported but stil can use sd card to host files
                     if (
-                        jsonResult.cmd != 800 ||
-                        jsonResult.status == "error" ||
-                        !jsonResult.data
+                        connectionSettings.current.HostPath.startsWith(
+                            "/sd/"
+                        ) &&
+                        connectionSettings.current.SDConnection != "none"
                     ) {
-                        toasts.addToast({ content: T("S194"), type: "error" })
-
-                        connection.setConnectionState({
-                            connected: false,
-                            page: "error",
-                            extraMsg: T("S194"),
-                        })
-                        return
-                    }
-                    connectionSettings.current = jsonResult.data
-                    if (
-                        typeof connectionSettings.current.Screen == "undefined"
-                    ) {
-                        connectionSettings.current.Screen = "none"
-                    }
-                    processData("core", "ESP800", true)
-                    //console.log(connectionSettings.current)
-                    document.title = connectionSettings.current.HostName || "ESP3D"
-                    if (
-                        !connectionSettings.current.HostPath ||
-                        !connectionSettings.current.HostPath.length
-                    ) {
-                        connectionSettings.current.HostPath = "/"
-                    }
-
-                    if (!connectionSettings.current.HostPath.endsWith("/")) {
-                        connectionSettings.current.HostPath =
-                            connectionSettings.current.HostPath.concat("/")
-                    }
-                    if (connectionSettings.current.FlashFileSystem == "none") {
-                        // no flash filesystem so host path is on SD card
                         connectionSettings.current.HostTarget = "sdfiles"
+                        connectionSettings.current.HostUploadPath =
+                            connectionSettings.current.HostPath.substring(3)
+                        connectionSettings.current.HostDownloadPath =
+                            connectionSettings.current.HostPath
+                    } else {
+                        //Flash filesystem is supported and host files are on flash filesystem
+                        connectionSettings.current.HostTarget = "files"
                         connectionSettings.current.HostUploadPath =
                             connectionSettings.current.HostPath
                         connectionSettings.current.HostDownloadPath =
                             connectionSettings.current.HostPath
-                    } else {
-                        //Flashs is supported but stil can use sd card to host files
-                        if (
-                            connectionSettings.current.HostPath.startsWith(
-                                "/sd/"
-                            ) &&
-                            connectionSettings.current.SDConnection != "none"
-                        ) {
-                            connectionSettings.current.HostTarget = "sdfiles"
-                            connectionSettings.current.HostUploadPath =
-                                connectionSettings.current.HostPath.substring(3)
-                            connectionSettings.current.HostDownloadPath =
-                                connectionSettings.current.HostPath
-                        } else {
-                            //Flash filesystem is supported and host files are on flash filesystem
-                            connectionSettings.current.HostTarget = "files"
-                            connectionSettings.current.HostUploadPath =
-                                connectionSettings.current.HostPath
-                            connectionSettings.current.HostDownloadPath =
-                                connectionSettings.current.HostPath
-                        }
                     }
-
-                    if (
-                        (connectionSettings.current.WiFiMode &&
-                            isLimitedEnvironment(
-                                connectionSettings.current.WiFiMode
-                            )) ||
-                        (connectionSettings.current.RadioMode &&
-                            isLimitedEnvironment(
-                                connectionSettings.current.RadioMode
-                            ))
-                    ) {
-                        // change here to account for FluidNC having to have the 2nd WebSocket port
-                        const url =
-                            "http://" +
-                            connectionSettings.current.WebSocketIP +
-                            (connectionSettings.current.WebSocketPort != "82"
-                                ? ":" +
-                                  (parseInt(
-                                      connectionSettings.current.WebSocketPort
-                                  ) - 2)
-                                : "")
-                        const translatedParts = T("S124").split("%s")
-                        const linkElement = h('a', { href: url, target: '_blank' }, url)
-                        showModal({
-                            modals,
-                            title: T("S123"),
-                            icon: h(Info, {}),
-                            id: "notification",
-                            content: h('div', {}, translatedParts[0], ' ', linkElement, ' ', translatedParts[1]),
-                            hideclose: false,
-                        })
-
-                    }
-
-                    if (jsonResult.FWTarget == 0) {
-                        setActiveRoute("/settings")
-                        defaultRoute.current = "/settings"
-                    } else {
-                        setActiveRoute("/dashboard")
-                        defaultRoute.current = "/dashboard"
-                    }
-                    if (next) next()
-                },
-                onFail: (error: string) => {
-                    if (!error.startsWith("401")) {
-                        connection.setConnectionState({
-                            connected: false,
-                            page: "error",
-                        })
-                        toasts.addToast({ content: error, type: "error" })
-                        console.log("Error")
-                    }
-                },
-            }
+                }
+                 if (
+                    (connectionSettings.current.WiFiMode &&
+                        isLimitedEnvironment(
+                            connectionSettings.current.WiFiMode
+                        )) ||
+                    (connectionSettings.current.RadioMode &&
+                        isLimitedEnvironment(
+                            connectionSettings.current.RadioMode
+                        ))
+                ) {
+                    // change here to account for FluidNC having to have the 2nd WebSocket port
+                    const url =
+                        "http://" +
+                        connectionSettings.current.WebSocketIP +
+                        (connectionSettings.current.WebSocketPort != "82"
+                            ? ":" +
+                              (parseInt(
+                                  connectionSettings.current.WebSocketPort
+                              ) - 2)
+                            : "")
+                    const translatedParts = T("S124").split("%s")
+                    const linkElement = h('a', { href: url, target: '_blank' }, url)
+                    showModal({
+                        modals,
+                        title: T("S123"),
+                        icon: h(Info, {}),
+                        id: "notification",
+                        content: h('div', {}, translatedParts[0], ' ', linkElement, ' ', translatedParts[1]),
+                        hideclose: false,
+                    })
+                 }
+                 if (jsonResult.FWTarget == 0) {
+                    setActiveRoute("/settings")
+                    defaultRoute.current = "/settings"
+                } else {
+                    setActiveRoute("/dashboard")
+                    defaultRoute.current = "/dashboard"
+                }
+                if (next) next()
+            },
+            onFail: (error: string) => {
+                if (!error.startsWith("401")) {
+                    connection.setConnectionState({
+                        connected: false,
+                        page: "error",
+                    })
+                    toasts.addToast({ content: error, type: "error" })
+                    console.log("Error")
+                }
+            },
+        }
+        targetCommands(
+            `[ESP800]json=yes time=${getBrowserTime()} tz=${getBrowserTimeZone()} version=${webUIversion}`,
+            undefined,
+            { id: "connection", echo: false },
+            callbacks
         )
     }
 

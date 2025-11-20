@@ -22,39 +22,19 @@ import { useTargetContext } from "../../.."
 import { useToastsContext } from "../../../../contexts"
 import { T } from "../../../../components/Translations"
 import { variablesList } from "../"
-import { useHttpFn } from "../../../../hooks"
-import type { UseHttpFn } from "../../../../hooks/useHttpQueue"
-import { espHttpURL, replaceVariables } from "../../../../components/Helpers"
+import { useTargetCommands } from "../../../../hooks"
 
 const last: { status: { state: string } } = { status: { state: "?" } }
 
 const BackgroundContainer = () => {
     const { alarmCode, errorCode, status } = useTargetContext()
     const { toasts } = useToastsContext()
-    const { createNewRequest } = useHttpFn as UseHttpFn
-    const sendCommand = (command: string) => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands as any[], command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands as any[], command, true),
-            },
-            {
-                onSuccess: (_result: any) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
+    const { targetCommands } = useTargetCommands()
 
     useEffect(() => {
         if (status.state !== last.status.state) {
             if (status.state == "Tool") {
-                sendCommand("#TOOLCHANGE#")
+                targetCommands("#TOOLCHANGE#")
             }
             last.status = status
         }

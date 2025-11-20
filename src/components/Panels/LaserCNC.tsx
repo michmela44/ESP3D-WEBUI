@@ -21,12 +21,11 @@ import type { FunctionalComponent, JSX } from "preact"
 import { useState, useRef } from "preact/hooks"
 import { T } from "../Translations"
 import { Loader, Sun, Power } from "preact-feather"
-import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
+import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useHttpFn } from "../../hooks"
-import type { UseHttpFn } from "../../hooks/useHttpQueue"
 import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
 
 /*
  * Local const
@@ -89,9 +88,8 @@ const LaserControls: FunctionalComponent = () => {
 
 const LaserPanel: FunctionalComponent = () => {
     const { panels } = useUiContext()
-    const { toasts } = useToastsContext()
     const { states } = useTargetContext() as { states: StatesMap }
-    const { createNewRequest } = useHttpFn as UseHttpFn
+    const { targetCommands } = useTargetCommands()
     const id = "laserPanel"
 
     if (typeof laserPercentage.current === "undefined") {
@@ -112,24 +110,6 @@ const LaserPanel: FunctionalComponent = () => {
         )
     }
 
-    const sendCommand = (command: string): void => {
-        createNewRequest(
-            espHttpURL("command", {
-                cmd: replaceVariables(variablesList.commands, command),
-            }),
-            {
-                method: "GET",
-                echo: replaceVariables(variablesList.commands, command, true),
-            },
-            {
-                onSuccess: (_result) => {},
-                onFail: (error: string) => {
-                    toasts.addToast({ content: error, type: "error" })
-                    console.log(error)
-                },
-            }
-        )
-    }
     const laser_controls = [
         {
             label: "CN90",
@@ -208,13 +188,7 @@ const LaserPanel: FunctionalComponent = () => {
                                 ]
                                 e.currentTarget.blur()
                                 useUiContextFn.haptic()
-                                commands.forEach((command) => {
-                                    if (typeof command === "function") {
-                                        sendCommand(command())
-                                    } else {
-                                        sendCommand(command)
-                                    }
-                                })
+                                targetCommands(commands)
                             },
                         },
                         {
@@ -227,7 +201,7 @@ const LaserPanel: FunctionalComponent = () => {
                             command: "M5 S0",
                             mode: "spindle_mode",
                             onclick: () => {
-                                sendCommand("M5 S0")
+                                targetCommands("M5 S0")
                             },
                         },
                     ],

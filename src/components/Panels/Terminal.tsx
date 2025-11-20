@@ -32,8 +32,8 @@ import {
 import { useUiContext, useDatasContext, useUiContextFn } from "../../contexts"
 import type { TerminalElement } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
-import { useHttpQueue } from "../../hooks"
-import { espHttpURL, replaceVariables } from "../Helpers"
+import { useTargetCommands } from "../../hooks"
+import { replaceVariables } from "../Helpers"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { Menu as PanelMenu } from "./"
 
@@ -53,7 +53,7 @@ const TerminalPanel: FunctionalComponent = () => {
     const { panels, uisettings } = useUiContext()
     const { terminal } = useDatasContext()
     const { processData } = useTargetContext()
-    const { createNewRequest } = useHttpQueue()
+    const { targetCommands } = useTargetCommands()
     if (terminal.isVerbose.current == undefined)
         terminal.isVerbose.current = uisettings.getValue("verbose")
     if (terminal.isAutoScroll.current == undefined)
@@ -185,25 +185,16 @@ const TerminalPanel: FunctionalComponent = () => {
                 terminal.addInputHistory(cmd)
             }
             inputHistoryIndex.current = terminal.inputHistory.length 
+
+            // echo here to prevent verbose mode from filtering out
+            // polling commands and whatnot.  If the user sends it
+            // explicitly, we want to echo it.
             processData(
                 "echo",
                 replaceVariables(variablesList.commands, cmd, true)
             )
-            createNewRequest(
-                espHttpURL("command", {
-                    cmd: replaceVariables(variablesList.commands, cmd),
-                }),
-                { method: "GET" },
-                {
-                    onSuccess: (result) => {
-                        processData("response", result)
-                    },
-                    onFail: (error) => {
-                        console.log(error)
-                        processData("error", error)
-                    },
-                }
-            )
+            // echo:false because it was echoed above
+            targetCommands(cmd, null, { echo: false })
         } 
         inputHistoryIndex.current = terminal.inputHistory.length 
         terminal.input.current = ""
