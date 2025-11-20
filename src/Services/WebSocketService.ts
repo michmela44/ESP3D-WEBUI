@@ -35,6 +35,9 @@ export interface ServiceContext {
     }
     modalsCleared?: () => void
     extensionsNotify?: (type: string, data: any, targetId?: string) => void
+    uiSettings?: {
+        getValue: (id: string) => any
+    }
 }
 
 export class WebSocketService {
@@ -335,9 +338,13 @@ export class WebSocketService {
 
                     // Disconnect if this is a different session ID than ours
                     if (incomingSessionId !== this.getSessionId()) {
-                        console.warn(`Another session connected with different ID ${incomingSessionId}, disconnecting`)
-                        this._showToast(createConnectionErrorToast("already connected"))
-                        this.disconnect("already connected")
+                        if ((this.serviceContext?.uiSettings?.getValue("disconnectonotherlogin") ?? true)) {                        
+                            console.warn(`Another session connected with different ID ${incomingSessionId}, disconnecting`)
+                            // this._showToast(createConnectionErrorToast("already connected"))
+                            this.disconnect("already connected")
+                        }
+                        else
+                            console.log(`Another session connected with different ID ${incomingSessionId}, but disconnectonotherlogin = false`)
                     }
                 }
                 break

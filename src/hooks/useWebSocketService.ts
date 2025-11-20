@@ -16,7 +16,7 @@ let webSocketServiceInstance : WebSocketService | undefined;
  * Handles all integrations with app contexts
  */
 export function useWebSocketService() : WebSocketService {
-    const { connection, dialogs } = useUiContext();
+    const { connection, dialogs, uisettings } = useUiContext();
     const { toasts } = useToastsContext();
     const { modals } = useModalsContext();
     const { processData } = useTargetContext();
@@ -34,6 +34,10 @@ export function useWebSocketService() : WebSocketService {
                 return;
             }
 
+   const disconnectOnOtherLogin = uisettings.getValue(
+                "disconnectonotherlogin"
+            );
+
             // Construct WebSocket URL from current location
             const address = document.location.hostname;
             const path =
@@ -49,12 +53,13 @@ export function useWebSocketService() : WebSocketService {
             webSocketServiceInstance = new WebSocketService(wsAdapter);
 
             // Set up service context for dependency injection
-            // This allows the service to access app-level contexts (connectionSettings, dialogs, activity, modals, extensions)
+            // This allows the service to access app-level contexts (connectionSettings, dialogs, activity, modals, extensions, uiSettings)
             webSocketServiceInstance.setServiceContext({
                 dialogs,
                 activity,
                 modalsCleared: () => modals.clearModals(),
                 extensionsNotify: (type, data, targetId) => dispatchToExtensions(type, data, targetId),
+                uiSettings: uisettings,
             });
 
             // Set up notification handler
@@ -95,7 +100,7 @@ export function useWebSocketService() : WebSocketService {
         return () => {
             // Don't disconnect on unmount - service should persist
         };
-    }, [connection, dialogs, toasts, modals, processData, removeAllRequests, connectionSettings, activity]);
+    }, [connection, dialogs, toasts, modals, processData, removeAllRequests, connectionSettings, activity, uisettings]);
 
     // Return the service instance (will be undefined if not yet initialized)
     return serviceRef.current!;
