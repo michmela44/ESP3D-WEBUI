@@ -23,6 +23,7 @@ import { useUiContext } from "../contexts"
 import { useHttpFn } from "./useHttpQueue"
 import { variablesList, processor } from "../targets"
 import { useToastsContext } from "../contexts/ToastsContext"
+import { getWebSocketService } from "../hooks/useWebSocketService"
 
 const useTargetCommands = () => {
     const [isLoading, setIsLoading] = useState(false)
@@ -93,6 +94,12 @@ const useTargetCommands = () => {
             }
         }
 
+        let sessionId:string | undefined = "";
+        const ws = getWebSocketService()
+        if (ws) {
+            sessionId = ws.getSessionId();
+        }
+
         // Commands is now an object (probaby an array)
         cmdarr.forEach((command: string | (() => string)) => {
             let cmd: string
@@ -102,11 +109,17 @@ const useTargetCommands = () => {
                cmd = command()
             }
             let replaced = replaceVariables(variablesList.commands, cmd)
+
+            let args = {
+                cmd: replaced,
+            }
+            if (sessionId) {
+                Object.assign(args, { PAGEID: sessionId });
+            }
+
             console.log("cmd " + replaced)
             createNewRequest(
-                espHttpURL("command", {
-                    cmd: replaced,
-                }),
+                espHttpURL("command", args),
                 method,
                 callbacks
             )
