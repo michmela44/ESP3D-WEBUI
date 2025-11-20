@@ -58,7 +58,7 @@
             {
                 "id": "disconnectonotherlogin",
                 "type": "boolean",
-                "label": "Disconnect on other login",
+                "label": "Allow multiple WebUI connections",
                 "value": true
             },
             {
