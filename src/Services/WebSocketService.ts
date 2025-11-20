@@ -1,7 +1,7 @@
 import { WebSocketAdapter, WebSocketBufferedReader } from "./WebSocketAdapter"
-import { sleep } from "../src/utils"
+import { sleep } from "../../src/utils"
 import { Command, CommandState } from "./Commands/Command"
-import type { Toast } from "../src/contexts/ToastsContext"
+import type { Toast } from "../../src/contexts/ToastsContext"
 
 import {
     NotificationHandler,

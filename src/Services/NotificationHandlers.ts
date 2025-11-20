@@ -3,7 +3,7 @@
  * Provides handlers for system notifications, errors, and status messages
  */
 
-import type { Toast, ToastType } from "../src/contexts/ToastsContext";
+import type { Toast, ToastType } from "../../src/contexts/ToastsContext";
 
 
 export interface NotificationHandler {

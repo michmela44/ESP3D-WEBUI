@@ -29,8 +29,8 @@ import WifiStats from "./WifiStats"
 import { useHttpQueue } from "../../hooks"
 import { espHttpURL } from "../../components/Helpers"
 import { getWebSocketService } from "../../hooks/useWebSocketService"   
-import { GetSettingsCommand, Settings } from "../../../Services/Commands/GetSettingsCommand"
-import { Command } from "../../../Services/Commands/Command"
+import { GetSettingsCommand, Settings } from "../../Services/Commands/GetSettingsCommand"
+import { Command } from "../../Services/Commands/Command"
 
 
 export type SystemStats = {
