@@ -406,7 +406,9 @@ export class WebSocketService {
                 }
             } else {
                 // Route unhandled core messages to data listeners
-                console.log("<<< " + line)
+                 if (this.commands[0].debugReceive) {
+                    console.log("<<< " + line)
+                }
                 this._notifyDataListeners("core", line)
             }
             endLineIndex = this.buffer.indexOf("\n")

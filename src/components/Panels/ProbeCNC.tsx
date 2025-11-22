@@ -506,31 +506,31 @@ const ProbePanel: FunctionalComponent = () => {
                                                                     element.step *
                                                                         mult
                                                                 )
-                                                            console.log(
-                                                                "Element:",
-                                                                element.value
-                                                                    .current,
-                                                                "Step:",
-                                                                element.step,
-                                                                "Mult",
-                                                                mult,
-                                                                "Modal:",
-                                                                "Value mult",
-                                                                valueMult,
-                                                                "Step mult",
-                                                                stepMult,
-                                                                "Modulo",
-                                                                valueMult %
-                                                                    stepMult
-                                                            )
+                                                            // console.log(
+                                                            //     "Element:",
+                                                            //     element.value
+                                                            //         .current,
+                                                            //     "Step:",
+                                                            //     element.step,
+                                                            //     "Mult",
+                                                            //     mult,
+                                                            //     "Modal:",
+                                                            //     "Value mult",
+                                                            //     valueMult,
+                                                            //     "Step mult",
+                                                            //     stepMult,
+                                                            //     "Modulo",
+                                                            //     valueMult %
+                                                            //         stepMult
+                                                            // )
                                                             if (
                                                                 valueMult %
                                                                     stepMult !=
                                                                 0
                                                             ) {
-                                                                console.log(
-                                                                    "not valid"
-                                                                )
+                                                                // console.log(
+                                                                //     "not valid"
+                                                                // )
                                                                 validation.valid = false
                                                             }
                                                         }
