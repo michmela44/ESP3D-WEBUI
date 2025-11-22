@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { webUIbuild } from "../../targets"
-export const webUIversion = "3.0.0-6-beta"
+export const webUIversion = "3.0.7"
 export const Esp3dVersion = () => (
     <span>
         {`${webUIversion}.${webUIbuild}`}
