@@ -21,7 +21,7 @@ import { espHttpURL, replaceVariables } from "../components/Helpers"
 import { useState } from "preact/hooks"
 import { useUiContext } from "../contexts"
 import { useHttpFn } from "./useHttpQueue"
-import { variablesList, processor } from "../targets"
+import { variablesList, processor, useTargetContext } from "../targets"
 import { useToastsContext } from "../contexts/ToastsContext"
 import { getWebSocketService } from "../hooks/useWebSocketService"
 
@@ -78,8 +78,12 @@ const useTargetCommands = () => {
         }
 
         // Additional fields can be added to the method object
-        if (methodID != null) {
-            Object.assign(method, methodID);
+        if (methodID?.id != null) {
+            Object.assign(method, { id: methodID.id });
+        }       
+
+        if (methodID?.max != null) {
+            Object.assign(method, { max: methodID.max });
         }
 
         if (!callbacks) {
@@ -116,6 +120,10 @@ const useTargetCommands = () => {
             if (sessionId) {
                 Object.assign(args, { PAGEID: sessionId });
             }
+
+        if (methodID?.echo == undefined || methodID.echo === true) { 
+            Object.assign(method, { echo: replaceVariables(variablesList.commands, cmd, true) });
+         }
 
             console.log("cmd " + replaced)
             createNewRequest(
