@@ -26,7 +26,7 @@ import Select from "../../components/Controls/Fields/Select"
 import { Save } from "preact-feather"
 import { T } from "../../components/Translations"
 import WifiStats from "./WifiStats"
-import { useHttpQueue } from "../../hooks"
+import { useHttpQueue, useTargetCommands } from "../../hooks"
 import { espHttpURL } from "../../components/Helpers"
 import { getWebSocketService } from "../../hooks/useWebSocketService"   
 import { GetSettingsCommand, Settings } from "../../Services/Commands/GetSettingsCommand"
@@ -60,7 +60,7 @@ const WifiTab = () => {
     const [isSaving, setIsSaving] = useState<boolean>(false)
     const [hasChanges, setHasChanges] = useState<boolean>(false)
     const { createNewRequest, abortRequest } = useHttpQueue()
-
+    const { targetCommands } = useTargetCommands()
     const controllerService = getWebSocketService();
     const { toasts } = useToastsContext()
     // Settings state
@@ -169,20 +169,21 @@ const WifiTab = () => {
                 setApChannel(settings.apChannel || "");
                 setApIP(settings.apIP || "");
                 setApCountry(settings.apCountry || "");
-            });
+                setIsLoading(false)
+            }).catch((error) => {
+                setIsLoading(false)
+                console.error("Failed to load WiFi settings:", error)
+            }) ;
 
-        } finally {
+        } catch {
             setIsLoading(false)
         }
     }
 
     const getWifiStats = (): void => {
         setIsLoading(true)
-        createNewRequest(
-            espHttpURL("command", { cmd: "[ESP420]json=yes" }),
-            { method: "GET" },
-            {
-                onSuccess: (result: any) => {
+
+        targetCommands("[ESP420]json=yes", undefined, undefined ,{onSuccess: (result: any) => {
                     const jsonResult = JSON.parse(result)
                     if (jsonResult.cmd != 420 || jsonResult.status == "error" || !jsonResult.data) {
                         toasts.addToast({ content: T("S194"), type: "error" })
@@ -217,9 +218,8 @@ const WifiTab = () => {
                     setIsLoading(false)
                     toasts.addToast({ content: error, type: "error" })
                     console.log(error)
-                },
-            }
-        )
+                }})
+
     }
 
     // Refresh WiFi stats
