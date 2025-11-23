@@ -18,7 +18,10 @@
   ],
   "plugins": [
     "deprecation",
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "compat"
   ],
   "rules": {
     "deprecation/deprecation": "warn",
@@ -30,7 +33,19 @@
       }
     ],
     "no-unused-vars": "off",
-    "no-fallthrough": "off"
-
+    "no-fallthrough": "off",
+    "react/jsx-key": "error",
+    "react/no-find-dom-node": "error",
+    "react/no-is-mounted": "error",
+    "react/no-deprecated": "warn",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "no-const-assign": "error",
+    "no-import-assign": "error",
+    "no-dupe-else-if": "error",
+    "no-duplicate-imports": "off",
+    "prefer-arrow-callback": "warn",
+    "prefer-spread": "warn",
+    "prefer-template": "off"
   }
 }

@@ -18,16 +18,16 @@ License along with This code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { h, Fragment } from "preact"
-import { useEffect, useState, useRef } from "preact/hooks"
+import { h } from "preact"
+import { useEffect, useState } from "preact/hooks"
 import { T } from "../components/Translations"
 import { useHttpFn } from "./useHttpQueue"
 import type { UseHttpFn } from "./useHttpQueue"
 import { useTargetCommands  } from "./useTargetCommands"
 import { espHttpURL, getBrowserTime } from "../components/Helpers"
-import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../contexts"
+import { useUiContextFn, useModalsContext, useToastsContext } from "../contexts"
 import { showModal, showConfirmationModal, showProgressModal } from "../components/Modal"
-import { files, processor, useTargetContextFn } from "../targets"
+import { files, processor } from "../targets"
 import type {
     FileEntry,
     FilesList,
@@ -98,7 +98,6 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
     )
     const { createNewRequest, abortRequest } = useHttpFn as UseHttpFn
     const { targetCommands } = useTargetCommands()
-    const { processData } = useTargetContextFn
     const { modals } = useModalsContext()
     const { toasts } = useToastsContext()
 
@@ -109,15 +108,6 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
         },
         set current(value: HTMLInputElement | null) {
             hookFileRef = value
-        }
-    }
-
-    const dropRef = {
-        get current(): HTMLDivElement | null {
-            return hookDropRef
-        },
-        set current(value: HTMLDivElement | null) {
-            hookDropRef = value
         }
     }
 
@@ -278,16 +268,16 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                     fileName = file.name
                 }
                 const arg =
-                    cmd.args.path +
+                    `${cmd.args.path +
                     (cmd.args.path.endsWith("/") ? "" : "/") +
-                    fileName +
-                    "S"
+                    fileName 
+                    }S`
                 //append file size first to check updload is complete
                 formData.append(arg, String(file.size))
                 //append last modified time
                 //no need timezone because will be saved as it is on FileSystem
                 const time_string = getBrowserTime(file.lastModified)
-                const argt = arg.substring(0, arg.length - 1) + "T"
+                const argt = `${arg.substring(0, arg.length - 1)  }T`
                 formData.append(argt, time_string)
                 //append file
                 formData.append(
@@ -429,7 +419,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                         a.download = element.name
                         document.body.appendChild(a)
                         a.click()
-                        setTimeout(function () {
+                        setTimeout(() => {
                             document.body.removeChild(a)
                             window.URL.revokeObjectURL(url)
                         }, 0)
@@ -510,7 +500,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
         if (files.capability(currentFS, "UseFilters")) {
             let f = useUiContextFn.getValue("filesfilter").trim()
             if (f.length > 0 && f != "*") {
-                f = "." + f.replace(/;/g, ",.")
+                f = `.${f.replace(/;/g, ",.")}`
             } else f = "*"
             if (fileref.current) fileref.current.accept = f
         } else {

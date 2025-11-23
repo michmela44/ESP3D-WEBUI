@@ -74,11 +74,11 @@ const ToastsContextProvider: FunctionalComponent<ToastsContextProviderProps> = (
 		const id = generateUID()
 		const now = new Date()
 		const time =
-			now.getHours().toString().padStart(2, "0") +
-			":" +
-			now.getMinutes().toString().padStart(2, "0") +
-			":" +
-			now.getSeconds().toString().padStart(2, "0")
+			`${now.getHours().toString().padStart(2, "0") 
+			}:${ 
+			now.getMinutes().toString().padStart(2, "0") 
+			}:${ 
+			now.getSeconds().toString().padStart(2, "0")}`
 
 		setToasts([...toastsRef.current, { ...newToast, id }])
 		setNotifications([

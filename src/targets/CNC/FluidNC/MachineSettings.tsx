@@ -25,7 +25,6 @@ import { useTargetCommands } from "../../../hooks"
 import { useToastsContext, useUiContext, useUiContextFn } from "../../../contexts"
 import { Target } from "./index"
 import {
-    espHttpURL,
     formatFileSizeToString,
 } from "../../../components/Helpers"
 import {
@@ -50,12 +49,10 @@ const machineSettings: { cache: any[] } = { cache: [] }
 
 const MachineSettings = () => {
     const [isLoading, setIsLoading] = useState(false)
-    const [settings, setSettings] = useState(machineSettings.cache)
     const [collected, setCollected] = useState("0 B")
     const { sendSerialCmd } = useTargetCommands()
     const { uisettings } = useUiContext()
     const { toasts } = useToastsContext()
-    const id = "Machine Tab"
 
     const processCallBack = (_data: string, total: number) => {
         setCollected(formatFileSizeToString(total))

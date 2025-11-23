@@ -139,7 +139,7 @@ const connectionDepend = (depend: DependItem[] | undefined, connectionsettings: 
                 if (d.value) {
                     return eval(quote + connectionsettings[d.connection_id] + quote + d.value);
                 } else if (d.contains) {
-                    return eval("'" + connectionsettings[d.connection_id] + "'" + ".indexOf('" + d.contains + "')!=-1");
+                    return eval(`'${  connectionsettings[d.connection_id]  }'` + `.indexOf('${  d.contains  }')!=-1`);
                 }
             }
             return true;

@@ -98,7 +98,7 @@ const MacrosPanel: FunctionalComponent = () => {
             case "FS":
                 //[ESP700] //ESP700 should send status to telnet / websocket
                 //Todo: handle response from ESP700
-                sendCommand("[ESP700]" + action)
+                sendCommand(`[ESP700]${  action}`)
                 break
             case "SD":
                 //get command accoring target FW
@@ -128,15 +128,15 @@ const MacrosPanel: FunctionalComponent = () => {
                         cache: "default",
                     }
                     fetch(uri, myInit)
-                        .then(function (response) {
+                        .then((response) => {
                             if (response.ok) {
                                 console.log("Request succeeded")
                             } else {
                                 console.log("Request failed")
                             }
                         })
-                        .catch(function (error) {
-                            console.log("Request failed: " + error.message)
+                        .catch((error) => {
+                            console.log(`Request failed: ${  error.message}`)
                         })
                 } else {
                     window.open(action)

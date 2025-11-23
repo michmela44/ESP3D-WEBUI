@@ -16,7 +16,7 @@ Jog.tsx - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment,  VNode } from "preact"
+import { Fragment } from "preact"
 import {
     Move,
     Home,
@@ -26,10 +26,10 @@ import {
     MoreHorizontal,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
-import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useEffect, useState, useRef } from "preact/hooks"
+import { useEffect, useState } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
 
@@ -62,16 +62,16 @@ const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
             {posLines.map((line) => {
                 if (
                     typeof positions[line[0]] != "undefined" ||
-                    typeof positions["w" + line[0]] != "undefined"
+                    typeof positions[`w${line[0]}`] != "undefined"
                 )
                     return (
-                        <div class="jog-positions-ctrls m-1">
+                        <div key={line.join('')} class="jog-positions-ctrls m-1">
                             {line.map((letter) => {
                                 if (
                                     (typeof positions[letter] != "undefined" ||
-                                        typeof positions["w" + letter] !=
+                                        typeof positions[`w${letter}`] !=
                                             "undefined") &&
-                                    useUiContextFn.getValue("show" + letter)
+                                    useUiContextFn.getValue(`show${letter}`)
                                 ) {
                                     return (
                                         <div key={letter} class="jog-position-ctrl">
@@ -87,7 +87,7 @@ const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
                                                     </div>
                                                 </Fragment>
                                             )}
-                                            {typeof positions["w" + letter] !=
+                                            {typeof positions[`w${letter}`] !=
                                                 "undefined" && (
                                                 <Fragment>
                                                     <div class="jog-position-sub-header">
@@ -99,13 +99,13 @@ const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
                                                         onClick={() => {
                                                             useUiContextFn.haptic()
                                                             onWPosClick(letter, positions[
-                                                                "w" + letter
+                                                                `w${letter}`
                                                             ])
                                                         }}
                                                     >
                                                         {
                                                             positions[
-                                                                "w" + letter
+                                                                `w${letter}`
                                                             ]
                                                         }
                                                     </div>
@@ -123,7 +123,6 @@ const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
 }
 
 const JogPanel = () => {
-    const { panels } = useUiContext()
     const { modals } = useModalsContext()
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const { positions } = useTargetContext()
@@ -151,13 +150,13 @@ const JogPanel = () => {
     //Send Zero command
     const sendZeroCommand = (axis: string) => {
         let selected_axis: string
-        if (axis == "Axis") selected_axis = currentAxis + "0"
-        else selected_axis = axis + "0"
+        if (axis == "Axis") selected_axis = `${currentAxis  }0`
+        else selected_axis = `${axis  }0`
         if (axis.length == 0) {
             selected_axis = ""
             "xyzabcuvw".split("").reduce((acc, letter) => {
-                if (positions[letter] || positions["w" + letter])
-                    acc += selected_axis += " " + letter.toUpperCase() + "0"
+                if (positions[letter] || positions[`w${letter}`])
+                    acc += selected_axis += ` ${letter.toUpperCase()  }0`
                 return acc
             }, "")
         }
@@ -180,7 +179,7 @@ const JogPanel = () => {
             selected_axis = axis.replace("Axis", currentAxis)
         else selected_axis = axis
         let cmd =
-            "$J=G90 G21 " + selected_axis.toUpperCase() + targetPosition + " F" + feedrate
+            `$J=G90 G21 ${selected_axis.toUpperCase()}${targetPosition} F${feedrate}`
         targetCommands(cmd)
     }
 
@@ -248,7 +247,7 @@ const JogPanel = () => {
             selected_axis = axis.replace("Axis", currentAxis)
         else selected_axis = axis
         let cmd =
-            "$J=G91 G21 " + selected_axis + distance + " F" + feedrate
+            `$J=G91 G21 ${selected_axis  }${distance  } F${feedrate}`
         targetCommands(cmd)
     }
 
@@ -320,9 +319,9 @@ const JogPanel = () => {
                 (acc: string[], letter) => {
                     if (
                         (positions[letter.toLowerCase()] ||
-                            positions["w" + letter.toLowerCase()]) &&
+                            positions[`w${letter.toLowerCase()}`]) &&
                         useUiContextFn.getValue(
-                            "show" + [letter.toLowerCase()]
+                            `show${[letter.toLowerCase()]}`
                         )
                     ) {
                         acc.push(letter)
@@ -365,7 +364,7 @@ const JogPanel = () => {
             feedList.forEach((letter) => {
                 if (!currentFeedRate[letter]) {
                     currentFeedRate[letter] = useUiContextFn.getValue(
-                        letter.toLowerCase() + "feedrate"
+                        `${letter.toLowerCase()  }feedrate`
                     )
                 }
                 feedList.forEach((letter) => {
@@ -373,10 +372,10 @@ const JogPanel = () => {
                         if (
                             currentAxis == "-1" &&
                             useUiContextFn.getValue(
-                                "show" + letter.toLowerCase()
+                                `show${letter.toLowerCase()}`
                             ) &&
                             (positions[letter.toLowerCase()] ||
-                                positions["w" + letter.toLowerCase()])
+                                positions[`w${letter.toLowerCase()}`])
                         ) {
                             currentAxis = letter
                         }
@@ -422,10 +421,10 @@ const JogPanel = () => {
                                         condition =
                                             (positions[letter.toLowerCase()] ||
                                                 positions[
-                                                    "w" + letter.toLowerCase()
+                                                    `w${letter.toLowerCase()}`
                                                 ]) &&
                                             useUiContextFn.getValue(
-                                                "show" + letter.toLowerCase()
+                                                `show${letter.toLowerCase()}`
                                             )
                                     }
                                     if (condition)
@@ -469,9 +468,9 @@ const JogPanel = () => {
                         {["X", "Y"].map((letter) => {
                             if (
                                 (positions[letter.toLowerCase()] ||
-                                    positions["w" + letter.toLowerCase()]) &&
+                                    positions[`w${letter.toLowerCase()}`]) &&
                                 useUiContextFn.getValue(
-                                    "show" + letter.toLowerCase()
+                                    `show${letter.toLowerCase()}`
                                 )
                             ) {
                                 return (
@@ -480,11 +479,11 @@ const JogPanel = () => {
                                             m2
                                             tooltip
                                             data-tooltip={T("CN12")}
-                                            id={"btn+" + letter}
+                                            id={`btn+${letter}`}
                                             onClick={(e: any) => {
                                                 useUiContextFn.haptic();
                                                 (e.target as HTMLElement).blur();
-                                                sendJogCommand(letter + "+")
+                                                sendJogCommand(`${letter  }+`)
                                             }}
                                         >
                                             +{letter}
@@ -496,7 +495,7 @@ const JogPanel = () => {
                                                 m2
                                                 tooltip
                                                 data-tooltip={T("CN10")}
-                                                id={"btnH" + letter}
+                                                id={`btnH${letter}`}
                                                 onClick={(e: any) => {
                                                     useUiContextFn.haptic();
                                                     (e.target as HTMLElement).blur();
@@ -514,7 +513,7 @@ const JogPanel = () => {
                                             m2
                                             tooltip
                                             data-tooltip={T("CN19")}
-                                            id={"btnZ" + letter}
+                                            id={`btnZ${letter}`}
                                             onClick={(e: any) => {
                                                 useUiContextFn.haptic();
                                                 (e.target as HTMLElement).blur();
@@ -530,11 +529,11 @@ const JogPanel = () => {
                                             m2
                                             tooltip
                                             data-tooltip={T("CN13")}
-                                            id={"btn-" + letter}
+                                            id={`btn-${letter}`}
                                             onClick={(e: any) => {
                                                 useUiContextFn.haptic();
                                                 (e.target as HTMLElement).blur();
-                                                sendJogCommand(letter + "-")
+                                                sendJogCommand(`${letter  }-`)
                                             }}
                                         >
                                             -{letter}
@@ -805,10 +804,10 @@ const JogPanel = () => {
                 {selectableAxisLettersList.reduce((acc, letter) => {
                     if (
                         useUiContextFn.getValue(
-                            "show" + letter.toLowerCase()
+                            `show${letter.toLowerCase()}`
                         ) &&
                         (positions[letter.toLowerCase()] ||
-                            positions["w" + letter.toLowerCase()])
+                            positions[`w${letter.toLowerCase()}`])
                     )
                         acc = true
                     return acc
@@ -841,10 +840,10 @@ const JogPanel = () => {
                                     if (
                                         (positions[letter.toLowerCase()] ||
                                             positions[
-                                                "w" + letter.toLowerCase()
+                                                `w${letter.toLowerCase()}`
                                             ]) &&
                                         useUiContextFn.getValue(
-                                            "show" + letter.toLowerCase()
+                                            `show${letter.toLowerCase()}`
                                         )
                                     )
                                         return (

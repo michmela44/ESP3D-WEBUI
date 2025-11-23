@@ -58,10 +58,10 @@ const FormGroup: FunctionalComponent<FormGroupProps> = ({
     }
     return (
         <div
-            class={`${className ? className + " " : ""}${getValidationClass(
+            class={`${className ? `${className  } ` : ""}${getValidationClass(
                 validation
             )}`}
-            id={id ? "group-" + id : ""}
+            id={id ? `group-${  id}` : ""}
         >
             <div class={inline ? "columns mt-2" : "flex-cols"}>
                 {!(type == "list" || type == "mask" || type == "xmask") &&

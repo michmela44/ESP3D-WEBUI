@@ -52,7 +52,7 @@ const ModalContainer: FunctionalComponent<ModalContainerProps> = ({ id }) => {
                     return (
                         <SpectreModal
                             class={`active`}
-                            id={"modal-" + modal.id}
+                            id={`modal-${  modal.id}`}
                             key={index}
                             tabIndex="-1"
                         >

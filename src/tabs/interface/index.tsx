@@ -274,7 +274,7 @@ const generateValidationGlobal = (
                 const sourceItemValue =
                     datavalue[
                         datavalue.findIndex((element: any) => {
-                            return element.id === sourceId + "-source"
+                            return element.id === `${sourceId  }-source`
                         })
                     ]
                 //force /snap as source
@@ -423,13 +423,13 @@ const InterfaceTab = () => {
         })
 
         const preferencesFileName =
-            useSettingsContextFn.getValue("HostUploadPath") + "preferences.json"
+            `${useSettingsContextFn.getValue("HostUploadPath")  }preferences.json`
         const formData = new FormData()
         const file = new File([blob], preferencesFileName)
         formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
         formData.append("creatPath", "true")
         formData.append("myfiles", file, preferencesFileName)
-        formData.append(preferencesFileName + "S", String(preferencestosave.length))
+        formData.append(`${preferencesFileName  }S`, String(preferencestosave.length))
         setIsLoading(true)
         createNewRequest(
             espHttpURL(useSettingsContextFn.getValue("HostTarget")),

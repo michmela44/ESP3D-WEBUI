@@ -48,7 +48,7 @@ const Router: FunctionalComponent<RouterProps> = ({ children, routesList, parent
     if (typeof window !== "undefined") {
       const location = window.location.hash.slice(1).toLowerCase()
       if (location == "/settings") {
-        window.location.href = "/#" + activeTab.current
+        window.location.href = `/#${  activeTab.current}`
         return activeTab.current
       } else {
         return location
@@ -102,18 +102,18 @@ const Router: FunctionalComponent<RouterProps> = ({ children, routesList, parent
           }
         }
       } else {
-        window.location.href = "/#" + defaultRoute.current
+        window.location.href = `/#${  defaultRoute.current}`
       }
     }
 
     if (!found) {
       if (path.startsWith("/settings/")) {
-        window.location.href = "/#" + activeTab.current
+        window.location.href = `/#${  activeTab.current}`
       } else {
         if (path.startsWith("/extrapage/")) {
           // not valid extra page
         } else {
-          window.location.href = "/#" + defaultRoute.current
+          window.location.href = `/#${  defaultRoute.current}`
         }
       }
     }

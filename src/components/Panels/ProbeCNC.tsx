@@ -24,7 +24,6 @@ import { Underline } from "preact-feather"
 import {
     useUiContextFn,
     useSettingsContext,
-    useToastsContext,
 } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
@@ -350,13 +349,13 @@ const ProbePanel: FunctionalComponent = () => {
                                                 ? "-"
                                                 : ""
                                         return (
-                                            probetype.current +
-                                            " " +
-                                            probeaxis.current +
-                                            signe +
-                                            maxprobe.current +
-                                            " F" +
-                                            probefeedrate.current
+                                            `${probetype.current 
+                                            } ${ 
+                                            probeaxis.current 
+                                            }${signe 
+                                            }${maxprobe.current 
+                                            } F${ 
+                                            probefeedrate.current}`
                                         )
                                     },
                                     "G90",

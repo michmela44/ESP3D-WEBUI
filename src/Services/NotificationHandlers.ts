@@ -27,7 +27,7 @@ export function parseNotification(message: string): Omit<Toast, "id"> | null {
 
     const [, type, ...contentParts] = parts;
     // Include the type in the content display (e.g., "Success:File uploaded")
-    const content = `${type}${contentParts.length > 0 ? ':' + contentParts.join(":") : ""}`;
+    const content = `${type}${contentParts.length > 0 ? `:${  contentParts.join(":")}` : ""}`;
 
     let toastType: ToastType = "notification";
     if (type.startsWith("Error")) {

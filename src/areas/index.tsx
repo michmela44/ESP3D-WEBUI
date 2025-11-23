@@ -212,7 +212,7 @@ const ContentContainer: FunctionalComponent = () => {
                     //TODO add support for additional POST arguments if needed
                     formData.append("path", eventMsg.data.path)
                     formData.append(
-                        eventMsg.data.filename + "S",
+                        `${eventMsg.data.filename  }S`,
                         eventMsg.data.size
                     )
                     formData.append("myfiles", file, eventMsg.data.filename)
@@ -428,7 +428,7 @@ const ContentContainer: FunctionalComponent = () => {
 
                         //This function is a replacement of the hook feature which is not available in this context
                         const checkValidation = (fieldData: any) => {
-                            const id_group = "group-" + fieldData.id
+                            const id_group = `group-${  fieldData.id}`
                             if (typeof fieldData.initial == "undefined") {
                                 fieldData.initial = fieldData.value
                             }
@@ -712,8 +712,8 @@ const ContentContainer: FunctionalComponent = () => {
                     })
                     //Create a file
                     const preferencesFileName =
-                        useSettingsContextFn.getValue("HostUploadPath") +
-                        "preferences.json"
+                        `${useSettingsContextFn.getValue("HostUploadPath") 
+                        }preferences.json`
                     const formDataExtensions = new FormData()
                     const file_to_save = new File([blob], preferencesFileName)
                     formDataExtensions.append(
@@ -722,7 +722,7 @@ const ContentContainer: FunctionalComponent = () => {
                     )
                     formDataExtensions.append("creatPath", "true")
                     formDataExtensions.append(
-                        preferencesFileName + "S",
+                        `${preferencesFileName  }S`,
                         preferencestosave.length.toString()
                     )
                     formDataExtensions.append(

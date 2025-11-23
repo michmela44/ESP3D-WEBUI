@@ -16,7 +16,7 @@
 */
 
 function getCookie(cname: string): string {
-    let name = cname + "="
+    let name = `${cname  }=`
     let decodedCookie = decodeURIComponent(document.cookie)
     let ca = decodedCookie.split(";")
     for (var i = 0; i < ca.length; i++) {

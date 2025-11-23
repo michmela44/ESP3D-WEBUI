@@ -195,7 +195,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                 ) || []
         if (/trident/i.test(M[1])) {
             tem = /\brv[ :]+(\d+)/g.exec(ua) || []
-            return "IE " + (tem[1] || "")
+            return `IE ${  tem[1] || ""}`
         }
         if (M[1] === "Chrome") {
             tem = ua.match(/\b(OPR|Edge)\/(\d+)/)
@@ -289,7 +289,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                 formData.append("createPath", "true")
 
                 const filename = "index.html.gz"
-                const arg = useSettingsContextFn.getValue("HostUploadPath") + filename + "S"
+                const arg = `${useSettingsContextFn.getValue("HostUploadPath") + filename  }S`
                 formData.append(arg, String(blob.size))
                 formData.append(
                     "myfiles",
@@ -378,9 +378,9 @@ const About: FunctionalComponent = (): JSX.Element => {
             for (let i = 0; i < list.length; i++) {
                 const file = list[i]
                 const arg =
-                    useSettingsContextFn.getValue("HostUploadPath") +
-                    file.name +
-                    "S"
+                    `${useSettingsContextFn.getValue("HostUploadPath") +
+                    file.name 
+                    }S`
                 //append file size first to check updload is complete
                 formData.append(arg, String(file.size))
                 formData.append(
@@ -443,7 +443,7 @@ const About: FunctionalComponent = (): JSX.Element => {
             const reg_search = /(?<label>[^\(]*)\s\((?<content>[^\)]*)/
             let res = reg_search.exec(value)
             if (res && res.groups) {
-                return T(res.groups.label) + " (" + T(res.groups.content) + ")"
+                return `${T(res.groups.label)  } (${  T(res.groups.content)  })`
             }
         }
 

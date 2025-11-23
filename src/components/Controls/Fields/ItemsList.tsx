@@ -116,8 +116,8 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
 }) => {
     const iconsList: Record<string, JSX.Element> = { ...iconsTarget, ...iconsFeather }
     const { id, value, editionMode, ...rest } = itemData
-    const indexIcon = value.findIndex((element) => element.id == id + "-icon")
-    const indexName = value.findIndex((element) => element.id == id + "-name")
+    const indexIcon = value.findIndex((element) => element.id == `${id  }-icon`)
+    const indexName = value.findIndex((element) => element.id == `${id  }-name`)
     const icon = value ? value[indexIcon != -1 ? indexIcon : 0].value : null
     const name = value ? value[indexName != -1 ? indexName : 0].value : null
     const controlIcon = iconsList[icon] ? iconsList[icon] : ""
@@ -173,7 +173,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
         val != -1
             ? T(name) +
               (value[val].value.length != 0
-                  ? " [" + value[val].value + "]"
+                  ? ` [${  value[val].value  }]`
                   : "")
             : T(name)
 
@@ -383,7 +383,7 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
             )
         )
         newItem.id = generateUID()
-        newItem.name += " " + newItem.id
+        newItem.name += ` ${  newItem.id}`
         const formatedNewItem = formatItem(newItem, -1, id)
         formatedNewItem.editionMode = true
         formatedNewItem.newItem = true
@@ -402,8 +402,8 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
             document.getElementById(id)!.style.display = visible
                 ? "block"
                 : "none"
-        if (document.getElementById("group-" + id))
-            document.getElementById("group-" + id)!.style.display = visible
+        if (document.getElementById(`group-${  id}`))
+            document.getElementById(`group-${  id}`)!.style.display = visible
                 ? "block"
                 : "none"
     }, [...dependIds])

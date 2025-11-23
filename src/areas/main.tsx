@@ -79,7 +79,7 @@ const MainContainer: FunctionalComponent = () => {
                 }, {})
 
                 if (item.target == "page") {
-                    acc["EXTRA-" + curr.id] = {
+                    acc[`EXTRA-${  curr.id}`] = {
                         component: (
                             <ExtraPage
                                 id={curr.id}
@@ -89,7 +89,7 @@ const MainContainer: FunctionalComponent = () => {
                                 type={item.type}
                             />
                         ),
-                        path: "/extrapage/" + curr.id,
+                        path: `/extrapage/${  curr.id}`,
                     }
                 }
                 return acc

@@ -63,7 +63,7 @@ const presetList = (pos: number): any => {
         const list = useUiContextFn.getValue(setting[pos])
         if (list)
             return list.split(";").map((item: string) => {
-                return { display: item + "%", value: item }
+                return { display: `${item  }%`, value: item }
             })
     }
     return ""
@@ -159,7 +159,7 @@ const ExtraControls: FunctionalComponent = () => {
                         <div
                             class="extra-control mt-1 tooltip tooltip-bottom"
                             data-tooltip={
-                                T("sensor") + " (" + element.unit + ")"
+                                `${T("sensor")  } (${  element.unit  })`
                             }
                         >
                             <div class="extra-control-header">
@@ -237,7 +237,7 @@ const ExtraInputControl = ({ element, index, size, pos }: { element: any; index:
             <div class="extra-ctrls-container2">
                 <div>
                     <Field
-                        id={"input-extra-" + pos + "-" + index}
+                        id={`input-extra-${  pos  }-${  index}`}
                         type="number"
                         value={target_values[pos][index].current}
                         min={boundaries.min}
@@ -256,7 +256,7 @@ const ExtraInputControl = ({ element, index, size, pos }: { element: any; index:
                     />
                 </div>
                 <ButtonImg
-                    id={"btn-send-extra-" + pos + "-" + index}
+                    id={`btn-send-extra-${  pos  }-${  index}`}
                     class={`extra-ctrl-send ${
                         !validation.valid ? "d-invisible" : ""
                     }`}

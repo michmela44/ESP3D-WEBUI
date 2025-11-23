@@ -49,7 +49,7 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }: Ex
     const extra_content_id = `extra_content_${id}`
     const target_id = `target_${id}`
     const iconsList = { ...iconsTarget, ...iconsFeather } as Record<string, any>
-    console.log("Extra Content " + id)
+    console.log(`Extra Content ${  id}`)
 
     const updateContentPosition = () => {
         if (!useUiContextFn.panels.isVisible(id) && target == "panel") {
@@ -60,7 +60,7 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }: Ex
             const { top, left, width, height } = container.getBoundingClientRect()
             eventBus.emit('updateState', { id: extra_content_id, position: { top, left, width, height }, isVisible: true, from: "extraContent(position)" })
         } else {
-            console.error("Element " + target_id + " doesn't exist")
+            console.error(`Element ${  target_id  } doesn't exist`)
         }
     }
 
@@ -99,7 +99,7 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }: Ex
 
     useEffect(() => {
         if (!elementsCache.has(extra_content_id)) {
-            console.error("Error display element " + extra_content_id, " because it doesn't exist")
+            console.error(`Error display element ${  extra_content_id}`, " because it doesn't exist")
         } else {
             if (target == "page") {
                 updateContentPosition()
@@ -126,7 +126,7 @@ const ExtraContent = ({ id, source, refreshtime, label, type, target, icon }: Ex
 
     const handleRefresh = () => {
         useUiContextFn.haptic()
-        eventBus.emit('updateState', { id: extra_content_id, isVisible: true, forceRefresh: true, from: "extraContent(refresh)-" + Date.now() })
+        eventBus.emit('updateState', { id: extra_content_id, isVisible: true, forceRefresh: true, from: `extraContent(refresh)-${  Date.now()}` })
         updateContentPosition()
     }
 

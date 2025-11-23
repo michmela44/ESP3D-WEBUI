@@ -72,18 +72,18 @@ const getStatus = (str: string): StatusResponse => {
         bf: {},
         sd: {},
     }
-    const mpos_pattern = /\|MPos:(?<mpos>[^\|>]+)/i
-    const wpos_pattern = /\|WPos:(?<wpos>[^\|>]+)/i
-    const WCO_pattern = /\|WCO:(?<wco>[^\|>]+)/i
-    const status_pattern = /<(?<state>[^:\|]+):*(?<code>[^\|:]*)\|/i
-    const ov_patern = /\|Ov:(?<ov>[^\|>]+)/i
-    const pn_patern = /\|Pn:(?<pn>[^\|>]+)/i
-    const fs_patern = /\|Fs:(?<fs>[^\|>]+)/i
-    const a_patern = /\|A:(?<a>[^\|>]+)/i
-    const bf_patern = /\|Bf:(?<bf>[^\|>]+)/i
-    const f_patern = /\|F:(?<f>[^\|>]+)/i
-    const ln_patern = /\|Ln:(?<ln>[^\|>]+)/i
-    const sd_stream = /SD:(?<sd>[^\|>]+)/i
+    const mpos_pattern = /\|MPos:(?<mpos>[^|>]+)/i
+    const wpos_pattern = /\|WPos:(?<wpos>[^|>]+)/i
+    const WCO_pattern = /\|WCO:(?<wco>[^|>]+)/i
+    const status_pattern = /<(?<state>[^:|]+):*(?<code>[^\|:]*)\|/i
+    const ov_patern = /\|Ov:(?<ov>[^|>]+)/i
+    const pn_patern = /\|Pn:(?<pn>[^|>]+)/i
+    const fs_patern = /\|Fs:(?<fs>[^|>]+)/i
+    const a_patern = /\|A:(?<a>[^|>]+)/i
+    const bf_patern = /\|Bf:(?<bf>[^|>]+)/i
+    const f_patern = /\|F:(?<f>[^|>]+)/i
+    const ln_patern = /\|Ln:(?<ln>[^|>]+)/i
+    const sd_stream = /SD:(?<sd>[^|>]+)/i
     let result: RegExpExecArray | null = null
 
     //line number
@@ -213,7 +213,7 @@ const getStatus = (str: string): StatusResponse => {
         : defaultletters.split("")
     letterslist.forEach((letter: string, index: number) => {
         res.positions[letter] = index < mpos.length ? mpos[index] : undefined
-        res.positions["w" + letter] =
+        res.positions[`w${  letter}`] =
             index < wpos.length ? wpos[index] : undefined
     })
     return res
@@ -412,9 +412,9 @@ interface SensorData {
 
 const getSensor = (str: string): SensorData[] => {
     const result: SensorData[] = []
-    const data = " " + str.substring(7)
+    const data = ` ${  str.substring(7)}`
     let res: RegExpExecArray | null = null
-    const reg_search = /\s(?<value>[^\[]+)\[(?<unit>[^\]]+)\]/g
+    const reg_search = /\s(?<value>[^[]+)\[(?<unit>[^\]]+)\]/g
     while ((res = reg_search.exec(data))) {
         if (res.groups) {
             result.push({

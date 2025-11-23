@@ -157,7 +157,7 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
                         "wc",
                     ]
                     names.forEach((element) => {
-                        let name = "#pos_" + element + "#"
+                        let name = `#pos_${  element  }#`
                         variablesList.addCommand({
                             name: name,
                             value: parseFloat(
@@ -265,7 +265,7 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
                                 : defaultletters.split("");
                             (gcodeParametersRef.current as any).PRB.data.forEach(
                                 (value: string, index: number) => {
-                                    let name = "#prb_" + letterslist[index] + "#"
+                                    let name = `#prb_${ letterslist[index] }#`
                                     variablesList.addCommand({
                                         name: name,
                                         value: parseFloat(value),
@@ -419,7 +419,8 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
             overrides,
             gcodeParameters,
             grblVersion,
-            grblSettings,
+            grblSettings
+            
         ]
     )
 

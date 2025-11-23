@@ -116,10 +116,10 @@ const useSettings = (): UseSettingsReturn => {
                                 ) {
                                     sendCommand(
                                         variablesList.formatCommand(cmd),
-                                        cmdEntry.id + "-" + index
+                                        `${cmdEntry.id}-${index}`
                                     )
                                 } else {
-                                    sendCommand(cmd, cmdEntry.id + "-" + index)
+                                    sendCommand(cmd, `${cmdEntry.id}-${index}`)
                                 }
                             }
                         })
@@ -140,17 +140,10 @@ const useSettings = (): UseSettingsReturn => {
                                                         variablesList.formatCommand(
                                                             cmd
                                                         ),
-                                                        cmdEntry.id +
-                                                            "-" +
-                                                            index
+                                                        `${cmdEntry.id}-${index}`
                                                     )
                                                 } else {
-                                                    sendCommand(
-                                                        cmd,
-                                                        cmdEntry.id +
-                                                            "-" +
-                                                            index
-                                                    )
+                                                    sendCommand(cmd, `${cmdEntry.id}-${index}`)
                                                 }
                                             }
                                         })
@@ -241,14 +234,11 @@ const useSettings = (): UseSettingsReturn => {
                 ) {
                     // change here to account for FluidNC having to have the 2nd WebSocket port
                     const url =
-                        "http://" +
-                        connectionSettings.current.WebSocketIP +
-                        (connectionSettings.current.WebSocketPort != "82"
-                            ? ":" +
-                              (parseInt(
-                                  connectionSettings.current.WebSocketPort
-                              ) - 2)
-                            : "")
+                        `http://${ 
+                        connectionSettings.current.WebSocketIP 
+                        }${connectionSettings.current.WebSocketPort != "82"
+                            ? `:${parseInt(connectionSettings.current.WebSocketPort) - 2}`
+                            : ""}`
                     const translatedParts = T("S124").split("%s")
                     const linkElement = h('a', { href: url, target: '_blank' }, url)
                     showModal({
@@ -341,7 +331,7 @@ const useSettings = (): UseSettingsReturn => {
                             finalizeDisplay()
                             console.log("error")
                             toasts.addToast({
-                                content: error + " " + themepack,
+                                content: `${error  } ${  themepack}`,
                                 type: "error",
                             })
                         },
@@ -359,8 +349,8 @@ const useSettings = (): UseSettingsReturn => {
         }
         createNewRequest(
             espHttpURL(
-                useSettingsContextFn.getValue("HostDownloadPath") +
-                    "preferences.json"
+                `${useSettingsContextFn.getValue("HostDownloadPath") 
+                    }preferences.json`
             ),
             { method: "GET" },
             {
@@ -443,7 +433,7 @@ const useSettings = (): UseSettingsReturn => {
                                     loadTheme(themepack)
                                     console.log("Error")
                                     toasts.addToast({
-                                        content: error + " " + languagepack,
+                                        content: `${error  } ${  languagepack}`,
                                         type: "error",
                                     })
                                 },
@@ -466,7 +456,7 @@ const useSettings = (): UseSettingsReturn => {
                     }
                     if (error != "404 - Not Found")
                         toasts.addToast({
-                            content: error + " preferences.json",
+                            content: `${error  } preferences.json`,
                             type: "error",
                         })
                     console.log("No valid preferences.json")

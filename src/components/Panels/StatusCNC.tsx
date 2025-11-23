@@ -100,12 +100,12 @@ const StatusControls: FunctionalComponent = () => {
                         {streamStatus.code && (
                             <div class="extra-control-value text-error">
                                 {T("S22")}
-                                {": " + streamStatus.code}
+                                {`: ${  streamStatus.code}`}
                             </div>
                         )}
                         {status.code && (
                             <div class="extra-control-value">
-                                {T(status.state + ":" + status.code)}
+                                {T(`${status.state  }:${  status.code}`)}
                             </div>
                         )}
                         {message && (
@@ -115,8 +115,8 @@ const StatusControls: FunctionalComponent = () => {
                             <div class="extra-control-value text-error">
                                 {T(
                                     alarmCode != 0
-                                        ? "ALARM:" + alarmCode
-                                        : "error:" + errorCode
+                                        ? `ALARM:${  alarmCode}`
+                                        : `error:${  errorCode}`
                                 )}
                             </div>
                         )}

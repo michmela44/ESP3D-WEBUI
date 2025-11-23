@@ -16,8 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { TargetedKeyboardEvent, TargetedEvent } from "preact"
-import type { FunctionalComponent, VNode, JSX } from "preact"
+import { TargetedKeyboardEvent, TargetedEvent, type FunctionalComponent, type VNode } from "preact"
 import { useEffect, useRef, useState, useMemo } from "preact/hooks"
 import { T } from "../Translations"
 import {
@@ -29,8 +28,7 @@ import {
     ChevronLeft,
     ChevronRight,
 } from "preact-feather"
-import { useUiContext, useDatasContext, useUiContextFn } from "../../contexts"
-import type { TerminalElement } from "../../contexts"
+import { useUiContext, useDatasContext, useUiContextFn, type TerminalElement } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { useTargetCommands } from "../../hooks"
 import { replaceVariables } from "../Helpers"

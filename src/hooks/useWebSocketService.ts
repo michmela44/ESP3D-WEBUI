@@ -1,12 +1,8 @@
 import { useEffect, useRef } from "preact/hooks";
 import { WebSocketService } from "../Services/WebSocketService";
 import { WebSocketAdapter } from "../Services/WebSocketAdapter";
-import { useUiContext } from "../contexts";
-import { useToastsContext } from "../contexts";
-import { useModalsContext } from "../contexts";
+import { useUiContext, useToastsContext, useModalsContext, useHttpQueueContext, useSettingsContext } from "../contexts";
 import { useTargetContext } from "../targets";
-import { useHttpQueueContext } from "../contexts";
-import { useSettingsContext } from "../contexts";
 import { dispatchToExtensions } from "../components/Helpers";
 
 let webSocketServiceInstance : WebSocketService | undefined;
@@ -33,10 +29,6 @@ export function useWebSocketService() : WebSocketService {
                 console.warn("WebSocketPort not configured in connection settings");
                 return;
             }
-
-   const disconnectOnOtherLogin = uisettings.getValue(
-                "disconnectonotherlogin"
-            );
 
             // Construct WebSocket URL from current location
             const address = document.location.hostname;

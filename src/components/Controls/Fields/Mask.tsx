@@ -113,8 +113,8 @@ const Mask: FunctionalComponent<MaskProps> = ({
             document.getElementById(id)!.style.display = visible
                 ? "block"
                 : "none"
-        if (document.getElementById("group-" + id))
-            document.getElementById("group-" + id)!.style.display = visible
+        if (document.getElementById(`group-${  id}`))
+            document.getElementById(`group-${  id}`)!.style.display = visible
                 ? "block"
                 : "none"
     }, [...dependIds])
@@ -156,7 +156,7 @@ const Mask: FunctionalComponent<MaskProps> = ({
                     return validation.modified ? validation : null
                 }
                 const FieldData: FieldData = {
-                    id: id + "M" + index,
+                    id: `${id  }M${  index}`,
                     value: mask.getBit(parseInt(option.value.toString())) !== 0,
                     initial: mask.getBit(parseInt(option.value.toString())) !== 0,
                     label: option.label,
@@ -174,7 +174,7 @@ const Mask: FunctionalComponent<MaskProps> = ({
                     return (
                         <FormGroup {...FieldData}>
                             <Boolean
-                                id={id + "M" + index}
+                                id={`${id  }M${  index}`}
                                 label={FieldData.label}
                                 value={FieldData.value}
                                 setValue={(val: boolean, update?: boolean) => {

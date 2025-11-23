@@ -60,7 +60,7 @@ const Progress: FunctionalComponent<ProgressProps> = ({ progressBar, max = 100, 
             } else {
                 progressValue.current.value = parseFloat(val)
                 if (progressValueDisplay.current) {
-                    progressValueDisplay.current.innerHTML = val + "%"
+                    progressValueDisplay.current.innerHTML = `${val  }%`
                 }
             }
         }

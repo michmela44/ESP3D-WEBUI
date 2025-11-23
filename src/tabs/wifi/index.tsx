@@ -26,11 +26,10 @@ import Select from "../../components/Controls/Fields/Select"
 import { Save } from "preact-feather"
 import { T } from "../../components/Translations"
 import WifiStats from "./WifiStats"
-import { useHttpQueue, useTargetCommands } from "../../hooks"
-import { espHttpURL } from "../../components/Helpers"
 import { getWebSocketService } from "../../hooks/useWebSocketService"   
 import { GetSettingsCommand, Settings } from "../../Services/Commands/GetSettingsCommand"
 import { Command } from "../../Services/Commands/Command"
+import { useTargetCommands } from "../../hooks"
 
 
 export type SystemStats = {
@@ -59,7 +58,6 @@ const WifiTab = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [isSaving, setIsSaving] = useState<boolean>(false)
     const [hasChanges, setHasChanges] = useState<boolean>(false)
-    const { createNewRequest, abortRequest } = useHttpQueue()
     const { targetCommands } = useTargetCommands()
     const controllerService = getWebSocketService();
     const { toasts } = useToastsContext()
@@ -274,87 +272,87 @@ const WifiTab = () => {
         try {
           if (hostname !== originalSettings?.hostname) {
                 await controllerService?.send(
-                    new Command("$Hostname=" + hostname)
+                    new Command(`$Hostname=${  hostname}`)
                 );
             }
 
             if (wifiMode !== originalSettings?.wifiMode) {
                 await controllerService?.send(
-                    new Command("$WiFi/Mode=" + wifiMode)
+                    new Command(`$WiFi/Mode=${  wifiMode}`)
                 );
             }
 
             if (stationSSID !== originalSettings?.stationSSID) {
                 await controllerService?.send(
-                    new Command("$Sta/SSID=" + stationSSID)
+                    new Command(`$Sta/SSID=${  stationSSID}`)
                 );
             }
 
             if (stationIpMode !== originalSettings?.stationIpMode) {
                 await controllerService?.send(
-                    new Command("$Sta/IPMode=" + stationIpMode)
+                    new Command(`$Sta/IPMode=${  stationIpMode}`)
                 );
             }
 
             if (stationPassword !== originalSettings?.stationPassword) {
                 await controllerService?.send(
                     new Command(
-                        "$Sta/Password=" + encodePassword(stationPassword ?? "")
+                        `$Sta/Password=${  encodePassword(stationPassword ?? "")}`
                     )
                 );
             }
 
             if (stationMinSecurity !==  originalSettings?.stationMinSecurity) {
                 await controllerService?.send(
-                    new Command("$Sta/MinSecurity=" + stationMinSecurity)
+                    new Command(`$Sta/MinSecurity=${  stationMinSecurity}`)
                 );
             }
 
             if (stationIP !== originalSettings?.stationIP) {
                 await controllerService?.send(
-                    new Command("$Sta/IP=" + stationIP)
+                    new Command(`$Sta/IP=${  stationIP}`)
                 );
             }
 
             if (stationGateway !== originalSettings?.stationGateway) {
                 await controllerService?.send(
-                    new Command("$Sta/Gateway=" + stationGateway)
+                    new Command(`$Sta/Gateway=${  stationGateway}`)
                 );
             }
 
             if (stationNetmask !== originalSettings?.stationNetmask) {
                 await controllerService?.send(
-                    new Command("$Sta/Netmask=" + stationNetmask)
+                    new Command(`$Sta/Netmask=${  stationNetmask}`)
                 );
             }
 
             if (apSSID !== originalSettings?.apSSID) {
                 await controllerService?.send(
-                    new Command("$AP/SSID=" + apSSID)
+                    new Command(`$AP/SSID=${  apSSID}`)
                 );
             }
 
             if (apPassword !== originalSettings?.apPassword) {
                 await controllerService?.send(
                     new Command(
-                        "$AP/Password=" + encodePassword(apPassword ?? "")
+                        `$AP/Password=${  encodePassword(apPassword ?? "")}`
                     )
                 );
             }
 
             if (apChannel !== originalSettings?.apChannel) {
                 await controllerService?.send(
-                    new Command("$AP/Channel=" + apChannel)
+                    new Command(`$AP/Channel=${  apChannel}`)
                 );
             }
 
             if (apIP !== originalSettings?.apIP) {
-                await controllerService?.send(new Command("$AP/IP=" + apIP));
+                await controllerService?.send(new Command(`$AP/IP=${  apIP}`));
             }
 
             if (apCountry !== originalSettings?.apCountry) {
                 await controllerService?.send(
-                    new Command("$AP/Country=" + apCountry)
+                    new Command(`$AP/Country=${  apCountry}`)
                 );
             }
 

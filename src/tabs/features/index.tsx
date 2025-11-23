@@ -208,7 +208,7 @@ const FeaturesTab = () => {
                         else if (jsonResult.status == "error") {
                             let content = T("S195")
                             if (typeof jsonResult.data === "string") {
-                                content += ": " + T(jsonResult.data)
+                                content += `: ${  T(jsonResult.data)}`
                             }
                             toasts.addToast({
                                 content: content,
@@ -241,13 +241,13 @@ const FeaturesTab = () => {
             },
         }
         let cmd =
-            "[ESP401]P=" +
-            entry.id +
-            " T=" +
-            entry.cast +
-            " V=" +
-            entry.value.toString().replaceAll(" ", "\\ ") +
-            " json=yes"
+            `[ESP401]P=${ 
+            entry.id 
+            } T=${ 
+            entry.cast 
+            } V=${ 
+            entry.value.toString().replaceAll(" ", "\\ ") 
+            } json=yes`
        targetCommands(cmd, undefined, {id: "ESP401" }, callbacks)
     }
 

@@ -125,7 +125,7 @@ const useTargetCommands = () => {
             Object.assign(method, { echo: replaceVariables(variablesList.commands, cmd, true) });
          }
 
-            console.log("cmd " + replaced)
+            console.log(`cmd ${  replaced}`)
             createNewRequest(
                 espHttpURL("command", args),
                 method,

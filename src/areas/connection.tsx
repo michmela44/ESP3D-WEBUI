@@ -76,15 +76,15 @@ const ConnectionContainer: FunctionalComponent = () => {
                 contentSubtitle = T("S5") //"Cannot connect with board"
                 if (connection.connectionState.extraMsg)
                     contentSubtitle +=
-                        ": " + connection.connectionState.extraMsg
+                        `: ${  connection.connectionState.extraMsg}`
                 document.title =
-                    (connectionSettings.current &&
+                    `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D") +
-                    "(" +
-                    T("S22") +
-                    ")"
+                        : "ESP3D" 
+                    }(${ 
+                    T("S22") 
+                    })`
                 contentAction = (
                     <button class="btn" onClick={onclick}>
                         {T("S8")}
@@ -103,13 +103,13 @@ const ConnectionContainer: FunctionalComponent = () => {
                         ? T("S10")
                         : T("S173") //"Connection with board is lost"
                 document.title =
-                    (connectionSettings.current &&
+                    `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D") +
-                    "(" +
-                    T("S9") +
-                    ")"
+                        : "ESP3D" 
+                    }(${ 
+                    T("S9") 
+                    })`
                 contentAction = (
                     <button class="btn" onClick={onclick}>
                         {T("S11")}
@@ -123,13 +123,13 @@ const ConnectionContainer: FunctionalComponent = () => {
                 contentIcon = <Slash style={{ width: "50px", height: "50px" }} />
                 contentSubtitle = T("S3")
                 document.title =
-                    (connectionSettings.current &&
+                    `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D") +
-                    "(" +
-                    T("S9") +
-                    ")"
+                        : "ESP3D" 
+                    }(${ 
+                    T("S9") 
+                    })`
                 contentAction = (
                     <button class="btn" onClick={onclick}>
                         {T("S11")}
@@ -141,13 +141,13 @@ const ConnectionContainer: FunctionalComponent = () => {
                 intervalTimer = restartdelay
                 setTimeout(refreshTimer, 1000)
                 document.title =
-                    (connectionSettings.current &&
+                    `${connectionSettings.current &&
                     connectionSettings.current.HostName
                         ? connectionSettings.current.HostName
-                        : "ESP3D") +
-                    "(" +
-                    T("S35") +
-                    ")"
+                        : "ESP3D" 
+                    }(${ 
+                    T("S35") 
+                    })`
                 contentTitle = T("S35") //"restarting";
                 contentIcon = (
                     <div class="d-inline-block content-icon">
@@ -173,13 +173,13 @@ const ConnectionContainer: FunctionalComponent = () => {
                     })
                 } else {
                     document.title =
-                        (connectionSettings.current &&
+                        `${connectionSettings.current &&
                         connectionSettings.current.HostName
                             ? connectionSettings.current.HostName
-                            : "ESP3D") +
-                        "(" +
-                        T("S2") +
-                        ")"
+                            : "ESP3D" 
+                        }(${ 
+                        T("S2") 
+                        })`
                     contentTitle = T("S2") //"Connecting";
                 }
                 contentIcon = (

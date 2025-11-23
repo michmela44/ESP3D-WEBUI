@@ -138,7 +138,7 @@ function exportPreferences(interfaceSettingsData: InterfaceSettingsData, asFile:
             a.download = filename
             document.body.appendChild(a)
             a.click()
-            setTimeout(function () {
+            setTimeout(() => {
                 document.body.removeChild(a)
                 window.URL.revokeObjectURL(url)
             }, 0)

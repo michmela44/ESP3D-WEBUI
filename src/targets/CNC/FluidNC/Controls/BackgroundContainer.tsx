@@ -21,7 +21,6 @@ import { useEffect } from "preact/hooks"
 import { useTargetContext } from "../../.."
 import { useToastsContext } from "../../../../contexts"
 import { T } from "../../../../components/Translations"
-import { variablesList } from "../"
 import { useTargetCommands } from "../../../../hooks"
 
 const last: { status: { state: string } } = { status: { state: "?" } }
@@ -42,7 +41,7 @@ const BackgroundContainer = () => {
             toasts.addToast({
                 type: "error",
                 content: T(
-                    alarmCode != 0 ? "ALARM:" + alarmCode : "error:" + errorCode
+                    alarmCode != 0 ? `ALARM:${  alarmCode}` : `error:${  errorCode}`
                 ),
             })
         }

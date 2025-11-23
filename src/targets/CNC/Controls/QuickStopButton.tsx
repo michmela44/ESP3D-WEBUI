@@ -19,10 +19,9 @@ QuickStopButton.tsx - ESP3D WebUI component file
 import { TargetedMouseEvent } from "preact"
 import { AlertCircle } from "preact-feather"
 import { useTargetCommands } from "../../../hooks"
-import { useUiContext, useUiContextFn } from "../../../contexts"
+import { useUiContextFn } from "../../../contexts"
 import { T } from "../../../components/Translations"
 import { ButtonImg } from "../../../components/Controls"
-import { variablesList } from "../../../targets"
 
 const QuickStopButton = () => {
     const { targetCommands } = useTargetCommands()
@@ -36,7 +35,7 @@ const QuickStopButton = () => {
             icon={<AlertCircle />}
             data-tooltip={T("P15")}
             id="btnEStop"
-            onclick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
+            onclick={(_e: TargetedMouseEvent<HTMLButtonElement>) => {
                 useUiContextFn.haptic()
                 const cmds = useUiContextFn.getValue("emergencystop")
                 targetCommands(cmds, ';')

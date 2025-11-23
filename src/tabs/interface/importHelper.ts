@@ -80,7 +80,7 @@ function formatItem(itemData: RawItemData, index: number = -1, origineId: string
     Object.keys(itemData).forEach((key) => {
         if (key != "id") {
             const newItem: ItemSettingField = {
-                id: itemData.id + "-" + key,
+                id: `${itemData.id}-${key}`,
                 name: key,
                 value: itemData[key],
                 initial: itemData[key]
@@ -238,7 +238,7 @@ function formatPreferences(section: PreferencesSection): PreferencesSection {
         if (Array.isArray(section[key])) {
             for (let index = 0; index < section[key].length; index++) {
                 if (section[key][index].type == "group") {
-                    section[key][index].value.forEach((element: any, index: number) => {
+                    section[key][index].value.forEach((element: any, _index: number) => {
                         element.initial = element.value
                     })
                 } else if (section[key][index].type == "list") {

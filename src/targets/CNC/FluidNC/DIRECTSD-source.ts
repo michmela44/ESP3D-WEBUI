@@ -19,7 +19,7 @@
 */
 import { sortedFilesList, formatStatus, filterResultFiles } from "../../../components/Helpers"
 import { canProcessFile } from "../../helpers"
-import { useUiContextFn, useSettingsContextFn } from "../../../contexts"
+import { useUiContextFn } from "../../../contexts"
 
 const capabilities = {
     Process: (path: string, filename: string): boolean => {
@@ -48,27 +48,6 @@ const capabilities = {
     CreateDir: (): boolean => {
         return true
     },
-}
-
-const normalizePath = (path: string): string => {
-    let re = /\/\//g
-    let p = path.replace(re, "/");
-    return p;
-}
-  
-const sdMountedPath = (path?: string, filename?: string): string => {
-    const mountPrefix = "/sd";
-    console.log("MP ", path, filename);
-    if (typeof(path) == 'undefined') {
-      if (typeof(filename) == 'undefined') {
-        return mountPrefix + "/";
-      }
-      return normalizePath(mountPrefix + "/" + encodeURIComponent(filename));
-    }
-    if (typeof(filename) == 'undefined') {
-      return normalizePath(mountPrefix + path);
-    }
-    return normalizePath(mountPrefix + path + "/" + encodeURIComponent(filename));
 }
 
 type UrlCommand = { type: "url"; url: string; args: Record<string, any> }
@@ -137,14 +116,14 @@ const commands = {
     download: (path: string, filename: string): UrlCommand => {
         return {
           type: "url",
-          url: "/sd" + path + (path.endsWith("/") ? "" : "/") + filename,
+          url: `/sd${  path  }${path.endsWith("/") ? "" : "/"  }${filename}`,
           args: {},
         };
     },
     play: (path: string, filename: string): CmdCommand => {
         return {
           type: "cmd",
-          cmd: "$SD/Run=" + path + (path == "/" ? "" : "/") + filename + "\n",
+          cmd: `$SD/Run=${  path  }${path == "/" ? "" : "/"  }${filename  }\n`,
         };
     },
 }

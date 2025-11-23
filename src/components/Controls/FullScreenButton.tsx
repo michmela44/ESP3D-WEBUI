@@ -54,7 +54,7 @@ const FullScreenButton: FunctionalComponent<FullScreenButtonProps> = ({ elementI
     //Handle fullscreen change event
     const handleFullscreenChange = () => {
         //we actuallyonly care about the event of exiting fullscreen because we control the entering one
-        console.log("Fullscreen state changed to false for " + elementId)
+        console.log(`Fullscreen state changed to false for ${  elementId}`)
         if (!document.fullscreenElement) {
             exitFullscreen()
         }
@@ -68,9 +68,9 @@ const FullScreenButton: FunctionalComponent<FullScreenButtonProps> = ({ elementI
             element.requestFullscreen()
             setFullScreenMode(true)
             document.addEventListener("fullscreenchange", handleFullscreenChange)
-            console.log("Fullscreen activated for " + elementId)
+            console.log(`Fullscreen activated for ${  elementId}`)
         } else {
-            console.log("Element " + elementId + " doesn't exist")
+            console.log(`Element ${  elementId  } doesn't exist`)
         }
     }
 
@@ -83,7 +83,7 @@ const FullScreenButton: FunctionalComponent<FullScreenButtonProps> = ({ elementI
         eventBus.emit("updateState", { id: elementId, isFullScreen: false, from: "fullScreenButton" })
         if (document.fullscreenElement) document.exitFullscreen()
         setFullScreenMode(false)
-        console.log("Fullscreen deactivated for " + elementId)
+        console.log(`Fullscreen deactivated for ${  elementId}`)
     }
 
     //Hide the button if fullscreen mode is active and hideOnFullScreen is true

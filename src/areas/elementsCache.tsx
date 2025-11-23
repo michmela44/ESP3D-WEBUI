@@ -42,7 +42,7 @@ const ElementsCache: FunctionalComponent = () => {
     const [content, setContent] = useState<any[]>([])
 
     const extractValues = (entry: ExtraContentEntry): ExtractedValues => {
-        const result: ExtractedValues = { id: "extra_content_" + entry.id }
+        const result: ExtractedValues = { id: `extra_content_${  entry.id}` }
         entry.value.forEach(param => {
             result[param.name] = param.value
         })
@@ -97,7 +97,7 @@ export default ElementsCache
 const elementsCache = {
 
     isExtraContent: (id: string): boolean => {
-        const itemid = "extra_content_" + id
+        const itemid = `extra_content_${  id}`
         return elementsCache.has(itemid)
     },
 
@@ -106,19 +106,19 @@ const elementsCache = {
     },
 
     getIdFromRoot: (id: string): string => {
-        return "extra_content_" + id
+        return `extra_content_${  id}`
     },
 
     has: (id: string): boolean => {
         const cacheHost = document.getElementById("elementsCache")
         if (!cacheHost) return false
-        return cacheHost.querySelector('#' + id) !== null
+        return cacheHost.querySelector(`#${  id}`) !== null
     },
 
     get: (id: string): Element | null => {
         const cacheHost = document.getElementById("elementsCache")
         if (!cacheHost) return null
-        return cacheHost.querySelector('#' + id)
+        return cacheHost.querySelector(`#${  id}`)
     }
 }
 

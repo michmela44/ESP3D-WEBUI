@@ -232,22 +232,22 @@ const JogPanel: FunctionalComponent = () => {
     const sendJogCommand = (axis: string) => {
         let velocitycmd = ""
         let jogcmd = "PR"
-        if (currentVelocity != 0) velocitycmd = "VS" + currentVelocity + ";"
+        if (currentVelocity != 0) velocitycmd = `VS${  currentVelocity  };`
         switch (axis) {
             case "X+":
-                jogcmd += currentJogDistance * currentSteps + ",0;"
+                jogcmd += `${currentJogDistance * currentSteps  },0;`
                 break
             case "X-":
-                jogcmd += "-" + currentJogDistance * currentSteps + ",0;"
+                jogcmd += `-${  currentJogDistance * currentSteps  },0;`
                 break
             case "Y-":
-                jogcmd += "0,-" + currentJogDistance * currentSteps + ";"
+                jogcmd += `0,-${  currentJogDistance * currentSteps  };`
                 break
             case "Y+":
-                jogcmd += "0," + currentJogDistance * currentSteps + ";"
+                jogcmd += `0,${  currentJogDistance * currentSteps  };`
                 break
             default:
-                console.log("Unknow axis: " + axis)
+                console.log(`Unknow axis: ${  axis}`)
                 return
         }
         if (velocitycmd.length != 0) {

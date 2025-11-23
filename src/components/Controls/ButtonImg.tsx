@@ -69,8 +69,8 @@ const ButtonImg: FunctionalComponent<ButtonImgProps> = ({
                                   : "hide-low"
                         }
                         style={
-                            "display:inline" +
-                            (width ? "max-width:" + width : "max-width:3rem")
+                            `display:inline${ 
+                            width ? `max-width:${  width}` : "max-width:3rem"}`
                         }
                     >
                         {label}

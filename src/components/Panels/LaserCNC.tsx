@@ -178,11 +178,11 @@ const LaserPanel: FunctionalComponent = () => {
                                     "G1 F1",
                                     () => {
                                         const power = (Number(laserMaxPower.current) * Number(laserPercentage.current)) / 100
-                                        return "M3 S" + power.toString()
+                                        return `M3 S${  power.toString()}`
                                     },
                                     () => {
                                         const sec = Number(lasertestduration.current) / 1000
-                                        return "G4 P" + sec.toString()
+                                        return `G4 P${  sec.toString()}`
                                     },
                                     "M5 S0",
                                 ]

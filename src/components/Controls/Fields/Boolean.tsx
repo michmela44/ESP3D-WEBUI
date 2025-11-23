@@ -93,8 +93,8 @@ const Boolean: FunctionalComponent<BooleanProps> = ({
             document.getElementById(id)!.style.display = visible
                 ? "block"
                 : "none"
-        if (document.getElementById("group-" + id))
-            document.getElementById("group-" + id)!.style.display = visible
+        if (document.getElementById(`group-${  id}`))
+            document.getElementById(`group-${  id}`)!.style.display = visible
                 ? "block"
                 : "none"
     }, [...dependIds])

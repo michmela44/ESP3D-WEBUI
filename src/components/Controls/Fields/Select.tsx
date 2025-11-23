@@ -128,8 +128,8 @@ const Select: FunctionalComponent<SelectProps> = ({
             document.getElementById(id)!.style.display = visible
                 ? "block"
                 : "none"
-        if (document.getElementById("group-" + id))
-            document.getElementById("group-" + id)!.style.display = visible
+        if (document.getElementById(`group-${  id}`))
+            document.getElementById(`group-${  id}`)!.style.display = visible
                 ? "block"
                 : "none"
         if (setValue) setValue(null, true)

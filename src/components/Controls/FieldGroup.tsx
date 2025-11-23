@@ -42,7 +42,7 @@ const FieldGroup: FunctionalComponent<FieldGroupProps> = ({ className, children,
     return (
         <fieldset
             class={
-                `${className ? className + " " : ""}` +
+                `${className ? `${className  } ` : ""}` +
                 `${
                     label
                         ? "fieldset-top-separator"

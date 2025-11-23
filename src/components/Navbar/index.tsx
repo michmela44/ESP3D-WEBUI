@@ -138,7 +138,7 @@ const Navbar = () => {
                     acc.push({
                         label: item.name,
                         icon: pageIcon,
-                        href: "/#/extrapage/" + curr.id,
+                        href: `/#/extrapage/${  curr.id}`,
                         id: curr.id,
                     })
                 }

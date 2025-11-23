@@ -34,10 +34,9 @@ import {
     XCircle,
     ArrowUp,
     ArrowDown,
-    Minimize,
+    Minimize, Folder, File, Trash2, Play 
 } from "preact-feather"
 import { files } from "../../targets"
-import { Folder, File, Trash2, Play } from "preact-feather"
 
 const FilesTab: FunctionalComponent = () => {
     const [state, actions] = useFilesManager()

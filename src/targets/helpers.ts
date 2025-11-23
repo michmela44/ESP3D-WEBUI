@@ -25,7 +25,7 @@ const canProcessFile = (filename: string): boolean => {
     for (let index = 0; index < filters.length; index++) {
         if (
             filters[index] == "*" ||
-            filename.trim().endsWith("." + filters[index])
+            filename.trim().endsWith(`.${filters[index]}`)
         ) {
             return true
         }

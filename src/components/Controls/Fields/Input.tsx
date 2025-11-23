@@ -207,8 +207,8 @@ const Input: FunctionalComponent<InputProps> = ({
             document.getElementById(id)!.style.display = visible
                 ? "block"
                 : "none"
-        if (document.getElementById("group-" + id))
-            document.getElementById("group-" + id)!.style.display = visible
+        if (document.getElementById(`group-${  id}`))
+            document.getElementById(`group-${  id}`)!.style.display = visible
                 ? "block"
                 : "none"
     }, [...dependIds])
@@ -262,7 +262,7 @@ const Input: FunctionalComponent<InputProps> = ({
                     autocomplete="off"
                     lang="en-US"
                     ref={inputref}
-                    style={width ? "width:" + width : ""}
+                    style={width ? `width:${  width}` : ""}
                     class="form-input"
                     {...props}
                     placeholder=""
@@ -286,7 +286,7 @@ const Input: FunctionalComponent<InputProps> = ({
                         onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                             useUiContextFn.haptic()
                             e.currentTarget.blur()
-                            const modalId = "list" + id
+                            const modalId = `list${  id}`
                             showModal({
                                 modals,
                                 title: T("S198"),

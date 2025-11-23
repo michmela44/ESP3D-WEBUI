@@ -356,7 +356,7 @@ const SpindlePanel: FunctionalComponent = () => {
                                         targetCommands(
                                             button.command.replace(
                                                 "S#",
-                                                "S" + spindleSpeedValue.current
+                                                `S${  spindleSpeedValue.current}`
                                             )
                                         )
                                     } else targetCommands(button.command)

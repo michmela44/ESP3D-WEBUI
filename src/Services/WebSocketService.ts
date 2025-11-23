@@ -159,7 +159,7 @@ export class WebSocketService {
         await this.wsAdapter.write("$Build/Info\n")
         const versionResponse = await bufferedReader.waitForLine(2000)
         this.currentVersion = versionResponse
-        console.log("Got version: " + this.currentVersion)
+        console.log(`Got version: ${  this.currentVersion}`)
         await this.waitForSettle(bufferedReader)
     }
 
@@ -326,7 +326,7 @@ export class WebSocketService {
                 // Receive and store session ID both internally and in service context
                 if (parts[1]) {
                     const sessionId = parts[1]
-                    console.log("Received session ID: " + sessionId)
+                    console.log(`Received session ID: ${  sessionId}`)
                     this.setSessionId(sessionId)
                 }
                 break
@@ -355,7 +355,7 @@ export class WebSocketService {
                 break
             }
             case "NOTIFICATION": {
-                console.log("Notification: " + message)
+                console.log(`Notification: ${  message}`)
 
                 const notification = parseNotification(message)
                 if (notification) {
@@ -398,7 +398,7 @@ export class WebSocketService {
             // Check if this is a system message
             if (this.commands.length) {
                 if (this.commands[0].debugReceive) {
-                    console.log("<<< " + line)
+                    console.log(`<<< ${  line}`)
                 }
                 this.commands[0].appendLine(line)
                 if (this.commands[0].state === CommandState.DONE) {
@@ -406,7 +406,7 @@ export class WebSocketService {
                 }
             } else {
                 // Route unhandled core messages to data listeners
-                console.log("<<< " + line)
+                console.log(`<<< ${  line}`)
                 this._notifyDataListeners("core", line)
             }
             endLineIndex = this.buffer.indexOf("\n")
@@ -436,7 +436,7 @@ export class WebSocketService {
         }
 
         if (command.debugSend) {
-            console.log("sending " + command.getCommand())
+            console.log(`sending ${  command.getCommand()}`)
         }
 
         // Wait for other commands to finish
@@ -453,7 +453,7 @@ export class WebSocketService {
                     reject("Command timed out")
                 }, timeoutMs)
             }
-            ;(command as Command).onDone = async () => {
+            (command as Command).onDone = async () => {
                 if (timer) {
                     clearTimeout(timer)
                 }
@@ -462,7 +462,7 @@ export class WebSocketService {
         })
 
         this.buffer = ""
-        await this.wsAdapter.write(command.getCommand() + "\n")
+        await this.wsAdapter.write(`${command.getCommand()  }\n`)
         return result
     }
 

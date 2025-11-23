@@ -33,11 +33,11 @@ const sortedFilesList = (filesList: FileEntry[] | undefined, alphabeticaly?: boo
     }
     if (alphabeticaly) {
         //console.log('Sorting alphabetically')
-        filesList.sort(function (a, b) {
+        filesList.sort((a, b) => {
             return compareStrings(a.name, b.name)
         })
     }
-    filesList.sort(function (a, b) {
+    filesList.sort((a, b) => {
         return a.size == -1 && b.size != -1
             ? 1
             : a.size != -1 && b.size == -1
@@ -68,7 +68,7 @@ const filterResultFiles = (files: FileEntry[], path: string): FileEntry[] => {
             //it is sub file
             const p = path.substring(1)
             const name = element.name.substring(element.name[0] == "/" ? 1 : 0)
-            if (name.startsWith(p + "/")) {
+            if (name.startsWith(`${p  }/`)) {
                 let newpath = name.substring(p.length + 1)
                 //it is file or subfile ?
                 if (newpath.indexOf("/") == -1 && newpath.length > 0) {

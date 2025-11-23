@@ -41,7 +41,7 @@ interface ExtraContentItemProps {
 // Polyfill for requestIdleCallback for browsers that don't support it
 const requestIdleCallback: (cb: any, opts?: any) => any = (window as any).requestIdleCallback || function(cb: any) {
     const start = Date.now()
-    return setTimeout(function() {
+    return setTimeout(() => {
         cb({
             didTimeout: false,
             timeRemaining: function() {
@@ -140,7 +140,7 @@ const ExtraContentItem = ({
                 return
             }
             setIsLoading(true)
-            const idquery = type === "content" ? type + id : "download" + id
+            const idquery = type === "content" ? type + id : `download${  id}`
             let url = source
             if (url.endsWith(".gz")) {
                 url = url.substring(0, url.length - 3)
@@ -211,7 +211,7 @@ const ExtraContentItem = ({
                             }
 
                     } else {
-                        console.error("Element " + id + " doesn't exist")
+                        console.error(`Element ${  id  } doesn't exist`)
                     }
 
                 }
@@ -382,7 +382,7 @@ const ExtraContentItem = ({
 
         if (hasError) {
             return (
-                <div id={"fallback_" + element_id} class="fallback-content">
+                <div id={`fallback_${  element_id}`} class="fallback-content">
                     <p>Error loading {type}</p>
                     <p>Please check the URL</p>
                 </div>

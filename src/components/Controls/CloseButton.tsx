@@ -62,12 +62,12 @@ const CloseButton: FunctionalComponent<CloseButtonProps> = ({ elementId, hideOnF
             onClick={(e: TargetedMouseEvent<HTMLSpanElement>) => {
                 useUiContextFn.haptic()
                 panels.hide(elementId)
-                console.log("Close button clicked for element " + elementId)
+                console.log(`Close button clicked for element ${  elementId}`)
                 if (elementsCache.isExtraContent(elementId)) {
-                    console.log("emit for root element " + elementsCache.getIdFromRoot(elementId), " isVisible: false")
+                    console.log(`emit for root element ${  elementsCache.getIdFromRoot(elementId)}`, " isVisible: false")
                     eventBus.emit('updateState', { id: elementsCache.getIdFromRoot(elementId), isVisible: false, from: "closeButton" })
                 } else {
-                    console.log("emit for element " + elementId, " isVisible: false")
+                    console.log(`emit for element ${  elementId}`, " isVisible: false")
                     eventBus.emit('updateState', { id: elementId, isVisible: false, from: "closeButton" })
 
                 }
