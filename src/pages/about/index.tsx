@@ -546,10 +546,10 @@ const About: FunctionalComponent = (): JSX.Element => {
                                 </span>
                                 <span class="text-dark">
                                     {props.find(
-                                        (element) => element.id == "FWVersion"
+                                        (element) => element.id == "FW version"
                                     ) &&
                                         props.find(
-                                            (element) => element.id == "FWVersion"
+                                            (element) => element.id == "FW version"
                                         )?.value}
                                 </span>
                                 <ButtonImg
