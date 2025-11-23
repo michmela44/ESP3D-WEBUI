@@ -1,4 +1,4 @@
-import { WebSocketAdapter, WebSocketBufferedReader } from "./WebSocketAdapter"
+import { WebSocketAdapter } from "./WebSocketAdapter"
 import { sleep } from "../../src/utils"
 import { Command, CommandState } from "./Commands/Command"
 import type { Toast } from "../../src/contexts/ToastsContext"
@@ -148,27 +148,6 @@ export class WebSocketService {
         }
     }
 
-    private async _initializeController(bufferedReader: WebSocketBufferedReader): Promise<void> {
-        await this.waitForSettle(bufferedReader)
-
-        // Clear send and read buffers
-        await this.wsAdapter.write("\n")
-        await bufferedReader.waitForLine(2000)
-
-        // Try and query for version
-        await this.wsAdapter.write("$Build/Info\n")
-        const versionResponse = await bufferedReader.waitForLine(2000)
-        this.currentVersion = versionResponse
-        console.log(`Got version: ${  this.currentVersion}`)
-        await this.waitForSettle(bufferedReader)
-    }
-
-    private async waitForSettle(bufferedReader: WebSocketBufferedReader, waitTimeMs: number = 500): Promise<void> {
-        while ((await bufferedReader.waitForLine(waitTimeMs)).length > 0) {
-            await sleep(100)
-        }
-    }
-
     /**
      * Disconnects from the controller
      * @param stopReconnect - If true, marks as manually disconnected (no auto-reconnect)
@@ -185,21 +164,7 @@ export class WebSocketService {
             this._cancelReconnection()
         }
 
-        // Stop any polling activity
-        if (this.serviceContext?.activity) {
-            this.serviceContext.activity.stopPolling()
-        }
-
-        // Clear all modals
-        if (this.serviceContext?.modalsCleared) {
-            this.serviceContext.modalsCleared()
-        }
-
-        // Notify extensions that we're disconnected
-        if (this.serviceContext?.extensionsNotify) {
-            this.serviceContext.extensionsNotify("notification", { isConnected: false }, "all")
-        }
-
+        this._performDisconnectCleanup()
         return this.wsAdapter.close()
     }
 
@@ -215,49 +180,31 @@ export class WebSocketService {
     }
 
     /**
-     * Schedules a reconnection attempt with exponential backoff
+     * Schedules a reconnection attempt
      */
     private _scheduleReconnection(): void {
-        // Don't reconnect if manually disconnected
+        // Check if reconnection is allowed
         if (this.isManualDisconnect) {
-            console.log("Manual disconnect, not reconnecting")
             return
         }
 
-        // Don't reconnect if already at max attempts
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             console.error(`Max reconnection attempts (${this.maxReconnectAttempts}) reached`)
             this.status = ControllerStatus.DISCONNECTED
             this._showToast(createMaxReconnectionToast())
-
-            // Update connection state to indicate connection lost
             this._updateConnectionState({ connected: false, page: "connectionlost" })
-
-            // Perform final disconnect cleanup
             this._performDisconnectCleanup()
             return
         }
 
-        // Calculate delay without exponential backoff: baseDelay * (2 ^ attemptNumber)
-        const delayMs = this.baseRetryDelayMs //* Math.pow(2, this.reconnectAttempts)
         this.reconnectAttempts++
-
-        console.log(
-            `Scheduling reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delayMs}ms`
-        )
-
         this._showToast(createReconnectionToast(this.reconnectAttempts, this.maxReconnectAttempts))
 
         this._cancelReconnection()
-        this.reconnectTimeoutId = setTimeout(async () => {
-            try {
-                console.log(`Attempting reconnection ${this.reconnectAttempts}...`)
-                await this.connect()
-            } catch (error) {
-                console.error("Reconnection attempt failed:", error)
-                // Will trigger another reconnection schedule if conditions allow
-            }
-        }, delayMs)
+        this.reconnectTimeoutId = setTimeout(
+            () => this.connect().catch(() => this._scheduleReconnection()),
+            this.baseRetryDelayMs
+        )
     }
 
     /**
