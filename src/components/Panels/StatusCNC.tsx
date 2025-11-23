@@ -19,7 +19,7 @@
 import { Fragment,  TargetedMouseEvent } from "preact"
 import type { FunctionalComponent, VNode } from "preact"
 import { T } from "../Translations"
-import { useUiContextFn, useToastsContext } from "../../contexts"
+import { useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList } from "../../targets"
 import { ButtonImg, Button, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useTargetCommands } from "../../hooks"
@@ -30,10 +30,6 @@ import {
     Moon,
     Play,
     Pause,
-    PauseCircle,
-    PlayCircle,
-    StopCircle,
-    CheckCircle,
 } from "preact-feather"
 
 /*
@@ -234,7 +230,7 @@ const StatusPanel: FunctionalComponent = () => {
                             <div class="states-buttons-container">
                                 {Object.keys(pinsStates).map((pin) => {
                                     return (
-                                        <div
+                                        <div key={pin}
                                             class={`badge-container m-1 s-circle ${
                                                 pinsStates[pin]
                                                     ? "bg-primary"
@@ -276,7 +272,7 @@ const StatusPanel: FunctionalComponent = () => {
                                             if (Array.isArray(stateEntry)) {
                                                 return (stateEntry as Array<{ value: string; pre?: string }>).map((item) => {
                                                     return(
-                                                        <Button
+                                                        <Button key={item.value}
                                                             m1
                                                             tooltip
                                                             data-tooltip={T(
@@ -297,7 +293,7 @@ const StatusPanel: FunctionalComponent = () => {
                                                 })
                                             } else
                                             return (
-                                                <Button
+                                                <Button key={element.id}
                                                     m1
                                                     tooltip
                                                     data-tooltip={T(
@@ -333,7 +329,7 @@ const StatusPanel: FunctionalComponent = () => {
                         }
                     }
                     return (
-                        <fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">
+                        <fieldset key={list.name} class="fieldset-top-separator fieldset-bottom-separator field-group">
                             <legend>
                                 <label class="m-1 buttons-bar-label">
                                     {T(list.name)}
@@ -358,7 +354,7 @@ const StatusPanel: FunctionalComponent = () => {
                                                 return
                                         }
                                         return (
-                                            <ButtonImg
+                                            <ButtonImg key={button.desc}
                                                 icon={button.icon}
                                                 tooltip
                                                 data-tooltip={T(button.desc)}

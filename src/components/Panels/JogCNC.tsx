@@ -74,7 +74,7 @@ const PositionsControls = ({ onWPosClick }: PositionsControlsProps) => {
                                     useUiContextFn.getValue("show" + letter)
                                 ) {
                                     return (
-                                        <div class="jog-position-ctrl">
+                                        <div key={letter} class="jog-position-ctrl">
                                             {typeof positions[letter] !=
                                                 "undefined" && (
                                                 <Fragment>
@@ -430,7 +430,7 @@ const JogPanel = () => {
                                     }
                                     if (condition)
                                         return (
-                                            <li class="menu-item">
+                                            <li key={letter} class="menu-item">
                                                 <div
                                                     class="menu-entry"
                                                     onClick={(e: any) => {
@@ -475,7 +475,7 @@ const JogPanel = () => {
                                 )
                             ) {
                                 return (
-                                    <div class="m-1 jog-buttons-container">
+                                    <div key={letter} class="m-1 jog-buttons-container">
                                         <Button
                                             m2
                                             tooltip

@@ -73,7 +73,7 @@ const TabBar = () => {
                     )
                         return
                     return (
-                        <li class="tab-item">
+                        <li key={label} class="tab-item">
                             <Link
                                 className={
                                     connectionSettings.current.FWTarget == 0 &&
