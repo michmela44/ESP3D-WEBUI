@@ -144,7 +144,7 @@ const FeaturesTab = () => {
                 toasts.addToast({ content: error, type: "error" })
             },
         }
-        targetCommands("[ESP400]json=yes", undefined, undefined, callbacks)
+        targetCommands("[ESP400]json=yes", undefined, { echo: false}, callbacks)
     }
 
     /**

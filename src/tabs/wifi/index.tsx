@@ -183,7 +183,7 @@ const WifiTab = () => {
     const getWifiStats = (): void => {
         setIsLoading(true)
 
-        targetCommands("[ESP420]json=yes", undefined, undefined ,{onSuccess: (result: any) => {
+        targetCommands("[ESP420]json=yes", undefined, { echo: false } ,{onSuccess: (result: any) => {
                     const jsonResult = JSON.parse(result)
                     if (jsonResult.cmd != 420 || jsonResult.status == "error" || !jsonResult.data) {
                         toasts.addToast({ content: T("S194"), type: "error" })
