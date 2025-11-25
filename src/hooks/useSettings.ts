@@ -17,11 +17,8 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { h } from "preact"
-import { webUIversion } from "../components/App/version"
 import {
     espHttpURL,
-    getBrowserTime,
-    getBrowserTimeZone,
     isLimitedEnvironment,
 } from "../components/Helpers"
 import { useHttpQueue, useTargetCommands } from "../hooks/"
@@ -271,7 +268,7 @@ const useSettings = (): UseSettingsReturn => {
             },
         }
         targetCommands(
-            `[ESP800]json=yes time=${getBrowserTime()} tz=${getBrowserTimeZone()} version=${webUIversion}`,
+            `[ESP800]json=yes`,
             undefined,
             { id: "connection", echo: false },
             callbacks

@@ -140,7 +140,7 @@ const FilesPanel: FunctionalComponent = () => {
                                     {files.supported.map((element: any) => {
                                         if (element.depend)
                                             if (element.depend())
-                                                return <option value={element.value}>{T(element.name)}</option>
+                                                return <option key={element.value} value={element.value}>{T(element.name)}</option>
                                     })}
                                 </select>
                             </div>

@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { espHttpURL, getCookie, isLimitedEnvironment } from "./http"
-import { getBrowserTime, getBrowserTimeZone } from "./time"
+import { getBrowserTime } from "./time"
 import {
     createComponent,
     disableNode,
@@ -69,7 +69,6 @@ export {
     formatStatus,
     generateUID,
     getBrowserTime,
-    getBrowserTimeZone,
     getColClasses,
     generateDependIds,
     connectionDepend,

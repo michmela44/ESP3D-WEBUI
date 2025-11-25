@@ -16,16 +16,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-function getBrowserTimeZone(): string {
-    const d = new Date()
-    const offset = d.getTimezoneOffset()
-    const sign = offset < 0 ? "+" : "-"
-    const hours = Math.floor(Math.abs(offset) / 60)
-    const minutes = Math.abs(offset) % 60
-    return `${sign}${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}`
-}
 
 function getBrowserTime(time?: number | Date): string {
     //ISO 8601 format string
@@ -43,4 +33,4 @@ function getBrowserTime(time?: number | Date): string {
     )}:${padNumber(d.getSeconds(), 2)}`
 }
 
-export { getBrowserTime, getBrowserTimeZone }
+export { getBrowserTime }
