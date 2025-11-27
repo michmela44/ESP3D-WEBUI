@@ -20,18 +20,15 @@
 import { sortedFilesList, formatStatus, filterResultFiles } from "../../../components/Helpers"
 import { canProcessFile } from "../../helpers"
 import { useUiContextFn } from "../../../contexts"
+import { CmdCommand, UrlCommand } from "../../../types/files.types"
 
 const capabilities = {
     Process: (path: string, filename: string): boolean => {
         return canProcessFile(filename)
     },
     UseFilters: (): boolean => true,
-    IsFlatFS: (): boolean => false,
     Upload: (): boolean => {
         return true
-    },
-    Mount: (): boolean => {
-        return false
     },
     UploadMultiple: (): boolean => {
         return true
@@ -50,9 +47,6 @@ const capabilities = {
     },
 }
 
-type UrlCommand = { type: "url"; url: string; args: Record<string, any> }
-type CmdCommand = { type: "cmd"; cmd: string }
-
 const commands = {
     // list: (path, filename) => {
     //     return {
@@ -61,14 +55,14 @@ const commands = {
     //       args: { action: "list" },
     //     };
     //   },
-    list: (path: string, filename?: string): UrlCommand => {
+    list: (path: string): UrlCommand => {
         return {
             type: "url",
             url: "upload",
             args: { path, action: "list" },
         }
     },
-    upload: (path: string, filename?: string): UrlCommand => {
+    upload: (path: string): UrlCommand => {
         return {
           type: "url",
           url: "upload",

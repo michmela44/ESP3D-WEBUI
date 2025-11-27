@@ -127,7 +127,7 @@ let intialisationDone = false
 
 const Dashboard: FunctionalComponent = (): JSX.Element => {
     console.log("Dashboard")
-    const iconsList = { ...iconsTarget, ...iconsFeather }
+    const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
     const { panels, uisettings, shortcuts } = useUiContext()
     const { modals } = useModalsContext()
     const menuPanelsList = useRef<HTMLUListElement>(null)

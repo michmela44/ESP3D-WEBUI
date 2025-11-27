@@ -19,11 +19,7 @@
 */
 import { compareStrings } from "./strings"
 
-interface FileEntry {
-    name: string
-    size: number | string
-}
-
+import type { FileEntry } from "../../types/files.types"
 //sort files alphabeticaly then folders alphabeticaly
 const sortedFilesList = (filesList: FileEntry[] | undefined, alphabeticaly?: boolean): FileEntry[] => {
     //console.log('Sorting files list', alphabeticaly)
@@ -61,7 +57,7 @@ const filterResultFiles = (files: FileEntry[], path: string): FileEntry[] => {
                 )
                 if (!folderList.includes(name)) {
                     folderList.push(name)
-                    acc.push({ name, size: "-1" })
+                    acc.push({ name, size: -1 })
                 }
             }
         } else {
@@ -85,7 +81,7 @@ const filterResultFiles = (files: FileEntry[], path: string): FileEntry[] => {
                         foldername.length > 0
                     ) {
                         folderList.push(foldername)
-                        acc.push({ name: foldername, size: "-1" })
+                        acc.push({ name: foldername, size: -1 })
                     }
                 }
             }

@@ -1,20 +1,11 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-let target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "CNC"
-let subtarget = process.env.SUBTARGET_ENV ? process.env.SUBTARGET_ENV : "FluidNC"
-console.log("Target:", target, " Subtarget:", subtarget)
+
+console.log("Building CNC/FluidNC Web UI")
+
 module.exports = {
     resolve: {
-        alias: {
-            TargetDir: path.resolve(__dirname, "../src/targets", target),
-            SubTargetDir: path.resolve(
-                __dirname,
-                "../src/targets",
-                target,
-                subtarget
-            ),
-        },
         extensions: [".js", ".jsx", ".ts", ".tsx"],
     },
     mode: "development", // this will trigger some webpack default stuffs for dev

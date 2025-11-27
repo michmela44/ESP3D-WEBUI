@@ -19,13 +19,12 @@
 */
 import { sortedFilesList, formatStatus } from "../components/Helpers"
 import { useSettingsContextFn, useUiContextFn } from "../contexts"
+import { UrlCommand } from "../types/files.types"
 
 const capabilities = {
     Process: (): boolean => false,
     UseFilters: (): boolean => false,
-    IsFlatFS: (): boolean => false,
     Upload: (): boolean => true,
-    Mount: (): boolean => false,
     UploadMultiple: (): boolean => true,
     Download: (): boolean => true,
     DeleteFile: (): boolean => true,
@@ -33,17 +32,16 @@ const capabilities = {
     CreateDir: (): boolean => true,
 }
 
-type UrlCommand = { type: "url"; url: string; args: Record<string, any> }
 
 const commands = {
-    list: (path: string, filename?: string): UrlCommand => {
+    list: (path: string): UrlCommand => {
         return {
             type: "url",
             url: "files",
             args: { path, action: "list" },
         }
     },
-    upload: (path: string, filename?: string): UrlCommand => {
+    upload: (path: string): UrlCommand => {
         const upath = (
             String(useSettingsContextFn.getValue("HostUploadPath")) + path
         ).replaceAll("//", "/")

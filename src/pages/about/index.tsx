@@ -226,10 +226,10 @@ const About: FunctionalComponent = (): JSX.Element => {
         let url = ""
         if (interfaceSettings.current.custom && interfaceSettings.current.custom.fwurl) {
             url = interfaceSettings.current.custom.fwurl
-        } else if (i && i != "none") {
-            url = fwUrl[1]
+        } else if (i && i != "none" && (fwUrl as readonly any[]).length > 1) {
+            url = (fwUrl as readonly any[])[1]
         } else {
-            url = fwUrl[0]
+            url = fwUrl[0] || ""
         }
 
         (window as any).open(url, "_blank")

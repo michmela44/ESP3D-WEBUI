@@ -114,7 +114,7 @@ const ItemControl: FunctionalComponent<ItemControlProps> = ({
     editable,
     sorted,
 }) => {
-    const iconsList: Record<string, JSX.Element> = { ...iconsTarget, ...iconsFeather }
+    const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
     const { id, value, editionMode, ...rest } = itemData
     const indexIcon = value.findIndex((element) => element.id == `${id  }-icon`)
     const indexName = value.findIndex((element) => element.id == `${id  }-name`)

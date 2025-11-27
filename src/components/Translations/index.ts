@@ -13,12 +13,9 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-// @ts-expect-error - Webpack alias, resolved at build time
-import LangRessourceSubTarget from "SubTargetDir/translations/en.json"
-// @ts-expect-error - Webpack alias, resolved at build time
-import LangRessourceTarget from "TargetDir/translations/en.json"
-// @ts-expect-error - Webpack alias, resolved at build time
-import LangRessourceBase from "TargetDir/../translations/en.json"
+import LangRessourceSubTarget from "../../targets/CNC/FluidNC/translations/en.json"
+import LangRessourceTarget from "../../targets/CNC/translations/en.json"
+import LangRessourceBase from "../../targets/translations/en.json"
 import listLanguagePacks from "./languages.json"
 
 /**

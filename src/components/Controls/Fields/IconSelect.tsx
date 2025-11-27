@@ -56,7 +56,7 @@ const IconSelect: FunctionalComponent<IconSelectProps> = ({
         //if (setValue) setValue(e.target.checked);
     }
     const { modals } = useModalsContext()
-    const iconsList: Record<string, JSX.Element> = { ...iconsTarget, ...iconsFeather }
+    const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
     const showList = (e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
         const content = (

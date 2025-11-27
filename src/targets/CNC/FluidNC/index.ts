@@ -53,6 +53,7 @@ type VariablesList = {
     modes: any[]
     hideFeatures: boolean
     allowEmptyLine: boolean
+    formatCommand: (command: any) => string
 }
 const variablesList: VariablesList = {
     commands: [...(realCommandsTable as any[]), ...(variablesTable as any[])],
@@ -63,6 +64,7 @@ const variablesList: VariablesList = {
     modes: [...(gcode_parser_modes as any[])],
     hideFeatures: false,
     allowEmptyLine: true,
+    formatCommand: (command: any) => command && typeof command === "string" ? command : String(command || ""),
 }
 type EventHandler = { fn: (...args: any[]) => void }
 type EventsMap = Record<string, EventHandler[]>

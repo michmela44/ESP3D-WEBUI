@@ -21,39 +21,14 @@
 import type { FunctionalComponent, VNode } from "preact"
 import type { TargetContextFn, TargetContextValue } from "./types"
 
-/**
- * File command function type - executes file operations
- */
-export type FileCommand = (...args: any[]) => any
 
-/**
- * Capability check function type
- */
-export type CapabilityCheck = (...args: any[]) => any
 
-/**
- * Supported file types with dependency conditions
- */
-export interface SupportedFileType {
-    value: string
-    name: string
-    depend: () => boolean
-}
-
-/**
- * Files module - handles file operations and capabilities
- */
-export interface FilesModule {
-    command: FileCommand
-    capability: CapabilityCheck
-    supported: readonly SupportedFileType[]
-}
 
 /**
  * Processor module - handles response processing
  */
 export interface ProcessorModule {
-    startCatchResponse: (...args: any[]) => any
+    startCatchResponse: (source: string, command: string, feedbackfn: any, arg?: any, cbfn?: any) => boolean
     stopCatchResponse: () => void
     handle: (type?: string, data?: string) => void
 }
@@ -75,6 +50,7 @@ export interface VariablesListModule {
     modes: any[]
     hideFeatures: boolean
     allowEmptyLine: boolean
+    formatCommand: (command: any) => string
 }
 
 /**
@@ -109,7 +85,7 @@ export interface SubTargetModuleExports {
     Target: string
 
     /** Files module with command and capability functions */
-    files: FilesModule
+    // files: FilesModule
 
     /** Response processor module */
     processor: ProcessorModule

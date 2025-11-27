@@ -38,7 +38,7 @@ interface OnGoingQueryState {
   size: number
   feedback: FeedbackFn | null
   startTime: number
-  cb: ChunkCb | null
+  cb: ChunkCb | null | undefined
   arg?: any
 }
 
@@ -59,8 +59,8 @@ const startCatchResponse = (
   source: string,
   command: string,
   feedbackfn: FeedbackFn,
-  arg: any,
-  cbfn: ChunkCb
+  arg?: any,
+  cbfn?: ChunkCb
 ): boolean => {
   if (onGoingQuery.source != "") {
     return false

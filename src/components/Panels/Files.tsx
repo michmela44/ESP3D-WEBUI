@@ -210,8 +210,8 @@ const FilesPanel: FunctionalComponent = () => {
 
                                                 currentPath[state.fileSystem] = newpath.length == 0 ? "/" : newpath
                                                 actions.onRefresh(
-                                                    e as unknown as Event,
-                                                    files.capability(state.fileSystem, "IsFlatFS")
+                                                    e,
+                                                    false
                                                 )
                                             }}>
                                             <div class="form-control go-previous file-line-name file-line-action">

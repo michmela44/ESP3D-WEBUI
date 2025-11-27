@@ -20,9 +20,10 @@
 import { FLASH } from "../../FLASH-source"
 import { DIRECTSD } from "./DIRECTSD-source"
 import { useSettingsContextFn, useUiContextFn } from "../../../contexts"
+import { FileCommand, FilesModule, SupportedFileType } from "../../../types/files.types"
 
 //List of supported files systems
-const supportedFileSystems = [
+const supportedFileSystems : SupportedFileType[] = [
     {
         value: "FLASH",
         name: "S137",
@@ -55,25 +56,25 @@ const commands: Record<string, any> = {
     DIRECTSD: DIRECTSD.commands,
 }
 
-function capability(): any {
-    const [filesystem, cap, ...rest] = arguments as any
+function capability(filesystem: string, capability: string, ...rest: any[]): any {
     if (!filesystem) return false
-    if (capabilities[filesystem] && capabilities[filesystem][cap])
-        return capabilities[filesystem][cap](...rest)
+    if (capabilities[filesystem] && capabilities[filesystem][capability])
+        return capabilities[filesystem][capability](...rest)
     //console.log("Unknow capability ", cap, " for ", filesystem)
     return false
 }
 
-function command(): any {
-    const [filesystem, cmd, ...rest] = arguments as any
+function command(filesystem: string, cmd: string, ...rest: any[]): FileCommand {
     if (commands[filesystem] && commands[filesystem][cmd])
         return commands[filesystem][cmd](...rest)
     //console.log("Unknow command ", cmd, " for ", filesystem)
     return { type: "error" }
 }
 
+
+
 //everything in one object
-const files = {
+const files: FilesModule = {
     command,
     capability,
     supported: supportedFileSystems,

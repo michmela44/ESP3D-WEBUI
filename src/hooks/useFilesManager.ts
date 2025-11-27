@@ -31,8 +31,8 @@ import { files, processor } from "../targets"
 import type {
     FileEntry,
     FilesList,
+    SupportedFileType,
     UrlCommand,
-    SupportedFS,
 } from "../types/files.types"
 
 // Module-level state shared across hook instances
@@ -79,7 +79,7 @@ export interface FilesManagerActions {
 }
 
 export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
-    const valids = files.supported.reduce((acc: string[], element: SupportedFS) => {
+    const valids = files.supported.reduce((acc: string[], element: SupportedFileType) => {
         if (element.depend) if (element.depend()) acc.push(element.value)
         return acc
     }, [])
@@ -131,7 +131,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
 
     const sendSerialCmd = (command: string): void => {
         const callbacks = {
-            onSuccess: (result: unknown) => {
+            onSuccess: (result: string) => {
                 //Result is handled on ws so just do nothing
             },
             onfail: (error: string) => {
@@ -149,7 +149,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
             espHttpURL(cmd.url, cmd.args),
             { method: "GET" },
             {
-                onSuccess: (result: unknown) => {
+                onSuccess: (result: string) => {
                     filesListCache[currentFS] = files.command(
                         currentFS,
                         "formatResult",
@@ -191,19 +191,8 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                         "formatResult",
                         feedback
                     )
-                    //check if flatFS and filter if necessary
-                    if (files.capability(currentFS, "IsFlatFS")) {
-                        setFilesList(
-                            files.command(
-                                currentFS,
-                                "filterResult",
-                                filesListCache[currentFS],
-                                currentPath[currentFS]
-                            )
-                        )
-                    } else {
-                        setFilesList(filesListCache[currentFS])
-                    }
+
+                    setFilesList(filesListCache[currentFS])
                 }
             } else {
                 //this is affected only by serial commands
@@ -293,7 +282,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                 espHttpURL(cmd.url),
                 { method: "POST", id: "upload", body: formData },
                 {
-                    onSuccess: (result: unknown) => {
+                    onSuccess: (result: string) => {
                         modals.removeModal(modals.getModalIndex("upload"))
                         const cmdpost = files.command(
                             currentFS,
@@ -539,7 +528,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                 currentPath[currentFS] +
                 (currentPath[currentFS] == "/" ? "" : "/") +
                 line.name
-            onRefresh(e, files.capability(currentFS, "IsFlatFS"))
+            onRefresh(e, false)
         } else {
             if (files.capability(currentFS, "Download")) {
                 const content = h("li", {}, line.name)
@@ -564,18 +553,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
         setIsLoading(true)
         setFilePath(currentPath[currentFS])
         if (usecache && filesListCache[currentFS]) {
-            if (files.capability(currentFS, "IsFlatFS")) {
-                setFilesList(
-                    files.command(
-                        currentFS,
-                        "filterResult",
-                        filesListCache[currentFS],
-                        currentPath[currentFS]
-                    )
-                )
-            } else {
-                setFilesList(filesListCache[currentFS])
-            }
+            setFilesList(filesListCache[currentFS])
             setIsLoading(false)
         } else {
             const cmd = files.command(currentFS, "list", currentPath[currentFS])
@@ -584,7 +562,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                     espHttpURL(cmd.url, cmd.args),
                     { method: "GET" },
                     {
-                        onSuccess: (result: unknown) => {
+                        onSuccess: (result: string) => {
                             filesListCache[currentFS] = files.command(
                                 currentFS,
                                 "formatResult",
@@ -605,7 +583,8 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                     processor.startCatchResponse(
                         currentFS,
                         "list",
-                        processFeedback
+                        processFeedback,
+                        undefined
                     )
                 )
                     sendSerialCmd(cmd.cmd)
@@ -615,7 +594,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
 
     useEffect(() => {
         if (currentFS == "") {
-            const fs = files.supported.find((element: SupportedFS) => {
+            const fs = files.supported.find((element: SupportedFileType) => {
                 if (element.depend) if (element.depend()) return true
                 return false
             })

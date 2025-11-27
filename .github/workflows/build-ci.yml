@@ -27,5 +27,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: index.html.gz
-          path: dist/CNC/FluidNC/index.html.gz
+          path: dist/index.html.gz
           compression-level: 0

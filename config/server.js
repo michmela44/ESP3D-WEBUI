@@ -19,13 +19,7 @@ let sensorInterval = -1
 
 //const serverpath = path.normalize(__dirname + "/../server/public/");
 
-const subtarget = process.env.SUBTARGET_ENV
-    ? process.env.SUBTARGET_ENV
-    : "FluidNC"
-const target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "CNC"
-
-const serverpath =
-    path.normalize(__dirname + "/../server/" + target + "/" + subtarget) + "/"
+const serverpath = path.normalize(__dirname + "/../server/CNC/FluidNC") + "/"
 if (!fs.existsSync(serverpath + "Flash")) {
     fs.mkdirSync(serverpath + "Flash", { recursive: true })
 }
@@ -37,11 +31,7 @@ const {
     commandsQuery,
     configURI,
     getLastconnection,
-} = require(
-    path.normalize(
-        __dirname + "/targets/" + target + "/" + subtarget + "/index.js"
-    )
-)
+} = require(path.normalize(__dirname + "/targets/CNC/FluidNC/index.js"))
 
 const WebSocketServer = require("ws").Server,
     wss = new WebSocketServer({ port: 8090 })
@@ -50,7 +40,7 @@ app.use("/sd", express.static(serverpath + "sd"))
 app.use("/", expressStaticGzip(serverpath + "Flash"))
 app.use(fileUpload({ preserveExtension: true, debug: false }))
 
-app.listen(port, () => console.log("Env:", subtarget, ":", target))
+app.listen(port, () => console.log("CNC/FluidNC Web UI Server running on port", port))
 app.timeout = 2000
 
 //app.use(express.urlencoded({ extended: false }));

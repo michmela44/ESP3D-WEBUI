@@ -23,9 +23,9 @@ import type { ComponentChildren, TargetedMouseEvent } from "preact"
 // File entry in the file system
 export type FileEntry = {
     name: string
-    shortname: string
+    shortname?: string
     size: number
-    datetime: string
+    datetime?: string
     [key: string]: any
 }
 
@@ -42,15 +42,46 @@ export type CmdCommand = {
     cmd: string
 }
 
-// Command union type
-export type FileCommand = UrlCommand | CmdCommand
+// Serial command
+export type ErrorCommand = {
+    type: "error"
+}
 
-// Supported file system definition
-export type SupportedFS = {
+// Command union type
+export type FileCommand = UrlCommand | CmdCommand | ErrorCommand
+
+/**
+ * Supported file types with dependency conditions
+ */
+export interface SupportedFileType {
     value: string
     name: string
-    depend?: () => boolean
+    depend: () => boolean
 }
+
+
+/**
+ * File command function type - executes file operations
+ */
+export type FileCommands = (filesystem: string, cmd: string, ...args: any[]) => any
+
+/**
+ * Capability check function type
+ */
+export type CapabilityCheck = (filesystem: string, capability: string, ...args: any[]) => any
+
+
+
+/**
+ * Files module - handles file operations and capabilities
+ */
+export interface FilesModule {
+    command: FileCommands
+    capability: CapabilityCheck
+    supported: readonly SupportedFileType[]
+}
+
+
 
 // Panel menu item configuration
 export interface PanelMenuItem {

@@ -94,7 +94,7 @@ const Navbar = () => {
     const webSocketService = useWebSocketService();
     const buttonExtraPage = useRef<HTMLAnchorElement | null>(null)
     const menuExtraPage = useRef<HTMLUListElement | null>(null)
-    const iconsList = { ...iconsTarget, ...iconsFeather }
+    const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
     const [textbutton, setTextButton] = useState<ComponentChildren>(
         <Fragment>
             <Trello />

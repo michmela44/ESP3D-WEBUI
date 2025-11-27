@@ -177,8 +177,8 @@ const MachineSettings = () => {
                                     {machineSettings.cache.map((element: MachineSettingElement) => {
                                         if ((element as any).type == "comment")
                                             return (
-                                                <div class="comment m-1  ">
-                                                    {T((element as any).value)}({(element as any).value})
+                                                <div key={element.value} class="comment m-1  ">
+                                                    {T(element.value)}({element.value})
                                                 </div>
                                             )
                                         const [validation, setvalidation] =
@@ -191,7 +191,7 @@ const MachineSettings = () => {
                                                 label={T("S81")}
                                                 tooltip
                                                 data-tooltip={T("S82")}
-                                                onclick={() => {
+                                                onClick={() => {
                                                     useUiContextFn.haptic()
                                                     sendCommand(
                                                         element,
@@ -201,7 +201,7 @@ const MachineSettings = () => {
                                             />
                                         )
                                         return (
-                                            <div class="m-1">
+                                            <div key={element.value} class="m-1">
                                                 <Field
                                                     type={(element as any).type}
                                                     value={(element as any).value}

@@ -28,7 +28,6 @@ import {
     iconsTarget,
     useTargetContextFn,
     files,
-    variablesList,
 } from "../../targets"
 import type { TargetContextFn } from "../../targets/types"
 
@@ -60,14 +59,14 @@ interface MacroButton {
 }
 
 const MacrosPanel: FunctionalComponent = () => {
-    const { panels, uisettings } = useUiContext()
+    const { uisettings } = useUiContext()
     const { processData } = useTargetContextFn as TargetContextFn
     const { targetCommands, failToast } = useTargetCommands()
     const iconsList: Record<string, ComponentChildren> = { ...iconsTarget, ...iconsFeather }
     const id = "macrosPanel"
     const getSDSource = (): string => {
         for (const source of files.supported) {
-            if (source.value == "SD" || source.value == "DIRECTSD") {
+            if (source.value == "DIRECTSD") {
                 return source.value
             }
         }
@@ -100,7 +99,7 @@ const MacrosPanel: FunctionalComponent = () => {
                 //Todo: handle response from ESP700
                 sendCommand(`[ESP700]${  action}`)
                 break
-            case "SD":
+            case "SD": {
                 //get command accoring target FW
                 const response = files.command(
                     getSDSource(),
@@ -108,18 +107,19 @@ const MacrosPanel: FunctionalComponent = () => {
                     "",
                     action
                 )
+            
                 const cmds = response.cmd.split("\n")
                 cmds.forEach((cmd: string) => {
                     sendCommand(cmd)
                 })
 
                 break
+            }
             //TODO:
             //TFT SD ? same as above
             //TFT USB ? same as above
-            case "URI":
+            case "URI": {
                 //open new page or silent command
-                const uri: string = action.trim().replace("[SILENT]", "")
                 if (action.trim().startsWith("[SILENT]")) {
                     const uri = action.trim().replace("[SILENT]", "")
                     var myInit: RequestInit = {
@@ -142,13 +142,15 @@ const MacrosPanel: FunctionalComponent = () => {
                     window.open(action)
                 }
                 break
-            case "CMD":
+            }
+            case "CMD": {
                 //split by ; and show in terminal
                 const commandsList = action.trim().split(";")
                 commandsList.forEach((command) => {
                     sendCommand(command)
                 })
                 break
+            }
             default:
                 console.log("type:", type, " action:", action)
                 break
@@ -180,7 +182,7 @@ const MacrosPanel: FunctionalComponent = () => {
                             ? iconsList[element.icon]
                             : ""
                         return (
-                            <ButtonImg
+                            <ButtonImg key={element.id}
                                 id={element.id}
                                 m1
                                 showlow
