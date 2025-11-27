@@ -16,7 +16,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { FunctionalComponent, TargetedMouseEvent, JSX } from "preact"
+import { FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useEffect } from "preact/hooks"
 import { useUiContextFn, useModalsContext } from "../../../contexts"
 import { ButtonImg } from "../../Controls"
@@ -43,21 +43,12 @@ interface IconSelectProps {
  *
  */
 const IconSelect: FunctionalComponent<IconSelectProps> = ({
-    id,
-    label,
-    validation,
     value,
-    type,
     setValue,
-    inline,
-    ...rest
 }) => {
-    const onChange = (e: any) => {
-        //if (setValue) setValue(e.target.checked);
-    }
     const { modals } = useModalsContext()
     const iconsList: Record<string, any> = { ...iconsTarget, ...iconsFeather }
-    const showList = (e: TargetedMouseEvent<HTMLButtonElement>) => {
+    const showList = (_e: TargetedMouseEvent<HTMLButtonElement>) => {
         useUiContextFn.haptic()
         const content = (
             <div>
@@ -65,25 +56,25 @@ const IconSelect: FunctionalComponent<IconSelectProps> = ({
                     const displayIcon = iconsList[element]
                         ? iconsList[element]
                         : ""
-                    const onSelect = (e: TargetedMouseEvent<HTMLButtonElement>) => {
+                    const onSelect = (_e: TargetedMouseEvent<HTMLButtonElement>) => {
                         useUiContextFn.haptic()
                         setValue && setValue(element)
                         modals.removeModal(modals.getModalIndex(modalId))
                     }
                     if (value == element)
                         return (
-                            <ButtonImg
+                            <ButtonImg key={element}
                                 m05
                                 primary
                                 min1rem
                                 btn-xs
                                 icon={displayIcon}
-                                onclick={onSelect}
+                                onClick={onSelect}
                             />
                         )
                     else
                         return (
-                            <ButtonImg
+                            <ButtonImg key={element}
                                 m05
                                 min2rem
                                 icon={displayIcon}

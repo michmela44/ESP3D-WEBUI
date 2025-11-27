@@ -17,14 +17,13 @@ LaserCNC.js - ESP3D WebUI component file
 */
 
 import { Fragment,  TargetedMouseEvent } from "preact"
-import type { FunctionalComponent, JSX } from "preact"
-import { useState, useRef } from "preact/hooks"
+import type { FunctionalComponent } from "preact"
+import { useState } from "preact/hooks"
 import { T } from "../Translations"
 import { Loader, Sun, Power } from "preact-feather"
 import { useUiContext, useUiContextFn } from "../../contexts"
 import { useTargetContext, variablesList, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { espHttpURL, replaceVariables, checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
 
 /*
@@ -65,7 +64,7 @@ const LaserControls: FunctionalComponent = () => {
                                 ? sv.map((i) => i.value).join(" ")
                                 : sv.value
                             return (
-                                <div
+                                <div key={element.id}
                                     class="extra-control mt-1 tooltip tooltip-bottom"
                                     data-tooltip={T(element.label)}
                                 >
@@ -87,7 +86,6 @@ const LaserControls: FunctionalComponent = () => {
 }
 
 const LaserPanel: FunctionalComponent = () => {
-    const { panels } = useUiContext()
     const { states } = useTargetContext() as { states: StatesMap }
     const { targetCommands } = useTargetCommands()
     const id = "laserPanel"
@@ -233,7 +231,7 @@ const LaserPanel: FunctionalComponent = () => {
                 <LaserControls />
                 {laser_controls.map((block) => {
                     return (
-                        <fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">
+                        <fieldset key={block.id} class="fieldset-top-separator fieldset-bottom-separator field-group">
                             <legend>
                                 <label class="m-1 buttons-bar-label">
                                     {T(block.label)}
@@ -242,7 +240,7 @@ const LaserPanel: FunctionalComponent = () => {
                             <div class="field-group-content maxwidth">
                                 {block.controls.map((control: any) => {
                                     return (
-                                        <div class="states-buttons-container">
+                                        <div key={control.id} class="states-buttons-container">
                                             {control.elements.map((element: any) => {
                                                 if (element.type === "button") {
                                                     let classname = "tooltip"
@@ -258,7 +256,7 @@ const LaserPanel: FunctionalComponent = () => {
                                                         }
                                                     }
                                                     return (
-                                                        <ButtonImg
+                                                        <ButtonImg key={element.id}
                                                             label={T(
                                                                 element.label
                                                             )}
@@ -323,7 +321,7 @@ const LaserPanel: FunctionalComponent = () => {
                                                     }
 
                                                     return (
-                                                        <Field
+                                                        <Field key={element.id}
                                                             inline
                                                             id={element.id}
                                                             type={element.type}

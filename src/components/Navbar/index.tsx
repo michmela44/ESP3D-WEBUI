@@ -111,10 +111,10 @@ const Navbar = () => {
             espHttpURL("login"),
             { method: "POST", id: "login", body: formData },
             {
-                onSuccess: (result: any) => {
+                onSuccess: (_result: string) => {
                     webSocketService.disconnect("sessiontimeout")
                 },
-                onFail: (error: any) => {
+                onFail: (_error: string) => {
                     webSocketService.disconnect("sessiontimeout")
                 },
             }
@@ -199,7 +199,7 @@ const Navbar = () => {
                             )
                                 return
                             return (
-                                <Link
+                                <Link key={href}
                                     onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                         useUiContextFn.haptic()
                                         if (buttonExtraPage.current)
@@ -269,7 +269,7 @@ const Navbar = () => {
                                         menuLinks.map(
                                             ({ label, icon, href, id }) => {
                                                 return (
-                                                    <li class="menu-item">
+                                                    <li key={href} class="menu-item">
                                                         <a
                                                             id={id}
                                                             class="feather-icon-container"

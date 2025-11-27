@@ -17,12 +17,11 @@ SpindleCNC.js - ESP3D WebUI component file
 */
 
 import { Fragment,  TargetedMouseEvent } from "preact"
-import type { FunctionalComponent, JSX } from "preact"
-import { useRef } from "preact/hooks"
+import type { FunctionalComponent } from "preact"
 import { T } from "../Translations"
 import { Repeat } from "preact-feather"
-import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
-import { useTargetContext, variablesList } from "../../targets"
+import { useUiContextFn } from "../../contexts"
+import { useTargetContext } from "../../targets"
 import { ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useTargetCommands } from "../../hooks"
 
@@ -50,7 +49,7 @@ const OverridesControls: FunctionalComponent = () => {
                     {overrides_array.map((element) => {
                         if (overrides[element.id] != null) {
                             return (
-                                <div
+                                <div key={element.id}
                                     class="extra-control mt-1 tooltip tooltip-bottom"
                                     data-tooltip={T(element.tooltip)}
                                 >
@@ -75,8 +74,6 @@ type ButtonConfig = { label: string; tooltip: string; command: string; iconRight
 type ButtonsGroup = { label: string; buttons: ButtonConfig[] }
 
 const OverridesPanel: FunctionalComponent = () => {
-    const { panels } = useUiContext()
-    const { toasts } = useToastsContext()
     const { targetCommands } = useTargetCommands()
     const id = "OverridesPanel"
 
@@ -191,7 +188,7 @@ const OverridesPanel: FunctionalComponent = () => {
                 <OverridesControls />
                 {buttons_list.map((item) => {
                     return (
-                        <fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">
+                        <fieldset key={item.label} class="fieldset-top-separator fieldset-bottom-separator field-group">
                             <legend>
                                 <label class="m-1 buttons-bar-label">
                                     {T(item.label)}
@@ -201,7 +198,7 @@ const OverridesPanel: FunctionalComponent = () => {
                                 <div class="states-buttons-container">
                                     {item.buttons.map((button, index) => {
                                         return (
-                                            <ButtonImg
+                                            <ButtonImg key={button.label}
                                                 mt1
                                                 className={
                                                     item.buttons.length / 2 >

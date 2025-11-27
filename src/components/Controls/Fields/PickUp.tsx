@@ -39,12 +39,7 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
     inline,
     setValue,
     value,
-    ...rest
 }) => {
-    const props = {
-        id,
-        name: id,
-    }
     const [displayValue, setDisplayValue] = useState(
         id == "language" ? T("lang") : T("none")
     )

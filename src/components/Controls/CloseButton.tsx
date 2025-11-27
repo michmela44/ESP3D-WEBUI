@@ -59,7 +59,7 @@ const CloseButton: FunctionalComponent<CloseButtonProps> = ({ elementId, hideOnF
         <span
             class="btn btn-clear btn-close m-1"
             aria-label="Close"
-            onClick={(e: TargetedMouseEvent<HTMLSpanElement>) => {
+            onClick={(_e: TargetedMouseEvent<HTMLSpanElement>) => {
                 useUiContextFn.haptic()
                 panels.hide(elementId)
                 console.log(`Close button clicked for element ${  elementId}`)

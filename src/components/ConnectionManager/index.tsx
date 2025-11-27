@@ -18,7 +18,7 @@ export function ConnectionManager() {
                 console.warn("WebSocketService not yet initialized - cannot connect");
             }
         }
-    }, [connectionSettings.current?.WebCommunication]);
+    }, [connectionSettings, connectionSettings.current.WebCommunication]);
 
     // This component doesn't render anything
     return null;

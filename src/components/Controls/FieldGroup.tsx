@@ -19,11 +19,9 @@
 
 import { FunctionalComponent, ComponentChildren } from "preact"
 import {
-    useUiContext,
-    useUiContextFn,
     useSettingsContext,
 } from "../../contexts"
-import { generateDependIds, checkDependencies } from "../Helpers"
+import { checkDependencies } from "../Helpers"
 
 interface FieldGroupProps {
     className?: string

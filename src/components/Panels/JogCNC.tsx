@@ -26,7 +26,7 @@ import {
     MoreHorizontal,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
-import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
+import { useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useState } from "preact/hooks"
@@ -432,7 +432,7 @@ const JogPanel = () => {
                                             <li key={letter} class="menu-item">
                                                 <div
                                                     class="menu-entry"
-                                                    onClick={(e: any) => {
+                                                    onClick={(_e: any) => {
                                                         useUiContextFn.haptic()
                                                         setFeedrate(letter)
                                                     }}

@@ -91,7 +91,7 @@ const ScanApList: FunctionalComponent<ScanApListProps> = ({ id, setValue, refres
                                 '"'
                             )
                             return (
-                                <tr>
+                                <tr key={e.SSID}>
                                     <td>{SSID}</td>
                                     <td>{e.SIGNAL}%</td>
                                     <td>{e.IS_PROTECTED ? <Lock /> : ""}</td>

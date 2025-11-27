@@ -17,7 +17,7 @@
 */
 import { TargetedMouseEvent } from "preact"
 import { HelpCircle } from "preact-feather"
-import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
+import { useUiContextFn, useModalsContext } from "../../contexts"
 import { useHttpQueue } from "../../hooks"
 import { T } from "../../components/Translations"
 import { espHttpURL } from "../../components/Helpers"

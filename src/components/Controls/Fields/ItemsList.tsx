@@ -362,7 +362,6 @@ const ItemsList: FunctionalComponent<ItemsListProps> = ({
     depend,
     nodelete,
     editable,
-    ...rest
 }) => {
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const dependIds = generateDependIds(

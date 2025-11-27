@@ -54,10 +54,10 @@ import {
     StopCircle,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
-import { useUiContext, useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
+import { useUiContextFn, useModalsContext, useToastsContext } from "../../contexts"
 import { T } from "../Translations"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useEffect, useRef } from "preact/hooks"
+import { useEffect } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext, variablesList } from "../../targets"
 import { Field } from "../Controls"
@@ -132,7 +132,6 @@ const PositionsControls: FunctionalComponent = () => {
 
 const JogPanel: FunctionalComponent = () => {
     const { modals } = useModalsContext()
-    const { toasts } = useToastsContext()
 
     const { targetCommands } = useTargetCommands()
     const { positions } = useTargetContext()
@@ -371,7 +370,7 @@ const JogPanel: FunctionalComponent = () => {
                                 <li class="menu-item">
                                     <div
                                         class="menu-entry"
-                                        onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
+                                        onClick={(_e: TargetedMouseEvent<HTMLDivElement>) => {
                                             useUiContextFn.haptic()
                                             setVelocity()
                                         }}
@@ -386,7 +385,7 @@ const JogPanel: FunctionalComponent = () => {
                                 <li class="menu-item">
                                     <div
                                         class="menu-entry"
-                                        onClick={(e: TargetedMouseEvent<HTMLDivElement>) => {
+                                        onClick={(_e: TargetedMouseEvent<HTMLDivElement>) => {
                                             useUiContextFn.haptic()
                                             setSteps()
                                         }}

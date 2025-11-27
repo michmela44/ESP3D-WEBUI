@@ -16,9 +16,9 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { FunctionalComponent } from "preact"
-import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
+import { useUiContextFn, useModalsContext } from "../../contexts"
 import { Modal as SpectreModal } from "../Controls"
-import { disableUI, getFullscreenElement } from "../Helpers"
+import { disableUI } from "../Helpers"
 import { showConfirmationModal } from "./confirmModal"
 import { showKeepConnected } from "./keepConnectedModal"
 import { showProgressModal } from "./progressModal"
@@ -47,7 +47,6 @@ const ModalContainer: FunctionalComponent<ModalContainerProps> = ({ id }) => {
             {modals.modalList &&
                 modals.modalList.length > 0 &&
                 modals.modalList.map((modal, index) => {
-                    const modalSize = modal.size || "sm"
 
                     return (
                         <SpectreModal

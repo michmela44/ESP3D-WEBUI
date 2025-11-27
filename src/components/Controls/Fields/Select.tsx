@@ -111,7 +111,7 @@ const Select: FunctionalComponent<SelectProps> = ({
         interfaceSettings.current.settings
     )
     const optionList = options.map((option) => {
-        return <Option {...option} />
+        return <Option key={option.label} {...option} />
     })
     options.map((option) => {
         if (option.depend) {

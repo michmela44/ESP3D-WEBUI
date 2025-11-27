@@ -28,7 +28,7 @@ interface LabelCtrlProps {
     [key: string]: any
 }
 
-const LabelCtrl: FunctionalComponent<LabelCtrlProps> = ({ label = "", id = "", value = "", setValue, ...rest }) => {
+const LabelCtrl: FunctionalComponent<LabelCtrlProps> = ({ label = "", id = "", value = "", setValue }) => {
     useEffect(() => {
         //to update state when import or show first time as value will never change because it is a label not an input
         if (setValue) setValue(null, true)

@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { FunctionalComponent, ComponentChildren, TargetedMouseEvent, TargetedKeyboardEvent, TargetedEvent, JSX } from "preact"
+import { FunctionalComponent, TargetedMouseEvent, TargetedKeyboardEvent, TargetedEvent, JSX } from "preact"
 import { useRef, useState, useEffect } from "preact/hooks"
 import {
     Eye,
@@ -32,7 +32,6 @@ import { ScanApList } from "../ScanAp"
 import { T } from "./../../Translations"
 import { showModal } from "../../Modal"
 import {
-    useUiContext,
     useUiContextFn,
     useSettingsContext,
     useModalsContext,
@@ -297,9 +296,9 @@ const Input: FunctionalComponent<InputProps> = ({
                                     <ul class="selection-list">
                                         {options.map((option) => {
                                             return (
-                                                <li
+                                                <li key={option.display}
                                                     class="item-selection-list"
-                                                    onClick={(e: TargetedMouseEvent<HTMLLIElement>) => {
+                                                    onClick={(_e: TargetedMouseEvent<HTMLLIElement>) => {
                                                         useUiContextFn.haptic()
                                                         setValue && setValue(option.value)
                                                         modals.removeModal(

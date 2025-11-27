@@ -17,11 +17,11 @@
 */
 
 import { TargetedMouseEvent } from "preact"
-import type { FunctionalComponent, JSX } from "preact"
-import { useState, useRef } from "preact/hooks"
+import type { FunctionalComponent } from "preact"
+import { useState } from "preact/hooks"
 import { T } from "../Translations"
 import { Sliders, Send } from "preact-feather"
-import { useUiContext, useUiContextFn } from "../../contexts"
+import { useUiContextFn } from "../../contexts"
 import { useTargetContext } from "../../targets"
 import {
     ButtonImg,

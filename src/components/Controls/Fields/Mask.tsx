@@ -21,10 +21,7 @@ import { FunctionalComponent, JSX } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import { Flag } from "preact-feather"
 import {
-    useUiContext,
-    useUiContextFn,
     useSettingsContext,
-    SettingsContextProvider,
 } from "../../../contexts"
 import {
     generateDependIds,
@@ -88,7 +85,6 @@ const Mask: FunctionalComponent<MaskProps> = ({
     setValue,
     inline,
     options = [],
-    ...rest
 }) => {
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const dependIds = generateDependIds(
@@ -172,7 +168,7 @@ const Mask: FunctionalComponent<MaskProps> = ({
                     type == "mask"
                 )
                     return (
-                        <FormGroup {...FieldData}>
+                        <FormGroup {...FieldData} key={option.label}>
                             <Boolean
                                 id={`${id  }M${  index}`}
                                 label={FieldData.label}

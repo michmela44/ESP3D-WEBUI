@@ -26,7 +26,7 @@ import {
     useSettingsContext,
     useToastsContext,
 } from "../../contexts"
-import { useTargetContext, variablesList, eventsList } from "../../targets"
+import { useTargetContext, eventsList } from "../../targets"
 import { ButtonImg, Field, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { checkDependencies } from "../Helpers"
 import { useTargetCommands } from "../../hooks"
@@ -91,7 +91,7 @@ const SpindleControls: FunctionalComponent = () => {
                                     ? sv.map((i) => i.value).join(" ")
                                     : sv.value
                                 return (
-                                    <div
+                                    <div key={element.id}
                                         class="extra-control mt-1 tooltip tooltip-bottom"
                                         data-tooltip={T(element.label)}
                                     >
@@ -340,7 +340,7 @@ const SpindlePanel: FunctionalComponent = () => {
                             }
                         }
                         return (
-                            <ButtonImg
+                            <ButtonImg key={button.label}
                                 disabled={
                                     button.useinput ? !validation.valid : false
                                 }
@@ -369,7 +369,7 @@ const SpindlePanel: FunctionalComponent = () => {
                         return null
 
                     return (
-                        <fieldset class="fieldset-top-separator fieldset-bottom-separator field-group">
+                        <fieldset key={item.label} class="fieldset-top-separator fieldset-bottom-separator field-group">
                             <legend>
                                 <label class="m-1 buttons-bar-label">
                                     {T(item.label)}

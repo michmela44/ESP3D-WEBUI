@@ -140,8 +140,8 @@ const ProbePanel: FunctionalComponent = () => {
                                         { id: "showx", value: true },
                                         {
                                             connection_id: "Axisletters",
-                                            contains: "X",
-                                        },
+                                            contains: "X"
+                                        }
                                     ]
                                 },
                                 {
@@ -153,7 +153,7 @@ const ProbePanel: FunctionalComponent = () => {
                                             connection_id: "Axisletters",
                                             contains: "Y",
                                         },
-                                    ],
+                                    ]
                                 },
                                 {
                                     label: "Z",
@@ -164,9 +164,8 @@ const ProbePanel: FunctionalComponent = () => {
                                             connection_id: "Axisletters",
                                             contains: "Z",
                                         },
-                                    ],
+                                    ]
                                 },
-                                ,
                                 {
                                     label: "A",
                                     value: "A",
@@ -178,7 +177,6 @@ const ProbePanel: FunctionalComponent = () => {
                                         },
                                     ],
                                 },
-                                ,
                                 {
                                     label: "B",
                                     value: "B",
@@ -190,7 +188,6 @@ const ProbePanel: FunctionalComponent = () => {
                                         },
                                     ],
                                 },
-                                ,
                                 {
                                     label: "C",
                                     value: "C",
@@ -202,7 +199,6 @@ const ProbePanel: FunctionalComponent = () => {
                                         },
                                     ],
                                 },
-                                ,
                                 {
                                     label: "U",
                                     value: "U",
@@ -225,7 +221,6 @@ const ProbePanel: FunctionalComponent = () => {
                                         },
                                     ],
                                 },
-                                ,
                                 {
                                     label: "W",
                                     value: "W",
@@ -399,7 +394,7 @@ const ProbePanel: FunctionalComponent = () => {
                 <ProbeControls />
                 {probe_controls.map((block) => {
                     return (
-                        <fieldset
+                        <fieldset key={block.id}
                             class={`field-group${
                                 block.label.length > 0
                                     ? " fieldset-top-separator fieldset-bottom-separator"
@@ -417,15 +412,15 @@ const ProbePanel: FunctionalComponent = () => {
                             <div class="field-group-content maxwidth text-dark">
                                 {block.controls.map((control) => {
                                     return (
-                                        <div class="states-buttons-container">
+                                        <div key={control.id} class="states-buttons-container">
                                             {control.elements.map((element: any) => {
                                                 if (element.type === "m2") {
-                                                    return <div class="m-2" />
+                                                    return <div key={element.id} class="m-2" />
                                                 } else if (
                                                     element.type === "button"
                                                 ) {
                                                     return (
-                                                        <ButtonImg
+                                                        <ButtonImg key={element.id}
                                                             label={T(
                                                                 element.label
                                                             )}
@@ -572,7 +567,7 @@ const ProbePanel: FunctionalComponent = () => {
                                                         return options
                                                     }
                                                     return (
-                                                        <Field
+                                                        <Field key={element.id}
                                                             inline
                                                             id={element.id}
                                                             type={element.type}

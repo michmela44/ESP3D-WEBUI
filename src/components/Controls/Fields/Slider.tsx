@@ -20,7 +20,6 @@
 import { Fragment, FunctionalComponent, TargetedEvent } from "preact"
 import { useEffect } from "preact/hooks"
 import {
-    useUiContext,
     useUiContextFn,
     useSettingsContext,
 } from "../../../contexts"

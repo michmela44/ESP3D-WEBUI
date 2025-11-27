@@ -30,6 +30,7 @@ import {
 } from "preact-feather"
 import { FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useUiContext, useUiContextFn, useToastsContext } from "../../contexts"
+import type { Notification } from "../../contexts/ToastsContext"
 import { Menu as PanelMenu } from "./"
 
 /*
@@ -157,7 +158,7 @@ const NotificationsPanel: FunctionalComponent = () => {
                 }}
             >
                 {notifications.list &&
-                    notifications.list.map((line: any) => {
+                    notifications.list.map((line: Notification) => {
                         let icon: any = ""
                         let classText = "text-primary"
                         switch (line.type) {
@@ -181,7 +182,7 @@ const NotificationsPanel: FunctionalComponent = () => {
                         }
 
                         return (
-                            <div
+                            <div key={line.id}
                                 class={`${classText} feather-icon-container notification-line`}
                             >
                                 {icon}
