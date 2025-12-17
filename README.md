@@ -1,4 +1,4 @@
-# ESP3D-WEBUI 3.0 ![ESP3D-WEBUI](https://img.shields.io/badge/dynamic/json?label=ESP3D-WEBUI&query=$.version&url=https://raw.githubusercontent.com/luc-github/ESP3D-WEBUI/refs/heads/3.0/info.json)
+# ESP3D-WEBUI 3.0 ![ESP3D-WEBUI](https://img.shields.io/badge/dynamic/json?label=ESP3D-WEBUI&query=$.version&url=https://raw.githubusercontent.com/luc-github/ESP3D-WEBUI/refs/heads/3.0/info.json)[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/michmela44/ESP3D-WEBUI)
 
 using Preact per @aganov suggestion  
 Rewrite per @alxblog suggestion to use proper Preactjs API and lighter css code: use spectre.css instead of bootstrap 4.x

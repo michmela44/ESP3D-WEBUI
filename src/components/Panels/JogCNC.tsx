@@ -193,7 +193,7 @@ const JogPanel = () => {
             button1: {
                 cb: () => {
                     if (targetValue.length > 0 && !isNaN(parseFloat(targetValue))) {
-                        sendMoveToCommand(axis, targetValue)
+                        sendMoveToCommand(axisUpper, targetValue)
                     }
                 },
                 text: T("S43"),
