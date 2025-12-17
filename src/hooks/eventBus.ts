@@ -81,7 +81,7 @@ class EventBus {
     list(): void {
         //console.log("Active listeners:");
         for (const event in this.listeners) {
-            this.listeners[event].forEach(listener => {
+            this.listeners[event].forEach(_listener => {
                 //console.log(`Event: ${event}, ID: ${listener.id}`);
             })
         }

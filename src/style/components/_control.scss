@@ -26,11 +26,6 @@ input[type="range"]::-ms-thumb {
     cursor: pointer;
 }
 
-.control-fieldset {
-    color: black !important;
-    font-size: 0.8rem !important;
-}
-
 .text-label {
     margin-right: 0.4rem;
 }
@@ -58,7 +53,7 @@ input[type="range"]::-ms-thumb {
 }
 
 .btn-close {
-    padding-left: 3px !important;
+    padding-left: 3px;
 }
 
 .btn-header {
@@ -337,7 +332,7 @@ span.input-group-addon {
     border: none;
     overflow: hidden;
     flex: 1;
-    padding: 10px;
+    padding: 5px;
 }
 .cameraContainer,
 .imageContainer {
@@ -625,7 +620,7 @@ a label {
 }
 
 .nested-button {
-    color: blue !important;
+    color: blue ;
     background-color: #f1f1fc;
 }
 

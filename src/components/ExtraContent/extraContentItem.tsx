@@ -261,6 +261,10 @@ const ExtraContentItem = ({
         setHasError(false)
         setIsLoading(false)
         isLoadedState[id] = true;
+        // Invalidate cache since a new iframe has loaded
+        if (type === "extension") {
+            invalidateIframeCache()
+        }
         const iframeElement = document.getElementById(element_id) as HTMLIFrameElement | null
         if (type === "extension" && iframeElement && iframeElement.contentWindow) {
 

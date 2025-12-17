@@ -39,7 +39,6 @@ import { showConfirmationModal } from "../Modal"
 import {
     Server,
     Settings,
-    Activity,
     LogOut,
     Trello,
     ChevronDown,
@@ -87,7 +86,6 @@ function isIOS(): boolean {
 
 const Navbar = () => {
     const { connectionSettings } = useSettingsContext()
-    const { defaultRoute, activeRoute } = useRouterContext()
     const { uisettings } = useUiContext()
     const { modals } = useModalsContext()
     const { createNewRequest } = useHttpQueue()
@@ -103,6 +101,15 @@ const Navbar = () => {
     )
     const [hrefbutton, setHrefButton] = useState<string | undefined>(undefined)
     const [isFullscreen, setIsFullscreen] = useState(false)
+
+    /*
+    auto-scroll textarea into view if mobile keyboard is blocking textarea to prevent
+    page resize and navbar from snapping out of viewport due to using fixed heights
+    */
+    window.visualViewport?.addEventListener("resize", () => {
+        window.scrollTo(0, 0);
+    });
+
 
     const disconnectNow = () => {
         const formData = new FormData()
@@ -200,7 +207,7 @@ const Navbar = () => {
                                 return
                             return (
                                 <Link key={href}
-                                    onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
+                                    onClick={(_e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                         useUiContextFn.haptic()
                                         if (buttonExtraPage.current)
                                             buttonExtraPage.current.classList.remove(
@@ -248,7 +255,7 @@ const Navbar = () => {
                                 <a
                                     class="btn btn-link no-box dropdown-toggle feather-icon-container"
                                     ref={buttonExtraPage}
-                                    onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
+                                    onClick={(_e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                         useUiContextFn.haptic()
                                         if (menuExtraPage.current)
                                             menuExtraPage.current.classList.remove(
@@ -274,7 +281,7 @@ const Navbar = () => {
                                                             id={id}
                                                             class="feather-icon-container"
                                                             href={href}
-                                                            onClick={(e: TargetedMouseEvent<HTMLAnchorElement>) => {
+                                                            onClick={(_e: TargetedMouseEvent<HTMLAnchorElement>) => {
                                                                 useUiContextFn.haptic()
                                                                 if (
                                                                     menuExtraPage.current
@@ -323,13 +330,13 @@ const Navbar = () => {
                 <section class="navbar-section">
                     {!isIOS() && (
                         <span
-                            className="btn btn-link no-box mx-2 feather-icon-container"
+                            className="btn btn-link no-box feather-icon-container"
                             onClick={toggleFullscreen}
                             title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
                         >
                             {isFullscreen ? <Minimize /> : <Maximize />}
                             <label style="cursor:pointer;" class="hide-low">
-                                {isFullscreen ? "Exit" : "Fullscreen"}
+                                {/* {isFullscreen ? "Exit" : "Fullscreen"} */}
                             </label>
                         </span>
                     )}

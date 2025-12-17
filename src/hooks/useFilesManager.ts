@@ -131,7 +131,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
 
     const sendSerialCmd = (command: string): void => {
         const callbacks = {
-            onSuccess: (result: string) => {
+            onSuccess: (_result: string) => {
                 //Result is handled on ws so just do nothing
             },
             onfail: (error: string) => {

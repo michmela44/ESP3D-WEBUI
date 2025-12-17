@@ -102,44 +102,27 @@ interface MessageData {
 }
 
 const dispatchToExtensions = (type: string, data: any, targetId?: string): void => {
-    // Update cache if invalidated
-    if (cacheInvalidated) {
+    // Update cache if invalidated, or if any cached elements are no longer in the DOM
+    if (cacheInvalidated || iframeCache.some(cache => !cache.element || !cache.element.isConnected)) {
         updateIframeCache()
     }
 
-    // If targetId is specified, only send to that specific extension
-    if (targetId && targetId !== "all") {
-        const targetIframe = iframeCache.find(cache => cache.id === targetId)
-        if (targetIframe && targetIframe.contentWindow) {
-            try {
-                targetIframe.contentWindow.postMessage(
-                    { type: type, content: data, id: targetId },
-                    "*"
-                )
-            } catch (e) {
-                console.error(`Failed to send message to extension ${targetId}:`, e)
-            }
-        }
-        return
-    }
-
     // Broadcast to all extensions
-    // Use cached list to avoid repeated DOM queries
     for (const cache of iframeCache) {
         // Skip hidden extensions for non-critical message types
         // Always send notification, modal, and toast messages
         const isCriticalMessage = type === 'notification' || type === 'modal' || type === 'toast' || type === 'translate' || type === 'icon'
 
-        if (cache.contentWindow && (isCriticalMessage || cache.isVisible)) {
+        if (isCriticalMessage || cache.isVisible) {
             try {
-                cache.contentWindow.postMessage(
-                    { type: type, content: data, id: cache.id },
-                    "*"
-                )
+                if (cache.element.contentWindow) {
+                    cache.element.contentWindow.postMessage(
+                        { type: type, content: data, id: targetId },
+                        "*"
+                    )
+                }
             } catch (e) {
                 console.error(`Failed to send message to extension ${cache.id}:`, e)
-                // Remove failed iframe from cache
-                invalidateIframeCache()
             }
         }
     }

@@ -151,14 +151,14 @@ const TerminalPanel: FunctionalComponent = () => {
         } 
     }
     const onKeyUp = (e: TargetedKeyboardEvent<HTMLInputElement>) => {
-        switch (e.keyCode) {
-            case 13:
+        switch (e.key) {
+            case "Enter":
                 onSend(e)
                 break
-            case 38: //prev
+            case "ArrowUp": //prev
                 historyPrev()
                 break
-            case 40: //next
+            case "ArrowDown": //next
                 historyNext()
                 break
             default:
