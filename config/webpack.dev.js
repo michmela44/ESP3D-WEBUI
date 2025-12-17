@@ -1,20 +1,12 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-let target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "Printer3D"
-let subtarget = process.env.SUBTARGET_ENV ? process.env.SUBTARGET_ENV : "Marlin"
-console.log("Target:", target, " Subtarget:", subtarget)
+
+console.log("Building CNC/FluidNC Web UI")
+
 module.exports = {
     resolve: {
-        alias: {
-            TargetDir: path.resolve(__dirname, "../src/targets", target),
-            SubTargetDir: path.resolve(
-                __dirname,
-                "../src/targets",
-                target,
-                subtarget
-            ),
-        },
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
     },
     mode: "development", // this will trigger some webpack default stuffs for dev
     entry: path.resolve(__dirname, "../src/index.js"), // if not set, default path to './src/index.js'. Accepts an object with multiple key-value pairs, with key as your custom bundle filename(substituting the [name]), and value as the corresponding file path
@@ -34,7 +26,7 @@ module.exports = {
             target: "http://localhost:8080",
         },
     },
-    stats: "minimal", // default behaviour spit out way too much info. adjust to your need.
+    stats: "normal", // default behaviour spit out way too much info. adjust to your need.
     devtool: "source-map", // a sourcemap type. map to original source with line number
     plugins: [
         new MiniCssExtractPlugin({
@@ -59,7 +51,20 @@ module.exports = {
                     loader: "babel-loader",
                     options: {
                         presets: ["preact"],
+                        plugins: ["@babel/plugin-transform-react-jsx-source"],
                     },
+                },
+            },
+            {
+                test: /\.(ts|tsx)$/,
+                exclude: /(node_modules)/,
+                use: {
+                    loader: "ts-loader",
+                    options: {
+                        transpileOnly: false,
+                        configFile: path.resolve(__dirname, "../tsconfig.json"),
+                        logLevel: "info"
+                    }
                 },
             },
             {

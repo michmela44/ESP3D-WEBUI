@@ -1,5 +1,5 @@
 /*
- index.js - ESP3D WebUI Target file
+ index.js - ESP3D WebUI Target file (CNC/FluidNC)
 
  Copyright (c) 2020 Luc Lebosse. All rights reserved.
 
@@ -17,7 +17,6 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { h } from "preact"
 import {
     MachineSettings,
     machineSettings,
@@ -33,17 +32,16 @@ import {
     useTargetContext,
     useTargetContextFn,
     webUIbuild,
-    InformationsControls,
     variablesList,
     eventsList,
     AppLogo,
     WebUILogo,
     QuickButtonsBar,
     BackgroundContainer,
-} from "SubTargetDir"
+} from "./CNC/FluidNC"
 
-import defaultPreferencesSubTarget from "SubTargetDir/preferences.json"
-import defaultPreferencesTarget from "TargetDir/preferences.json"
+import defaultPreferencesSubTarget from "./CNC/FluidNC/preferences.json"
+import defaultPreferencesTarget from "./CNC/preferences.json"
 import defaultPreferencesBase from "./preferences.json"
 import { mergeJSON } from "../components/Helpers"
 
@@ -75,7 +73,6 @@ export {
     useTargetContext,
     useTargetContextFn,
     webUIbuild,
-    InformationsControls,
     variablesList,
     eventsList,
     AppLogo,

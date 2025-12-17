@@ -14,3 +14,6 @@
 @import "./components/navbar";
 @import "./components/panel";
 @import "./components/media";
+:root {
+  --highlight-color: #{$highlight-color};
+}

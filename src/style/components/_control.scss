@@ -26,11 +26,6 @@ input[type="range"]::-ms-thumb {
     cursor: pointer;
 }
 
-.control-fieldset {
-    color: black !important;
-    font-size: 0.8rem !important;
-}
-
 .text-label {
     margin-right: 0.4rem;
 }
@@ -58,7 +53,7 @@ input[type="range"]::-ms-thumb {
 }
 
 .btn-close {
-    padding-left: 3px !important;
+    padding-left: 3px;
 }
 
 .btn-header {
@@ -330,13 +325,6 @@ span.input-group-addon {
     min-width: 1rem;
 }
 
-.error-login-message {
-    color: red;
-    background-color: white;
-    font-weight: bolder;
-    text-align: center;
-}
-
 .contentContainer,
 .extensionContainer ,
 .cameraContainer,
@@ -344,7 +332,7 @@ span.input-group-addon {
     border: none;
     overflow: hidden;
     flex: 1;
-    padding: 10px;
+    padding: 5px;
 }
 .cameraContainer,
 .imageContainer {
@@ -632,7 +620,7 @@ a label {
 }
 
 .nested-button {
-    color: blue !important;
+    color: blue ;
     background-color: #f1f1fc;
 }
 
@@ -731,4 +719,12 @@ a label {
     top: 1.2rem;
     z-index: 100000 !important;
     overlay: auto!important;
+}
+
+@media (max-width: $size-xs) {
+  [class~="col-"],
+  .column {
+    flex-basis: 100% ;
+    width: 100%;
+  }
 }

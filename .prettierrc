@@ -1,15 +1,16 @@
 {
-  "printWidth": 80,
+  "printWidth": 120,
   "tabWidth": 4,
   "useTabs": false,
   "semi": false,
   "singleQuote": false,
   "trailingComma": "es5",
   "bracketSpacing": true,
-  "bracketSameLine": false,
+  "bracketSameLine": true,
   "arrowParens": "always",
   "requirePragma": false,
   "insertPragma": false,
+  "singleAttributePerLine": false,
   "proseWrap": "preserve",
   "overrides": [
     {
@@ -30,7 +31,7 @@
     },
     {"files": "*.json",
     "options": {
-      "printWidth": 120,
+      "printWidth": 120
     }
     }
   ]

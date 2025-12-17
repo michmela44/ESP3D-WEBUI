@@ -19,13 +19,7 @@ let sensorInterval = -1
 
 //const serverpath = path.normalize(__dirname + "/../server/public/");
 
-const subtarget = process.env.SUBTARGET_ENV
-    ? process.env.SUBTARGET_ENV
-    : "Marlin"
-const target = process.env.TARGET_ENV ? process.env.TARGET_ENV : "Printer3D"
-
-const serverpath =
-    path.normalize(__dirname + "/../server/" + target + "/" + subtarget) + "/"
+const serverpath = path.normalize(__dirname + "/../server/CNC/FluidNC") + "/"
 if (!fs.existsSync(serverpath + "Flash")) {
     fs.mkdirSync(serverpath + "Flash", { recursive: true })
 }
@@ -37,12 +31,7 @@ const {
     commandsQuery,
     configURI,
     getLastconnection,
-    hasEnabledAuthentication,
-} = require(
-    path.normalize(
-        __dirname + "/targets/" + target + "/" + subtarget + "/index.js"
-    )
-)
+} = require(path.normalize(__dirname + "/targets/CNC/FluidNC/index.js"))
 
 const WebSocketServer = require("ws").Server,
     wss = new WebSocketServer({ port: 8090 })
@@ -51,7 +40,7 @@ app.use("/sd", express.static(serverpath + "sd"))
 app.use("/", expressStaticGzip(serverpath + "Flash"))
 app.use(fileUpload({ preserveExtension: true, debug: false }))
 
-app.listen(port, () => console.log("Env:", subtarget, ":", target))
+app.listen(port, () => console.log("CNC/FluidNC Web UI Server running on port", port))
 app.timeout = 2000
 
 //app.use(express.urlencoded({ extended: false }));
@@ -65,7 +54,7 @@ function SendWS(text, isbinary = true, isNotification = true) {
         }
         wss.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(array)
+                client.send(array)  
             }
         })
     } else {
@@ -78,10 +67,6 @@ function SendWS(text, isbinary = true, isNotification = true) {
         })
     }
 }
-
-app.post("/login", function (req, res) {
-    loginURI(req, res)
-})
 
 app.get("/config", function (req, res) {
     configURI(req, res)
@@ -101,6 +86,7 @@ app.get("/command", function (req, res) {
 });*/
 
 function fileSizeString(size) {
+    if (typeof size === "string") return size;
     if (size === -1) return ""
     const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
     let i = 0
@@ -110,6 +96,7 @@ function fileSizeString(size) {
     }
     return `${size.toFixed(2)} ${units[i]}`
 }
+
 
 function filesList(mypath, destination) {
     const currentPath = path.normalize(serverpath + destination + mypath)
@@ -121,8 +108,8 @@ function filesList(mypath, destination) {
     const files = fs.readdirSync(currentPath).map((file) => {
         const fullpath = path.normalize(currentPath + "/" + file)
         const fst = fs.statSync(fullpath)
-        const fsize = fst.isFile() ? fileSizeString(fst.size) : "-1"
-        return { name: file, size: fsize }
+        const fsize = fst.isFile() ? fst.size : -1
+        return { name: file, size: fsize, "datetime": fst.mtime.toISOString() }
     })
 
     const response = {
@@ -235,7 +222,7 @@ app.all("/files", function (req, res) {
     }
 })
 
-app.all("/sdfiles", function (req, res) {
+app.all("/upload", function (req, res) {
     let mypath = req.query.path
     let url = req.originalUrl
     let filepath = path.normalize(
@@ -307,20 +294,72 @@ wss.on("connection", (socket, request) => {
     currentID++
     socket.on("message", (message) => {
         console.log(wscolor("[ws] received:", message))
-        if (hasEnabledAuthentication() && message.startsWith("PING:")) {
-            wss.clients.forEach(function each(client) {
-                if (client.readyState === WebSocket.OPEN) {
-                    let t = hasEnableAuthentication()
-                        ? sessiontTime - (Date.now() - getLastconnection())
-                        : 60000
-                    let remainingtime = t < 0 ? 0 : t
-                    console.log("remain:", remainingtime, "millisec")
-                    client.send(`PING:${remainingtime}:60000`)
-                }
-            })
-        }
+        HandleWSMessage(message, socket)
     })
 })
 wss.on("error", (error) => {
     console.log(wscolor("[ws] Error:", error))
 })
+
+function HandleWSMessage(message, socket) {
+    // Echo the message back
+
+    if (message.startsWith("$Settings/List")) {
+        HandleGetSettings(message, socket)
+    }
+}
+
+function HandleGetSettings(message, socket) {
+SendWS("$Grbl/SoftLimitsEnable=0\n", true, false)
+SendWS("$Grbl/HardLimitsEnable=0\n", true, false)
+SendWS("$Grbl/HomingCycleEnable=0\n", true, false)
+SendWS("$Grbl/HomingDirections=0\n", true, false)
+SendWS("$Grbl/MaxSpindleSpeed=0\n", true, false)
+SendWS("$Grbl/LaserMode=0\n", true, false)
+SendWS("$Grbl/Resolution/X=80.000\n", true, false)
+SendWS("$Grbl/Resolution/Y=80.000\n", true, false)
+SendWS("$Grbl/Resolution/Z=80.000\n", true, false)
+SendWS("$Grbl/MaxRate/X=1000.000\n", true, false)
+SendWS("$Grbl/MaxRate/Y=1000.000\n", true, false)
+SendWS("$Grbl/MaxRate/Z=1000.000\n", true, false)
+SendWS("$Grbl/Acceleration/X=25.000\n", true, false)
+SendWS("$Grbl/Acceleration/Y=25.000\n", true, false)
+SendWS("$Grbl/Acceleration/Z=25.000\n", true, false)
+SendWS("$Grbl/MaxTravel/X=1000.000\n", true, false)
+SendWS("$Grbl/MaxTravel/Y=1000.000\n", true, false)
+SendWS("$Grbl/MaxTravel/Z=1000.000\n", true, false)
+SendWS("$Notification/Type=NONE\n", true, false)
+SendWS("$Notification/T1=\n", true, false)
+SendWS("$Notification/T2=\n", true, false)
+SendWS("$Notification/TS=\n", true, false)
+SendWS("$Telnet/Enable=ON\n", true, false)
+SendWS("$Telnet/Port=23\n", true, false)
+SendWS("$HTTP/BlockDuringMotion=ON\n", true, false)
+SendWS("$HTTP/Enable=ON\n", true, false)
+SendWS("$HTTP/Port=80\n", true, false)
+SendWS("$MDNS/Enable=ON\n", true, false)
+SendWS("$WiFi/PsMode=None\n", true, false)
+SendWS("$WiFi/Mode=STA>AP\n", true, false)
+SendWS("$Sta/Password=********\n", true, false)
+SendWS("$Sta/MinSecurity=WPA2-PSK\n", true, false)
+SendWS("$WiFi/FastScan=OFF\n", true, false)
+SendWS("$Sta/IPMode=DHCP\n", true, false)
+SendWS("$Sta/IP=0.0.0.0\n", true, false)
+SendWS("$Sta/Gateway=0.0.0.0\n", true, false)
+SendWS("$Sta/Netmask=0.0.0.0\n", true, false)
+SendWS("$AP/Country=01\n", true, false)
+SendWS("$AP/SSID=FluidNCfghj\n", true, false)
+SendWS("$AP/Password=********\n", true, false)
+SendWS("$AP/IP=192.168.0.1\n", true, false)
+SendWS("$AP/Channel=1\n", true, false)
+SendWS("$Hostname=fluidnc\n", true, false)
+SendWS("$Sta/SSID=BlackWidow\n", true, false)
+SendWS("$GCode/Echo=OFF\n", true, false)
+SendWS("$Start/Message=Grbl \V [FluidNC \B (\R) \H]\n", true, false)
+SendWS("$Firmware/Build=\n", true, false)
+SendWS("$SD/FallbackCS=-1\n", true, false)
+SendWS("$Report/Status=1\n", true, false)
+SendWS("$Config/Filename=config.yaml\n", true, false)
+SendWS("$Message/Level=Info\n", true, false)
+SendWS("ok\n", true, false)
+}
