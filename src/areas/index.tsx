@@ -86,7 +86,7 @@ const ContentContainer: FunctionalComponent = () => {
                     //TBD: if need real both way communication
                     //between iFrame and Main UI
                     break
-                case "cmd":
+                case "cmd": {
                     const cmdCallbacks = {
                         onSuccess: (result: string) => {
                             if (!eventMsg.data.noDispatch)
@@ -114,7 +114,9 @@ const ContentContainer: FunctionalComponent = () => {
                                 )
                         },
                     }
+                    targetCommands(eventMsg.data.content, undefined, undefined, cmdCallbacks)
                     break
+                }
                 case "query": {
                     let cmd: string | undefined = undefined
                     const queryCallbacks = {
@@ -192,7 +194,7 @@ const ContentContainer: FunctionalComponent = () => {
                     )
                     break
                 }
-                case "upload":
+                case "upload": {
                     const formData = new FormData()
                     const file = new File(
                         [eventMsg.data.content],
@@ -263,6 +265,7 @@ const ContentContainer: FunctionalComponent = () => {
                         }
                     )
                     break
+                }
                 case "download":
                     createNewRequest(
                         espHttpURL(eventMsg.data.url, eventMsg.data.args),
@@ -313,7 +316,7 @@ const ContentContainer: FunctionalComponent = () => {
                         type: eventMsg.data.content.type,
                     })
                     break
-                case "modal":
+                case "modal": {
                     let inputData: any = null
                     const validationBtn: any = {}
                     const content = eventMsg.data.content
@@ -494,6 +497,7 @@ const ContentContainer: FunctionalComponent = () => {
                                 if (fieldData.type == "group") {
                                     return (
                                         <FieldGroup
+                                            key={subsectionId}
                                             id={fieldData.id}
                                             label={T(fieldData.label)}
                                         >
@@ -508,7 +512,7 @@ const ContentContainer: FunctionalComponent = () => {
                                                         ...rest
                                                     } = subFieldData
                                                     return (
-                                                        <Field
+                                                        <Field key={subData}
                                                             label={T(
                                                                 subFieldData.label
                                                             )}
@@ -542,6 +546,7 @@ const ContentContainer: FunctionalComponent = () => {
                                         fieldData
                                     return (
                                         <Field
+                                            key={subsectionId}
                                             label={T(label)}
                                             type={type}
                                             inline={
@@ -621,6 +626,7 @@ const ContentContainer: FunctionalComponent = () => {
                         overlay: content.overlay,
                     })
                     break
+                }
                 case "sound":
                     if (eventMsg.data.content == "beep") useUiContextFn.beep()
                     if (eventMsg.data.content == "error")
@@ -649,7 +655,7 @@ const ContentContainer: FunctionalComponent = () => {
                         )
                     }
                     break
-                case "icon":
+                case "icon": {
                     const iconToSend = iconsFeather[eventMsg.data.id as keyof typeof iconsFeather]
                     let iconSvgString = ""
                     if (iconToSend) {
@@ -675,7 +681,8 @@ const ContentContainer: FunctionalComponent = () => {
                         eventMsg.data.id
                     )
                     break
-                case "extensionsData":
+                }
+                case "extensionsData": {
                     //Get extension name
                     const section = eventMsg.data.id
                     //Get extensions settings
@@ -763,7 +770,8 @@ const ContentContainer: FunctionalComponent = () => {
                     )
 
                     break
-                case "capabilities":
+                }
+                case "capabilities": {
                     let response: any = {}
                     switch (eventMsg.data.id) {
                         case "connection":
@@ -818,6 +826,7 @@ const ContentContainer: FunctionalComponent = () => {
                         eventMsg.data.id
                     )
                     break
+                }
                 case "dispatch":
                     dispatchToExtensions(
                         "dispatch",

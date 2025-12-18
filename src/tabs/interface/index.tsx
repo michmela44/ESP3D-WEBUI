@@ -186,7 +186,7 @@ const generateValidationGlobal = (
                 if (fieldData.value.trim().length < minValue) {
                     validation.valid = false
                     console.log("Error")
-                } else if (fieldData.minSecondary !== undefined) {
+                } else if (fieldData.minSecondary != undefined) {
                     if (
                         fieldData.value.trim().length < fieldData.minSecondary &&
                         fieldData.value.trim().length > minValue
@@ -204,7 +204,7 @@ const generateValidationGlobal = (
                     console.log("Error")
                 }
             }
-        } else if (fieldData.type === "number") {
+        } else if (fieldData.type == "number") {
             // Number range validation
             if (fieldData.max !== undefined) {
                 const maxValue = typeof fieldData.max === 'number' ? fieldData.max : parseInt(fieldData.max)
@@ -216,9 +216,9 @@ const generateValidationGlobal = (
             if (fieldData.min !== undefined) {
                 const minValue = typeof fieldData.min === 'number' ? fieldData.min : parseInt(fieldData.min)
                 const minSecondaryValue = fieldData.minsecondary ?? 0
-                if (fieldData.minSecondary !== undefined || fieldData.minsecondary !== undefined) {
+                if (fieldData.minSecondary != undefined || fieldData.minsecondary != undefined) {
                     if (
-                        fieldData.value !== minValue &&
+                        fieldData.value != minValue &&
                         fieldData.value < minSecondaryValue
                     ) {
                         validation.valid = false
@@ -229,7 +229,7 @@ const generateValidationGlobal = (
                     console.log("Error")
                 }
             }
-        } else if (fieldData.type === "select") {
+        } else if (fieldData.type == "select") {
             const opt = fieldData.options?.find(
                 (element) => element.value === fieldData.value
             )
@@ -247,8 +247,8 @@ const generateValidationGlobal = (
                 }
             }
             if (
-                fieldData.name === "type" &&
-                fieldData.value === "camera" &&
+                fieldData.name == "type" &&
+                fieldData.value == "camera" &&
                 interfaceSettings
             ) {
                 //Update camera source automaticaly
@@ -260,21 +260,21 @@ const generateValidationGlobal = (
                 const subextraList =
                     extraList[
                         extraList.findIndex((element: any) => {
-                            return element.id === "extracontents"
+                            return element.id == "extracontents"
                         })
                     ].value
                 //look for extra panel specific id
                 const datavalue =
                     subextraList[
                         subextraList.findIndex((element: any) => {
-                            return element.id === sourceId
+                            return element.id == sourceId
                         })
                     ].value
                 //get source item
                 const sourceItemValue =
                     datavalue[
                         datavalue.findIndex((element: any) => {
-                            return element.id === `${sourceId  }-source`
+                            return element.id == `${sourceId  }-source`
                         })
                     ]
                 //force /snap as source
@@ -284,10 +284,10 @@ const generateValidationGlobal = (
                 return (
                     (parseInt(element.value) === parseInt(fieldData.value) &&
                         !isNaN(parseInt(element.value))) ||
-                    element.value === fieldData.value
+                    element.value == fieldData.value
                 )
             })
-            if (index === -1) {
+            if (index == -1) {
                 validation.valid = false
                 console.log("Error")
             }
