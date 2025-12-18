@@ -15,25 +15,9 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { ComponentChildren } from "preact"
 import { Info } from "preact-feather"
 import { useUiContextFn } from "../../contexts"
-
-interface ProgressButton {
-    text: string
-    cb?: () => void
-}
-
-interface ShowProgressModalParams {
-    modals: {
-        getModalIndex: (id: string) => number
-        removeModal: (index: number) => void
-        addModal: (modal: any) => void
-    }
-    title: string
-    button1: ProgressButton
-    content: ComponentChildren
-}
+import type { ShowProgressModalParams, ProgressButton } from "../../types/modals.types"
 
 const showProgressModal = ({ modals, title, button1, content }: ShowProgressModalParams): void => {
     const id = "progression"
@@ -64,4 +48,4 @@ const showProgressModal = ({ modals, title, button1, content }: ShowProgressModa
 }
 
 export { showProgressModal }
-export type { ShowProgressModalParams, ProgressButton }
+export type { ShowProgressModalParams, ProgressButton } from "../../types/modals.types"

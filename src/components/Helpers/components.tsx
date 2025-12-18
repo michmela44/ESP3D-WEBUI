@@ -18,6 +18,7 @@
 */
 import { ComponentType, JSX } from "preact"
 import { useUiContextFn } from "../../contexts"
+import type { DependencyCondition, DependItem } from "../../types/dependencies.types"
 
 interface ResponsiveProps {
     col: number
@@ -101,15 +102,6 @@ function disableUI(state: boolean = true, ignore?: string): void {
     disableNode(document.getElementById("main"), state, ignore)
     disableNode(document.getElementById("info"), state, ignore)
     disableNode(document.getElementById("menu"), state, ignore)
-}
-
-interface DependItem {
-    id?: string
-    connection_id?: string
-    value?: any
-    notvalue?: any
-    contains?: string
-    orGroups?: DependItem[][]
 }
 
 const generateDependIds = (depend: DependItem[] | undefined, settings: any): any[] => {

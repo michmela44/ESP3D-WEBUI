@@ -15,21 +15,9 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { ComponentChildren } from "preact"
 import { HelpCircle } from "preact-feather"
-import { showModal, ButtonConfig } from "./genericModal"
-
-interface ShowConfirmationModalParams {
-    modals: {
-        getModalIndex: (id: string) => number
-        removeModal: (index: number) => void
-        addModal: (modal: any) => void
-    }
-    title: string
-    content: ComponentChildren
-    button1?: ButtonConfig
-    button2?: ButtonConfig
-}
+import { showModal } from "./genericModal"
+import type { ShowConfirmationModalParams } from "../../types/modals.types"
 
 const showConfirmationModal = ({
     modals,
@@ -51,4 +39,4 @@ const showConfirmationModal = ({
 }
 
 export { showConfirmationModal }
-export type { ShowConfirmationModalParams }
+export type { ShowConfirmationModalParams } from "../../types/modals.types"

@@ -40,6 +40,7 @@ import {
     generateDependIds,
     checkDependencies,
 } from "../../Helpers"
+import type { DependencyCondition } from "../../../types/dependencies.types"
 
 interface RevealProps {
     applyTo: { current: HTMLInputElement | null }
@@ -52,14 +53,6 @@ interface ClearTextProps {
 interface DropListOption {
     value: string
     display: string
-}
-
-interface DependencyCondition {
-    id?: string
-    value?: unknown
-    notvalue?: unknown
-    contains?: string
-    orGroups?: DependencyCondition[][]
 }
 
 type ValueChangeCallback = (value: string | number | null, shouldValidate?: boolean) => void

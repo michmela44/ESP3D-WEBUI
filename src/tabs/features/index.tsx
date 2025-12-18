@@ -44,11 +44,17 @@ import {
     showProgressModal,
 } from "../../components/Modal"
 import { Field } from "../../components/Controls"
-import { formatStructure, FeaturesStructure, SettingFieldProps } from "./formatHelper"
+import { formatStructure } from "./formatHelper"
 import { exportFeatures } from "./exportHelper"
 import { importFeatures } from "./importHelper"
 import { restartdelay, useTargetContextFn } from "../../targets"
 import { ImportResult } from "./importHelper"
+import type {
+    RawSettingItem,
+    SettingFieldProps,
+    FeaturesStructure,
+    ValidationFieldData
+} from "../../types/settings.types"
 
 // API Response interfaces
 interface ESP400Response {
@@ -57,31 +63,10 @@ interface ESP400Response {
     data?: RawSettingItem[];
 }
 
-interface RawSettingItem {
-    P: string;
-    T: string;
-    V: string;
-    H: string;
-    O?: Array<{ [key: string]: string }>;
-    M?: string;
-    S?: string;
-    MS?: string;
-    R?: string;
-    U?: string;
-    E?: string;
-    F: string;
-}
-
 interface ESP401Response {
     cmd: number;
     status: string;
     data?: string;
-}
-
-// Validation field data interface
-interface ValidationFieldData extends SettingFieldProps {
-    hasmodified?: boolean;
-    haserror?: boolean;
 }
 
 // Validation result interface

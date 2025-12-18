@@ -367,13 +367,13 @@ const useSettings = (): UseSettingsReturn => {
                         JSON.parse(JSON.stringify(importResult.preferences))
                     )
                     if (importResult.hasErrors) {
-                        toasts.addToast({
-                            content: h('span', { class: 'feather-icon-container' },
-                                h(Frown, {}),
-                                h('span', { class: 'm-1' }, 'preferences.json')
-                            ),
-                            type: "error",
-                        })
+                        // toasts.addToast({
+                        //     content: h('span', { class: 'feather-icon-container' },
+                        //         h(Frown, {}),
+                        //         h('span', { class: 'm-1' }, 'preferences.json')
+                        //     ),
+                        //     type: "error",
+                        // })
                         console.log("error")
                     }
                     interfaceSettings.current.settings = importResult.preferences

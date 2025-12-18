@@ -174,10 +174,10 @@ const MachineSettings = () => {
                         {machineSettings.cache.length > 0 && (
                             <div>
                                 <CenterLeft bordered>
-                                    {machineSettings.cache.map((element: MachineSettingElement) => {
+                                    {machineSettings.cache.map((element: MachineSettingElement, index: number) => {
                                         if ((element as any).type == "comment")
                                             return (
-                                                <div key={element.value} class="comment m-1  ">
+                                                <div key={`comment-${index}`} class="comment m-1  ">
                                                     {T(element.value)}({element.value})
                                                 </div>
                                             )
@@ -201,7 +201,7 @@ const MachineSettings = () => {
                                             />
                                         )
                                         return (
-                                            <div key={element.value} class="m-1">
+                                            <div key={`field-${index}`} class="m-1">
                                                 <Field
                                                     type={(element as any).type}
                                                     value={(element as any).value}

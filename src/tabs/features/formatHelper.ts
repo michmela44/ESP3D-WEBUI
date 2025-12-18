@@ -19,55 +19,16 @@ formatHelper.ts - ESP3D WebUI helper file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-// Raw setting item from the API
-export interface RawSettingItem {
-    P: string;       // Parameter ID
-    T: string;       // Type (B=byte, I=integer, F=float, S=string, M=mask, X=xmask, A=IP address)
-    V: string;       // Value
-    H: string;       // Help text/label
-    O?: Array<{ [key: string]: string }>;  // Options for select fields
-    M?: string;      // Minimum value
-    S?: string;      // Maximum value (Size)
-    MS?: string;     // Minimum Secondary value
-    R?: string;      // Need Restart flag
-    U?: string;      // Unit/append text
-    E?: string;      // Precision (for floats)
-    F: string;       // Field path (section/subsection)
-}
+import type {
+    RawSettingItem,
+    SelectOption,
+    SettingFieldProps,
+    FeaturesStructure,
+    FieldTypeName
+} from "../../types/settings.types"
 
-// Option for select fields
-export interface SelectOption {
-    label: string;
-    value: string;
-}
-
-// Formatted setting field properties
-export interface SettingFieldProps {
-    id: string;
-    initial: string;
-    label: string;
-    type: string;
-    value: string;
-    cast: string;
-    append?: string;
-    prec?: string;
-    options?: SelectOption[];
-    needRestart?: string;
-    max?: number;
-    min?: number;
-    minSecondary?: number;
-    format?: string;
-}
-
-// Field type name result
-type FieldTypeName = "select" | "number" | "text" | "mask" | "xmask";
-
-// Structured features data
-export interface FeaturesStructure {
-    [section: string]: {
-        [subsection: string]: SettingFieldProps[];
-    };
-}
+// Re-export types for backwards compatibility
+export type { RawSettingItem, SelectOption, SettingFieldProps, FeaturesStructure }
 
 const getFieldTypeName = ({ value, type, options }: { value: string; type: string; options?: Array<{ [key: string]: string }> | SelectOption[] }): FieldTypeName => {
     if (options !== undefined && !(type === "M" || type === "X"))

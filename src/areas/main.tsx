@@ -29,27 +29,11 @@ import Settings from "../pages/settings"
 import ExtraPage from "../pages/extrapages"
 import { FooterContainer } from "./footer"
 import { processor, BackgroundContainer } from "../targets"
+import type { RoutesMap, ExtraContent } from "../types/routes.types"
 
-interface Route {
-    component: any
-    path: string
-}
+const mainRoutes: { current: RoutesMap } = { current: {} }
 
-interface Routes {
-    [key: string]: Route
-}
-
-interface ExtraContent {
-    id: string
-    value: Array<{
-        name: string
-        initial: any
-    }>
-}
-
-const mainRoutes: { current: Routes } = { current: {} }
-
-const defRoutes: Routes = {
+const defRoutes: RoutesMap = {
     DASHBOARD: {
         component: <Dashboard />,
         path: "/dashboard",
@@ -66,13 +50,13 @@ const defRoutes: Routes = {
 
 const MainContainer: FunctionalComponent = () => {
     const { uisettings } = useUiContext()
-    const [routes, setRoutes] = useState<Routes>({ ...defRoutes })
+    const [routes, setRoutes] = useState<RoutesMap>({ ...defRoutes })
     mainRoutes.current = { ...defRoutes }
 
-    const newroutes = (): Routes => {
+    const newroutes = (): RoutesMap => {
         if (uisettings.getValue("showextracontents")) {
             const extraContents: ExtraContent[] = uisettings.getValue("extracontents")
-            const extraPages = extraContents.reduce((acc: Routes, curr: ExtraContent) => {
+            const extraPages = extraContents.reduce((acc: RoutesMap, curr: ExtraContent) => {
                 const item = curr.value.reduce((accumulator: any, current: any) => {
                     accumulator[current.name] = current.initial
                     return accumulator

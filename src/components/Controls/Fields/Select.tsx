@@ -25,14 +25,7 @@ import {
     generateDependIds,
     checkDependencies
 } from "../../Helpers"
-
-interface DependencyCondition {
-    id?: string
-    value?: unknown
-    notvalue?: unknown
-    contains?: string
-    orGroups?: DependencyCondition[][]
-}
+import type { DependencyCondition } from "../../../types/dependencies.types"
 
 interface OptionProps {
     label: string

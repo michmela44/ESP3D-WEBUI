@@ -27,6 +27,7 @@ import {
     generateDependIds,
     checkDependencies,
 } from "../../Helpers"
+import type { DependencyCondition } from "../../../types/dependencies.types"
 
 import { T } from "./../../Translations"
 import { Validation } from "./FormGroup"
@@ -46,14 +47,6 @@ interface BooleanProps {
     setValue?: any
     inline?: boolean
     [key: string]: any
-}
-
-interface DependencyCondition {
-    id?: string
-    value?: unknown
-    notvalue?: unknown
-    contains?: string
-    orGroups?: DependencyCondition[][]
 }
 
 const Boolean: FunctionalComponent<BooleanProps> = ({

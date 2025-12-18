@@ -15,31 +15,8 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { ComponentChildren } from "preact"
 import { useUiContextFn } from "../../contexts"
-
-interface ButtonConfig {
-    text: string
-    id?: string
-    cb?: () => void
-    noclose?: boolean
-}
-
-interface ShowModalParams {
-    modals: {
-        getModalIndex: (id: string) => number
-        removeModal: (index: number) => void
-        addModal: (modal: any) => void
-    }
-    title: string
-    button1?: ButtonConfig
-    button2?: ButtonConfig
-    content: ComponentChildren
-    icon?: ComponentChildren
-    id: string
-    hideclose?: boolean
-    overlay?: boolean
-}
+import type { ShowModalParams, ButtonConfig } from "../../types/modals.types"
 
 const showModal = ({
     modals,
@@ -103,4 +80,4 @@ const showModal = ({
 }
 
 export { showModal }
-export type { ShowModalParams, ButtonConfig }
+export type { ShowModalParams, ButtonConfig } from "../../types/modals.types"

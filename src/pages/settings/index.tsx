@@ -26,17 +26,9 @@ import { InterfaceTab } from "../../tabs/interface"
 import { MachineTab } from "../../tabs/machine"
 import { TabBar } from "../../components/TabBar"
 import { mainRoutes } from "../../areas/main"
+import type { RoutesMap } from "../../types/routes.types"
 
-interface Route {
-    component: JSX.Element
-    path: string
-}
-
-interface Routes {
-    [key: string]: Route
-}
-
-const routes: Routes = {
+const routes: RoutesMap = {
     INTERFACE: {
         component: <InterfaceTab />,
         path: "/settings/interface",
