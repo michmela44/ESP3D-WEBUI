@@ -23,6 +23,7 @@ import { showConfirmationModal } from "./confirmModal"
 import { showKeepConnected } from "./keepConnectedModal"
 import { showProgressModal } from "./progressModal"
 import { showModal } from "./genericModal"
+import { showReleaseNotesModal } from "./releaseNotesModal"
 
 /*
  * Local const
@@ -104,4 +105,5 @@ export {
     showKeepConnected,
     showProgressModal,
     showModal,
+    showReleaseNotesModal,
 }
