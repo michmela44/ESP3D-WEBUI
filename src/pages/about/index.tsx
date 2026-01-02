@@ -16,7 +16,13 @@ import {
 import { Esp3dVersion, webUIversion } from "../../components/App/version"
 import { Github, RefreshCcw, UploadCloud, LifeBuoy, Info, BookOpen, Download } from "preact-feather"
 import { webUiUrl, fwUrl, Name, restartdelay } from "../../targets"
-import { showConfirmationModal, showModal, showProgressModal, showReleaseNotesModal } from "../../components/Modal"
+import {
+    showConfirmationModal,
+    showModal,
+    showProgressModal,
+    showReleaseNotesModal,
+    showFirmwareUpdateModal,
+} from "../../components/Modal"
 import { GitHubService } from "../../Services/GitHubService"
 import type { GitHubRelease } from "../../types/github.types"
 import { VersionBadge } from "../../components/VersionBadge"
@@ -106,6 +112,8 @@ const About: FunctionalComponent = (): JSX.Element => {
     const [latestRelease, setLatestRelease] = useState<GitHubRelease | null>(null)
     const [availableReleases, setAvailableReleases] = useState<GitHubRelease[]>([])
     const [isCheckingUpdates, setIsCheckingUpdates] = useState(false)
+    const [latestFirmwareRelease, setLatestFirmwareRelease] = useState<GitHubRelease | null>(null)
+    const [availableFirmwareReleases, setAvailableFirmwareReleases] = useState<GitHubRelease[]>([])
     const inputFilesRef = useRef<HTMLInputElement>(null)
     const isFlashFS = connectionSettings.current.FlashFileSystem == "none" ? false : true
     const isSDFS = connectionSettings.current.SDConnection == "none" ? false : true
@@ -154,13 +162,122 @@ const About: FunctionalComponent = (): JSX.Element => {
     const onFWUpdate = (e: MouseEvent) => {
         useUiContextFn.haptic()
         ;(e.target as HTMLElement).blur()
-        setIsFwUpdate(true)
-        if (inputFilesRef.current) {
-            inputFilesRef.current.value = ""
-            inputFilesRef.current.accept = ".bin, .bin.gz"
-            inputFilesRef.current.multiple = false
-            inputFilesRef.current.click()
+
+        const uploadFromDisk = () => {
+            setIsFwUpdate(true)
+            if (inputFilesRef.current) {
+                inputFilesRef.current.value = ""
+                inputFilesRef.current.accept = ".bin"
+                inputFilesRef.current.multiple = false
+                inputFilesRef.current.click()
+            }
         }
+
+        const downloadFromGithub = () => {
+            const currentFirmwareVersion = props.find((element) => element.id == "FW version")?.value || "Unknown"
+
+            showFirmwareUpdateModal({
+                modals,
+                releases: availableFirmwareReleases,
+                currentVersion: currentFirmwareVersion,
+                onUploadFile: () => {
+                    setIsFwUpdate(true)
+                    if (inputFilesRef.current) {
+                        inputFilesRef.current.value = ""
+                        inputFilesRef.current.accept = ".bin"
+                        inputFilesRef.current.multiple = false
+                        inputFilesRef.current.click()
+                    }
+                },
+                onViewReleaseNotes: () => {
+                    const releasesToShow =
+                        availableFirmwareReleases.length > 0 ? availableFirmwareReleases.slice(0, 10) : []
+
+                    if (releasesToShow.length === 0) {
+                        toasts.addToast({
+                            content: "No firmware release information available",
+                            type: "error",
+                        })
+                        return
+                    }
+
+                    showReleaseNotesModal({
+                        modals,
+                        releases: releasesToShow,
+                        githubUrl: "https://github.com/bdring/FluidNC/releases",
+                    })
+                },
+            })
+        }
+
+        showModal({
+            modals,
+            title: "Update Firmware",
+            content: (
+                <CenterLeft>
+                    <div class="mb-4">
+                        <p class="mb-3 text-center">Choose an update method:</p>
+
+                        <div class="mb-3">
+                            <button
+                                class="btn btn-primary btn-lg btn-block"
+                                onClick={downloadFromGithub}
+                                disabled={availableFirmwareReleases.length === 0}>
+                                <Download size={18} class="mr-2" style="vertical-align: middle;" />
+                                Download from GitHub
+                            </button>
+                            <small class="text-muted d-block mt-1 text-center">
+                                Download firmware release, extract, then upload .bin file
+                            </small>
+                        </div>
+
+                        <div class="divider text-center" data-content="OR" />
+
+                        <div class="mb-3">
+                            <button class="btn btn-primary btn-lg btn-block" onClick={uploadFromDisk}>
+                                <UploadCloud size={18} class="mr-2" style="vertical-align: middle;" />
+                                Upload File from Computer
+                            </button>
+                            <small class="text-muted d-block mt-1 text-center">
+                                Select a .bin file you already have
+                            </small>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a
+                                href="#"
+                                class="text-primary"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    useUiContextFn.haptic()
+                                    const releasesToShow =
+                                        availableFirmwareReleases.length > 0
+                                            ? availableFirmwareReleases.slice(0, 10)
+                                            : []
+
+                                    if (releasesToShow.length === 0) {
+                                        toasts.addToast({
+                                            content: "No firmware release information available",
+                                            type: "error",
+                                        })
+                                        return
+                                    }
+
+                                    showReleaseNotesModal({
+                                        modals,
+                                        releases: releasesToShow,
+                                        githubUrl: "https://github.com/bdring/FluidNC/releases",
+                                    })
+                                }}>
+                                <BookOpen size={14} style="vertical-align: middle;" /> View Release Notes
+                            </a>
+                        </div>
+                    </div>
+                </CenterLeft>
+            ),
+            id: "firmware-update-choice",
+            hideclose: false,
+        })
     }
     const onFWGit = (e: MouseEvent) => {
         useUiContextFn.haptic()
@@ -195,6 +312,23 @@ const About: FunctionalComponent = (): JSX.Element => {
             console.error("Failed to check for updates:", error)
         } finally {
             setIsCheckingUpdates(false)
+        }
+    }
+
+    const checkForFirmwareUpdates = async () => {
+        try {
+            const githubService = new GitHubService({
+                owner: "bdring",
+                repo: "FluidNC",
+                assetName: "", 
+            })
+            const latest = await githubService.getLatestRelease()
+            setLatestFirmwareRelease(latest)
+
+            const releases = await githubService.getReleases(10)
+            setAvailableFirmwareReleases(releases)
+        } catch (error) {
+            console.error("Failed to check for firmware updates:", error)
         }
     }
 
@@ -281,10 +415,10 @@ const About: FunctionalComponent = (): JSX.Element => {
                                 <>
                                     <div style="flex: 1; text-align: center; padding: 0 1rem;">
                                         {compareVersions(webUIversion, latestRelease.tag_name) === "upgrade" && (
-                                            <span class="text-success">→ Upgrade Available</span>
+                                            <span class="text-success">Upgrade Available</span>
                                         )}
                                         {compareVersions(webUIversion, latestRelease.tag_name) === "same" && (
-                                            <span class="text-muted">✓ Up to date</span>
+                                            <span class="text-muted">Up to date</span>
                                         )}
                                     </div>
                                     <div style="flex: 1; text-align: right;">
@@ -343,7 +477,7 @@ const About: FunctionalComponent = (): JSX.Element => {
     }
 
     const showReleaseNotes = () => {
-        const releasesToShow = availableReleases.length > 0 ? availableReleases.slice(0, 3) : []
+        const releasesToShow = availableReleases.length > 0 ? availableReleases.slice(0, 10) : []
 
         if (releasesToShow.length === 0) {
             toasts.addToast({
@@ -638,6 +772,7 @@ const About: FunctionalComponent = (): JSX.Element => {
 
     useEffect(() => {
         checkForUpdates()
+        checkForFirmwareUpdates()
     }, [])
 
     return (
@@ -697,6 +832,18 @@ const About: FunctionalComponent = (): JSX.Element => {
                                     {props.find((element) => element.id == "FW version") &&
                                         props.find((element) => element.id == "FW version")?.value}
                                 </span>
+                                {latestFirmwareRelease && props.find((element) => element.id == "FW version") && (
+                                    <VersionBadge
+                                        current={
+                                            props
+                                                .find((element) => element.id == "FW version")
+                                                ?.value.replace(/^FluidNC\s+/i, "")
+                                                .replace(/^v/, "")
+                                                .split(/[-_]/)[0] || ""
+                                        }
+                                        latest={latestFirmwareRelease.tag_name.replace(/^v/, "").split(/[-_]/)[0]}
+                                    />
+                                )}
                                 <ButtonImg sm mx2 tooltip data-tooltip={T("S20")} icon={<Github />} onClick={onFWGit} />
                                 {connectionSettings.current.WebUpdate == "Enabled" && (
                                     <ButtonImg

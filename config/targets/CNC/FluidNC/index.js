@@ -101,6 +101,7 @@ const commandsQuery = (req, res, SendWS) => {
                 FWTarget: "FluidNC",
                 FWTargetID: "80",
                 Setup: "Enabled",
+                WebUpdate: "Enabled",
                 SDConnection: "direct",
                 SerialProtocol: "Socket",
                 Authentication: "Disabled",

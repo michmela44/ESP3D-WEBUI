@@ -1,6 +1,6 @@
 {
     "name": "ESP3D-WEBUI",
-    "version": "3.0.8",
+    "version": "3.0.9",
     "description": "Web UI for ESP3D V3 based FW ",
     "main": "index.js",
     "scripts": {

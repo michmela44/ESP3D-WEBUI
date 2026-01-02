@@ -28,6 +28,58 @@ interface ReleaseNotesModalParams {
 }
 
 const showReleaseNotesModal = ({ modals, releases, githubUrl }: ReleaseNotesModalParams): void => {
+    let showPrereleases = false
+
+    const getFilteredReleases = (): GitHubRelease[] => {
+        return showPrereleases ? releases : releases.filter((r) => !r.prerelease)
+    }
+
+    const updateReleasesList = () => {
+        const filteredReleases = getFilteredReleases()
+        const container = document.getElementById("release-notes-container")
+        if (!container) return
+
+        // Clear and rebuild the releases list
+        container.innerHTML = ""
+
+        filteredReleases.forEach((release, index) => {
+            const releaseDiv = document.createElement("div")
+            releaseDiv.className = index > 0 ? "mt-4" : ""
+
+            const headerDiv = document.createElement("div")
+            headerDiv.className = "d-flex justify-content-between align-items-start"
+
+            const titleDiv = document.createElement("div")
+            const title = document.createElement("h5")
+            title.className = "text-primary mb-1"
+            title.innerHTML = `${release.name}${index === 0 ? '<span class="text-success ml-2">(Latest)</span>' : ""}${release.prerelease ? '<span class="text-warning ml-2">(Pre-release)</span>' : ""}`
+
+            const dateSmall = document.createElement("small")
+            dateSmall.className = "text-muted"
+            dateSmall.textContent = `Released on ${formatDate(release.published_at)}`
+
+            titleDiv.appendChild(title)
+            titleDiv.appendChild(dateSmall)
+            headerDiv.appendChild(titleDiv)
+
+            releaseDiv.appendChild(headerDiv)
+
+            if (release.body) {
+                const bodyDiv = document.createElement("div")
+                bodyDiv.className = "mt-2"
+                bodyDiv.innerHTML = getTruncatedBody(release.body)
+                releaseDiv.appendChild(bodyDiv)
+            }
+
+            if (index < filteredReleases.length - 1) {
+                const hr = document.createElement("hr")
+                releaseDiv.appendChild(hr)
+            }
+
+            container.appendChild(releaseDiv)
+        })
+    }
+
     const openGitHub = (e?: Event) => {
         if (e) e.stopPropagation()
         useUiContextFn.haptic()
@@ -35,7 +87,7 @@ const showReleaseNotesModal = ({ modals, releases, githubUrl }: ReleaseNotesModa
         if (modalIndex !== -1) {
             modals.removeModal(modalIndex)
         }
-        ;(window as any).open(githubUrl, "_blank")
+        (window as any).open(githubUrl, "_blank")
     }
 
     const closeModal = (e?: Event) => {
@@ -121,6 +173,8 @@ const showReleaseNotesModal = ({ modals, releases, githubUrl }: ReleaseNotesModa
         return markdownToHtml(truncated)
     }
 
+    const filteredReleases = getFilteredReleases()
+
     if (modals.getModalIndex("release-notes") === -1) {
         modals.addModal({
             id: "release-notes",
@@ -132,35 +186,57 @@ const showReleaseNotesModal = ({ modals, releases, githubUrl }: ReleaseNotesModa
             ),
             content: (
                 <div class="text-left">
-                    {releases.map((release, index) => (
-                        <div key={release.id} class={index > 0 ? "mt-4" : ""}>
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h5 class="text-primary mb-1">
-                                        {release.name}
-                                        {index === 0 && <span class="badge badge-success ml-2">Latest</span>}
-                                    </h5>
-                                    <small class="text-muted">Released on {formatDate(release.published_at)}</small>
+                    {/* Prerelease toggle */}
+                    <div class="form-group mb-3">
+                        <label class="form-checkbox">
+                            <input
+                                type="checkbox"
+                                onChange={(e) => {
+                                    showPrereleases = (e.target as HTMLInputElement).checked
+                                    updateReleasesList()
+                                }}
+                            />
+                            <i class="form-icon"></i>
+                            Show pre-release versions
+                        </label>
+                    </div>
+
+                    <hr />
+
+                    {/* Dynamic releases container */}
+                    <div id="release-notes-container">
+                        {filteredReleases.map((release, index) => (
+                            <div key={release.id} class={index > 0 ? "mt-4" : ""}>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="text-primary mb-1">
+                                            {release.name}
+                                            {index === 0 && <span class="text-success ml-2">(Latest)</span>}
+                                            {release.prerelease && (
+                                                <span class="text-warning ml-2">(Pre-release)</span>
+                                            )}
+                                        </h5>
+                                        <small class="text-muted">
+                                            Released on {formatDate(release.published_at)}
+                                        </small>
+                                    </div>
                                 </div>
+                                {release.body && (
+                                    <div
+                                        class="mt-2"
+                                        dangerouslySetInnerHTML={{ __html: getTruncatedBody(release.body) }}
+                                    />
+                                )}
+                                {index < filteredReleases.length - 1 && <hr />}
                             </div>
-                            {release.body && (
-                                <div
-                                    class="mt-2"
-                                    dangerouslySetInnerHTML={{ __html: getTruncatedBody(release.body) }}
-                                />
-                            )}
-                            {index < releases.length - 1 && <hr />}
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             ),
             footer: (
                 <div>
                     <button class="btn mx-2" onClick={openGitHub}>
                         View More on GitHub
-                    </button>
-                    <button class="btn mx-2" onClick={closeModal}>
-                        Close
                     </button>
                 </div>
             ),

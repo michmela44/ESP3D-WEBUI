@@ -54,17 +54,14 @@ const VersionBadge: FunctionalComponent<VersionBadgeProps> = ({ current, latest 
 
     if (isUpdateAvailable) {
         return (
-            <span class="badge badge-warning mx-2">
-                Update available: {latest}
+            <span class="text-warning mx-2">
+                (Update available: {latest})
             </span>
         )
     }
 
-    return (
-        <span class="badge badge-success mx-2">
-            Up to date
-        </span>
-    )
+    // Up to date - don't show anything to reduce clutter
+    return <span/>
 }
 
 export { VersionBadge }

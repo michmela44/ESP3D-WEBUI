@@ -24,6 +24,7 @@ import { showKeepConnected } from "./keepConnectedModal"
 import { showProgressModal } from "./progressModal"
 import { showModal } from "./genericModal"
 import { showReleaseNotesModal } from "./releaseNotesModal"
+import { showFirmwareUpdateModal } from "./firmwareUpdateModal"
 
 /*
  * Local const
@@ -106,4 +107,5 @@ export {
     showProgressModal,
     showModal,
     showReleaseNotesModal,
+    showFirmwareUpdateModal,
 }
