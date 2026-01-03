@@ -131,13 +131,7 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
             isBusy.current = false
             return
         }
-        // Check and set isBusy atomically to prevent race condition
-        if (isBusy.current) {
-            console.log("executeHttpCall - already busy, returning")
-            return
-        }
-        isBusy.current = true
-
+        if (!isBusy.current) isBusy.current = true
         const { url, params, onSuccess, onFail, onProgress } =
             requestQueue.current[0]
         console.log("executeHttpCall - processing request:", url, "id:", params.id)
