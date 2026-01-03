@@ -54,7 +54,7 @@ const Settings: FunctionalComponent = (): JSX.Element => {
             <Router
                 routesList={routes}
                 parentRoutes={mainRoutes}
-                localDefault={"/settings/features"}
+                localDefault={"/settings/interface"}
             />
         </div>
     )
