@@ -125,23 +125,35 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
 
     //Process query in queue
     const executeHttpCall = async () => {
+        console.log("executeHttpCall - queue length:", requestQueue.current.length, "isBusy:", isBusy.current)
         if (requestQueue.current.length === 0) {
+            console.log("executeHttpCall - queue empty, setting isBusy to false")
             isBusy.current = false
             return
         }
-        if (!isBusy.current) isBusy.current = true
+        // Check and set isBusy atomically to prevent race condition
+        if (isBusy.current) {
+            console.log("executeHttpCall - already busy, returning")
+            return
+        }
+        isBusy.current = true
+
         const { url, params, onSuccess, onFail, onProgress } =
             requestQueue.current[0]
+        console.log("executeHttpCall - processing request:", url, "id:", params.id)
         let is401Error = false
         try {
             currentRequest.current = httpAdapter(url, params, onProgress || ((percent: number) => {     }))
             if (params.echo) {
                 processData("echo", params.echo)
             }
+            console.log("executeHttpCall - awaiting response for:", params.id)
             const response = await currentRequest.current.response
+            console.log("executeHttpCall - response received for:", params.id, "length:", response?.length)
             onSuccess(response)
             counterNoAnswer = 0
         } catch (e: any) {
+            console.log("executeHttpCall - error caught:", e, "code:", e.code)
             if (e.code == 401) {
                 is401Error = true
                 connection.setConnectionState({
@@ -163,15 +175,20 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
                 }
             }
             if (onFail) {
+                console.log("executeHttpCall - calling onFail")
                 onFail(e.message) //to-check
             }
         } finally {
+            console.log("executeHttpCall - finally block, is401Error:", is401Error)
             //check if need to remove or not
             if (!is401Error) {
                 removeRequestDone()
+                console.log("executeHttpCall - request removed, queue length now:", requestQueue.current.length)
                 if (requestQueue.current.length > 0) {
+                    console.log("executeHttpCall - processing next request")
                     executeHttpCall()
                 } else {
+                    console.log("executeHttpCall - queue empty, setting isBusy to false")
                     isBusy.current = false
                 }
             } else {

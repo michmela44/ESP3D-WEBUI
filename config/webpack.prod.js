@@ -107,9 +107,9 @@ module.exports = {
             new TerserPlugin({
                 terserOptions: {
                     compress: {
-                        drop_console: true,
+                        drop_console: false,
                         drop_debugger: true,
-                        pure_funcs: ['console.log', 'console.info'],
+                        // pure_funcs: ['console.log', 'console.info'],
                         passes: 2,
                     },
                     mangle: true,

@@ -98,17 +98,21 @@ const FeaturesTab = () => {
     const webSocketService = useWebSocketService();
 
     const getFeatures = () => {
+        console.log("getFeatures() called")
         setIsLoading(true)
         const callbacks = {
             onSuccess: (result: string) => {
+                console.log("getFeatures onSuccess callback fired, result length:", result?.length)
                 try {
                     const jsonResult: ESP400Response = JSON.parse(result)
+                    console.log("getFeatures parsed JSON:", jsonResult)
                     if (
                         !jsonResult ||
                         jsonResult.cmd != 400 ||
                         jsonResult.status == "error" ||
                         !jsonResult.data
                     ) {
+                        console.log("getFeatures - invalid response")
                         toasts.addToast({
                             content: T("S194"),
                             type: "error",
@@ -116,21 +120,24 @@ const FeaturesTab = () => {
                         return
                     }
                     const feat = formatStructure(jsonResult.data)
+                    console.log("getFeatures - formatted features:", Object.keys(feat).length, "sections")
                     featuresSettings.current = { ...feat }
                     setFeatures(featuresSettings.current)
                 } catch (e) {
-                    console.log(e, T("S21"))
+                    console.log("getFeatures onSuccess exception:", e, T("S21"))
                     toasts.addToast({ content: T("S21"), type: "error" })
                 } finally {
+                    console.log("getFeatures onSuccess finally - setting isLoading to false")
                     setIsLoading(false)
                 }
             },
             onFail: (error: string) => {
+                console.log("getFeatures onFail callback fired:", error)
                 setIsLoading(false)
-                console.log(error)
                 toasts.addToast({ content: error, type: "error" })
             },
         }
+        console.log("getFeatures - calling targetCommands")
         targetCommands("[ESP400]json=yes", undefined, { echo: false}, callbacks)
     }
 
@@ -467,21 +474,33 @@ const FeaturesTab = () => {
     }
 
     useEffect(() => {
+        console.log("FeaturesTab useEffect - activeRoute:", activeRoute)
         if (activeRoute === "/settings/features") {
+            console.log("FeaturesTab - route matches, checking featuresSettings.current:", featuresSettings.current)
+            console.log("FeaturesTab - featuresSettings keys:", featuresSettings.current ? Object.keys(featuresSettings.current).length : 0)
             if (
                 featuresSettings.current &&
                 Object.keys(featuresSettings.current).length != 0
             ) {
+                console.log("FeaturesTab - using cached features")
                 setFeatures(featuresSettings.current)
                 setIsLoading(false)
             } else {
-                if (uisettings.getValue("autoload")) {
+                const autoload = uisettings.getValue("autoload")
+                console.log("FeaturesTab - autoload:", autoload)
+                if (autoload) {
+                    console.log("FeaturesTab - calling getFeatures()")
                     getFeatures()
-                } else setIsLoading(false)
+                } else {
+                    console.log("FeaturesTab - autoload disabled, not loading")
+                    setIsLoading(false)
+                }
             }
+        } else {
+            console.log("FeaturesTab - route does not match, activeRoute:", activeRoute)
         }
     }, [activeRoute, featuresSettings.current])
-    console.log("feature")
+    console.log("FeaturesTab render - activeRoute:", activeRoute, "isLoading:", isLoading)
     //console.log(featuresSettings.current)
     return (
         <div>
