@@ -125,6 +125,10 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
 
     //Process query in queue
     const executeHttpCall = async () => {
+        if (requestQueue.current.length === 0) {
+            isBusy.current = false
+            return
+        }
         if (!isBusy.current) isBusy.current = true
         const { url, params, onSuccess, onFail, onProgress } =
             requestQueue.current[0]

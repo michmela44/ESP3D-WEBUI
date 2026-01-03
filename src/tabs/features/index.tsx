@@ -30,6 +30,7 @@ import {
     useToastsContext,
     useSettingsContext,
     useUiContextFn,
+    useRouterContext,
 } from "../../contexts"
 import {
     RefreshCcw,
@@ -88,6 +89,7 @@ const FeaturesTab = () => {
     const { abortRequest } = useHttpQueue()
     const { targetCommands } = useTargetCommands()
     const { featuresSettings } = useSettingsContext()
+    const { activeRoute } = useRouterContext()
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [showSave, setShowSave] = useState<boolean>(true)
     const progressBar: ProgressBarRef = {}
@@ -465,18 +467,20 @@ const FeaturesTab = () => {
     }
 
     useEffect(() => {
-        if (
-            featuresSettings.current &&
-            Object.keys(featuresSettings.current).length != 0
-        ) {
-            setFeatures(featuresSettings.current)
-            setIsLoading(false)
-        } else {
-            if (uisettings.getValue("autoload")) {
-                getFeatures()
-            } else setIsLoading(false)
+        if (activeRoute === "/settings/features") {
+            if (
+                featuresSettings.current &&
+                Object.keys(featuresSettings.current).length != 0
+            ) {
+                setFeatures(featuresSettings.current)
+                setIsLoading(false)
+            } else {
+                if (uisettings.getValue("autoload")) {
+                    getFeatures()
+                } else setIsLoading(false)
+            }
         }
-    }, [])
+    }, [activeRoute, featuresSettings.current])
     console.log("feature")
     //console.log(featuresSettings.current)
     return (
