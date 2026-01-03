@@ -476,10 +476,10 @@ const ProbePanel: FunctionalComponent = () => {
                                                                             .current
                                                                 )
                                                         ) {
-                                                            element.value.current =
-                                                                filterOptions(
-                                                                    element.options
-                                                                )[0].value
+                                                            const filteredOptions = filterOptions(element.options)
+                                                            if (filteredOptions.length > 0) {
+                                                                element.value.current = filteredOptions[0].value
+                                                            }
                                                         }
                                                         if (
                                                             typeof element.step !==
