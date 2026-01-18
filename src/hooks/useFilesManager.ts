@@ -27,6 +27,7 @@ import { useTargetCommands  } from "./useTargetCommands"
 import { espHttpURL, getBrowserTime } from "../components/Helpers"
 import { useUiContextFn, useModalsContext, useToastsContext } from "../contexts"
 import { showModal, showConfirmationModal, showProgressModal } from "../components/Modal"
+import Progress from "../components/Controls/Progress"
 import { files, processor } from "../targets"
 import type {
     FileEntry,
@@ -233,7 +234,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                     cb: abortRequest,
                     text: T("S28"),
                 },
-                content: null,
+                content: h(Progress, { progressBar, max: 100 }),
             })
             //prepare POST data
             const formData = new FormData()
@@ -375,7 +376,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                 cb: abortRequest,
                 text: T("S28"),
             },
-            content: null,
+            content: h(Progress, { progressBar, max: 100 }),
         })
         createNewRequest(
             espHttpURL(cmd.url, cmd.args),
