@@ -41,10 +41,13 @@ const FilesPanel: FunctionalComponent = () => {
     const { modals } = useModalsContext()
     const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
 
-    // Register the file input ref with the hook
+    // Register the file input ref with the hook and update multiple attribute when filesystem changes
     useEffect(() => {
         setFileRef(fileref.current)
-    }, [fileref])
+        if (fileref.current && state.fileSystem) {
+            fileref.current.multiple = files.capability(state.fileSystem, "UploadMultiple")
+        }
+    }, [state.fileSystem])
 
     useEffect(() => {
         const listenerId = eventBus.on(
@@ -64,6 +67,7 @@ const FilesPanel: FunctionalComponent = () => {
 
     useEffect(() => {
         const newMenu = () => {
+            const isError = state.filesList?.status === T("S22") || state.filesList?.status === T("S110")
             const rawMenuItems = [
                 {
                     capability: "CreateDir",
@@ -74,6 +78,7 @@ const FilesPanel: FunctionalComponent = () => {
                         </span>
                     ),
                     onClick: actions.showCreateDirModal,
+                    disabled: isError,
                 },
                 {
                     capability: "Upload",
@@ -84,6 +89,7 @@ const FilesPanel: FunctionalComponent = () => {
                         </span>
                     ),
                     onClick: actions.openFileUploadBrowser,
+                    disabled: isError,
                 },
                 { divider: true },
                 {
@@ -105,7 +111,7 @@ const FilesPanel: FunctionalComponent = () => {
             })
         }
         setMenu(newMenu())
-    }, [state.fileSystem])
+    }, [state.fileSystem, state.filesList?.status])
 
     // Render compact panel view
     const renderCompactView = () => {

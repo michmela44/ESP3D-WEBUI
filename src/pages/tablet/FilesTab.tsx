@@ -34,7 +34,11 @@ import {
     XCircle,
     ArrowUp,
     ArrowDown,
-    Minimize, Folder, File, Trash2, Play 
+    Minimize,
+    Folder,
+    File,
+    Trash2,
+    Play,
 } from "preact-feather"
 import { files } from "../../targets"
 
@@ -46,10 +50,13 @@ const FilesTab: FunctionalComponent = () => {
     const fileref = useRef<HTMLInputElement | null>(null)
     const { modals } = useModalsContext()
 
-    // Register the file input ref with the hook
+    // Register the file input ref with the hook and update multiple attribute when filesystem changes
     useEffect(() => {
         setFileRef(fileref.current)
-    }, [fileref])
+        if (fileref.current && state.fileSystem) {
+            fileref.current.multiple = files.capability(state.fileSystem, "UploadMultiple")
+        }
+    }, [state.fileSystem])
 
     // Listen for fullscreen changes
     useEffect(() => {
@@ -83,7 +90,7 @@ const FilesTab: FunctionalComponent = () => {
                     if (a.size === -1 && b.size === -1) {
                         comparison = a.name.localeCompare(b.name)
                     } else {
-                        comparison = ((a.size) || 0) - ((b.size) || 0)
+                        comparison = (a.size || 0) - (b.size || 0)
                     }
                     break
                 case "date":
@@ -113,15 +120,10 @@ const FilesTab: FunctionalComponent = () => {
     }
 
     const currentPath = getCurrentPath()
-
+    const isError = state.filesList?.status === T("S22") || state.filesList?.status === T("S110")
     return (
         <div class="tablet-files-container">
-            <input
-                ref={fileref}
-                type="file"
-                class="d-none"
-                onChange={(e) => actions.filesSelected(e)}
-            />
+            <input ref={fileref} type="file" class="d-none" onChange={(e) => actions.filesSelected(e)} />
 
             {/* Toolbar */}
             <div class="tablet-files-toolbar">
@@ -133,15 +135,14 @@ const FilesTab: FunctionalComponent = () => {
                             return (
                                 <button
                                     key={fs.value}
-                                    class={`btn btn-sm ${state.fileSystem === fs.value ? 'btn-primary' : ''}`}
+                                    class={`btn btn-sm ${state.fileSystem === fs.value ? "btn-primary" : ""}`}
                                     onClick={() => {
                                         const mockEvent = {
                                             currentTarget: { value: fs.value },
-                                            target: { value: fs.value }
+                                            target: { value: fs.value },
                                         } as any
                                         actions.onSelectFS(mockEvent)
-                                    }}
-                                >
+                                    }}>
                                     {T(fs.name)}
                                 </button>
                             )
@@ -155,25 +156,28 @@ const FilesTab: FunctionalComponent = () => {
                         <span class="sort-label">Sort:</span>
                         <div class="btn-group btn-group-block">
                             <button
-                                class={`btn btn-sm ${sortBy === 'name' ? 'btn-primary' : ''}`}
-                                onClick={() => toggleSort('name')}
-                                title="Sort by name"
-                            >
-                                Name {sortBy === 'name' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                class={`btn btn-sm ${sortBy === "name" ? "btn-primary" : ""}`}
+                                onClick={() => toggleSort("name")}
+                                title="Sort by name">
+                                Name{" "}
+                                {sortBy === "name" &&
+                                    (sortOrder === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                             </button>
                             <button
-                                class={`btn btn-sm ${sortBy === 'size' ? 'btn-primary' : ''}`}
-                                onClick={() => toggleSort('size')}
-                                title="Sort by size"
-                            >
-                                Size {sortBy === 'size' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                class={`btn btn-sm ${sortBy === "size" ? "btn-primary" : ""}`}
+                                onClick={() => toggleSort("size")}
+                                title="Sort by size">
+                                Size{" "}
+                                {sortBy === "size" &&
+                                    (sortOrder === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                             </button>
                             <button
-                                class={`btn btn-sm ${sortBy === 'date' ? 'btn-primary' : ''}`}
-                                onClick={() => toggleSort('date')}
-                                title="Sort by date"
-                            >
-                                Date {sortBy === 'date' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                class={`btn btn-sm ${sortBy === "date" ? "btn-primary" : ""}`}
+                                onClick={() => toggleSort("date")}
+                                title="Sort by date">
+                                Date{" "}
+                                {sortBy === "date" &&
+                                    (sortOrder === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                             </button>
                         </div>
                     </div>
@@ -185,8 +189,7 @@ const FilesTab: FunctionalComponent = () => {
                         <button
                             class="btn btn-sm"
                             onClick={(e) => actions.onRefresh(e as unknown as Event)}
-                            title={T("S50")}
-                        >
+                            title={T("S50")}>
                             <RefreshCcw size={16} />
                         </button>
                         {files.capability(state.fileSystem, "Upload") && (
@@ -194,7 +197,7 @@ const FilesTab: FunctionalComponent = () => {
                                 class="btn btn-sm"
                                 onClick={actions.openFileUploadBrowser}
                                 title={T("S89")}
-                            >
+                                disabled={isError}>
                                 <Upload size={16} />
                             </button>
                         )}
@@ -203,7 +206,7 @@ const FilesTab: FunctionalComponent = () => {
                                 class="btn btn-sm"
                                 onClick={actions.showCreateDirModal}
                                 title={T("S90")}
-                            >
+                                disabled={isError}>
                                 <FolderPlus size={16} />
                             </button>
                         )}
@@ -220,17 +223,21 @@ const FilesTab: FunctionalComponent = () => {
                             }
                         }}
                         title="Exit fullscreen"
-                        style={{ marginLeft: "auto", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "1.2rem", minWidth: "2.2rem" }}
-                    >
+                        style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            minHeight: "1.2rem",
+                            minWidth: "2.2rem",
+                        }}>
                         <Minimize size={16} />
                     </button>
                 )}
             </div>
 
             {/* Current Path */}
-            <div class="tablet-files-path">
-                {state.filePath ? state.filePath : "/"}
-            </div>
+            <div class="tablet-files-path">{state.filePath ? state.filePath : "/"}</div>
 
             {/* Files List */}
             <div
@@ -246,15 +253,11 @@ const FilesTab: FunctionalComponent = () => {
                 }}
                 onDrop={(e) => {
                     e.preventDefault()
-                }}
-            >
+                }}>
                 {state.isLoading && state.fileSystem != "" && (
                     <div class="tablet-files-loading">
                         <Loading class="m-2" />
-                        <button
-                            class="btn"
-                            onClick={actions.onCancel}
-                        >
+                        <button class="btn" onClick={actions.onCancel}>
                             <XCircle size={16} />
                             <span class="ml-1">{T("S28")}</span>
                         </button>
@@ -268,21 +271,14 @@ const FilesTab: FunctionalComponent = () => {
                                 class="tablet-file-item"
                                 onClick={(e) => {
                                     useUiContextFn.haptic()
-                                    const newpath = currentPath[
-                                        state.fileSystem
-                                    ].substring(
+                                    const newpath = currentPath[state.fileSystem].substring(
                                         0,
                                         currentPath[state.fileSystem].lastIndexOf("/")
                                     )
 
-                                    currentPath[state.fileSystem] =
-                                        newpath.length == 0 ? "/" : newpath
-                                    actions.onRefresh(
-                                        e,
-                                        false
-                                    )
-                                }}
-                            >
+                                    currentPath[state.fileSystem] = newpath.length == 0 ? "/" : newpath
+                                    actions.onRefresh(e, false)
+                                }}>
                                 <div class="file-item-name">
                                     <CornerRightUp size={20} />
                                     <span>...</span>
@@ -297,19 +293,12 @@ const FilesTab: FunctionalComponent = () => {
                                         onClick={(e) => {
                                             useUiContextFn.haptic()
                                             actions.ElementClicked(e as unknown as Event, line)
-                                        }}
-                                    >
-                                        {line.size == -1 ? (
-                                            <Folder size={20} />
-                                        ) : (
-                                            <File size={20} />
-                                        )}
+                                        }}>
+                                        {line.size == -1 ? <Folder size={20} /> : <File size={20} />}
                                         <span>{line.name}</span>
                                     </div>
                                     <div class="file-item-controls">
-                                        {line.datetime && (
-                                            <span class="file-item-date">{line.datetime}</span>
-                                        )}
+                                        {line.datetime && <span class="file-item-date">{line.datetime}</span>}
                                         {line.size != -1 && (
                                             <Fragment>
                                                 <span class="file-item-size">{fileSizeString(line.size)}</span>
@@ -326,20 +315,14 @@ const FilesTab: FunctionalComponent = () => {
                                                             const el = e.target as HTMLElement
                                                             el.blur()
                                                             useUiContextFn.haptic()
-                                                            const cmd =
-                                                                files.command(
-                                                                    state.fileSystem,
-                                                                    "play",
-                                                                    currentPath[
-                                                                        state.fileSystem
-                                                                    ],
-                                                                    line.name
-                                                                )
-                                                            actions.sendSerialCmd(
-                                                                cmd.cmd
+                                                            const cmd = files.command(
+                                                                state.fileSystem,
+                                                                "play",
+                                                                currentPath[state.fileSystem],
+                                                                line.name
                                                             )
-                                                        }}
-                                                    >
+                                                            actions.sendSerialCmd(cmd.cmd)
+                                                        }}>
                                                         <Play size={16} />
                                                     </button>
                                                 )}
@@ -347,35 +330,22 @@ const FilesTab: FunctionalComponent = () => {
                                         )}
                                         {files.capability(
                                             state.fileSystem,
-                                            line.size == -1
-                                                ? "DeleteDir"
-                                                : "DeleteFile",
+                                            line.size == -1 ? "DeleteDir" : "DeleteFile",
                                             currentPath[state.fileSystem],
                                             line.name
                                         ) && (
                                             <button
                                                 class="btn btn-sm btn-action"
-                                                title={
-                                                    line.size == -1
-                                                        ? T("S101")
-                                                        : T("S100")
-                                                }
+                                                title={line.size == -1 ? T("S101") : T("S100")}
                                                 onClick={(e) => {
                                                     useUiContextFn.haptic()
                                                     const el = e.target as HTMLElement
                                                     el.blur()
                                                     const content = (
                                                         <Fragment>
-                                                            <div>
-                                                                {line.size == -1
-                                                                    ? T("S101")
-                                                                    : T("S100")}
-                                                                :
-                                                            </div>
+                                                            <div>{line.size == -1 ? T("S101") : T("S100")}:</div>
                                                             <div style="text-align:center">
-                                                                <li>
-                                                                    {line.name}
-                                                                </li>
+                                                                <li>{line.name}</li>
                                                             </div>
                                                         </Fragment>
                                                     )
@@ -385,9 +355,7 @@ const FilesTab: FunctionalComponent = () => {
                                                         content,
                                                         button1: {
                                                             cb: () => {
-                                                                actions.deleteCommand(
-                                                                    line
-                                                                )
+                                                                actions.deleteCommand(line)
                                                             },
                                                             text: T("S27"),
                                                         },
@@ -395,8 +363,7 @@ const FilesTab: FunctionalComponent = () => {
                                                             text: T("S28"),
                                                         },
                                                     })
-                                                }}
-                                            >
+                                                }}>
                                                 <Trash2 size={16} />
                                             </button>
                                         )}
@@ -410,20 +377,24 @@ const FilesTab: FunctionalComponent = () => {
 
             {/* Footer */}
             {!state.isLoading && state.filesList && (state.filesList.occupation || state.filesList.status) && (
-                <div class="tablet-files-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div
+                    class="tablet-files-footer"
+                    style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                         {state.filesList.occupation && (
                             <Fragment>
-                                <span>{T("S98")}: {state.filesList.total}</span>
+                                <span>
+                                    {T("S98")}: {state.filesList.total}
+                                </span>
                                 <span>-</span>
-                                <span>{T("S99")}: {state.filesList.used}</span>
+                                <span>
+                                    {T("S99")}: {state.filesList.used}
+                                </span>
                                 <span>({state.filesList.occupation}%)</span>
                             </Fragment>
                         )}
                     </div>
-                    <div style={{ marginLeft: "auto" }}>
-                        {state.filesList.status && T(state.filesList.status)}
-                    </div>
+                    <div style={{ marginLeft: "auto" }}>{state.filesList.status && T(state.filesList.status)}</div>
                 </div>
             )}
         </div>
