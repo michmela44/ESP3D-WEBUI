@@ -72,6 +72,7 @@ const TerminalPanel: FunctionalComponent = () => {
     const renderedMessages = useRef<Array<VNode | null>>([])
     const lastRenderedCount = useRef<number>(0)
     const lastFirstMessage = useRef<TerminalLine | null>(null)
+    const lastVerboseState = useRef<boolean | undefined>(isVerbose)
     const scrollToBottom = () => {
         if (
             terminal.isAutoScroll.current &&
@@ -353,14 +354,17 @@ const TerminalPanel: FunctionalComponent = () => {
 
                     const currentCount = terminal.content.length
                     const firstMessage = terminal.content[0]
+                    const verboseChanged = isVerbose !== lastVerboseState.current
 
                     // If verbose mode changed, content was cleared, or messages rolled off (first message changed), re-render everything
-                    if (currentCount < lastRenderedCount.current ||
+                    if (verboseChanged ||
+                        currentCount < lastRenderedCount.current ||
                         (currentCount > 0 && firstMessage !== lastFirstMessage.current)) {
                         // Re-render all current messages
                         renderedMessages.current = terminal.content.map((line, index) => renderLine(line as unknown as TerminalLine, index))
                         lastRenderedCount.current = currentCount
                         lastFirstMessage.current = firstMessage as unknown as TerminalLine
+                        lastVerboseState.current = isVerbose
                     } else {
                         // Only process new messages since last render
                         for (let i = lastRenderedCount.current; i < currentCount; i++) {
