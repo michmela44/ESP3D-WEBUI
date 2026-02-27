@@ -1,0 +1,92 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version number (e.g. 3.0.11)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.inputs.version }}
+    steps:
+      - name: Validate version format
+        run: |
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9._-]+)?$'; then
+            echo "::error::Invalid version '$VERSION'. Expected semver format X.Y.Z or X.Y.Z-suffix"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check tag does not already exist
+        run: |
+          if git tag -l "v$VERSION" | grep -q .; then
+            echo "::error::Tag v$VERSION already exists"
+            exit 1
+          fi
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+
+      - name: Install libraries
+        run: npm install
+        continue-on-error: true
+
+      - name: Update package.json version
+        run: npm version "$VERSION" --no-git-tag-version
+
+      - name: Update info.json version
+        run: |
+          node -e "
+            const fs = require('fs');
+            const j = JSON.parse(fs.readFileSync('info.json','utf8'));
+            j.version = process.env.VERSION;
+            fs.writeFileSync('info.json', JSON.stringify(j, null, 4) + '\n');
+          "
+
+      - name: Update version.tsx version
+        run: sed -i "s/export const webUIversion = \"[^\"]*\"/export const webUIversion = \"$VERSION\"/" src/components/App/version.tsx
+
+      - name: Build all files
+        run: npm run build
+
+      - name: Verify artifact
+        run: test -s dist/index.html.gz || (echo "::error::Artifact dist/index.html.gz is missing or empty" && exit 1)
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version bump
+        run: |
+          git add package.json info.json src/components/App/version.tsx
+          git commit -m "Bump version to $VERSION"
+
+      - name: Tag and push
+        run: |
+          git tag "v$VERSION"
+          git push origin HEAD
+          git push origin "v$VERSION"
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v$VERSION" dist/index.html.gz \
+            --title "v$VERSION" \
+            --generate-notes \
+            --draft \
+            --target "$GITHUB_REF_NAME"
