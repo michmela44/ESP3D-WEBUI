@@ -7,3 +7,4 @@ dist
 debug.log
 **/debug.log
 nul
+bundle-*-CNC-FluidNC.*

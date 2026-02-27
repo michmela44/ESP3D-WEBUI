@@ -97,7 +97,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
     const [filesList, setFilesList] = useState<FilesList | undefined>(
         filesListCache[currentFS]
     )
-    const { createNewRequest, abortRequest } = useHttpFn as UseHttpFn
+    const { createNewRequest, abortRequest, removeAllRequests } = useHttpFn as UseHttpFn
     const { targetCommands } = useTargetCommands()
     const { modals } = useModalsContext()
     const { toasts } = useToastsContext()
@@ -113,6 +113,7 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
     }
 
     const progressBar: { update?: (n: number) => void } = {}
+    const uploadStatusLabel: { element?: HTMLElement | null } = {}
 
     const onCancel = (): void => {
         useUiContextFn.haptic()
@@ -227,101 +228,132 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
         const cmd = files.command(currentFS, "upload", currentPath[currentFS])
         const list = fileref.current?.files
         if (list && list.length > 0) {
-            showProgressModal({
-                modals,
-                title: T("S32"),
-                button1: {
-                    cb: abortRequest,
-                    text: T("S28"),
-                },
-                content: h(Progress, { progressBar, max: 100 }),
-            })
-            //prepare POST data
-            const formData = new FormData()
-            formData.append("path", currentPath[currentFS])
+            const totalFiles = list.length
+
+            //snapshot file list (FileList is live and could be cleared)
+            const fileEntries: Array<{ file: File; fileName: string }> = []
             for (let i = 0; i < list.length; i++) {
                 const file = list[i]
-
-                let fileName = ""
                 const needFormatFileName = files.command(
                     currentFS,
                     "needFormatFileName",
                     cmd.args.path,
-                    fileref.current!.files![i].name
+                    file.name
                 )
-                if (
+                const fileName =
                     needFormatFileName.type != "error" &&
                     needFormatFileName.name
-                ) {
-                    fileName = needFormatFileName.name
-                } else {
-                    fileName = file.name
-                }
-                const arg =
-                    `${cmd.args.path +
-                    (cmd.args.path.endsWith("/") ? "" : "/") +
-                    fileName 
-                    }S`
-                //append file size first to check updload is complete
-                formData.append(arg, String(file.size))
-                //append last modified time
-                //no need timezone because will be saved as it is on FileSystem
-                const time_string = getBrowserTime(file.lastModified)
-                const argt = `${arg.substring(0, arg.length - 1)  }T`
-                formData.append(argt, time_string)
-                //append file
-                formData.append(
-                    "myfiles",
-                    file,
-                    cmd.args.path +
-                        (cmd.args.path.endsWith("/") ? "" : "/") +
-                        fileName
-                )
+                        ? needFormatFileName.name
+                        : file.name
+                fileEntries.push({ file, fileName })
             }
-            //now do request
-            createNewRequest(
-                espHttpURL(cmd.url),
-                { method: "POST", id: "upload", body: formData },
-                {
-                    onSuccess: (result: string) => {
-                        modals.removeModal(modals.getModalIndex("upload"))
-                        const cmdpost = files.command(
-                            currentFS,
-                            "postUpload",
-                            currentPath[currentFS],
-                            fileref.current!.files![0].name
-                        )
-                        if (cmdpost.type == "error" || cmdpost.type == "none") {
-                            filesListCache[currentFS] = files.command(
-                                currentFS,
-                                "formatResult",
-                                result
-                            )
-                            setFilesList(filesListCache[currentFS])
-                            setIsLoading(false)
-                        } else {
-                            if (cmdpost.type == "refresh") {
-                                //this is needed because the board is still busy
-                                setTimeout(() => {
-                                    onRefresh(null, cmdpost.arg)
-                                }, cmdpost.timeOut)
-                            }
-                        }
-                    },
-                    onFail: (error) => {
-                        modals.removeModal(modals.getModalIndex("upload"))
-                        toasts.addToast({ content: error, type: "error" })
+
+            showProgressModal({
+                modals,
+                title: T("S32"),
+                button1: {
+                    cb: () => {
+                        removeAllRequests()
                         setIsLoading(false)
                     },
-                    onProgress: (percent: number) => {
-                        if (
-                            progressBar.update &&
-                            typeof progressBar.update === "function"
-                        )
-                            progressBar.update(percent)
-                    },
-                }
-            )
+                    text: T("S28"),
+                },
+                content: totalFiles > 1
+                    ? h("label", {
+                          ref: (el: HTMLElement) => {
+                              uploadStatusLabel.element = el
+                          },
+                          style: "display:block;margin-bottom:0.5rem;text-align:center;",
+                      }, `1 / ${totalFiles}: ${fileEntries[0].fileName}`)
+                    : null,
+            })
+
+            const pathPrefix =
+                cmd.args.path + (cmd.args.path.endsWith("/") ? "" : "/")
+
+            //queue one request per file — the HTTP queue serializes them
+            for (let i = 0; i < fileEntries.length; i++) {
+                const { file, fileName } = fileEntries[i]
+                const isLast = i === fileEntries.length - 1
+                const fileIndex = i
+
+                //build per-file FormData
+                const formData = new FormData()
+                formData.append("path", currentPath[currentFS])
+                const arg = `${pathPrefix}${fileName}S`
+                //append file size first to check upload is complete
+                formData.append(arg, String(file.size))
+                //append last modified time
+                const time_string = getBrowserTime(file.lastModified)
+                const argt = `${arg.substring(0, arg.length - 1)}T`
+                formData.append(argt, time_string)
+                //append file
+                formData.append("myfiles", file, pathPrefix + fileName)
+
+                createNewRequest(
+                    espHttpURL(cmd.url),
+                    { method: "POST", id: `upload-${i}`, body: formData },
+                    {
+                        onSuccess: (result: string) => {
+                            if (isLast) {
+                                //all files uploaded
+                                modals.removeModal(
+                                    modals.getModalIndex("progression")
+                                )
+                                const cmdpost = files.command(
+                                    currentFS,
+                                    "postUpload",
+                                    currentPath[currentFS],
+                                    fileEntries[0].fileName
+                                )
+                                if (
+                                    cmdpost.type == "error" ||
+                                    cmdpost.type == "none"
+                                ) {
+                                    filesListCache[currentFS] = files.command(
+                                        currentFS,
+                                        "formatResult",
+                                        result
+                                    )
+                                    setFilesList(filesListCache[currentFS])
+                                    setIsLoading(false)
+                                } else if (cmdpost.type == "refresh") {
+                                    setTimeout(() => {
+                                        onRefresh(null, cmdpost.arg)
+                                    }, cmdpost.timeOut)
+                                }
+                            } else {
+                                //update status label for next file
+                                const next = fileIndex + 1
+                                if (
+                                    uploadStatusLabel.element &&
+                                    totalFiles > 1
+                                ) {
+                                    uploadStatusLabel.element.textContent = `${next + 1} / ${totalFiles}: ${fileEntries[next].fileName}`
+                                }
+                                //reset progress bar for next file
+                                if (progressBar.update) progressBar.update(0)
+                            }
+                        },
+                        onFail: (error) => {
+                            //stop remaining uploads on error
+                            removeAllRequests()
+                            modals.removeModal(
+                                modals.getModalIndex("progression")
+                            )
+                            toasts.addToast({ content: error, type: "error" })
+                            setIsLoading(false)
+                        },
+                        onProgress: (percent: number) => {
+                            if (
+                                progressBar.update &&
+                                typeof progressBar.update === "function"
+                            )
+                                progressBar.update(percent)
+                        },
+                    }
+                )
+            }
         }
     }
 
