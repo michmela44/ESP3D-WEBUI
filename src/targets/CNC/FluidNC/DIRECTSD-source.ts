@@ -17,14 +17,20 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { sortedFilesList, formatStatus, filterResultFiles } from "../../../components/Helpers"
-import { canProcessFile } from "../../helpers"
+import { filterResultFiles, formatStatus, sortedFilesList } from "../../../components/Helpers"
 import { useUiContextFn } from "../../../contexts"
 import { CmdCommand, UrlCommand } from "../../../types/files.types"
 
 const capabilities = {
     Process: (path: string, filename: string): boolean => {
-        return canProcessFile(filename)
+        const gcodeExtensions = [".gcode", ".nc", ".g", ".gc", ".txt", ".ngc"]
+        const lower = filename.toLowerCase()
+        return gcodeExtensions.some((ext) => lower.endsWith(ext))
+    },
+    Frame: (path: string, filename: string): boolean => {
+        const gcodeExtensions = [".gcode", ".nc", ".g", ".gc", ".txt", ".ngc"]
+        const lower = filename.toLowerCase()
+        return gcodeExtensions.some((ext) => lower.endsWith(ext))
     },
     UseFilters: (): boolean => true,
     Upload: (): boolean => {

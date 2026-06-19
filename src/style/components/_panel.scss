@@ -31,11 +31,13 @@
     overflow-y: auto !important;
     overflow-x: hidden !important;
     margin: 5px;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .panel {
-    background-color: #fff;
-    color: #000;
+    background-color: var(--panel-bg, #fff);
+    color: var(--panel-text, #000);
 }
 
 .panel-body-dashboard,
@@ -47,8 +49,8 @@
 }
 .panel .navbar,
 .panel .navbar-section {
-    background: #f1f1fc;
-    color: #005b96;
+    background: var(--panel-header-bg, #f1f1fc);
+    color: var(--panel-header-text, #005b96);
 }
 
 .panel .panel-body.terminal {

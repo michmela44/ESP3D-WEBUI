@@ -28,6 +28,7 @@ import IconSelect from "./IconSelect"
 import LabelCtrl from "./Label"
 import Slider from "./Slider"
 import Mask from "./Mask"
+import ImageUpload from "./ImageUpload"
 
 export {
     Boolean,
@@ -40,4 +41,5 @@ export {
     LabelCtrl,
     Slider,
     Mask,
+    ImageUpload,
 }

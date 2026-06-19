@@ -16,21 +16,20 @@ Files.js - ESP3D WebUI component file
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { Fragment, TargetedMouseEvent } from "preact"
 import type { FunctionalComponent } from "preact"
+import { Fragment, TargetedMouseEvent } from "preact"
+import { CornerRightUp, Crosshair, File, Folder, FolderPlus, HardDrive, Play, RefreshCcw, Trash2, Upload, XCircle } from "preact-feather"
 import { useEffect, useRef, useState } from "preact/hooks"
-import { T } from "../Translations"
-import { useFilesManager, fileSizeString, getCurrentPath, setFileRef } from "../../hooks/useFilesManager"
-import type { FileEntry, PanelMenuItem } from "../../types/files.types"
-import { FilesTab } from "../../pages/tablet/FilesTab"
-import { Loading, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
-import { useUiContextFn, useModalsContext } from "../../contexts"
-import { showConfirmationModal } from "../Modal"
-import { HardDrive, Upload, RefreshCcw, FolderPlus, CornerRightUp, XCircle } from "preact-feather"
-import { files } from "../../targets"
-import { Folder, File, Trash2, Play } from "preact-feather"
-import { Menu as PanelMenu } from "./"
+import { useModalsContext, useUiContextFn } from "../../contexts"
 import { eventBus } from "../../hooks/eventBus"
+import { fileSizeString, getCurrentPath, setFileRef, useFilesManager } from "../../hooks/useFilesManager"
+import { FilesTab } from "../../pages/tablet/FilesTab"
+import { files } from "../../targets"
+import type { FileEntry, PanelMenuItem } from "../../types/files.types"
+import { ButtonImg, CloseButton, ContainerHelper, FullScreenButton, Loading } from "../Controls"
+import { showConfirmationModal } from "../Modal"
+import { T } from "../Translations"
+import { Menu as PanelMenu } from "./"
 
 const FilesPanel: FunctionalComponent = () => {
     const id = "filesPanel"
@@ -276,6 +275,32 @@ const FilesPanel: FunctionalComponent = () => {
                                                             {!files.capability(
                                                                 state.fileSystem,
                                                                 "Process",
+                                                                currentPath[state.fileSystem],
+                                                                line.name
+                                                            ) && <div style="width:2rem" />}
+                                                            {files.capability(
+                                                                state.fileSystem,
+                                                                "Frame",
+                                                                currentPath[state.fileSystem],
+                                                                line.name
+                                                            ) && (
+                                                                <ButtonImg
+                                                                    m1
+                                                                    ltooltip
+                                                                    data-tooltip={T("S234")}
+                                                                    icon={<Crosshair />}
+                                                                    onClick={(
+                                                                        e: TargetedMouseEvent<HTMLButtonElement>
+                                                                    ) => {
+                                                                        e.currentTarget.blur()
+                                                                        useUiContextFn.haptic()
+                                                                        actions.frameFile(line)
+                                                                    }}
+                                                                />
+                                                            )}
+                                                            {!files.capability(
+                                                                state.fileSystem,
+                                                                "Frame",
                                                                 currentPath[state.fileSystem],
                                                                 line.name
                                                             ) && <div style="width:2rem" />}

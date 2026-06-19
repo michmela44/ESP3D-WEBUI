@@ -29,6 +29,7 @@ import {
     LabelCtrl,
     Slider,
     Mask,
+    ImageUpload,
 } from "./Fields"
 
 interface FieldProps {
@@ -90,6 +91,12 @@ const Field: FunctionalComponent<FieldProps> = (props) => {
             return (
                 <FormGroup {...props as any}>
                     <Boolean {...props as any} />
+                </FormGroup>
+            )
+        case "image":
+            return (
+                <FormGroup {...props as any}>
+                    <ImageUpload {...props as any} />
                 </FormGroup>
             )
         default:

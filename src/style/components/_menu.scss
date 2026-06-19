@@ -18,7 +18,7 @@
 }
 
 .menu-item {
-    color: #005b96;
+    color: var(--menu-text, #005b96);
 }
 
 .menu .menu-item > .menu-entry {
@@ -33,8 +33,8 @@
 
 .menu .menu-item > .menu-entry:focus,
 .menu .menu-item > .menu-entry:hover {
-    background: #f1f1fc;
-    color: #005b96;
+    background: var(--panel-header-bg, #f1f1fc);
+    color: var(--menu-text, #005b96);
 }
 
 .menu-container,
@@ -56,7 +56,25 @@
 
 .panel .menu-item:active,
 .panel .menu-item.active {
-    background: #005b96;
-    color: #f1f1fc;
+    background: var(--menu-text, #005b96);
+    color: var(--panel-header-bg, #f1f1fc);
     border-radius: 0.2rem;
+}
+// Dropdown menu customization
+.menu {
+    background: var(--dropdown-bg, #ffffff);
+    color: var(--dropdown-text, #505050);
+}
+
+.menu .menu-item > a,
+.menu .menu-item > .menu-entry {
+    color: var(--dropdown-text, #505050);
+}
+
+.menu .menu-item > a:focus,
+.menu .menu-item > a:hover,
+.menu .menu-item > .menu-entry:focus,
+.menu .menu-item > .menu-entry:hover {
+    background: var(--panel-header-bg, #f1f1fc);
+    color: var(--menu-text, #005b96);
 }
