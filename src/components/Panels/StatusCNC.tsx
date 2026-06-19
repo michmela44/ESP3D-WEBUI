@@ -30,6 +30,7 @@ import {
     Moon,
     Play,
     Pause,
+    Square,
 } from "preact-feather"
 
 /*
@@ -140,6 +141,9 @@ const StatusPanel: FunctionalComponent = () => {
     }
     const { targetCommands } = useTargetCommands()
     const id = "statusPanel"
+
+    const activeJobStates = ["Run", "Hold", "Jog", "Tool"]
+
     const buttonsList: Array<{
         name: string
         depend?: string[] | (() => boolean)
@@ -150,6 +154,32 @@ const StatusPanel: FunctionalComponent = () => {
             depend?: string[] | (() => boolean)
         }>
     }> = [
+        // Job controls — visible only when machine is active
+        {
+            name: "processing",
+            depend: () => activeJobStates.includes(status.state || ""),
+            buttons: [
+                {
+                    cmd: "#FEEDHOLD#",
+                    icon: <Pause />,
+                    desc: T("Hold"),
+                    depend: ["Run", "Jog"],
+                },
+                {
+                    cmd: "#CYCLESTART#",
+                    icon: <Play />,
+                    desc: T("CN61"),
+                    depend: ["Hold", "Tool"],
+                },
+                {
+                    cmd: "#SOFTRESET#",
+                    icon: <Square />,
+                    desc: T("CN23"),
+                    // No depend: show whenever this section is visible
+                },
+            ],
+        },
+        // Machine controls — always visible
         {
             name: "CN40",
             buttons: [
@@ -168,33 +198,8 @@ const StatusPanel: FunctionalComponent = () => {
                     icon: <Moon />,
                     desc: T("CN43"),
                 },
-                {
-                    cmd: "#FEEDHOLD#",
-                    icon: <Pause />,
-                    desc: T("Hold"),
-                    depend: [
-                        "Door",
-                        "Sleep",
-                        "Alarm",
-                        "Error",
-                        "Check",
-                        "Run",
-                        "Idle",
-                        "Home",
-                        "Jog",
-                        "Tool",
-                        "?",
-                    ],
-                },
-                {
-                    cmd: "#CYCLESTART#",
-                    icon: <Play />,
-                    desc: T("CN61"),
-                    depend: ["Hold", "Tool"],
-                },
             ],
         },
-        
     ]
 
     return (
@@ -281,7 +286,6 @@ const StatusPanel: FunctionalComponent = () => {
                                                             onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                                 useUiContextFn.haptic()
                                                                 e.currentTarget.blur()
-                                                                //TBD if need to change value from here
                                                             }}
                                                         >
                                                             {item.pre
@@ -302,7 +306,6 @@ const StatusPanel: FunctionalComponent = () => {
                                                     onClick={(e: TargetedMouseEvent<HTMLButtonElement>) => {
                                                         useUiContextFn.haptic()
                                                         e.currentTarget.blur()
-                                                        //TBD if need to change value from here
                                                     }}
                                                 >
                                                     {element.pre
@@ -319,14 +322,10 @@ const StatusPanel: FunctionalComponent = () => {
                     )}
                 {buttonsList.map((list) => {
                     if (list.depend) {
-                        if (list.depend) {
-                            if (typeof list.depend === "function") {
-                                if (!list.depend()) {
-                                    return
-                                }
-                            } else if (!list.depend.includes(status.state || ""))
-                                return
-                        }
+                        if (typeof list.depend === "function") {
+                            if (!list.depend()) return
+                        } else if (!list.depend.includes(status.state || ""))
+                            return
                     }
                     return (
                         <fieldset key={list.name} class="fieldset-top-separator fieldset-bottom-separator field-group">

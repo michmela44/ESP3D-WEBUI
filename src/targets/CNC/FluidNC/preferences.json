@@ -8,11 +8,50 @@
                 "value": "default"
             },
             {
+                "id": "background_image",
+                "type": "text",
+                "label": "S226",
+                "value": "",
+                "help": "S227"
+            },
+            {
+                "id": "custom_logo",
+                "type": "image",
+                "label": "CN116",
+                "value": "",
+                "maxSizeKb": 80,
+                "help": "CN117"
+            },
+            {
                 "id": "emergencystop",
                 "type": "text",
                 "label": "P15",
                 "value": "#SAFETYDOOR#",
                 "help": "S97"
+            },
+            {
+                "id": "panel_colors",
+                "type": "group",
+                "label": "S228",
+                "value": [
+                    { "id": "panel_bg", "type": "color", "label": "S229", "value": "#ffffff" },
+                    { "id": "panel_bg_opacity", "type": "number", "label": "S242", "value": 100, "min": "0", "max": "100" },
+                    { "id": "panel_text", "type": "color", "label": "S230", "value": "#000000" },
+                    { "id": "panel_header_bg", "type": "color", "label": "S231", "value": "#f1f1fc" },
+                    { "id": "panel_header_bg_opacity", "type": "number", "label": "S242", "value": 100, "min": "0", "max": "100" },
+                    { "id": "panel_header_text", "type": "color", "label": "S232", "value": "#005b96" },
+                    { "id": "accent_color", "type": "color", "label": "S233", "value": "#005b96" },
+                    { "id": "toggle_color", "type": "color", "label": "S235", "value": "#005b96" },
+                    { "id": "tab_text", "type": "color", "label": "S236", "value": "#005b96" },
+                    { "id": "tab_active", "type": "color", "label": "S237", "value": "#0000ff" },
+                    { "id": "navbar_bg", "type": "color", "label": "S238", "value": "#e7e7e7" },
+                    { "id": "navbar_bg_opacity", "type": "number", "label": "S242", "value": 100, "min": "0", "max": "100" },
+                    { "id": "menu_text", "type": "color", "label": "S239", "value": "#005b96" },
+                    { "id": "dropdown_bg", "type": "color", "label": "S240", "value": "#ffffff" },
+                    { "id": "dropdown_bg_opacity", "type": "number", "label": "S242", "value": 100, "min": "0", "max": "100" },
+                    { "id": "dropdown_text", "type": "color", "label": "S241", "value": "#505050" },
+                    { "id": "field_group_text", "type": "color", "label": "CN114", "value": "#0000ff" }
+                ]
             }
         ],
         "panels": [

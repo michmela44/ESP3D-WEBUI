@@ -84,7 +84,7 @@
 
 .buttons-bar-label {
     font-size: 0.8rem;
-    color: #005b96;
+    color: var(--field-group-text, #005b96);
 }
 
 .jog-container {
