@@ -470,6 +470,24 @@ a label {
 .tooltip > span {
     pointer-events: none;
 }
+
+// Viewport-anchored tooltip: position: fixed escapes any ancestor's
+// overflow:hidden (unlike the default position: absolute, which gets
+// clipped at the nearest clipping ancestor, e.g. the jog panel). JS sets
+// --tooltip-x/--tooltip-y (clamped to stay inside the window) on hover.
+.tooltip.tooltip-portal::after {
+    position: fixed;
+    left: var(--tooltip-x, 50%);
+    top: var(--tooltip-y, 0);
+    bottom: auto;
+    max-width: 220px;
+    transform: translate(-50%, -100%);
+}
+.tooltip.tooltip-portal:focus::after,
+.tooltip.tooltip-portal:hover::after {
+    transform: translate(-50%, calc(-100% - 0.2rem));
+}
+
 .form-group-inline {
     margin-bottom: 0.4rem;
 }

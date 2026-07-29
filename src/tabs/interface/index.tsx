@@ -97,7 +97,10 @@ const generateValidationGlobal = (
 
     if (fieldData.shortkey && interfaceSettings) {
         if (fieldData.value.length > 0) {
-            if (fieldData.value.endsWith("+")) {
+            // Only a dangling modifier (e.g. "Shift+" with no key released after)
+            // is incomplete. A literal "+" keypress also ends with "+" but is a
+            // complete, valid single-key binding, so it must not match here.
+            if (/^(Control\+|Alt\+|Shift\+|Meta\+)+$/.test(fieldData.value)) {
                 validation.message = T("S214")
                 validation.valid = false
                 console.log("Error")
@@ -131,9 +134,11 @@ const generateValidationGlobal = (
                         })
                     })
                     if (counter != 0) {
+                        // Warn only - a duplicate binding is allowed on purpose
+                        // (e.g. mirroring the XY and Z distance shortcuts), it
+                        // must not block saving the rest of the settings.
                         validation.message = T("S213")
-                        validation.valid = false
-                        console.log("Error")
+                        console.log("Warning: duplicate shortcut")
                     }
                 }
             })
