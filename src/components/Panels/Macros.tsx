@@ -36,7 +36,7 @@ import type { TargetContextFn } from "../../targets/types"
  *
  */
 // Types matching MacrosTab.tsx
-type MacroType = "FS" | "SD" | "URI" | "CMD"
+type MacroType = "FS" | "SD" | "URI" | "URI_SILENT" | "CMD"
 
 interface MacroValue {
     name: string
@@ -92,6 +92,27 @@ const MacrosPanel: FunctionalComponent = () => {
         acc.push(item)
         return acc
     }, [])
+    // Fire a GET request in the background without opening/navigating a tab
+    // - used for URI_SILENT and for the legacy [SILENT] prefix on URI
+    const silentFetch = (uri: string): void => {
+        const myInit: RequestInit = {
+            method: "GET",
+            mode: "cors",
+            cache: "default",
+        }
+        fetch(uri, myInit)
+            .then((response) => {
+                if (response.ok) {
+                    console.log("Request succeeded")
+                } else {
+                    console.log("Request failed")
+                }
+            })
+            .catch((error) => {
+                console.log(`Request failed: ${  error.message}`)
+            })
+    }
+
     const processMacro = (action: string, type: MacroType): void => {
         switch (type) {
             case "FS":
@@ -107,7 +128,7 @@ const MacrosPanel: FunctionalComponent = () => {
                     "",
                     action
                 )
-            
+
                 const cmds = response.cmd.split("\n")
                 cmds.forEach((cmd: string) => {
                     sendCommand(cmd)
@@ -119,30 +140,17 @@ const MacrosPanel: FunctionalComponent = () => {
             //TFT SD ? same as above
             //TFT USB ? same as above
             case "URI": {
-                //open new page or silent command
+                //open new page, or silent command via the legacy [SILENT] prefix
                 if (action.trim().startsWith("[SILENT]")) {
-                    const uri = action.trim().replace("[SILENT]", "")
-                    var myInit: RequestInit = {
-                        method: "GET",
-                        mode: "cors",
-                        cache: "default",
-                    }
-                    fetch(uri, myInit)
-                        .then((response) => {
-                            if (response.ok) {
-                                console.log("Request succeeded")
-                            } else {
-                                console.log("Request failed")
-                            }
-                        })
-                        .catch((error) => {
-                            console.log(`Request failed: ${  error.message}`)
-                        })
+                    silentFetch(action.trim().replace("[SILENT]", ""))
                 } else {
                     window.open(action)
                 }
                 break
             }
+            case "URI_SILENT":
+                silentFetch(action.trim())
+                break
             case "CMD": {
                 //split by ; and show in terminal
                 const commandsList = action.trim().split(";")
