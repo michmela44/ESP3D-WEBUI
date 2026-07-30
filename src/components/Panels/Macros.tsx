@@ -93,20 +93,27 @@ const MacrosPanel: FunctionalComponent = () => {
         return acc
     }, [])
     // Fire a GET request in the background without opening/navigating a tab
-    // - used for URI_SILENT and for the legacy [SILENT] prefix on URI
+    // - used for URI_SILENT and for the legacy [SILENT] prefix on URI.
+    // mode: "no-cors" (rather than "cors") because the typical target here
+    // is a LAN device (e.g. a Tasmota smart plug) with no CORS headers -
+    // under "cors" the browser rejects reading such a response and the
+    // promise rejects into .catch(), logging a misleading "failed" even
+    // though the GET reached the device and ran (CORS only blocks reading
+    // the response, not sending the request). Under "no-cors" the response
+    // is opaque: response.ok/.status are always false/0 regardless of what
+    // actually happened at the target, so .then() can only honestly report
+    // that the request was sent, not that it succeeded at the HTTP level.
+    // .catch() still means something real under no-cors - it only fires for
+    // network-level failures (DNS, connection refused, timeout), not CORS.
     const silentFetch = (uri: string): void => {
         const myInit: RequestInit = {
             method: "GET",
-            mode: "cors",
+            mode: "no-cors",
             cache: "default",
         }
         fetch(uri, myInit)
-            .then((response) => {
-                if (response.ok) {
-                    console.log("Request succeeded")
-                } else {
-                    console.log("Request failed")
-                }
+            .then(() => {
+                console.log("Request sent")
             })
             .catch((error) => {
                 console.log(`Request failed: ${  error.message}`)
