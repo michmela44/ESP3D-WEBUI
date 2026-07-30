@@ -142,9 +142,9 @@ const MacrosPanel: FunctionalComponent = () => {
             case "URI": {
                 //open new page, or silent command via the legacy [SILENT] prefix
                 if (action.trim().startsWith("[SILENT]")) {
-                    silentFetch(action.trim().replace("[SILENT]", ""))
+                    silentFetch(action.trim().replace("[SILENT]", "").trim())
                 } else {
-                    window.open(action)
+                    window.open(action, "_blank", "noopener,noreferrer")
                 }
                 break
             }
