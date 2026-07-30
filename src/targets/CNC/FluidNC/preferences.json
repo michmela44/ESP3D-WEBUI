@@ -633,6 +633,16 @@
                         "key": "-"
                     },
                     {
+                        "id": "btndistSelZ+",
+                        "name": "btndistSelZ+",
+                        "key": "5"
+                    },
+                    {
+                        "id": "btndistSelZ-",
+                        "name": "btndistSelZ-",
+                        "key": "."
+                    },
+                    {
                         "id": "btnStop",
                         "name": "btnStop",
                         "key": "Control+s"

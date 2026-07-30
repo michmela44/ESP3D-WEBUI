@@ -26,6 +26,18 @@ import { ButtonImg } from "../../../components/Controls"
 const QuickStopButton = () => {
     const { targetCommands } = useTargetCommands()
 
+    // Same "name (key)" tooltip pattern used in the Jog panel
+    const keyMapObj = useUiContextFn.getValue("keymap")
+    let boundKey: string | undefined
+    if (keyMapObj) {
+        const entry = keyMapObj.find((element: any) => element.id == "btnEStop")
+        if (entry) {
+            const sub = entry.value.find((s: any) => s.name == "key")
+            if (sub && sub.value) boundKey = sub.value
+        }
+    }
+    const tooltip = boundKey ? `${T("P15")} (${boundKey})` : T("P15")
+
     return (
         <ButtonImg
             m1
@@ -33,7 +45,7 @@ const QuickStopButton = () => {
             label={T("P15")}
             className="emergency-btn"
             icon={<AlertCircle />}
-            data-tooltip={T("P15")}
+            data-tooltip={tooltip}
             id="btnEStop"
             onclick={(_e: TargetedMouseEvent<HTMLButtonElement>) => {
                 useUiContextFn.haptic()
