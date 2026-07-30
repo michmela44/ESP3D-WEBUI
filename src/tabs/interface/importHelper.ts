@@ -172,6 +172,7 @@ function formatItem(itemData: RawItemData, index: number = -1, origineId: string
                                 ],
                             },
                             { label: "S139", value: "URI" },
+                            { label: "S226", value: "URI_SILENT" },
                             { label: "S140", value: "CMD" },
                         ]
                     } else {
