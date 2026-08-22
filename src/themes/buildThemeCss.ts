@@ -702,6 +702,39 @@ input[type="range"]::-ms-thumb {
     color: ${p.echo};
 }
 
+/* ---------- scrollbars ---------- */
+/*
+ * Panels scroll internally, so unthemed scrollbars show up as bright bars in
+ * the middle of the UI. scrollbar-color inherits, so setting it on html is
+ * enough for the standard property; the -webkit- rules cover Chromium/Safari.
+ */
+html {
+    scrollbar-color: ${p.accent} ${p.surfaceAlt};
+    scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: ${p.surfaceAlt};
+}
+
+::-webkit-scrollbar-thumb {
+    background: ${p.accent};
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: ${p.accentStrong};
+}
+
+::-webkit-scrollbar-corner {
+    background: ${p.surfaceAlt};
+}
+
 /* ---------- misc ---------- */
 .modal_title,
 .title,

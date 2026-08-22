@@ -62,10 +62,10 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
     value,
 }) => {
     const [displayValue, setDisplayValue] = useState(
-        id == "language" ? T("lang") : T("none")
+        id == "language" ? T("lang") : T("S231")
     )
     const { modals } = useModalsContext()
-    const defaultDisplayValue = id == "language" ? T("lang", true) : T("none")
+    const defaultDisplayValue = id == "language" ? T("lang", true) : T("S231")
     const onChange = (value: string) => {
         if (setValue) setValue(value)
 

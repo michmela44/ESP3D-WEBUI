@@ -106,10 +106,6 @@ select,
     letter-spacing: 0.06em;
 }
 
-.btn {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
 
 /* ---------- blinking caret on the terminal ---------- */
 .terminal,

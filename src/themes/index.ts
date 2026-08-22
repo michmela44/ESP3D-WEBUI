@@ -18,6 +18,8 @@
 
 import { darkThemeCss } from "./dark"
 import { coconutThemeCss } from "./coconut"
+import { gayographThemeCss } from "./gayograph"
+import { pinkographThemeCss } from "./pinkograph"
 
 /**
  * A theme shipped inside the WebUI, as opposed to a `theme-*` CSS file
@@ -55,6 +57,16 @@ const builtinThemes: BuiltinTheme[] = [
         id: `${BUILTIN_THEME_PREFIX}coconut`,
         label: "S227",
         css: coconutThemeCss,
+    },
+    {
+        id: `${BUILTIN_THEME_PREFIX}gayograph`,
+        label: "S229",
+        css: gayographThemeCss,
+    },
+    {
+        id: `${BUILTIN_THEME_PREFIX}pinkograph`,
+        label: "S230",
+        css: pinkographThemeCss,
     },
 ]
 

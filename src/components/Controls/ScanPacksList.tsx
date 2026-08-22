@@ -95,7 +95,7 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
                             <td>
                                 {id == "languagePickup"
                                     ? T("lang", true)
-                                    : T("none")}
+                                    : T("S231")}
                             </td>
 
                             <td>
