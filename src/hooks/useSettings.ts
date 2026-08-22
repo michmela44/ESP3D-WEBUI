@@ -44,6 +44,7 @@ import {
     importPreferencesSection,
     formatPreferences,
 } from "../tabs/interface/importHelper"
+import { getBuiltinTheme } from "../themes"
 import { Frown, Info } from "preact-feather"
 import { showModal } from "../components/Modal"
 
@@ -288,17 +289,47 @@ const useSettings = (): UseSettingsReturn => {
             console.log("Ui is ready")
             ui.setReady(true)
         }
+        /**
+         * Apply the selected theme.
+         *
+         * A theme is either built into the WebUI, or a `theme-*` CSS file
+         * uploaded to the ESP filesystem which has to be downloaded first.
+         * `default` (and no value at all) means the bundled stylesheet is used
+         * as-is.
+         *
+         * @param themepack - Value of the `theme` setting
+         */
         function loadTheme(themepack?: string) {
-            if (!themepack) {
+            const done = () => {
                 if (next) next()
                 if (setLoading) {
                     setLoading(false)
                 }
                 finalizeDisplay()
+            }
+            const clearTheme = () => {
+                const elem = document.getElementById("themestyle")
+                if (elem && elem.parentNode) elem.parentNode.removeChild(elem)
+            }
+            const applyTheme = (css: string) => {
+                const styleItem = document.createElement("style")
+                styleItem.id = "themestyle"
+                styleItem.innerHTML = css
+                document.head.appendChild(styleItem)
+            }
+
+            if (!themepack) {
+                done()
                 return
             }
-            const elem = document.getElementById("themestyle")
-            if (elem && elem.parentNode) elem.parentNode.removeChild(elem)
+            clearTheme()
+
+            const builtinTheme = getBuiltinTheme(themepack)
+            if (builtinTheme) {
+                applyTheme(builtinTheme.css)
+                done()
+                return
+            }
 
             if (themepack != "default") {
                 //console.log("Loading theme: " + themepack)
@@ -310,22 +341,11 @@ const useSettings = (): UseSettingsReturn => {
                     { method: "GET" },
                     {
                         onSuccess: (result: string) => {
-                            const styleItem = document.createElement("style")
-                            styleItem.id = "themestyle"
-                            styleItem.innerHTML = result
-                            document.head.appendChild(styleItem)
-                            if (next) next()
-                            if (setLoading) {
-                                setLoading(false)
-                            }
-                            finalizeDisplay()
+                            applyTheme(result)
+                            done()
                         },
                         onFail: (error: string) => {
-                            if (next) next()
-                            if (setLoading) {
-                                setLoading(false)
-                            }
-                            finalizeDisplay()
+                            done()
                             console.log("error")
                             toasts.addToast({
                                 content: `${error  } ${  themepack}`,
@@ -335,13 +355,7 @@ const useSettings = (): UseSettingsReturn => {
                     }
                 )
             } else {
-                const elem = document.getElementById("themestyle")
-                if (elem && elem.parentNode) elem.parentNode.removeChild(elem)
-                if (next) next()
-                if (setLoading) {
-                    setLoading(false)
-                }
-                finalizeDisplay()
+                done()
             }
         }
         createNewRequest(

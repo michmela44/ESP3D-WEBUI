@@ -29,6 +29,7 @@ import {
 } from "../../contexts"
 import { T, getLanguageName } from "./../Translations"
 import { CheckCircle } from "preact-feather"
+import { builtinThemes } from "../../themes"
 
 interface ScanPacksListProps {
     id: string
@@ -117,6 +118,35 @@ const ScanPacksList = ({ id, setValue, refreshfn }: ScanPacksListProps) => {
                                 />
                             </td>
                         </tr>
+                        {id == "themePickup" &&
+                            builtinThemes.map((theme) => (
+                                <tr key={theme.id}>
+                                    <td>
+                                        <span
+                                            class="tooltip tooltip-right"
+                                            data-tooltip={T("S228")}
+                                        >
+                                            {T(theme.label)}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <ButtonImg
+                                            m2
+                                            ltooltip
+                                            data-tooltip={T("S180")}
+                                            icon={<CheckCircle />}
+                                            onClick={() => {
+                                                useUiContextFn.haptic()
+                                                setValue(theme.id)
+                                                modals.removeModal(
+                                                    modals.getModalIndex(id)
+                                                )
+                                            }}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
                         {packsList.map((e) => {
                             if (
                                 (id == "languagePickup" &&

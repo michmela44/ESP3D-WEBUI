@@ -23,6 +23,7 @@ import { showModal } from "../../Modal"
 import { ScanPacksList } from "../ScanPacksList"
 import {  useUiContextFn, useModalsContext } from "../../../contexts"
 import { T, getLanguageName } from "../../Translations"
+import { getBuiltinTheme } from "../../../themes"
 
 interface PickUpProps {
     label?: string
@@ -31,6 +32,26 @@ interface PickUpProps {
     setValue?: (value: string | null, update?: boolean) => void
     value?: string
     [key: string]: any
+}
+
+/**
+ * Resolve the label shown in the field for a stored pickup value.
+ *
+ * @param id - Field id, `language` or `theme`
+ * @param value - Stored preferences value
+ * @param defaultDisplayValue - Label used when the value is `default`
+ * @returns Text to display in the field
+ */
+const displayNameOf = (
+    id: string,
+    value: string,
+    defaultDisplayValue: string
+): string => {
+    if (value == "default") return defaultDisplayValue
+    if (id == "language") return getLanguageName(value)
+    const builtinTheme = getBuiltinTheme(value)
+    if (builtinTheme) return T(builtinTheme.label)
+    return value.replace("theme-", "").replace(".gz", "")
 }
 
 const PickUp: FunctionalComponent<PickUpProps> = ({
@@ -48,13 +69,7 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
     const onChange = (value: string) => {
         if (setValue) setValue(value)
 
-        setDisplayValue(
-            value == "default"
-                ? defaultDisplayValue
-                : id == "language"
-                  ? getLanguageName(value)
-                  : value.replace("theme-", "").replace(".gz", "")
-        )
+        setDisplayValue(displayNameOf(id, value, defaultDisplayValue))
     }
 
     let ScanPacks: (() => void) | null = null
@@ -64,13 +79,7 @@ const PickUp: FunctionalComponent<PickUpProps> = ({
     useEffect(() => {
         //to update state
         if (setValue) setValue(null, true)
-        setDisplayValue(
-            value == "default"
-                ? defaultDisplayValue
-                : id == "language"
-                  ? getLanguageName(value || "")
-                  : (value || "").replace("theme-", "").replace(".gz", "")
-        )
+        setDisplayValue(displayNameOf(id, value || "", defaultDisplayValue))
     }, [value])
 
     return (
