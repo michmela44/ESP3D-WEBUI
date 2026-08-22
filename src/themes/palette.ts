@@ -48,6 +48,12 @@ interface ThemePalette {
     onAccent: string
     /** Terminal echo lines */
     echo: string
+    /**
+     * Callout background behind highlighted cards (the WiFi statistics panel).
+     * Overrides the `--highlight-color` custom property, which defaults to a
+     * pale yellow unsuited to dark themes. Falls back to `accentSoft`.
+     */
+    highlight?: string
     success: string
     warning: string
     error: string

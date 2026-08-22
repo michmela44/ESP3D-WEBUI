@@ -54,6 +54,14 @@ const buildThemeCss = (palette: ThemePalette): string => {
         : ""
 
     return `
+/*
+ * WifiStats applies --highlight-color through an inline style, so redefining
+ * the custom property is the only way to retheme it (and needs no !important).
+ */
+:root {
+    --highlight-color: ${p.highlight ?? p.accentSoft};
+}
+
 /* ---------- base surfaces ---------- */
 html,
 body,
