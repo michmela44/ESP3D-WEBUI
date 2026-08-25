@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 import { h } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 import { T } from "../components/Translations"
 import { useHttpFn } from "./useHttpQueue"
 import type { UseHttpFn } from "./useHttpQueue"
@@ -112,8 +112,13 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
         }
     }
 
-    const progressBar: { update?: (n: number) => void } = {}
-    const uploadStatusLabel: { element?: HTMLElement | null } = {}
+    //kept in refs so the object identity survives re-renders: <Progress /> binds
+    //its update() on mount and the in-flight request callbacks must keep talking
+    //to that very same object
+    const progressBarRef = useRef<{ update?: (n: number) => void }>({})
+    const progressBar = progressBarRef.current
+    const uploadStatusLabelRef = useRef<{ element?: HTMLElement | null }>({})
+    const uploadStatusLabel = uploadStatusLabelRef.current
 
     const onCancel = (): void => {
         useUiContextFn.haptic()
@@ -258,14 +263,17 @@ export function useFilesManager(): [FilesManagerState, FilesManagerActions] {
                     },
                     text: T("S28"),
                 },
-                content: totalFiles > 1
-                    ? h("label", {
-                          ref: (el: HTMLElement) => {
-                              uploadStatusLabel.element = el
-                          },
-                          style: "display:block;margin-bottom:0.5rem;text-align:center;",
-                      }, `1 / ${totalFiles}: ${fileEntries[0].fileName}`)
-                    : null,
+                content: h("div", {}, [
+                    totalFiles > 1
+                        ? h("label", {
+                              ref: (el: HTMLElement) => {
+                                  uploadStatusLabel.element = el
+                              },
+                              style: "display:block;margin-bottom:0.5rem;text-align:center;",
+                          }, `1 / ${totalFiles}: ${fileEntries[0].fileName}`)
+                        : null,
+                    h(Progress, { progressBar, max: 100 }),
+                ]),
             })
 
             const pathPrefix =
