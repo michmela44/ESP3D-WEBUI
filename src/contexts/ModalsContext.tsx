@@ -1,5 +1,5 @@
 import { createContext, FunctionalComponent, ComponentChildren } from "preact"
-import { useContext, useState, useCallback, useMemo } from "preact/hooks"
+import { useContext, useState, useRef, useCallback, useMemo } from "preact/hooks"
 import { generateUID, disableUI } from "../components/Helpers"
 
 // Type definitions
@@ -33,32 +33,46 @@ const useModalsContext = () => {
 
 const ModalsContextProvider: FunctionalComponent<ModalsContextProviderProps> = ({ children }) => {
     const [modals, setModal] = useState<Modal[]>([])
+    //Callbacks stored in a modal (or captured by an async request) outlive the
+    //render they were created in, so the modal list must be read from a ref and
+    //not from the state snapshot that closure captured, otherwise looking a
+    //modal up by id returns -1 and it can never be removed.
+    const modalsRef = useRef<Modal[]>(modals)
+
+    const applyModals = useCallback((newModalList: Modal[]) => {
+        modalsRef.current = newModalList
+        setModal(newModalList)
+    }, [])
 
     const addModal = useCallback(
-        (newModal: Modal) =>
-            setModal((prev) => [...prev, { ...newModal, id: newModal.id ? newModal.id : generateUID() }]),
-        []
+        (newModal: Modal) => {
+            applyModals([
+                ...modalsRef.current,
+                { ...newModal, id: newModal.id ? newModal.id : generateUID() },
+            ])
+        },
+        [applyModals]
     )
 
-    const getModalIndex = useCallback(
-        (id: string): number => {
-            return modals.findIndex((element) => element.id == id)
-        },
-        [modals]
-    )
+    const getModalIndex = useCallback((id: string): number => {
+        return modalsRef.current.findIndex((element) => element.id == id)
+    }, [])
 
     const removeModal = useCallback(
         (modalIndex: number) => {
-            const newModalList = modals.filter((modal, index) => index !== modalIndex)
-            setModal(newModalList)
+            //nothing to remove, do not touch the list
+            if (modalIndex < 0 || modalIndex >= modalsRef.current.length) return
+            const newModalList = modalsRef.current.filter((modal, index) => index !== modalIndex)
+            applyModals(newModalList)
             if (newModalList.length == 0) disableUI(false)
         },
-        [modals]
+        [applyModals]
     )
 
     const clearModals = useCallback(() => {
-        setModal([])
-    }, [])
+        applyModals([])
+        disableUI(false)
+    }, [applyModals])
 
     const store: ModalsContextValue = useMemo(
         () => ({
