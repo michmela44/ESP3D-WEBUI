@@ -39,6 +39,7 @@ interface HttpQueueContextValue {
     removeRequests: (requestIds: string | string[]) => void
     getCurrentRequest: () => any
     removeAllRequests: () => void
+    abortOnControllerError: () => void
     processRequests: () => void
 }
 
@@ -64,6 +65,7 @@ const useHttpQueueContext = (): HttpQueueContextValue => {
             removeRequests: () => {},
             getCurrentRequest: () => null,
             removeAllRequests: () => {},
+            abortOnControllerError: () => {},
             processRequests: () => {}
         }
     }
@@ -116,6 +118,25 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
         if (currentRequest.current) currentRequest.current.abort()
         requestQueue.current = []
         currentRequest.current = null
+    }
+
+    //A file upload posts its content as a FormData body
+    const isFileUpload = (request?: HttpRequest) =>
+        typeof FormData != "undefined" && request?.params?.body instanceof FormData
+
+    /*
+     * Abort what an error reported by the controller invalidated.
+     *
+     * An in-flight ESP command will never get its answer once the controller
+     * errors, so it has to be dropped. A file upload has nothing to do with
+     * what the controller is running: aborting it mid-body leaves the firmware
+     * with a partially written file, which it then removes. That is how
+     * preferences.json disappears from Flash when a macro is saved while a job
+     * is running and the job reports an error.
+     */
+    const abortOnControllerError = () => {
+        if (isFileUpload(requestQueue.current[0])) return
+        removeAllRequests()
     }
 
     //Process requests from queue
@@ -184,6 +205,7 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
                 removeRequests,
                 getCurrentRequest,
                 removeAllRequests,
+                abortOnControllerError,
                 processRequests,
             }}
         >

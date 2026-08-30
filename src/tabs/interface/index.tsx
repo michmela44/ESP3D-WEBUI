@@ -428,8 +428,10 @@ const InterfaceTab = () => {
         const file = new File([blob], preferencesFileName)
         formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
         formData.append("creatPath", "true")
+        //append file size first so the firmware can check the upload is complete
+        //use the blob byte length, not the string length, as they differ for non ASCII content
+        formData.append(`${preferencesFileName  }S`, String(blob.size))
         formData.append("myfiles", file, preferencesFileName)
-        formData.append(`${preferencesFileName  }S`, String(preferencestosave.length))
         setIsLoading(true)
         createNewRequest(
             espHttpURL(useSettingsContextFn.getValue("HostTarget")),
