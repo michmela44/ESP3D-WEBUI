@@ -36,6 +36,7 @@ import { RefreshCcw, Save, ExternalLink, Flag, Download } from "preact-feather"
 import { Field, FieldGroup } from "../../components/Controls"
 import { exportPreferences, exportPreferencesSection, ExportPreferences, InterfaceSettingsData } from "./exportHelper"
 import { importPreferencesSection, formatPreferences, ImportPreferencesResult } from "./importHelper"
+import { useTargetContext } from "../../targets"
 
 // Option for select fields
 interface SelectOption {
@@ -74,6 +75,28 @@ interface ValidationResult {
     valid: boolean;
     modified: boolean;
 }
+
+/*
+ * States in which writing to the ESP filesystem is unsafe.
+ *
+ * While a job streams from Flash the firmware cannot service a second write to
+ * the same filesystem: it answers "Upload failed - file write failed" and then
+ * "Upload aborted - discarding partial file". By then preferences.json has
+ * already been created for the upload, so discarding the partial file takes the
+ * previous contents with it and nothing is left on Flash.
+ */
+const machineBusyStates = ["Run", "Hold", "Jog", "Home", "Door"]
+
+/**
+ * Tell whether the controller is busy enough that a file write would fail.
+ *
+ * @param status - Controller status from the target context
+ * @param streamStatus - Streaming status from the target context
+ * @returns True when preferences.json must not be written
+ */
+const isMachineBusy = (status: any, streamStatus: any): boolean =>
+    machineBusyStates.includes(status?.state) ||
+    streamStatus?.status == "processing"
 
 const isDependenciesMet = (depend: any): boolean => {
     const { interfaceSettings, connectionSettings } = useSettingsContext()
@@ -330,6 +353,10 @@ const generateValidationGlobal = (
 const InterfaceTab = () => {
     const { toasts } = useToastsContext()
     const { createNewRequest, abortRequest } = useHttpQueue()
+    const { status, streamStatus } = useTargetContext() as unknown as {
+        status: any
+        streamStatus: any
+    }
     const { getInterfaceSettings } = useSettings()
     const { interfaceSettings, connectionSettings } = useSettingsContext()
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -413,6 +440,13 @@ const InterfaceTab = () => {
     }
 
     const SaveSettings = () => {
+        //Writing to Flash while the controller streams a job from it makes the
+        //firmware discard the partially written file, losing preferences.json
+        //altogether. Refuse the save rather than destroy the stored settings.
+        if (isMachineBusy(status, streamStatus)) {
+            toasts.addToast({ content: T("S233"), type: "error" })
+            return
+        }
         const settings_to_save: ExportPreferences = exportPreferences(
             interfaceSettings.current as InterfaceSettingsData,
             false

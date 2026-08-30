@@ -227,6 +227,7 @@
     "S223": "Default filesystem",
     "S224": "Sort files",
     "S225": "Documentation",
+    "S233": "Cannot save while a job is running - stop the job first",
     "btn+X": "X+",
     "btn-X": "X-",
     "btnHX": "Home X",
