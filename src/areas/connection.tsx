@@ -20,6 +20,7 @@
 import { FunctionalComponent, TargetedMouseEvent } from "preact"
 import { useRef } from "preact/hooks"
 import { useUiContext, useSettingsContext, useUiContextFn } from "../contexts"
+import { setPageTitle } from "../components/Helpers"
 import { Loading } from "../components/Controls"
 import { AppLogo } from "../targets"
 import {
@@ -77,14 +78,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                 if (connection.connectionState.extraMsg)
                     contentSubtitle +=
                         `: ${  connection.connectionState.extraMsg}`
-                document.title =
-                    `${connectionSettings.current &&
-                    connectionSettings.current.HostName
-                        ? connectionSettings.current.HostName
-                        : "ESP3D" 
-                    }(${ 
-                    T("S22") 
-                    })`
+                setPageTitle(connectionSettings.current, T("S22"))
                 contentAction = (
                     <button class="btn" onClick={onclick}>
                         {T("S8")}
@@ -102,14 +96,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                     connection.connectionState.page == "connectionlost"
                         ? T("S10")
                         : T("S173") //"Connection with board is lost"
-                document.title =
-                    `${connectionSettings.current &&
-                    connectionSettings.current.HostName
-                        ? connectionSettings.current.HostName
-                        : "ESP3D" 
-                    }(${ 
-                    T("S9") 
-                    })`
+                setPageTitle(connectionSettings.current, T("S9"))
                 contentAction = (
                     <button class="btn" onClick={onclick}>
                         {T("S11")}
@@ -122,14 +109,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                 contentTitle = T("S9")
                 contentIcon = <Slash style={{ width: "50px", height: "50px" }} />
                 contentSubtitle = T("S3")
-                document.title =
-                    `${connectionSettings.current &&
-                    connectionSettings.current.HostName
-                        ? connectionSettings.current.HostName
-                        : "ESP3D" 
-                    }(${ 
-                    T("S9") 
-                    })`
+                setPageTitle(connectionSettings.current, T("S9"))
                 contentAction = (
                     <button class="btn" onClick={onclick}>
                         {T("S11")}
@@ -140,14 +120,7 @@ const ConnectionContainer: FunctionalComponent = () => {
             case "restart":
                 intervalTimer = restartdelay
                 setTimeout(refreshTimer, 1000)
-                document.title =
-                    `${connectionSettings.current &&
-                    connectionSettings.current.HostName
-                        ? connectionSettings.current.HostName
-                        : "ESP3D" 
-                    }(${ 
-                    T("S35") 
-                    })`
+                setPageTitle(connectionSettings.current, T("S35"))
                 contentTitle = T("S35") //"restarting";
                 contentIcon = (
                     <div class="d-inline-block content-icon">
@@ -172,14 +145,7 @@ const ConnectionContainer: FunctionalComponent = () => {
                         updating: false,
                     })
                 } else {
-                    document.title =
-                        `${connectionSettings.current &&
-                        connectionSettings.current.HostName
-                            ? connectionSettings.current.HostName
-                            : "ESP3D" 
-                        }(${ 
-                        T("S2") 
-                        })`
+                    setPageTitle(connectionSettings.current, T("S2"))
                     contentTitle = T("S2") //"Connecting";
                 }
                 contentIcon = (

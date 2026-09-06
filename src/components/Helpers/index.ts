@@ -50,6 +50,7 @@ import {
 import { dispatchToExtensions, isFullscreenActive, isFullscreenSupported, getFullscreenElement, invalidateIframeCache } from "./html"
 import { sortedFilesList, filterResultFiles } from "./filters"
 import { useStoredState } from "./storedState"
+import { getHostName, buildPageTitle, setPageTitle } from "./pageTitle"
 
 export {
     beautifyJSONString,
@@ -87,6 +88,9 @@ export {
     isFloat,
     BitsArray,
     useStoredState,
+    getHostName,
+    buildPageTitle,
+    setPageTitle,
 }
 
 // Re-export types
