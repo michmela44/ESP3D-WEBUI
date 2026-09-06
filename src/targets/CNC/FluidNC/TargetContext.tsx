@@ -17,10 +17,11 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 import { createContext, VNode } from "preact"
-import { useRef, useContext, useState, useMemo } from "preact/hooks"
+import { useRef, useContext, useState, useMemo, useEffect } from "preact/hooks"
 import {
     dispatchToExtensions,
     beautifyJSONString,
+    setPageTitle,
 } from "../../../components/Helpers"
 import { useDatasContext, useSettingsContextFn } from "../../../contexts"
 import { processor } from "./processor"
@@ -81,7 +82,7 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
     const [overrides, setOverrides] = useState({})
     const [pinsStates, setPinStates] = useState(lastPins)
     const [states, setStates] = useState({})
-    const [streamStatus, setStreamStatus] = useState({})
+    const [streamStatus, setStreamStatus] = useState<Record<string, any>>({})
     const [message, setMessage] = useState<string | undefined>()
     const [alarmCode, setAlarmCode] = useState(0)
     const [errorCode, setErrorCode] = useState(0)
@@ -388,6 +389,30 @@ const TargetContextProvider = ({ children }: TargetContextProviderProps) => {
             dispatchToExtensions(type, data)
         }
     }
+
+    /*
+     * Show job progress in the browser tab, the way a print server does, so a
+     * backgrounded tab still tells how far along the job is. Reverts to the
+     * plain board name once nothing is streaming; the connection screens set
+     * their own title and are not running a job, so they do not conflict.
+     */
+    useEffect(() => {
+        const total = Number(streamStatus.total)
+        const processed = Number(streamStatus.processed)
+        if (!streamStatus.status) {
+            setPageTitle({ HostName: useSettingsContextFn.getValue("HostName") })
+            return
+        }
+        const percent =
+            Number.isFinite(total) && total > 0 && Number.isFinite(processed)
+                ? `${Math.min(100, Math.round((processed / total) * 100))}% `
+                : ""
+        setPageTitle(
+            { HostName: useSettingsContextFn.getValue("HostName") },
+            undefined,
+            `${percent}${status.state || streamStatus.status}`
+        )
+    }, [streamStatus, status.state])
 
     useTargetContextFn.processData = processData
 
