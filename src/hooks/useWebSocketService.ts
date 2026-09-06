@@ -16,7 +16,7 @@ export function useWebSocketService() : WebSocketService {
     const { toasts } = useToastsContext();
     const { modals } = useModalsContext();
     const { processData } = useTargetContext();
-    const { removeAllRequests } = useHttpQueueContext();
+    const { abortOnControllerError } = useHttpQueueContext();
     const { connectionSettings, activity } = useSettingsContext();
 
     const serviceRef = useRef<WebSocketService | undefined>();
@@ -82,9 +82,10 @@ export function useWebSocketService() : WebSocketService {
                 dialogs.setShowKeepConnected(false);
             });
 
-            // Set up error handler to abort HTTP requests on controller errors
+            // Set up error handler to abort HTTP requests on controller errors,
+            // except a file upload, which the controller error says nothing about
             webSocketServiceInstance.setErrorHandler((errorCode, errorMessage) => {
-                removeAllRequests();
+                abortOnControllerError();
             });
         }
 
@@ -92,7 +93,7 @@ export function useWebSocketService() : WebSocketService {
         return () => {
             // Don't disconnect on unmount - service should persist
         };
-    }, [connection, dialogs, toasts, modals, processData, removeAllRequests, connectionSettings, activity, uisettings]);
+    }, [connection, dialogs, toasts, modals, processData, abortOnControllerError, connectionSettings, activity, uisettings]);
 
     // Return the service instance (will be undefined if not yet initialized)
     return serviceRef.current!;
