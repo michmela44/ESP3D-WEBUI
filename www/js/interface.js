@@ -55,7 +55,9 @@ const toggleDropdown = () => {
 
 const enterFullscreen = () => {
     try {
-        document.documentElement.requestFullscreen();
+        // requestFullscreen() returns a promise that rejects if the browser
+        // refuses, e.g. without a user gesture
+        document.documentElement.requestFullscreen().catch((err) => console.log('Fullscreen refused: ' + err));
     } catch (exception) {
         try {
             document.documentElement.webkitRequestFullscreen();
@@ -90,8 +92,7 @@ const toggleFullscreen = () => {
 }
 
 const addInterfaceListeners = () => {
-    id('tablettablink').addEventListener('DOMActivate', fullscreenIfMobile, false);
-    id('tablettablink').addEventListener('DOMActivate', setBottomHeight, false);
+    id('tablettablink').addEventListener('click', setBottomHeight, false);
 
 //    id('tablettab').addEventListener('activate', askMachineBbox, false);
 
@@ -100,9 +101,16 @@ const addInterfaceListeners = () => {
     id('toolpath').addEventListener("mouseup", updateGcodeViewerAngle);
 };
 
-const fullscreenIfMobile = () => {
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-        toggleFullscreen();
+// Go fullscreen automatically on touch devices.  This tests for a touch
+// screen rather than the user agent, because tablet browsers often report a
+// desktop user agent - iPadOS Safari always does, and Chrome on Android
+// tablets requests desktop sites by default.  It only enters fullscreen,
+// never toggles, so returning to an already-fullscreen tablet tab does not
+// exit fullscreen.
+const fullscreenIfTouch = () => {
+    const isTouch = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+    if (isTouch && !document.fullscreenElement && !document.webkitFullscreenElement) {
+        enterFullscreen();
     }
 }
 const initInterface = () => {
@@ -448,6 +456,13 @@ const setupTablet = () => {
     initInterface();
     requestModes();
     askMachineBbox();
+    // Attached here rather than in addInterfaceListeners(), which does not
+    // run until the tablet first becomes visible - after the click that
+    // shows it, so the first switch to the tablet would not go fullscreen.
+    // Uses click rather than the deprecated DOMActivate event.  Fullscreen
+    // must be requested synchronously from the click handler, while the
+    // browser still considers it a user gesture.
+    id('tablettablink').addEventListener('click', fullscreenIfTouch, false);
     onVisible(id('tablettab'), initTablet);
 }
 
