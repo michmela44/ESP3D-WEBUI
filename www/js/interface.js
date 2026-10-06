@@ -440,7 +440,7 @@ const onVisible = (element, callback) => {
 let tabletLoaded = false;
 const initTablet = () => {
     if (!tabletLoaded) {
-        toggleDropdown();
+        hideMenu();
         addListeners();
         setBottomHeight();
         tabletLoaded = true;
