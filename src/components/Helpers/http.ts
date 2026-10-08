@@ -38,7 +38,13 @@ const espHttpURL = (base: string = "", args: Record<string, string> = {}): strin
         try {
             return new URL(base)
         } catch (error) {
-            return new URL(base, `http://${window.location.host}`)
+            // window.location.origin, not `http://${location.host}`: when
+            // this document is loaded from a blob: URL (e.g. the FluidNC
+            // WASM demo's iframe), location.host is empty even though
+            // location.origin still correctly reports the creating page's
+            // origin -- building "http://" with an empty host throws
+            // "Invalid base URL" instead of falling back sensibly.
+            return new URL(base, window.location.origin)
         }
     })()
     Object.entries(args).forEach(([key, value]) =>

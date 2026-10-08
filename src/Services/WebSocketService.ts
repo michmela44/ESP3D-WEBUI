@@ -1,4 +1,4 @@
-import { WebSocketAdapter } from "./WebSocketAdapter"
+import type { IWebSocketAdapter } from "./WebSocketAdapter"
 import { sleep } from "../../src/utils"
 import { Command, CommandState } from "./Commands/Command"
 import type { Toast } from "../../src/contexts/ToastsContext"
@@ -41,7 +41,7 @@ export interface ServiceContext {
 }
 
 export class WebSocketService {
-    private wsAdapter: WebSocketAdapter
+    private wsAdapter: IWebSocketAdapter
     private buffer: string = ""
     private commands: Command[] = []
     private _status: ControllerStatus = ControllerStatus.DISCONNECTED
@@ -82,7 +82,7 @@ export class WebSocketService {
     // Service context for dependency injection (app-level contexts)
     private serviceContext: ServiceContext | undefined
 
-    constructor(wsAdapter: WebSocketAdapter, notificationHandler?: NotificationHandler) {
+    constructor(wsAdapter: IWebSocketAdapter, notificationHandler?: NotificationHandler) {
         this.wsAdapter = wsAdapter
         this.notificationHandler = notificationHandler
 

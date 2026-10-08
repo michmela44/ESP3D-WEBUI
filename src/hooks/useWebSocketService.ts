@@ -1,11 +1,14 @@
 import { useEffect, useRef } from "preact/hooks";
 import { WebSocketService } from "../Services/WebSocketService";
-import { WebSocketAdapter } from "../Services/WebSocketAdapter";
 import { useUiContext, useToastsContext, useModalsContext, useHttpQueueContext, useSettingsContext } from "../contexts";
-import { useTargetContext } from "../targets";
+import { useTargetContext, createWsAdapter as targetCreateWsAdapter } from "../targets";
+import { createWsAdapter as defaultCreateWsAdapter } from "./defaultWsAdapter";
 import { dispatchToExtensions } from "../components/Helpers";
 
 let webSocketServiceInstance : WebSocketService | undefined;
+
+// Targets that don't define their own createWsAdapter keep working unchanged.
+const createWsAdapter = targetCreateWsAdapter ?? defaultCreateWsAdapter
 
 /**
  * Hook to get or create the WebSocketService instance
@@ -41,7 +44,7 @@ export function useWebSocketService() : WebSocketService {
                     : port
             const wsUrl = `ws://${address}:${wsPort}${path}`;
 
-            const wsAdapter = new WebSocketAdapter(wsUrl);
+            const wsAdapter = createWsAdapter(wsUrl);
             webSocketServiceInstance = new WebSocketService(wsAdapter);
 
             // Set up service context for dependency injection

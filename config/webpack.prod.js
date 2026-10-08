@@ -10,6 +10,15 @@ const Compression = require("compression-webpack-plugin")
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const TerserPlugin = require("terser-webpack-plugin")
 
+// SKIP_MINIFY=1 npm run build -- for debugging a production build (readable
+// stack traces/variable names, real console output since drop_console only
+// applies when TerserPlugin actually runs) without the ESP32 flash-size
+// constraint that makes minification necessary for real deployment.
+// optimization.minimize:false disables every entry in the minimizer array
+// below, not just TerserPlugin, so this alone is enough -- no need to
+// conditionally build that array.
+const skipMinify = !!process.env.SKIP_MINIFY
+
 module.exports = {
     resolve: {
         extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -102,7 +111,7 @@ module.exports = {
         }),
     ],
     optimization: {
-        minimize: true,
+        minimize: !skipMinify,
         minimizer: [
             new TerserPlugin({
                 terserOptions: {

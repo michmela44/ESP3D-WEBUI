@@ -18,7 +18,15 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { httpAdapter } from "./httpAdapter"
+import { httpAdapter as defaultHttpAdapter } from "./httpAdapter"
+import type { HttpAdapterParams } from "./httpAdapter"
+import { httpAdapter as targetHttpAdapter } from "../targets"
+
+// Targets that don't define their own httpAdapter keep working unchanged.
+// Chosen per call, not at module load, so the targets <-> contexts import
+// cycle can't leave this bound to an uninitialized import.
+const httpAdapter = (url: string, params?: HttpAdapterParams, setUploadProgress?: (percent: number) => void) =>
+    (targetHttpAdapter ?? defaultHttpAdapter)(url, params, setUploadProgress)
 
 export { httpAdapter }
 

@@ -7,7 +7,25 @@ export type DataListener = (data: string) => void;
 export type BinaryDataListener = (data: ArrayBuffer) => void;
 export type ErrorListener = (error: Event) => void;
 
-export class WebSocketAdapter {
+// The subset of WebSocketAdapter's public surface WebSocketService
+// actually depends on. Pulled out as an interface (rather than typing
+// against the concrete class) so a non-WebSocket transport -- e.g. a
+// postMessage-based bridge with no real WebSocket underneath -- can stand
+// in for it: TypeScript treats two classes with private fields as
+// incompatible even when their public methods match, so WebSocketService
+// needs to depend on this shape, not on WebSocketAdapter itself.
+export interface IWebSocketAdapter {
+    isOpen(): boolean;
+    open(): Promise<void>;
+    close(): Promise<void>;
+    write(data: Buffer | string): Promise<void>;
+    addReader(listener: DataListener): () => void;
+    addBinaryReader(listener: BinaryDataListener): () => void;
+    addErrorListener(listener: ErrorListener): () => void;
+    getNativeWebSocket(): WebSocket;
+}
+
+export class WebSocketAdapter implements IWebSocketAdapter {
     private ws: WebSocket;
     private dataListeners: DataListener[] = [];
     private binaryDataListeners: BinaryDataListener[] = [];
