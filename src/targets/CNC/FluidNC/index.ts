@@ -20,6 +20,8 @@
 import { iconsTarget } from "./icons"
 import { files } from "./files"
 import { processor } from "./processor"
+import { createWsAdapter } from "./wsAdapter"
+import { httpAdapter } from "./httpAdapter"
 import { gcode_parser_modes } from "./gcode_parser_modes"
 import { defaultPanelsList } from "./panels"
 import { MachineSettings, machineSettings } from "./MachineSettings"
@@ -102,6 +104,8 @@ export {
     files,
     iconsTarget,
     processor,
+    createWsAdapter,
+    httpAdapter,
     restartdelay,
     defaultPanelsList,
     TargetContextProvider,
