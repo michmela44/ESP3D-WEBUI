@@ -1,23 +1,77 @@
 name: WebUI Builder
 
+# Builds index.html.gz (gulp package --lang en -- the full-language build
+# is too large for a real ESP32) from the selected branch and publishes it
+# as the asset of a new GitHub release. The asset is then downloadable at
+#   https://github.com/<owner>/ESP3D-WEBUI/releases/download/<tag>/index.html.gz
+# which is what the FluidNC WASM demo's webui-proxy function fetches
+# (FluidNC/wasm/functions/webui-proxy.js), and what a FluidNC install can
+# use as its WebUI.
+
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release version'
+        description: 'Release tag (letters, digits, . _ - only), e.g. 2.2.0'
         required: true
+        type: string
+      prerelease:
+        description: 'Mark as a pre-release (not shown as the latest release)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
 
 jobs:
   build:
-    # Runner name
     runs-on: ubuntu-latest
-
+    env:
+      TAG: ${{ github.event.inputs.tag }}
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      # Sets up node
-      - uses: actions/setup-node@v1
+      # Same charset webui-proxy.js accepts for a tag, so every release
+      # this makes can be loaded by the demo.
+      - name: Validate tag
+        run: |
+          if ! echo "$TAG" | grep -qE '^[A-Za-z0-9._-]+$'; then
+            echo "::error::Invalid tag '$TAG'. Use only letters, digits, '.', '_' and '-'."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
         with:
-          node-version: 12
+          fetch-depth: 0
+          # The Tablet UI (tablet/src/tablet) is bundled into the build.
+          submodules: recursive
+
+      - name: Check tag does not already exist
+        run: |
+          if git tag -l "$TAG" | grep -q .; then
+            echo "::error::Tag $TAG already exists"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - run: npm install
-      - run: gulp package --lang en
+
+      - name: Build
+        run: npx gulp package --lang en
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ github.event.inputs.prerelease }}
+        run: |
+          flags=()
+          if [ "$PRERELEASE" = "true" ]; then
+            flags+=(--prerelease)
+          fi
+          gh release create "$TAG" index.html.gz \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --notes "WebUI 2 built from \`$GITHUB_REF_NAME\` at $GITHUB_SHA with \`gulp package --lang en\`." \
+            "${flags[@]}"
