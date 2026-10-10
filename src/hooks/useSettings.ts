@@ -19,6 +19,8 @@
 import { h } from "preact"
 import {
     espHttpURL,
+    uiBase,
+    uiURL,
     isLimitedEnvironment,
 } from "../components/Helpers"
 import { useHttpQueue, useTargetCommands } from "../hooks/"
@@ -344,13 +346,7 @@ const useSettings = (): UseSettingsReturn => {
                 finalizeDisplay()
             }
         }
-        createNewRequest(
-            espHttpURL(
-                `${useSettingsContextFn.getValue("HostDownloadPath") 
-                    }preferences.json`
-            ),
-            { method: "GET" },
-            {
+        const preferencesCallbacks = {
                 onSuccess: (result: string) => {
                     const jsonResult = JSON.parse(result)
 
@@ -459,8 +455,25 @@ const useSettings = (): UseSettingsReturn => {
                     console.log("No valid preferences.json")
                     loadTheme()
                 },
-            }
+        }
+        const sharedPreferencesURL = espHttpURL(
+            `${useSettingsContextFn.getValue("HostDownloadPath")}preferences.json`
         )
+        if (uiBase) {
+            // Under /ui/<name>/, use this WebUI's own preferences once they
+            // have been saved there, and the shared ones until then
+            createNewRequest(
+                uiURL("preferences.json"),
+                { method: "GET" },
+                {
+                    onSuccess: preferencesCallbacks.onSuccess,
+                    onFail: () =>
+                        createNewRequest(sharedPreferencesURL, { method: "GET" }, preferencesCallbacks),
+                }
+            )
+        } else {
+            createNewRequest(sharedPreferencesURL, { method: "GET" }, preferencesCallbacks)
+        }
     }
     return {
         getInterfaceSettings,

@@ -17,7 +17,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import { espHttpURL, replaceVariables } from "../components/Helpers"
+import { uiURL, replaceVariables } from "../components/Helpers"
 import { useState } from "preact/hooks"
 import { useUiContext } from "../contexts"
 import { useHttpFn } from "./useHttpQueue"
@@ -127,7 +127,7 @@ const useTargetCommands = () => {
 
             console.log(`cmd ${  replaced}`)
             createNewRequest(
-                espHttpURL("command", args),
+                uiURL("command", args),
                 method,
                 callbacks
             )

@@ -16,7 +16,7 @@
  License along with This code; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-import { espHttpURL, getCookie, isLimitedEnvironment } from "./http"
+import { espHttpURL, uiBase, uiURL, deviceURL, getCookie, isLimitedEnvironment } from "./http"
 import { getBrowserTime } from "./time"
 import {
     createComponent,
@@ -65,6 +65,9 @@ export {
     isFullscreenSupported,
     getFullscreenElement,
     espHttpURL,
+    uiBase,
+    uiURL,
+    deviceURL,
     filterResultFiles,
     formatStatus,
     generateUID,
