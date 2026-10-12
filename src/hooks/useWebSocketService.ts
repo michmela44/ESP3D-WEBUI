@@ -39,7 +39,9 @@ export function useWebSocketService() : WebSocketService {
             const wsPort = document.location.port != ""
                     ? parseInt(document.location.port) + 2
                     : port
-            const wsUrl = `ws://${address}:${wsPort}${path}`;
+            // ws: from an https page is blocked as mixed content
+            const scheme = document.location.protocol === "https:" ? "wss" : "ws";
+            const wsUrl = `${scheme}://${address}:${wsPort}${path}`;
 
             const wsAdapter = new WebSocketAdapter(wsUrl);
             webSocketServiceInstance = new WebSocketService(wsAdapter);
