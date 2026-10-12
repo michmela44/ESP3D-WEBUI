@@ -231,7 +231,7 @@ const FeaturesTab = () => {
             } T=${ 
             entry.cast 
             } V=${ 
-            entry.value.toString().replaceAll(" ", "\\ ") 
+            entry.value.toString().replaceAll("\\", "\\\\").replaceAll(" ", "\\ ") 
             } json=yes`
        targetCommands(cmd, undefined, {id: "ESP401" }, callbacks)
     }
