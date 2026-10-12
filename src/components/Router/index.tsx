@@ -34,11 +34,14 @@ const Router: FunctionalComponent<RouterProps> = ({ children, routesList, parent
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const { setActiveRoute, setRoutes, activeRoute, routes, defaultRoute, activeTab } = useRouterContext()
 
+  // Route changes set only the hash ("#/route", not "/#/route"), so the page
+  // stays at its own path -- e.g. /ui/<name>/ when FluidNC serves several
+  // WebUIs -- instead of navigating to the controller's root.
   function parseLocation(): string {
     if (typeof window !== "undefined") {
       const location = window.location.hash.slice(1).toLowerCase()
       if (location == "/settings") {
-        window.location.href = `/#${  activeTab.current}`
+        window.location.href = `#${  activeTab.current}`
         return activeTab.current
       } else {
         return location
@@ -92,18 +95,18 @@ const Router: FunctionalComponent<RouterProps> = ({ children, routesList, parent
           }
         }
       } else {
-        window.location.href = `/#${  defaultRoute.current}`
+        window.location.href = `#${  defaultRoute.current}`
       }
     }
 
     if (!found) {
       if (path.startsWith("/settings/")) {
-        window.location.href = `/#${  activeTab.current}`
+        window.location.href = `#${  activeTab.current}`
       } else {
         if (path.startsWith("/extrapage/")) {
           // not valid extra page
         } else {
-          window.location.href = `/#${  defaultRoute.current}`
+          window.location.href = `#${  defaultRoute.current}`
         }
       }
     }

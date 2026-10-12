@@ -30,7 +30,7 @@ import {
     Slash,
 } from "preact-feather"
 import { T } from "../components/Translations"
-import { espHttpURL } from "../components/Helpers"
+import { uiURL } from "../components/Helpers"
 import { restartdelay } from "../targets"
 
 /*
@@ -64,7 +64,8 @@ const ConnectionContainer: FunctionalComponent = () => {
                 connected: false,
                 page: "connecting",
             })
-            window.location.href = espHttpURL().toString()
+            // This page's own URL - /ui/<name>/ under FluidNC's /ui, else /
+            window.location.href = uiURL("")
         }
         console.log("Rendering connection state:", connection.connectionState.page)
         switch (connection.connectionState.page) {
