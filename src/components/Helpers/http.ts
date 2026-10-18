@@ -38,7 +38,10 @@ const espHttpURL = (base: string = "", args: Record<string, string> = {}): strin
         try {
             return new URL(base)
         } catch (error) {
-            return new URL(base, `http://${window.location.host}`)
+            // The page's own origin, so an https page (e.g. the FluidNC wasm
+            // demo) does not make http requests, which the browser blocks
+            // as mixed content
+            return new URL(base, window.location.origin)
         }
     })()
     Object.entries(args).forEach(([key, value]) =>
