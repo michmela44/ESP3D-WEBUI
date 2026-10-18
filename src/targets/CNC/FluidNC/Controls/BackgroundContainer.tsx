@@ -37,6 +37,12 @@ const BackgroundContainer = () => {
             }
             last.status = status
         }
+    }, [status])
+
+    // Only when the alarm/error code changes: status is a new object on
+    // every status report, so keying this on status too re-raised the same
+    // toast on every poll for as long as the machine stayed in Alarm.
+    useEffect(() => {
         if (alarmCode != 0 || errorCode != 0) {
             toasts.addToast({
                 type: "error",
@@ -45,7 +51,7 @@ const BackgroundContainer = () => {
                 ),
             })
         }
-    }, [alarmCode, errorCode, status])
+    }, [alarmCode, errorCode])
 
     return null
 }
