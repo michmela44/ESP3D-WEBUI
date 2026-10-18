@@ -766,7 +766,7 @@ const ContentContainer: FunctionalComponent = () => {
                     formDataExtensions.append("creatPath", "true")
                     formDataExtensions.append(
                         `${preferencesFileName  }S`,
-                        preferencestosave.length.toString()
+                        blob.size.toString()
                     )
                     formDataExtensions.append(
                         "myfiles",
