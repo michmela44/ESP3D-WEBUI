@@ -20,7 +20,7 @@ import { HelpCircle } from "preact-feather"
 import { useUiContextFn, useModalsContext } from "../../contexts"
 import { useHttpQueue } from "../../hooks"
 import { T } from "../../components/Translations"
-import { espHttpURL } from "../../components/Helpers"
+import { uiURL } from "../../components/Helpers"
 
 /*
  * Local const
@@ -33,7 +33,7 @@ const showKeepConnected = (): void => {
     const clickKeepConnected = (e: TargetedMouseEvent<HTMLButtonElement>): void => {
         useUiContextFn.haptic()
         createNewRequest(
-            espHttpURL("command", { PING: "Yes" }),
+            uiURL("command", { PING: "Yes" }),
             { method: "GET" },
             {
                 onSuccess: (result: string): void => {

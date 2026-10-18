@@ -40,7 +40,7 @@ import { useSettings, useHttpQueue, useTargetCommands } from "../hooks"
 import { useEffect } from "preact/hooks"
 import { Field, FieldGroup } from "../components/Controls"
 import { showKeepConnected, showModal } from "../components/Modal"
-import { espHttpURL, dispatchToExtensions } from "../components/Helpers"
+import { espHttpURL, deviceURL, uiBase, uiURL, dispatchToExtensions } from "../components/Helpers"
 import { T, baseLangRessource } from "../components/Translations"
 import { HelpCircle, Layout } from "preact-feather"
 
@@ -156,13 +156,13 @@ const ContentContainer: FunctionalComponent = () => {
                         // either eventMsg.data.url is not "command" or eventMsg.data.args
                         // is not empty
                         createNewRequest(
-                            espHttpURL(eventMsg.data.url, eventMsg.data.args),
+                            deviceURL(eventMsg.data.url, eventMsg.data.args),
                             { method: "GET" },
                             queryCallbacks
                         )
                     }
                     createNewRequest(
-                        espHttpURL(eventMsg.data.url, eventMsg.data.args),
+                        deviceURL(eventMsg.data.url, eventMsg.data.args),
                         { method: "GET", echo: cmd },
                         {
                             onSuccess: (result: string) => {
@@ -713,6 +713,42 @@ const ContentContainer: FunctionalComponent = () => {
                         null,
                         " "
                     )
+                    const saveCallbacks = {
+                        onSuccess: (_result: string) => {
+                            dispatchToExtensions(
+                                "extensionsData",
+                                {
+                                    response: { status: "success" },
+                                    initiator: eventMsg.data,
+                                },
+                                eventMsg.data.id
+                            )
+                        },
+                        onFail: (_error: string) => {
+                            dispatchToExtensions(
+                                "extensionsData",
+                                {
+                                    response: { status: "error" },
+                                    initiator: eventMsg.data,
+                                },
+                                eventMsg.data.id
+                            )
+                        },
+                    }
+                    if (uiBase) {
+                        // Into this WebUI's own /ui/<name>/ directory
+                        createNewRequest(
+                            uiURL("preferences.json"),
+                            {
+                                method: "PUT",
+                                id: "preferences",
+                                body: preferencestosave,
+                                headers: { "Content-Type": "application/json" },
+                            },
+                            saveCallbacks
+                        )
+                        break
+                    }
                     //Create a blob
                     const blob = new Blob([preferencestosave], {
                         type: "application/json",
@@ -745,28 +781,7 @@ const ContentContainer: FunctionalComponent = () => {
                             id: "preferences",
                             body: formDataExtensions,
                         },
-                        {
-                            onSuccess: (result: string) => {
-                                dispatchToExtensions(
-                                    "extensionsData",
-                                    {
-                                        response: { status: "success" },
-                                        initiator: eventMsg.data,
-                                    },
-                                    eventMsg.data.id
-                                )
-                            },
-                            onFail: (error: string) => {
-                                dispatchToExtensions(
-                                    "extensionsData",
-                                    {
-                                        response: { status: "error" },
-                                        initiator: eventMsg.data,
-                                    },
-                                    eventMsg.data.id
-                                )
-                            },
-                        }
+                        saveCallbacks
                     )
 
                     break

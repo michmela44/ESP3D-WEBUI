@@ -29,6 +29,8 @@ import { ButtonImg, Loading } from "../../components/Controls"
 import { useHttpQueue, useSettings } from "../../hooks"
 import {
     espHttpURL,
+    uiBase,
+    uiURL,
     checkDependencies,
 } from "../../components/Helpers"
 import { T } from "../../components/Translations"
@@ -418,6 +420,31 @@ const InterfaceTab = () => {
             false
         )
         const preferencestosave = JSON.stringify(settings_to_save, null, " ")
+        const saveCallbacks = {
+            onSuccess: (_result: string) => {
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1000)
+            },
+            onFail: (_error: string) => {
+                setIsLoading(false)
+            },
+        }
+        if (uiBase) {
+            // Into this WebUI's own /ui/<name>/ directory
+            setIsLoading(true)
+            createNewRequest(
+                uiURL("preferences.json"),
+                {
+                    method: "PUT",
+                    id: "preferences",
+                    body: preferencestosave,
+                    headers: { "Content-Type": "application/json" },
+                },
+                saveCallbacks
+            )
+            return
+        }
         const blob = new Blob([preferencestosave], {
             type: "application/json",
         })
@@ -434,16 +461,7 @@ const InterfaceTab = () => {
         createNewRequest(
             espHttpURL(useSettingsContextFn.getValue("HostTarget")),
             { method: "POST", id: "preferences", body: formData },
-            {
-                onSuccess: (result: string) => {
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, 1000)
-                },
-                onFail: (error: string) => {
-                    setIsLoading(false)
-                },
-            }
+            saveCallbacks
         )
     }
     //console.log(JSON.stringify(interfaceSettings.current, null, 2))

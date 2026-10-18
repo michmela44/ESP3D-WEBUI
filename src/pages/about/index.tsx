@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "preact/hooks"
 import { ButtonImg, Loading, CenterLeft, Progress } from "../../components/Controls"
 import { useHttpQueue, useTargetCommands } from "../../hooks"
 import { useWebSocketService } from "../../hooks/useWebSocketService"
-import { espHttpURL } from "../../components/Helpers"
+import { espHttpURL, uiBase, uiURL } from "../../components/Helpers"
 import { T } from "../../components/Translations"
 import {
     useUiContext,
@@ -574,6 +574,10 @@ const About: FunctionalComponent = (): JSX.Element => {
     const uploadFiles = (renameToIndexHtml = false): void => {
         const list = inputFilesRef.current?.files
         if (!list) return
+        if (uiBase && !isFwUpdate) {
+            uploadUiFiles(Array.from(list), renameToIndexHtml)
+            return
+        }
         const formData = new FormData()
         formData.append("path", useSettingsContextFn.getValue("HostUploadPath"))
         formData.append("createPath", "true")
@@ -618,6 +622,45 @@ const About: FunctionalComponent = (): JSX.Element => {
                 },
             }
         )
+    }
+
+    // Under /ui/<name>/, update this WebUI in its own directory, one PUT
+    // per file, rather than replacing the WebUI on the host filesystem
+    const uploadUiFiles = (files: File[], renameToIndexHtml: boolean): void => {
+        showProgressModal({
+            modals,
+            title: T("S32"),
+            button1: { cb: abortRequest, text: T("S28") },
+            content: <Progress progressBar={progressBar} max={100} />,
+        })
+        const fail = (error: any) => {
+            modals.removeModal(modals.getModalIndex("upload"))
+            toasts.addToast({ content: error, type: "error" })
+        }
+        const putFile = (i: number): void => {
+            if (i >= files.length) {
+                if (progressBar.update && typeof progressBar.update === "function") progressBar.update(100)
+                modals.removeModal(modals.getModalIndex("upload"))
+                webSocketService.disconnect("connecting")
+                window.location.reload()
+                return
+            }
+            const file = files[i]
+            const fileName = renameToIndexHtml && file.name.endsWith(".html.gz") ? "index.html.gz" : file.name
+            createNewRequest(
+                uiURL(fileName),
+                { method: "PUT", id: "upload", body: file as any },
+                {
+                    onSuccess: () => putFile(i + 1),
+                    onFail: fail,
+                    onProgress: (e: number) => {
+                        if (progressBar.update && typeof progressBar.update === "function")
+                            progressBar.update((100 * i + e) / files.length)
+                    },
+                }
+            )
+        }
+        putFile(0)
     }
 
     const valueTranslated = (value: string): string => {

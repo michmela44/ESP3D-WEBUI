@@ -47,6 +47,27 @@ const espHttpURL = (base: string = "", args: Record<string, string> = {}): strin
     return url.toString()
 }
 
+// FluidNC can serve several WebUIs at once, each from /ui/<name>/.  There,
+// the WebSocket, commands and preferences.json are addressed beneath that
+// directory.  The browser then sends this WebUI's own session cookie with
+// them, so it is not disturbed by other WebUIs open in the same browser,
+// and its preferences are kept apart from theirs.  Null when served from /,
+// where nothing changes.
+const uiBase: string | null = (() => {
+    const m = /^\/ui\/[^/]+\//.exec(window.location.pathname)
+    return m ? m[0] : null
+})()
+
+// URL of name beneath this WebUI's /ui/<name>/ directory, or of name at
+// the root when served from /
+const uiURL = (name: string, args: Record<string, string> = {}): string =>
+    espHttpURL(uiBase ? uiBase + name : name, args)
+
+// The URL for a request that an extension or other caller names as
+// "command" or "command_silent", which must carry this WebUI's session
+const deviceURL = (base: string = "", args: Record<string, string> = {}): string =>
+    base == "command" || base == "command_silent" ? uiURL(base, args) : espHttpURL(base, args)
+
 function isLimitedEnvironment(mode: string): boolean {
     let sitesList = [
         //google / android Captive Portal Detection
@@ -81,4 +102,4 @@ function isLimitedEnvironment(mode: string): boolean {
     return false
 }
 
-export { espHttpURL, getCookie, isLimitedEnvironment }
+export { espHttpURL, uiBase, uiURL, deviceURL, getCookie, isLimitedEnvironment }

@@ -3,7 +3,7 @@ import { WebSocketService } from "../Services/WebSocketService";
 import { WebSocketAdapter } from "../Services/WebSocketAdapter";
 import { useUiContext, useToastsContext, useModalsContext, useHttpQueueContext, useSettingsContext } from "../contexts";
 import { useTargetContext } from "../targets";
-import { dispatchToExtensions } from "../components/Helpers";
+import { dispatchToExtensions, uiBase } from "../components/Helpers";
 
 let webSocketServiceInstance : WebSocketService | undefined;
 
@@ -32,8 +32,11 @@ export function useWebSocketService() : WebSocketService {
 
             // Construct WebSocket URL from current location
             const address = document.location.hostname;
-            const path =
-                connectionSettings.current.WebCommunication === "Synchronous"
+            // Under /ui/<name>/, the WebSocket shares the page's URL, as it
+            // does at /, so the browser sends this WebUI's session cookie
+            const path = uiBase
+                ? uiBase
+                : connectionSettings.current.WebCommunication === "Synchronous"
                     ? ""
                     : "/ws"
             const wsPort = document.location.port != ""
