@@ -27,6 +27,7 @@ import {
 } from "../../contexts"
 import { ButtonImg, Loading } from "../../components/Controls"
 import { useHttpQueue, useSettings } from "../../hooks"
+import { isIncompleteShortcut } from "./shortcutKeys"
 import {
     espHttpURL,
     uiBase,
@@ -99,7 +100,7 @@ const generateValidationGlobal = (
 
     if (fieldData.shortkey && interfaceSettings) {
         if (fieldData.value.length > 0) {
-            if (fieldData.value.endsWith("+")) {
+            if (isIncompleteShortcut(fieldData.value)) {
                 validation.message = T("S214")
                 validation.valid = false
                 console.log("Error")
