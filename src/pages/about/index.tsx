@@ -26,11 +26,8 @@ import {
 import { GitHubService } from "../../Services/GitHubService"
 import type { GitHubRelease } from "../../types/github.types"
 import { VersionBadge } from "../../components/VersionBadge"
-
-interface AboutData {
-    id: string
-    value: string
-}
+import { requestAbout, InvalidAboutReply } from "./aboutRequest"
+import type { AboutData } from "./aboutRequest"
 
 interface ProgressBar {
     update?: (value: number) => void
@@ -115,30 +112,28 @@ const About: FunctionalComponent = (): JSX.Element => {
     const [latestFirmwareRelease, setLatestFirmwareRelease] = useState<GitHubRelease | null>(null)
     const [availableFirmwareReleases, setAvailableFirmwareReleases] = useState<GitHubRelease[]>([])
     const inputFilesRef = useRef<HTMLInputElement>(null)
+    const mounted = useRef(true)
     const isFlashFS = connectionSettings.current.FlashFileSystem == "none" ? false : true
     const isSDFS = connectionSettings.current.SDConnection == "none" ? false : true
 
     const getProps = (): void => {
         setIsLoading(true)
-        const callbacks = {
-            onSuccess: (result: any) => {
-                const jsonResult = JSON.parse(result)
-                if (jsonResult.cmd != 420 || jsonResult.status == "error" || !jsonResult.data) {
-                    toasts.addToast({ content: T("S194"), type: "error" })
-                    setIsLoading(false)
-                    return
-                }
-                setProps([...jsonResult.data])
-                about = [...jsonResult.data]
-                setIsLoading(false)
-            },
-            onFail: (error: any) => {
-                setIsLoading(false)
-                toasts.addToast({ content: error, type: "error" })
+        requestAbout((callbacks) => targetCommands("[ESP420]json=yes", undefined, undefined, callbacks))
+            .then((data) => {
+                about = [...data]
+                if (mounted.current) setProps([...data])
+            })
+            .catch((error: Error) => {
                 console.log(error)
-            },
-        }
-        targetCommands("[ESP420]json=yes", undefined, undefined, callbacks)
+                // The values already shown (if any) are kept
+                if (mounted.current) {
+                    const content = error instanceof InvalidAboutReply ? T("S194") : error.message
+                    toasts.addToast({ content, type: "error" })
+                }
+            })
+            .finally(() => {
+                if (mounted.current) setIsLoading(false)
+            })
     }
 
     //from https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
@@ -808,10 +803,16 @@ const About: FunctionalComponent = (): JSX.Element => {
         showStandardConfirmation()
     }
 
+    // Only once when the page opens: not after every render, or a failing
+    // request would be repeated again and again
     useEffect(() => {
+        mounted.current = true
         if (uisettings.getValue("autoload") && props.length == 0) getProps()
         else setIsLoading(false)
-    })
+        return () => {
+            mounted.current = false
+        }
+    }, [])
 
     useEffect(() => {
         checkForUpdates()
