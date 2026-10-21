@@ -36,7 +36,7 @@ import type { TargetContextFn } from "../../targets/types"
  *
  */
 // Types matching MacrosTab.tsx
-type MacroType = "FS" | "SD" | "URI" | "CMD"
+type MacroType = "FS" | "SD" | "URI" | "URI_SILENT" | "CMD"
 
 interface MacroValue {
     name: string
@@ -92,6 +92,23 @@ const MacrosPanel: FunctionalComponent = () => {
         acc.push(item)
         return acc
     }, [])
+    // Send a GET request in the background, without opening or focusing a tab.
+    // Used by the "URL address (silent)" type and by the [SILENT] prefix on "URL address".
+    // The typical target is a LAN device (e.g. a smart plug) that sends no CORS
+    // headers. With mode "cors" the browser still sends the request but refuses
+    // to hand over the response, so the promise rejects and a misleading
+    // "failed" would be logged. With "no-cors" the response is opaque (status
+    // is always 0), so we can only report that the request was sent; .catch()
+    // still fires for real network errors (DNS, connection refused, timeout).
+    const silentFetch = (uri: string): void => {
+        fetch(uri, { method: "GET", mode: "no-cors", cache: "default" })
+            .then(() => {
+                console.log("Request sent")
+            })
+            .catch((error) => {
+                console.log(`Request failed: ${error.message}`)
+            })
+    }
     const processMacro = (action: string, type: MacroType): void => {
         switch (type) {
             case "FS":
@@ -121,28 +138,15 @@ const MacrosPanel: FunctionalComponent = () => {
             case "URI": {
                 //open new page or silent command
                 if (action.trim().startsWith("[SILENT]")) {
-                    const uri = action.trim().replace("[SILENT]", "")
-                    var myInit: RequestInit = {
-                        method: "GET",
-                        mode: "cors",
-                        cache: "default",
-                    }
-                    fetch(uri, myInit)
-                        .then((response) => {
-                            if (response.ok) {
-                                console.log("Request succeeded")
-                            } else {
-                                console.log("Request failed")
-                            }
-                        })
-                        .catch((error) => {
-                            console.log(`Request failed: ${  error.message}`)
-                        })
+                    silentFetch(action.trim().replace("[SILENT]", "").trim())
                 } else {
                     window.open(action)
                 }
                 break
             }
+            case "URI_SILENT":
+                silentFetch(action.trim())
+                break
             case "CMD": {
                 //split by ; and show in terminal
                 const commandsList = action.trim().split(";")
