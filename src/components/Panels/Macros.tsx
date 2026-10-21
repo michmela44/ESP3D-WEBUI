@@ -139,7 +139,7 @@ const MacrosPanel: FunctionalComponent = () => {
                             console.log(`Request failed: ${  error.message}`)
                         })
                 } else {
-                    window.open(action)
+                    window.open(action, "_blank", "noopener,noreferrer")
                 }
                 break
             }
