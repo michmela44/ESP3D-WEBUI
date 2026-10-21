@@ -57,7 +57,7 @@ const useTargetCommands = () => {
     // Prior to sending each individual command, its string is processed with
     // "replaceVariables" to modify the command in a target-dependent manner
 
-    const targetCommands = (commands: (string | (()=> string[]) | (string | (() => string))[]), delimiter?: (string | null | undefined | number), methodID?: { id?: string, max?: number, echo?: boolean}, callbacks?: { onSuccess?: (result: string) => void, onFail?: (error: string) => void})=> {
+    const targetCommands = (commands: (string | (()=> string[]) | (string | (() => string))[]), delimiter?: (string | null | undefined | number), methodID?: { id?: string, max?: number, echo?: boolean, timeoutMs?: number}, callbacks?: { onSuccess?: (result: string) => void, onFail?: (error: string) => void})=> {
         if (typeof commands === "function") {
             commands = commands();
         }
@@ -84,6 +84,10 @@ const useTargetCommands = () => {
 
         if (methodID?.max != null) {
             Object.assign(method, { max: methodID.max });
+        }
+
+        if (methodID?.timeoutMs != null) {
+            Object.assign(method, { timeoutMs: methodID.timeoutMs });
         }
 
         if (!callbacks) {

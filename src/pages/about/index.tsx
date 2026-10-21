@@ -38,6 +38,10 @@ interface ProgressBar {
 
 let about: AboutData[] = []
 
+// HTTP requests are sent one after the other, so one that never gets an
+// answer would hold back every command behind it
+const aboutTimeoutMs = 10_000
+
 const defaultHelpUrl = "http://wiki.fluidnc.com/"
 
 const CustomEntry: FunctionalComponent = (): JSX.Element => {
@@ -138,7 +142,7 @@ const About: FunctionalComponent = (): JSX.Element => {
                 console.log(error)
             },
         }
-        targetCommands("[ESP420]json=yes", undefined, undefined, callbacks)
+        targetCommands("[ESP420]json=yes", undefined, { timeoutMs: aboutTimeoutMs }, callbacks)
     }
 
     //from https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
