@@ -26,6 +26,7 @@ import { iconsFeather } from "../../components/Images"
 import { defaultPanelsList, iconsTarget, QuickButtonsBar } from "../../targets"
 import { ExtraPanelElement } from "../../components/Panels/ExtraPanel"
 import { showModal } from "../../components/Modal"
+import { findMatchingActions } from "./keyMatch"
 
 interface KeyTracker {
     keybListenerCounter: number
@@ -77,30 +78,16 @@ const keyboardEventHandlerDown = (e: KeyboardEvent): void => {
         )
     )
         keyval += e.key.toUpperCase()
-    let cmdMatch: string | null = null
     const keysRefs: string[] = ["keymap", "macros"]
-    keysRefs.forEach((list: string) => {
-        const keyMapObj = useUiContextFn.getValue(list)
-        if (keyMapObj) {
-            keyMapObj.forEach((element: any) => {
-                element.value.forEach((sub: any) => {
-                    if (
-                        sub.name == "key" &&
-                        sub.value &&
-                        sub.value.length > 0 &&
-                        sub.value?.toUpperCase() == keyval?.toUpperCase() &&
-                        document.getElementById(element.id)
-                    ) {
-                        cmdMatch = element.id
-                    }
-                })
-            })
-        }
-    })
+    const cmdMatches = findMatchingActions(
+        keyval,
+        keysRefs.map((list) => useUiContextFn.getValue(list)),
+        (id) => !!document.getElementById(id)
+    )
 
-    //console.log("KeyMap override match, key = " + e.key + ", cmd= " + cmdMatch)
+    //console.log("KeyMap override match, key = " + e.key + ", cmds= " + cmdMatches.join(","))
 
-    if (cmdMatch) {
+    if (cmdMatches.length > 0) {
         e.preventDefault()
         const autorepeat = useUiContextFn.getValue("enableautorepeat")
         if (keyTracker.keyState == 1 && !autorepeat) {
@@ -117,10 +104,12 @@ const keyboardEventHandlerDown = (e: KeyboardEvent): void => {
         }
         keyTracker.lastkey = keyval
 
-        const element = document.getElementById(cmdMatch)
-        if (element) {
-            element.click()
-        }
+        cmdMatches.forEach((cmdMatch) => {
+            const element = document.getElementById(cmdMatch)
+            if (element) {
+                element.click()
+            }
+        })
     }
 }
 let intialisationDone = false
