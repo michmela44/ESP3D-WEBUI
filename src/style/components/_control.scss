@@ -466,6 +466,20 @@ a label {
     margin-left: 0.25rem;
 }
 
+// Tooltip for longer text (an action name with its key, on several lines):
+// wider than the default and aligned to the right edge of its element, so it
+// grows towards the inside of the panel instead of past the right edge.
+.tooltip.tooltip-wide-end::after {
+    left: auto;
+    right: 0;
+    max-width: 16rem;
+    transform: translate(0, 0.4rem);
+}
+.tooltip.tooltip-wide-end:focus::after,
+.tooltip.tooltip-wide-end:hover::after {
+    transform: translate(0, -0.2rem);
+}
+
 .tooltip > svg,
 .tooltip > span {
     pointer-events: none;

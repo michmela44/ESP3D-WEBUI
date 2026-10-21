@@ -26,8 +26,9 @@ import {
     MoreHorizontal,
 } from "preact-feather"
 import { useTargetCommands } from "../../hooks"
-import { useUiContextFn, useModalsContext } from "../../contexts"
+import { useUiContext, useUiContextFn, useModalsContext } from "../../contexts"
 import { T } from "../Translations"
+import { boundKey, actionTooltip } from "./keyTooltip"
 import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } from "../Controls"
 import { useEffect, useState } from "preact/hooks"
 import { showModal } from "../Modal"
@@ -127,6 +128,34 @@ const JogPanel = () => {
     const [currentSelectedAxis, setCurrentSelectedAxis] = useState(currentAxis)
     const { positions } = useTargetContext()
     const id = "jogPanel"
+
+    // Tooltip "<action name> [<key>]" as in the keymap settings. The key is
+    // only shown while keyboard shortcuts are switched on.
+    const { shortcuts } = useUiContext()
+    const keyTooltip = (actionId: string): string =>
+        actionTooltip(
+            T(actionId),
+            shortcuts.enabled
+                ? boundKey(useUiContextFn.getValue("keymap"), actionId)
+                : undefined
+        )
+
+    // Tooltip for a jog distance selector: the two shortcut actions that
+    // change it, one per line. Without any bound key it stays "Jogging distance".
+    const distanceTooltip = (axisGroup: "xy" | "z"): string => {
+        const ids =
+            axisGroup == "xy"
+                ? ["btndistSel+", "btndistSel-"]
+                : ["btndistSelZ+", "btndistSelZ-"]
+        const lines = shortcuts.enabled
+            ? ids
+                  .filter((actionId) =>
+                      boundKey(useUiContextFn.getValue("keymap"), actionId)
+                  )
+                  .map(keyTooltip)
+            : []
+        return lines.length > 0 ? lines.join("\n") : T("CN18")
+    }
 
     const onChangeAxis = (e: any) => {
         let value = e.target ? e.target.value : e
@@ -478,7 +507,7 @@ const JogPanel = () => {
                                         <Button
                                             m2
                                             tooltip
-                                            data-tooltip={T("CN12")}
+                                            data-tooltip={keyTooltip(`btn+${letter}`)}
                                             id={`btn+${letter}`}
                                             onClick={(e: any) => {
                                                 useUiContextFn.haptic();
@@ -494,7 +523,7 @@ const JogPanel = () => {
                                             <Button
                                                 m2
                                                 tooltip
-                                                data-tooltip={T("CN10")}
+                                                data-tooltip={keyTooltip(`btnH${letter}`)}
                                                 id={`btnH${letter}`}
                                                 onClick={(e: any) => {
                                                     useUiContextFn.haptic();
@@ -512,7 +541,7 @@ const JogPanel = () => {
                                         <Button
                                             m2
                                             tooltip
-                                            data-tooltip={T("CN19")}
+                                            data-tooltip={keyTooltip(`btnZ${letter}`)}
                                             id={`btnZ${letter}`}
                                             onClick={(e: any) => {
                                                 useUiContextFn.haptic();
@@ -528,7 +557,7 @@ const JogPanel = () => {
                                         <Button
                                             m2
                                             tooltip
-                                            data-tooltip={T("CN13")}
+                                            data-tooltip={keyTooltip(`btn-${letter}`)}
                                             id={`btn-${letter}`}
                                             onClick={(e: any) => {
                                                 useUiContextFn.haptic();
@@ -543,15 +572,15 @@ const JogPanel = () => {
                             }
                         })}
                         {/* XY Distance Selector */}
-                        <div class="m-1 p-2 jog-buttons-container">
+                        <div
+                            class="m-1 p-2 jog-buttons-container tooltip tooltip-wide-end"
+                            data-tooltip={distanceTooltip("xy")}
+                        >
                             <div class="btn-group jog-distance-selector-container">
                                 <div class="jog-distance-selector-header">
                                     mm
                                 </div>
-                                <div
-                                    class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T("CN18")}
-                                >
+                                <div class="flatbtn">
                                     <input
                                         type="radio"
                                         id="move_xy_100"
@@ -565,10 +594,7 @@ const JogPanel = () => {
                                     />
                                     <label for="move_xy_100">100</label>
                                 </div>
-                                <div
-                                    class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T("CN18")}
-                                >
+                                <div class="flatbtn">
                                     <input
                                         type="radio"
                                         id="move_xy_50"
@@ -582,10 +608,7 @@ const JogPanel = () => {
                                     />
                                     <label for="move_xy_50">50</label>
                                 </div>
-                                <div
-                                    class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T("CN18")}
-                                >
+                                <div class="flatbtn">
                                     <input
                                         type="radio"
                                         id="move_xy_10"
@@ -599,10 +622,7 @@ const JogPanel = () => {
                                     />
                                     <label for="move_xy_10">10</label>
                                 </div>
-                                <div
-                                    class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T("CN18")}
-                                >
+                                <div class="flatbtn">
                                     <input
                                         type="radio"
                                         id="move_xy_1"
@@ -616,10 +636,7 @@ const JogPanel = () => {
                                     />
                                     <label for="move_xy_1">1</label>
                                 </div>
-                                <div
-                                    class="flatbtn tooltip tooltip-left"
-                                    data-tooltip={T("CN18")}
-                                >
+                                <div class="flatbtn">
                                     <input
                                         type="radio"
                                         id="move_xy_0_1"
@@ -647,7 +664,7 @@ const JogPanel = () => {
                                     <Button
                                         m2
                                         tooltip
-                                        data-tooltip={T("CN12")}
+                                        data-tooltip={keyTooltip("btn+Z")}
                                         id="btn+Z"
                                         onClick={(e: any) => {
                                             useUiContextFn.haptic();
@@ -661,7 +678,7 @@ const JogPanel = () => {
                                         <Button
                                             m2
                                             tooltip
-                                            data-tooltip={T("CN10")}
+                                            data-tooltip={keyTooltip("btnHZ")}
                                             id="btnHZ"
                                             onClick={(e: any) => {
                                                 useUiContextFn.haptic();
@@ -676,7 +693,7 @@ const JogPanel = () => {
                                     <Button
                                         m2
                                         tooltip
-                                        data-tooltip={T("CN19")}
+                                        data-tooltip={keyTooltip("btnZZ")}
                                         id="btnZZ"
                                         onClick={(e: any) => {
                                             useUiContextFn.haptic();
@@ -690,7 +707,7 @@ const JogPanel = () => {
                                     <Button
                                         m2
                                         tooltip
-                                        data-tooltip={T("CN13")}
+                                        data-tooltip={keyTooltip("btn-Z")}
                                         id="btn-Z"
                                         onClick={(e: any) => {
                                             useUiContextFn.haptic();
@@ -702,15 +719,15 @@ const JogPanel = () => {
                                     </Button>
                                 </div>
                                 {/* Z Distance Selector */}
-                                <div class="m-1 p-2 jog-buttons-container">
+                                <div
+                                    class="m-1 p-2 jog-buttons-container tooltip tooltip-wide-end"
+                                    data-tooltip={distanceTooltip("z")}
+                                >
                                     <div class="btn-group jog-distance-selector-container">
                                         <div class="jog-distance-selector-header">
                                             mm
                                         </div>
-                                        <div
-                                            class="flatbtn tooltip tooltip-left"
-                                            data-tooltip={T("CN18")}
-                                        >
+                                        <div class="flatbtn">
                                             <input
                                                 type="radio"
                                                 id="move_z_50"
@@ -724,10 +741,7 @@ const JogPanel = () => {
                                             />
                                             <label for="move_z_50">50</label>
                                         </div>
-                                        <div
-                                            class="flatbtn tooltip tooltip-left"
-                                            data-tooltip={T("CN18")}
-                                        >
+                                        <div class="flatbtn">
                                             <input
                                                 type="radio"
                                                 id="move_z_25"
@@ -741,10 +755,7 @@ const JogPanel = () => {
                                             />
                                             <label for="move_z_25">25</label>
                                         </div>
-                                        <div
-                                            class="flatbtn tooltip tooltip-left"
-                                            data-tooltip={T("CN18")}
-                                        >
+                                        <div class="flatbtn">
                                             <input
                                                 type="radio"
                                                 id="move_z_10"
@@ -758,10 +769,7 @@ const JogPanel = () => {
                                             />
                                             <label for="move_z_10">10</label>
                                         </div>
-                                        <div
-                                            class="flatbtn tooltip tooltip-left"
-                                            data-tooltip={T("CN18")}
-                                        >
+                                        <div class="flatbtn">
                                             <input
                                                 type="radio"
                                                 id="move_z_1"
@@ -775,10 +783,7 @@ const JogPanel = () => {
                                             />
                                             <label for="move_z_1">1</label>
                                         </div>
-                                        <div
-                                            class="flatbtn tooltip tooltip-left"
-                                            data-tooltip={T("CN18")}
-                                        >
+                                        <div class="flatbtn">
                                             <input
                                                 type="radio"
                                                 id="move_z_0_1"
@@ -857,7 +862,7 @@ const JogPanel = () => {
                         <Button
                             m2
                             tooltip
-                            data-tooltip={T("CN12")}
+                            data-tooltip={keyTooltip("btn+axis")}
                             id="btn+axis"
                             onClick={(e: any) => {
                                 useUiContextFn.haptic();
@@ -871,7 +876,7 @@ const JogPanel = () => {
                             <Button
                                 m2
                                 tooltip
-                                data-tooltip={T("CN10")}
+                                data-tooltip={keyTooltip("btnHaxis")}
                                 id="btnHaxis"
                                 onClick={(e: any) => {
                                     useUiContextFn.haptic();
@@ -889,7 +894,7 @@ const JogPanel = () => {
                         <Button
                             m2
                             tooltip
-                            data-tooltip={T("CN19")}
+                            data-tooltip={keyTooltip("btnZaxis")}
                             id="btnZaxis"
                             onClick={(e: any) => {
                                 useUiContextFn.haptic();
@@ -903,7 +908,7 @@ const JogPanel = () => {
                         <Button
                             m2
                             tooltip
-                            data-tooltip={T("CN13")}
+                            data-tooltip={keyTooltip("btn-axis")}
                             id="btn-axis"
                             onClick={(e: any) => {
                                 useUiContextFn.haptic();
@@ -931,7 +936,7 @@ const JogPanel = () => {
                         <Button
                             m1
                             tooltip
-                            data-tooltip={T("CN21")}
+                            data-tooltip={keyTooltip("btnHAll")}
                             id="btnHAll"
                             onClick={(e: any) => {
                                 useUiContextFn.haptic();
@@ -945,7 +950,7 @@ const JogPanel = () => {
                         <Button
                             m1
                             tooltip
-                            data-tooltip={T("CN20")}
+                            data-tooltip={keyTooltip("btnZAll")}
                             id="btnZAll"
                             onClick={(e: any) => {
                                 useUiContextFn.haptic();
@@ -968,7 +973,7 @@ const JogPanel = () => {
                                     <StopCircle />
                                 </span>
                             }
-                            data-tooltip={T("CN23")}
+                            data-tooltip={keyTooltip("btnStop")}
                             onClick={(e: any) => {
                                 useUiContextFn.haptic();
                                 (e.target as HTMLElement).blur();
