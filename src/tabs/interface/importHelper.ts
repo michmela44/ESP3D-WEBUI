@@ -303,6 +303,20 @@ function importPreferencesSection(
 }
 
 /**
+ * Returns a plain { id, name, key } record for a default list entry. The
+ * defaults may already have been formatted for the UI (see formatItem), in
+ * which case the fields are nested in `value` and are read back from there.
+ */
+function toRawEntry(entry: any): RawItemData {
+    if (!Array.isArray(entry.value)) return entry
+    const raw: RawItemData = { id: entry.id }
+    entry.value.forEach((field: ItemSettingField) => {
+        if (field && typeof field.name == "string") raw[field.name] = field.value
+    })
+    return raw
+}
+
+/**
  * Adds keymap entries that exist in the default preferences but are missing
  * from imported (stored) settings.
  *
@@ -329,7 +343,7 @@ function addMissingKeymapEntries<T extends Record<string, any> | undefined>(
         const list = Array.isArray(section)
             ? section.find((element: any) => element.id == "keymap")
             : undefined
-        if (list && Array.isArray(list.value)) defaults = list.value
+        if (list && Array.isArray(list.value)) defaults = list.value.map(toRawEntry)
     }
     if (!defaults) return importedSettings
 

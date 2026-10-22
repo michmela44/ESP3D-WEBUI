@@ -5,7 +5,7 @@ import {
     zDistanceList,
     stepJogDistance,
 } from "../src/components/Panels/jogDistance.ts"
-import { addMissingKeymapEntries } from "../src/tabs/interface/importHelper.ts"
+import { addMissingKeymapEntries, formatPreferences } from "../src/tabs/interface/importHelper.ts"
 import preferences from "../src/targets/CNC/FluidNC/preferences.json" with { type: "json" }
 
 test("next/prev step through the XY distances", () => {
@@ -77,4 +77,24 @@ test("a complete or absent keymap is returned unchanged", () => {
     assert.equal(addMissingKeymapEntries(undefined, defaultSettings), undefined)
     const noKeymap = { theme: "default" }
     assert.equal(addMissingKeymapEntries(noKeymap, defaultSettings), noKeymap)
+})
+
+test("defaults that were already formatted for the UI still yield complete entries", () => {
+    // The fallback for a missing preferences.json formats the shared defaults in place;
+    // a backup imported afterwards must still get the Z actions with names and keys.
+    const formatted = formatPreferences(JSON.parse(JSON.stringify(defaultSettings)))
+    const stored = [
+        { id: "btn+X", name: "btn+X", key: "ArrowRight" },
+        { id: "btndistSel+", name: "btndistSel+", key: "P" },
+        { id: "btndistSel-", name: "btndistSel-", key: "M" },
+    ]
+    const result = addMissingKeymapEntries({ keymap: stored }, formatted)
+    const z = result.keymap.find((e) => e.id == "btndistSelZ+")
+    assert.equal(z.name, defaultKeymap.find((e) => e.id == "btndistSelZ+").name)
+    assert.equal(z.key, "9")
+    assert.equal(keyOf(result.keymap, "btndistSelZ-"), "7")
+    for (const entry of result.keymap.slice(3)) {
+        assert.equal(typeof entry.key, "string")
+        assert.equal(Array.isArray(entry.value), false, "entries must be raw records")
+    }
 })
