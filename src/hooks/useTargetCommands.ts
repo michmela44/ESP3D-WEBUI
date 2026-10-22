@@ -57,7 +57,7 @@ const useTargetCommands = () => {
     // Prior to sending each individual command, its string is processed with
     // "replaceVariables" to modify the command in a target-dependent manner
 
-    const targetCommands = (commands: (string | (()=> string[]) | (string | (() => string))[]), delimiter?: (string | null | undefined | number), methodID?: { id?: string, max?: number, echo?: boolean}, callbacks?: { onSuccess?: (result: string) => void, onFail?: (error: string) => void})=> {
+    const targetCommands = (commands: (string | (()=> string[]) | (string | (() => string))[]), delimiter?: (string | null | undefined | number), methodID?: { id?: string, max?: number, echo?: boolean}, callbacks?: { onSuccess?: (result: string) => void, onFail?: (error: string) => void, onCancel?: () => void})=> {
         if (typeof commands === "function") {
             commands = commands();
         }
