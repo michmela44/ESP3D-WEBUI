@@ -96,6 +96,7 @@ const generateValidationGlobal = (
         valid: true,
         modified: true,
     }
+    let duplicateKey = false
 
     if (fieldData.shortkey && interfaceSettings) {
         if (fieldData.value.length > 0) {
@@ -136,6 +137,7 @@ const generateValidationGlobal = (
                         // Only a warning: one key can be bound to several
                         // actions on purpose, and all of them run.
                         validation.message = T("S213")
+                        duplicateKey = true
                     }
                 }
             })
@@ -319,7 +321,8 @@ const generateValidationGlobal = (
         }
     }
     if (!fieldData.hasmodified && !fieldData.haserror) {
-        validation.message = null
+        // an unchanged field still shows the duplicate-key warning
+        if (!duplicateKey) validation.message = null
         validation.valid = true
         validation.modified = false
     }
