@@ -239,18 +239,33 @@ const getStates = (str: string): Record<string, any> => {
                 cur.startsWith("S") ||
                 cur.startsWith("T")
             ) {
+                //"T" matches the { id: "T", pre: "T" } entry of
+                //gcode_parser_modes, which is how the tool number reaches the
+                //Modes section of the status panel. feed rate and spindle speed
+                //keep their own keys, they are read by the spindle panel.
                 acc[
                     cur[0] == "F"
                         ? "feed_rate"
                         : cur[0] == "T"
-                          ? "active_tool"
+                          ? "T"
                           : "spindle_speed"
                 ] = { value: parseFloat(cur.substring(1)) }
             } else {
                 gcode_parser_modes.forEach((mode) => {
                     const el = cur.split(":")[0]
                     if ('values' in mode && mode.values && mode.values.includes(el)) {
-                        acc[mode.id] = { value: cur }
+                        //A group can report several values at once: the
+                        //controller lists M7 and M8 together when both mist and
+                        //flood are running. Keep every one of them, the status
+                        //panel already renders an array as one button per value.
+                        const previous = acc[mode.id]
+                        if (typeof previous == "undefined") {
+                            acc[mode.id] = { value: cur }
+                        } else {
+                            acc[mode.id] = Array.isArray(previous)
+                                ? [...previous, { value: cur }]
+                                : [previous, { value: cur }]
+                        }
                     }
                 })
             }

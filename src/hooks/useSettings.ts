@@ -22,6 +22,7 @@ import {
     uiBase,
     uiURL,
     isLimitedEnvironment,
+    setPageTitle,
 } from "../components/Helpers"
 import { useHttpQueue, useTargetCommands } from "../hooks/"
 import {
@@ -181,7 +182,7 @@ const useSettings = (): UseSettingsReturn => {
                 }
                 processData("core", "ESP800", true)
                 //console.log(connectionSettings.current)
-                document.title = connectionSettings.current.HostName || "ESP3D"
+                setPageTitle(connectionSettings.current)
                 if (
                     !connectionSettings.current.HostPath ||
                     !connectionSettings.current.HostPath.length
@@ -285,7 +286,7 @@ const useSettings = (): UseSettingsReturn => {
                 connected: true,
                 page: "connecting",
             })
-            document.title = connectionSettings.current.HostName || "ESP3D"
+            setPageTitle(connectionSettings.current)
             setTimeout(initPolling, 2000)
             console.log("Ui is ready")
             ui.setReady(true)
