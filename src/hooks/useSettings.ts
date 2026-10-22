@@ -45,6 +45,7 @@ import {
 import {
     importPreferencesSection,
     formatPreferences,
+    addMissingKeymapEntries,
 } from "../tabs/interface/importHelper"
 import { Frown, Info } from "preact-feather"
 import { showModal } from "../components/Modal"
@@ -354,7 +355,10 @@ const useSettings = (): UseSettingsReturn => {
                     //console.log(jsonResult)
                     const importResult = importPreferencesSection(
                         defaultPreferences.settings,
-                        jsonResult.settings
+                        addMissingKeymapEntries(
+                            jsonResult.settings,
+                            defaultPreferences.settings
+                        )
                     )
                     //console.log("Format preferences.settings")
                     formatPreferences(importResult.preferences)

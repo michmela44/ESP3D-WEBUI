@@ -32,6 +32,7 @@ import { Button, ButtonImg, FullScreenButton, CloseButton, ContainerHelper } fro
 import { useEffect, useState } from "preact/hooks"
 import { showModal } from "../Modal"
 import { useTargetContext } from "../../targets"
+import { xyDistanceList, zDistanceList, stepJogDistance } from "./jogDistance"
 
 let currentFeedRate: Record<string, any> = {}
 let currentJogDistanceXY: any = "-1"
@@ -352,6 +353,19 @@ const JogPanel = () => {
         }
     }
 
+    // Step the XY or Z jog distance to the next larger ("next") or smaller
+    // ("prev") value by clicking the matching radio button, so the keyboard
+    // shortcut behaves exactly like clicking it.
+    const selectorBtnDistance = (type: "next" | "prev", axisGroup: "xy" | "z") => {
+        const list = axisGroup == "xy" ? xyDistanceList : zDistanceList
+        const current = axisGroup == "xy" ? currentJogDistanceXY : currentJogDistanceZ
+        const distance = stepJogDistance(list, current, type)
+        const radioElement = document.getElementById(
+            `move_${axisGroup}_${String(distance).replace(".", "_")}`
+        )
+        if (radioElement) radioElement.click()
+    }
+
     useEffect(() => {
         if(currentJogDistanceXY == "-1") {
             currentJogDistanceXY = useUiContextFn.getValue("jogdistancedefault")
@@ -542,6 +556,21 @@ const JogPanel = () => {
                                 )
                             }
                         })}
+                        {/* Hidden click targets for the XY jog distance keyboard shortcuts */}
+                        <div
+                            class="d-none"
+                            id="btndistSel+"
+                            onClick={() => {
+                                selectorBtnDistance("next", "xy")
+                            }}
+                        />
+                        <div
+                            class="d-none"
+                            id="btndistSel-"
+                            onClick={() => {
+                                selectorBtnDistance("prev", "xy")
+                            }}
+                        />
                         {/* XY Distance Selector */}
                         <div class="m-1 p-2 jog-buttons-container">
                             <div class="btn-group jog-distance-selector-container">
@@ -701,6 +730,21 @@ const JogPanel = () => {
                                         -Z
                                     </Button>
                                 </div>
+                                {/* Hidden click targets for the Z jog distance keyboard shortcuts */}
+                                <div
+                                    class="d-none"
+                                    id="btndistSelZ+"
+                                    onClick={() => {
+                                        selectorBtnDistance("next", "z")
+                                    }}
+                                />
+                                <div
+                                    class="d-none"
+                                    id="btndistSelZ-"
+                                    onClick={() => {
+                                        selectorBtnDistance("prev", "z")
+                                    }}
+                                />
                                 {/* Z Distance Selector */}
                                 <div class="m-1 p-2 jog-buttons-container">
                                     <div class="btn-group jog-distance-selector-container">

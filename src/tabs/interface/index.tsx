@@ -34,10 +34,11 @@ import {
     checkDependencies,
 } from "../../components/Helpers"
 import { T } from "../../components/Translations"
+import { defaultPreferences } from "../../targets"
 import { RefreshCcw, Save, ExternalLink, Flag, Download } from "preact-feather"
 import { Field, FieldGroup } from "../../components/Controls"
 import { exportPreferences, exportPreferencesSection, ExportPreferences, InterfaceSettingsData } from "./exportHelper"
-import { importPreferencesSection, formatPreferences, ImportPreferencesResult } from "./importHelper"
+import { importPreferencesSection, formatPreferences, addMissingKeymapEntries, ImportPreferencesResult } from "./importHelper"
 
 // Option for select fields
 interface SelectOption {
@@ -385,7 +386,10 @@ const InterfaceTab = () => {
                     const importResult: ImportPreferencesResult =
                         importPreferencesSection(
                             interfaceSettings.current.settings,
-                            importData.settings
+                            addMissingKeymapEntries(
+                                importData.settings,
+                                defaultPreferences.settings
+                            )
                         )
                     interfaceSettings.current.settings = importResult.preferences
                     if (importData.custom) {

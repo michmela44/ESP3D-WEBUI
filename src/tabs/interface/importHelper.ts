@@ -302,4 +302,77 @@ function importPreferencesSection(
     return { preferences: currentPreferences, hasErrors };
 }
 
-export { importPreferencesSection, formatPreferences, formatItem }
+/**
+ * Returns a plain { id, name, key } record for a default list entry. The
+ * defaults may already have been formatted for the UI (see formatItem), in
+ * which case the fields are nested in `value` and are read back from there.
+ */
+function toRawEntry(entry: any): RawItemData {
+    if (!Array.isArray(entry.value)) return entry
+    const raw: RawItemData = { id: entry.id }
+    entry.value.forEach((field: ItemSettingField) => {
+        if (field && typeof field.name == "string") raw[field.name] = field.value
+    })
+    return raw
+}
+
+/**
+ * Adds keymap entries that exist in the default preferences but are missing
+ * from imported (stored) settings.
+ *
+ * A stored "keymap" list replaces the default list as a whole, so an action
+ * introduced after the preferences were saved (e.g. the Z jog distance
+ * shortcuts) would never show up and could never be used. Existing entries
+ * are never modified or reordered. A new entry takes its default key, unless
+ * that key is already bound to another keymap or macro entry; then the entry
+ * is added unbound so it cannot hijack an existing shortcut.
+ *
+ * @param {Object} importedSettings - Flat imported settings ({ id: value }).
+ * @param {Object} defaultSettings - Default preferences settings (sections).
+ * @returns {Object} The imported settings, a copy if entries were added.
+ */
+function addMissingKeymapEntries<T extends Record<string, any> | undefined>(
+    importedSettings: T,
+    defaultSettings: PreferencesSection
+): T {
+    const stored = importedSettings?.keymap
+    if (!Array.isArray(stored)) return importedSettings
+
+    let defaults: RawItemData[] | undefined
+    for (const section of Object.values(defaultSettings)) {
+        const list = Array.isArray(section)
+            ? section.find((element: any) => element.id == "keymap")
+            : undefined
+        if (list && Array.isArray(list.value)) defaults = list.value.map(toRawEntry)
+    }
+    if (!defaults) return importedSettings
+
+    const usedKeys = new Set<string>()
+    const collectKeys = (list: any) => {
+        if (!Array.isArray(list)) return
+        list.forEach((entry: any) => {
+            if (entry && typeof entry.key == "string" && entry.key.length > 0)
+                usedKeys.add(entry.key.toUpperCase())
+        })
+    }
+    collectKeys(stored)
+    collectKeys(importedSettings?.macros)
+
+    const added: RawItemData[] = []
+    defaults.forEach((entry) => {
+        if (stored.some((item: any) => item && item.id == entry.id)) return
+        const key = typeof entry.key == "string" ? entry.key : ""
+        const free = key.length > 0 && !usedKeys.has(key.toUpperCase())
+        if (free) usedKeys.add(key.toUpperCase())
+        added.push({ ...entry, key: free ? key : "" })
+    })
+    if (added.length == 0) return importedSettings
+    return { ...importedSettings, keymap: [...stored, ...added] } as T
+}
+
+export {
+    importPreferencesSection,
+    formatPreferences,
+    formatItem,
+    addMissingKeymapEntries,
+}
