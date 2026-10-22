@@ -22,6 +22,7 @@ import { httpAdapter } from "../adapters"
 import { useUiContext } from "./UiContext"
 import { getWebSocketService } from "../hooks/useWebSocketService";
 import { useTargetContext } from "../targets"
+import { dropQueued } from "./queueDrop"
 
 // Type definitions
 interface HttpRequest {
@@ -31,6 +32,7 @@ interface HttpRequest {
     onSuccess: (response: any) => void
     onFail?: ((error: string) => void) | null
     onProgress?: (percent: number) => void
+    onCancel?: () => void
 }
 
 interface HttpQueueContextValue {
@@ -95,15 +97,25 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
         currentRequest.current = null
     }
 
+    //Tell the owners of requests that were removed before they were sent
+    const notifyCancelled = (requests: HttpRequest[]) => {
+        requests.forEach((request) => {
+            try {
+                if (request.onCancel) request.onCancel()
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    }
+
     //Remove finished request from queue
     const removeRequests = (requestIds: string | string[]) => {
         const idsArray = Array.isArray(requestIds) ? requestIds : [requestIds]
-        const updatedRequestQueue = [...requestQueue.current].filter(
-            ({ id }) => {
-                return !idsArray.includes(id)
-            }
+        const { kept, cancelled } = dropQueued(requestQueue.current, isBusy.current, ({ id }) =>
+            idsArray.includes(id)
         )
-        requestQueue.current = updatedRequestQueue
+        requestQueue.current = kept
+        notifyCancelled(cancelled)
     }
 
     //Get current active request in queue
@@ -113,9 +125,11 @@ const HttpQueueContextProvider: FunctionalComponent<HttpQueueContextProviderProp
 
     //Remove all request from queue
     const removeAllRequests = () => {
+        const { cancelled } = dropQueued(requestQueue.current, isBusy.current, () => true)
         if (currentRequest.current) currentRequest.current.abort()
         requestQueue.current = []
         currentRequest.current = null
+        notifyCancelled(cancelled)
     }
 
     //Process requests from queue

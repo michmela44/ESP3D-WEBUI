@@ -14,6 +14,8 @@ interface AboutData {
 interface AboutCallbacks {
     onSuccess: (result: string) => void
     onFail: (error: string) => void
+    // the request was removed from the queue before it was sent
+    onCancel: () => void
 }
 
 type SendAboutRequest = (callbacks: AboutCallbacks) => void
@@ -23,6 +25,14 @@ class InvalidAboutReply extends Error {
     constructor() {
         super("Invalid About reply")
         this.name = "InvalidAboutReply"
+    }
+}
+
+// The request was dropped from the HTTP queue (for example after a controller error)
+class AboutRequestCancelled extends Error {
+    constructor() {
+        super("About request cancelled")
+        this.name = "AboutRequestCancelled"
     }
 }
 
@@ -44,8 +54,10 @@ let inFlight: Promise<AboutData[]> | undefined
 // `send` issues the HTTP request and reports back through the callbacks.
 // If a request is already in flight (for example the About page was left
 // and opened again meanwhile), that request is returned and `send` is not
-// called again.
-const requestAbout = (send: SendAboutRequest): Promise<AboutData[]> => {
+// called again. `onError` is called once when the request fails, even if
+// nobody is waiting for the result any more; callers that join a request
+// already in flight do not report its failure a second time.
+const requestAbout = (send: SendAboutRequest, onError?: (error: Error) => void): Promise<AboutData[]> => {
     if (inFlight) return inFlight
     const request = new Promise<AboutData[]>((resolve, reject) => {
         send({
@@ -57,6 +69,7 @@ const requestAbout = (send: SendAboutRequest): Promise<AboutData[]> => {
                 }
             },
             onFail: (error) => reject(new Error(error)),
+            onCancel: () => reject(new AboutRequestCancelled()),
         })
     })
     inFlight = request
@@ -64,8 +77,9 @@ const requestAbout = (send: SendAboutRequest): Promise<AboutData[]> => {
         if (inFlight === request) inFlight = undefined
     }
     request.then(release, release)
+    if (onError) request.catch(onError)
     return request
 }
 
-export { requestAbout, parseAboutReply, InvalidAboutReply }
+export { requestAbout, parseAboutReply, InvalidAboutReply, AboutRequestCancelled }
 export type { AboutData, AboutCallbacks, SendAboutRequest }

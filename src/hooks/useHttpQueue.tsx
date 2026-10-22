@@ -33,6 +33,8 @@ interface HttpCallbacks {
     onSuccess?: (result: string) => void
     onFail?: (error: string) => void
     onProgress?: (percent: number) => void
+    // called when the request is removed from the queue before it was sent
+    onCancel?: () => void
 }
 
 interface HttpRequest {
@@ -42,6 +44,7 @@ interface HttpRequest {
     onSuccess: (result: string | Blob) => void
     onProgress: (e: ProgressEvent) => void
     onFail: ((error: string) => void) | null
+    onCancel?: () => void
 }
 
 interface HttpQueueReturn {
@@ -81,6 +84,7 @@ const useHttpQueue = (): HttpQueueReturn => {
             onSuccess: onSuccessCb,
             onFail: onFailCb,
             onProgress: onProgressCb,
+            onCancel: onCancelCb,
         } = callbacks
         const id = params.id ? params.id : generateUID()
         localRequests.current = [...localRequests.current, id]
@@ -99,6 +103,7 @@ const useHttpQueue = (): HttpQueueReturn => {
                       if (onFailCb) onFailCb(error)
                   }
                 : null,
+            onCancel: onCancelCb,
         })
     }
 
@@ -107,6 +112,7 @@ const useHttpQueue = (): HttpQueueReturn => {
             onSuccess: onSuccessCb,
             onFail: onFailCb,
             onProgress: onProgressCb,
+            onCancel: onCancelCb,
         } = callbacks
         const id = params.id ? params.id : generateUID()
 
@@ -141,6 +147,11 @@ const useHttpQueue = (): HttpQueueReturn => {
                     1
                 )
                 if (onFailCb) onFailCb(error)
+            },
+            onCancel: () => {
+                const position = localRequests.current.indexOf(id)
+                if (position != -1) localRequests.current.splice(position, 1)
+                if (onCancelCb) onCancelCb()
             },
         })
     }

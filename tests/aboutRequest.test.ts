@@ -2,7 +2,7 @@
 //   node --test tests/aboutRequest.test.ts   (Node 22.18+ strips the types itself)
 import test from "node:test"
 import assert from "node:assert/strict"
-import { requestAbout, parseAboutReply, InvalidAboutReply } from "../src/pages/about/aboutRequest.ts"
+import { requestAbout, parseAboutReply, InvalidAboutReply, AboutRequestCancelled } from "../src/pages/about/aboutRequest.ts"
 import type { AboutCallbacks } from "../src/pages/about/aboutRequest.ts"
 
 const reply = (cmd: number, data: unknown = [{ id: "Free memory", value: "120.74 KB" }]) =>
@@ -75,4 +75,29 @@ test("a send() that throws rejects and does not block later requests", async () 
     )
     const data = await requestAbout((callbacks) => callbacks.onSuccess(reply(420)))
     assert.equal(data.length, 1)
+})
+
+test("a request dropped from the queue rejects and frees the slot for the next visit", async () => {
+    const sent: AboutCallbacks[] = []
+    const send = (callbacks: AboutCallbacks) => sent.push(callbacks)
+    const first = requestAbout(send)
+    assert.ok(sent[0].onCancel, "the queue needs a way to report a dropped request")
+    sent[0].onCancel?.()
+    await assert.rejects(first, AboutRequestCancelled)
+    const second = requestAbout(send)
+    assert.equal(sent.length, 2, "a later visit must send a new request")
+    sent[1].onSuccess(reply(420))
+    assert.equal((await second).length, 1)
+})
+
+test("a failure is reported once per request, even when the first caller has gone", async () => {
+    const sent: AboutCallbacks[] = []
+    const send = (callbacks: AboutCallbacks) => sent.push(callbacks)
+    const reported: string[] = []
+    const first = requestAbout(send, (error) => reported.push(error.message))
+    const second = requestAbout(send, (error) => reported.push(`second ${error.message}`))
+    first.catch(() => {}) // the page that sent it no longer listens
+    sent[0].onFail("503 - Service Unavailable")
+    await assert.rejects(second, { message: "503 - Service Unavailable" })
+    assert.deepEqual(reported, ["503 - Service Unavailable"])
 })

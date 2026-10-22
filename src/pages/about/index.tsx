@@ -26,7 +26,7 @@ import {
 import { GitHubService } from "../../Services/GitHubService"
 import type { GitHubRelease } from "../../types/github.types"
 import { VersionBadge } from "../../components/VersionBadge"
-import { requestAbout, InvalidAboutReply } from "./aboutRequest"
+import { requestAbout, InvalidAboutReply, AboutRequestCancelled } from "./aboutRequest"
 import type { AboutData } from "./aboutRequest"
 
 interface ProgressBar {
@@ -118,18 +118,20 @@ const About: FunctionalComponent = (): JSX.Element => {
 
     const getProps = (): void => {
         setIsLoading(true)
-        requestAbout((callbacks) => targetCommands("[ESP420]json=yes", undefined, undefined, callbacks))
+        // A failure is reported once per request, also when this page was left meanwhile
+        const reportError = (error: Error) => {
+            console.log(error)
+            if (error instanceof AboutRequestCancelled) return
+            const content = error instanceof InvalidAboutReply ? T("S194") : error.message
+            toasts.addToast({ content, type: "error" })
+        }
+        requestAbout((callbacks) => targetCommands("[ESP420]json=yes", undefined, undefined, callbacks), reportError)
             .then((data) => {
                 about = [...data]
                 if (mounted.current) setProps([...data])
             })
-            .catch((error: Error) => {
-                console.log(error)
-                // The values already shown (if any) are kept
-                if (mounted.current) {
-                    const content = error instanceof InvalidAboutReply ? T("S194") : error.message
-                    toasts.addToast({ content, type: "error" })
-                }
+            .catch(() => {
+                // already reported above; the values already shown (if any) are kept
             })
             .finally(() => {
                 if (mounted.current) setIsLoading(false)
