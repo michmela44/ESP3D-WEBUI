@@ -11,8 +11,12 @@ interface QueuedRequest {
 }
 
 const dropQueued = <T extends QueuedRequest>(queue: T[], busy: boolean, drop: (request: T) => boolean) => {
-    const kept = queue.filter((request) => !drop(request))
-    const cancelled = queue.filter((request, index) => drop(request) && !(busy && index == 0))
+    const kept: T[] = []
+    const cancelled: T[] = []
+    queue.forEach((request, index) => {
+        if (!drop(request)) kept.push(request)
+        else if (!(busy && index == 0)) cancelled.push(request)
+    })
     return { kept, cancelled }
 }
 

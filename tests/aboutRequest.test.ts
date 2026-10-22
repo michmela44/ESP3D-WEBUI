@@ -101,3 +101,22 @@ test("a failure is reported once per request, even when the first caller has gon
     await assert.rejects(second, { message: "503 - Service Unavailable" })
     assert.deepEqual(reported, ["503 - Service Unavailable"])
 })
+
+test("an error handler that throws does not leave an unhandled rejection", async () => {
+    const unhandled: unknown[] = []
+    const onUnhandled = (reason: unknown) => unhandled.push(reason)
+    process.on("unhandledRejection", onUnhandled)
+    try {
+        const request = requestAbout(
+            (callbacks) => callbacks.onFail("503 - Service Unavailable"),
+            () => {
+                throw new Error("toast failed")
+            }
+        )
+        await assert.rejects(request, { message: "503 - Service Unavailable" })
+        await new Promise((resolve) => setTimeout(resolve, 20))
+        assert.deepEqual(unhandled, [])
+    } finally {
+        process.off("unhandledRejection", onUnhandled)
+    }
+})

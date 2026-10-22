@@ -77,7 +77,15 @@ const requestAbout = (send: SendAboutRequest, onError?: (error: Error) => void):
         if (inFlight === request) inFlight = undefined
     }
     request.then(release, release)
-    if (onError) request.catch(onError)
+    if (onError) {
+        request.catch((error: Error) => {
+            try {
+                onError(error)
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    }
     return request
 }
 
