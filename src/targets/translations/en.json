@@ -214,7 +214,7 @@
     "S210": "Invert Y",
     "S211": "Swap X and Y",
     "S212": "Key mapping",
-    "S213": "Shortcut already used",
+    "S213": "Shortcut already used, all its actions will run",
     "S214": "Incomplete shortcut",
     "S215": "Use keyboard",
     "S216": "Keyboard keys",
